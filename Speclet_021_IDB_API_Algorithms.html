@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+    <title>Indexed Database API</title>
+    <meta name='revision' content='$Id: Overview.html,v 1.41 2010/03/24 17:58:17 nmehta3 Exp $'/>
+    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
+    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          specStatus:           "ED",
+
+          shortName:            "IndexedDB",
+
+          //publishDate:          "2010-01-05",
+
+          previousPublishDate:  "2010-01-05",
+          previousMaturity:     "WD",
+
+          edDraftURI:           "http://dev.w3.org/2006/webapi/WebSimpleDB/",
+
+          // if this is a LCWD, uncomment and set the end of its review period
+          // lcEnd: "2009-08-05",
+
+          extraCSS: [
+                "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css",
+                "SimpleDB.css"
+          ],
+
+          // editors, add as many as you like
+          // only "name" is required
+          editors:  [
+              { name: "Nikunj Mehta", url: "mailto:nikunj@o-micron.com",
+                company: "Invited Expert" },
+          ],
+
+          maxTocLevel: 3,
+
+          wg:           "Web Applications Working Group",
+
+          wgURI:        "http://www.w3.org/2008/webapps/",
+
+          wgPublicList: "public-webapps",
+
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
+      };
+    </script>
+    <script class="remove">
+      function examples() {
+        var examples = document.querySelectorAll('div.example');
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+        for (var i = 0; i < examples.length; i++) {
+          var example = examples.item(i);
+          var header = sn.element('div', {'class': 'exampleHeader'}, null, 'Example');
+          example.insertBefore(header, example.firstChild);
+        }
+      }
+
+      function codeblocks() {
+        document.normalize();
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+
+        var blocks = document.querySelectorAll('codeblock');
+        for (var i = 0; i < blocks.length; i++) {
+          var codeblock = blocks.item(i);
+          var div = sn.element('div', {'class': 'block'})
+          sn.element('span', {'class': 'blockTitle'},
+            sn.element('div', {'class': 'blockTitleDiv'}, div), 'ECMAScript');
+          var code = sn.element('code', {'class': 'es-code'},
+                       sn.element('pre', {'class': 'code'},
+                         sn.element('div', {'class': 'blockContent'}, div)));
+          sn.copyChildren(codeblock, code);
+          codeblock.parentNode.replaceChild(div, codeblock);
+        }
+      }
+      window.onload = function() {
+        examples();
+        codeblocks();
+        (new berjon.respec()).loadAndRun();
+      }
+    </script>
+    <!--[if IE]>
+    <style type='text/css'>
+      .ignore {
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        filter: alpha(opacity=50);
+      }
+    </style>
+    <![endif]-->
+    <style type="text/css">
+      table {
+        border-collapse: collapse;
+        border-style: hidden hidden none;
+      }
+      table thead {
+        border-bottom: medium solid;
+      }
+      table td, table th {
+        border-bottom: thin solid;
+        border-left: medium solid;
+        border-right: medium solid;
+        padding: 0.2em;
+        vertical-align: top;
+      }
+      h5 {
+        display: none
+      }
+    </style>
+  </head>
+
+  <body>
+    <section id="abstract">
+      <p>
+        This document defines APIs for a database of records holding simple values
+        and hierarchical objects. Each record consists of a key and some value.
+        Moreover, the database maintains indexes over records it stores. An
+        application developer directly uses an API to locate records either by
+        their key or by using an index. A query language can be layered on this
+        API. An indexed database can be implemented using a persistent B-tree data
+        structure.
+      </p>
+    </section>
+
+    <section id="database-api" class="section">
+      <h2>Indexed Database API</h2>
+
+
+      <!-- begin-content -->
+      <section class="section" id="algorithms">
+        <h3>Algorithms</h3>
+        <section class="section" id="opening">
+          <h4>Opening the database</h4>
+          <p>
+            The <dfn>steps for opening a database</dfn> are as follows. These steps
+            MUST be run with an origin, a database name and description. All the
+            steps MUST be run atomically:
+          </p>
+
+          <ol>
+            <li>
+              If there is already a database with the given name from the origin
+              <var>origin</var>, then let <var>db</var> be that database.
+            </li>
+
+            <li>
+              If no database with the given name from the origin <var>origin</var>
+              exists, then create the database <var>db</var> with the name and
+              description passed to these steps.
+            </li>
+
+            <li>
+              Create a <a>connection</a> to <var>db</var> and call it <var>result</var>.
+            </li>
+
+            <li>
+              Return <var>result</var>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Object Store Storage steps</h4>
+          <p>
+            The <dfn>steps for storing a record into an object store</dfn> are as follows.
+            These steps MUST be run with four parameters: the <a>object store</a>,
+            a value, an optional key, and an optional no-overwrite flag.
+          </p>
+          <ol>
+            <li>
+              Let <var>store</var> be the <a>object store</a>, <var>key</var> be
+              the key and <var>value</var> be the value passed to these steps.
+            </li>
+            <li>
+              If <var>store</var> uses <a>out-of-line keys</a> but no <a>key
+              generator</a>, then a key MUST be passed to these steps. If not,
+              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>.
+            </li>
+            <li>
+              If <var>store</var> uses <a>in-line keys</a>, then
+              let <var>key</var> be the property of <var>object</var> at
+              <var>store</var>'s <a title="object store key path">key path</a>.
+            </li>
+           <li>
+              Produce a <a>structured clone</a> of <var>value</var> and call it
+              <var>object</var>.
+            </li>
+            <li>
+              If <var>key</var> is not defined or null, then perform the
+              following steps.
+              <ol>
+                <li>
+                  Using <var>store</var>'s <a>key generator</a>, produce the next
+                  key and store it as <var>key</var>.
+                </li>
+                <li>
+                  If <var>store</var> uses <a>in-line keys</a>, then store
+                  <var>key</var> as the property value for <var>object</var> at
+                  <var>store</var>'s <a title="object store key path">key path</a>.
+                </li>
+              </ol>
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and
+              a record already exists with its key being <var>key</var>, then
+              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              <p>
+                Store a record in <var>store</var> containing <var>key</var> as its key
+                and <var>object</var> as its value. If any <a title="index">indexes</a>
+                are <a>auto-populated</a> for <var>store</var>, then store a record
+                in that index according to <a>index maintenance conditions</a>.
+              </p>
+              <div class="note">
+                Storing would mean inserting if no record exists for that key
+                or updating an existing record, otherwise. <a title="auto-populated">
+                Auto populated<a> <a>index</a> record will also be respectively
+                inserted or updated depending on what storing results in.
+              </div>
+            </li>
+
+            <li>
+              Return the <var>key</var>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Index Storage steps</h4>
+          <p>
+            The <dfn>steps for storing a record into an index</dfn> are as follows.
+            These steps MUST be run with four parameters: the <a>index</a>,
+            a key, a value, and a no-overwrite flag.
+          </p>
+          <ol>
+            <li>
+              Let <var>index</var> be the <a>index</a>, <var>key</var> be
+              the key and <var>value</var> be the value passed to these steps.
+            </li>
+            <li>
+              If <var>index</var> has a <a title="index key path">key path</a>,
+              then terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and
+              a record already exists in <var>index</var> with its key being
+              <var>key</var>, then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              If no record exists in <var>index</var>'s <a>referenced</a>
+              <a>object store</a> whose key is <var>value</var>, then terminate
+              these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              <p>
+                Store a record in <var>index</var> containing <var>key</var> as its key
+                and <var>value</var> as its value.
+              </p>
+              <div class="note">
+                Storing would mean inserting if no record exists for that key
+                or updating an existing record, otherwise.
+              </div>
+            </li>
+
+            <li>
+              Return the <var>key</var>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Object Store Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a record from an object store</dfn> are
+            as follows. These steps MUST be run with two parameters - the record
+            key and the <a>object store</a>.
+          </p>
+
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Return the a new <a>structured clone</a> of the value in the record with
+              key <var>key</var> in <var>store</var>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Index Referenced Value Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a record from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record
+            key and the <a>index</a>.
+          </p>
+
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Let <var>value</var> be the value of the record with key <var>key</var>
+              in <var>index</var>.
+            </li>
+            <li>
+              Return the value for the record with key <var>value</var> in
+              <var>index</var>'s <a>referenced</a> <a>object store</a>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Index Value Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record
+            key and the <a>index</a>.
+          </p>
+
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Return the value of the record with key <var>key</var>
+              in <var>index</var>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Object Store Deletion steps</h4>
+          <p>
+            The <dfn>steps for deleting a record from an object store</dfn>
+            are as follows. These steps MUST be run with two parameters: the key
+            of the record to be deleted and the <a>object store</a>.
+          </p>
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+               If any <a title="index">indexes</a> are <a>auto-populated</a> for
+               <var>store</var>, then remove the record in that index according to
+               <a>index maintenance conditions</a>.
+            </li>
+
+            <li>
+              Remove the record from <var>store</var> with key <var>key</var>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Index Deletion steps</h4>
+          <p>
+            The <dfn>steps for deleting a record from an index</dfn>
+            are as follows. These steps MUST be run with two parameters: the key
+            of the record to be deleted and the <a>index</a>.
+          </p>
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Remove the records from <var>index</var> with key <var>key</var>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Transaction Creation steps</h4>
+          <p>
+            When the user agent is to <dfn>create a <a>transaction</a></dfn>
+            it must run the following steps. These steps MUST be run with
+            two parameters - <a>database</a> and an optional list of names of
+            <a>database</a> <a>objects</a> to be reserved.
+          </p>
+
+          <ol>
+            <li>
+              If the <a>database</a> passed to these steps has an <a>active</a>
+              <a>transaction</a>, then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>.
+            </li>
+            <li>
+              Pick the appropriate steps:
+              <dl class="switch">
+                <dt>If these steps are not called with a list of database objects</dt>
+                <dd>Acquire a lock on the entire database.</dd>
+                <dt>If these steps are called with a non-empty list of database objects</dt>
+                <dd><ol>
+                  <li>
+                    If any of the objects in this array is not a database object,
+                    then set <var>code</var> to <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
+                    and jump to the last step.
+                  </li>
+                  <li>
+                    Acquire appropriate locks on each of the database objects and
+                    the objects they depend on in an ordered sequence.
+                    <div class="note">
+                      If the database does not allow fine grained locking,
+                      then a user agent may obtain a shared or exclusive lock on the database.
+                    </div>
+                  </li>
+                </ol></dd>
+                <dt>If these steps are called with an empty array of database objects</dt>
+                <dd>
+                    Do not acquire locks on any database objects now. Locks are obtained as
+                    the application attempts to access those objects.
+                    <div class="note">
+                      Using the database in this style may lead to deadlocks. Programmers
+                      must use caution to acquire and release database objects in the same
+                      global order to avoid deadlocks.
+                    </div>
+                </dd>
+              </dl>
+            </li>
+
+            <li>
+              If a timeout duration is passed to these steps and is exceeded when
+              acquiring locks, then set <var>code</var> to
+              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a> and jump to the last step.
+            </li>
+
+            <li>
+              Open a new transaction to the database, and create a
+              <code><a>IDBTransaction</a></code> object
+              that represents that transaction. Let <var>transaction</var> be this object.
+            </li>
+
+            <li>
+              Set the current transaction of this <a><code>IDBDatabase</code></a> object
+              to <var>transaction</var>.
+            </li>
+            <li>
+              Return <var>transaction</var>. End these steps.
+            </li>
+            <li>
+              This step is only performed in case of error. If this step is performed
+              synchronously, then raise a newly constructed
+              <a><code>IDBDatabaseException</code></a>
+              exception <var>exception</var> with the code <var>code</var>.
+            </li>
+          </ol>
+        </section>
+      </section>
+      <!-- end-content -->
+	</section>
+  </body>
+</html>

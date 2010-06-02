@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+    <title>Indexed Database API</title>
+    <meta name='revision' content='$Id: Overview.html,v 1.41 2010/03/24 17:58:17 nmehta3 Exp $'/>
+    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
+    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          specStatus:           "ED",
+          
+          shortName:            "IndexedDB",
+
+          //publishDate:          "2010-01-05",
+
+          previousPublishDate:  "2010-01-05",
+          previousMaturity:     "WD",
+
+          edDraftURI:           "http://dev.w3.org/2006/webapi/WebSimpleDB/",
+
+          // if this is a LCWD, uncomment and set the end of its review period
+          // lcEnd: "2009-08-05",
+
+          extraCSS: [
+                "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css",
+                "SimpleDB.css"
+          ],
+
+          // editors, add as many as you like
+          // only "name" is required
+          editors:  [
+              { name: "Nikunj Mehta", url: "mailto:nikunj@o-micron.com",
+                company: "Invited Expert" },
+          ],
+          
+          maxTocLevel: 3,
+          
+          wg:           "Web Applications Working Group",
+          
+          wgURI:        "http://www.w3.org/2008/webapps/",
+          
+          wgPublicList: "public-webapps",
+          
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
+      };
+    </script>
+    <script class="remove">
+      function examples() {
+        var examples = document.querySelectorAll('div.example');
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+        for (var i = 0; i < examples.length; i++) {
+          var example = examples.item(i);
+          var header = sn.element('div', {'class': 'exampleHeader'}, null, 'Example');
+          example.insertBefore(header, example.firstChild);
+        }
+      }
+      
+      function codeblocks() {
+        document.normalize();
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+        
+        var blocks = document.querySelectorAll('codeblock');
+        for (var i = 0; i < blocks.length; i++) {
+          var codeblock = blocks.item(i);
+          var div = sn.element('div', {'class': 'block'})
+          sn.element('span', {'class': 'blockTitle'}, 
+            sn.element('div', {'class': 'blockTitleDiv'}, div), 'ECMAScript');
+          var code = sn.element('code', {'class': 'es-code'}, 
+                       sn.element('pre', {'class': 'code'}, 
+                         sn.element('div', {'class': 'blockContent'}, div)));
+          sn.copyChildren(codeblock, code);
+          codeblock.parentNode.replaceChild(div, codeblock);
+        }
+      }
+      window.onload = function() {
+        examples();
+        codeblocks();
+        (new berjon.respec()).loadAndRun();
+      }
+    </script>
+    <!--[if IE]>
+    <style type='text/css'>
+      .ignore {
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        filter: alpha(opacity=50);
+      }
+    </style>
+    <![endif]-->
+    <style type="text/css">
+      table {
+        border-collapse: collapse;
+        border-style: hidden hidden none;
+      }
+      table thead {
+        border-bottom: medium solid;
+      }
+      table td, table th {
+        border-bottom: thin solid;
+        border-left: medium solid;
+        border-right: medium solid;
+        padding: 0.2em;
+        vertical-align: top;
+      }
+      h5 {
+        display: none
+      }
+    </style>
+  </head>
+
+  <body>
+    <section id="abstract">
+      <p>
+        This document defines APIs for a database of records holding simple values
+        and hierarchical objects. Each record consists of a key and some value. 
+        Moreover, the database maintains indexes over records it stores. An
+        application developer directly uses an API to locate records either by
+        their key or by using an index. A query language can be layered on this
+        API. An indexed database can be implemented using a persistent B-tree data
+        structure. 
+      </p>
+    </section>
+
+    <section id='introduction' class='section informative'>
+      <h2>Introduction</h2>
+
+	
+      <p>
+        User agents need to store large numbers of objects locally in
+        order to satisfy off-line data requirements of Web applications.
+        [[WEBSTORAGE]] is useful for
+        storing pairs of keys and their corresponding values. However, it does 
+        not provide in-order retrieval of keys, efficient searching over
+        values, or storage of duplicate values for a key. 
+      </p>
+      
+      <p>
+        This specification provides a concrete API to perform advanced key-value data management
+        that is at the heart of most sophisticated query processors. It does
+        so by using transactional databases to store keys and their 
+        corresponding values (one or more per key), and providing a means
+        of traversing keys in a deterministic order. This is often implemented
+        through the use of persistent B-tree data structures that are considered
+        efficient for insertion and deletion as well as in-order traversal of
+        very large numbers of data records.
+      </p>
+      
+      <div class="example">
+        <p>
+          A script can efficiently find records in an object store that come 
+          closest to the required value provided the value is stored in either 
+          a primary or a secondary key.
+          In the following example, the 'books' object store holds data about
+          books which are stored by their 'isbn' attribute. Additionally, 
+          an index is maintained on the 'author' attribute of the objects
+          stored in the object store. This index can be used to look up books
+          for a given author. If an exact match is not found, the operation
+          raises an exception.
+        </p>
+        <codeblock>var db = indexedDB.open('books', 'Book store', false);
+if (db.version !== '1.0') {
+  var olddb = indexedDB.open('books', 'Book store');
+  olddb.createObjectStore('books', 'isbn');
+  olddb.createIndex('BookAuthor', 'books', 'author', false);
+  olddb.setVersion("1.0");  
+}
+// db.version === "1.0";  
+var index = db.openIndex('BookAuthor');
+var matching = index.get('fred');
+if (matching)
+  report(matching.isbn, matching.name, matching.author);
+else
+  report(null);</codeblock>
+        <p>
+        The next example performs the exact same logic as above asynchronously.
+        </p>
+        <codeblock>function findFred() {
+  db.request.onsuccess = function() {
+    var index = db.request.result;
+    index.request.onsuccess = function() {
+      var matching = index.request.result;
+      if (matching)
+        report(matching.isbn, matching.name, matching.author);
+      else
+        report(null);    
+    }
+    index.get('fred');
+  }
+  db.openIndex('BookAuthor');
+}
+
+indexedDB.request.onsuccess = function() {
+  var db = indexedDB.request.result;
+  if (db.version !== '1.0') {
+    indexedDB.request.onsuccess = function() {
+      var olddb = indexedDB.request.result;
+      olddb.request.onsuccess = function() {
+        olddb.request.onsuccess = function() {
+          olddb.request.onsuccess = function() {
+            findFred(db);
+          }
+          olddb.setVersion("1.0");   
+        }
+        olddb.createIndex('BookAuthor', 'books', 'author', false);        
+      }
+      olddb.createObjectStore('books', 'isbn');
+    }
+    indexedDB.open('books', 'Book store');
+  }
+  findFred(db);
+};        
+indexedDB.open('books', 'Book store', false);
+        </codeblock>
+        <!--p>
+        Here is an example of a script using this API. First, a function
+        <code>prepareDatabase()</code> is defined. This function tries to create 
+        the database if necessary, giving it one object store called "docids" with
+        the primary key "id". If it is successful, or if the table
+        doesn't need creating, it calls the function that does the
+        actual work, in this case <code>showDocCount()</code>.
+        </p>
+        <codeblock>
+var request = null;
+function prepareDatabase(ready, error) {
+  request = new <a>IDBDatabaseRequest</a>();
+  request.<a>onsuccess</a> = ready;
+  request.<a>onerror</a> = error;
+  var upgrade = 
+    function(changes, db) {
+      changes.<a>createObjectStore</a>('docids', 'id');
+      // now db.<a>version</a> === '1.0'
+    };
+  request.<a>open</a>('documents', '1.0', 'Offline document storage', upgrade);
+}
+
+function showDocCount(db, span) {
+  var storeRequest = new <a>IDBObjectStoreRequest</a>(db);
+  storeRequest.<a>onsuccess</a> = 
+    function() {
+      var store = storeRequest.<a>store</a>, total = 0;
+      var cursorRequest = new <a>IDBCursorRequest</a>(store);
+      cursorRequest.<a>onsuccess</a> = 
+        function() {
+          span.textContent = total;
+        };
+      cursorRequest.<a>open</a>(function(record, cursor) { 
+          total += cursor.<a>count</a>; 
+        }, <a>IDBCursor</a>.<a>NEXT_NO_DUPLICATE</a>);
+    };
+  storeRequest.<a>open</a>('docids', true);
+};
+
+prepareDatabase(function(evt) {
+  // got database
+  var span = document.getElementById('doc-count');
+  showDocCount(request.<a>database</a>, span);
+  }, function (evt) {
+  // error getting database
+  var error = request.error;
+  alert(error.message);
+});</codeblock-->
+      </div>
+    </section>
+
+    <section id='conformance' class='section'>
+      <p>
+        This specification defines one class of products:
+      </p>
+      <dl>
+        <dt><dfn id='dfn-conforming-user-agent'>Conforming user agent</dfn></dt>
+        <dd>
+          <p>
+            A user agent must behave as described in this specification
+            in order to be considered conformant.
+          </p>
+          
+          <p>
+            User agents may implement algorithms given in this
+            specification in any way desired, so long as the end result is
+            indistinguishable from the result that would be obtained by the
+            specification's algorithms.
+          </p>
+          
+          <p>
+            A conforming Indexed Database API user agent must also be a
+            <em>conforming implementation</em> of the IDL fragments
+            of this specification, as described in the
+            “Web IDL” specification. [[!WEBIDL]]
+          </p>
+          
+          <div class="note">
+            This specification uses both the terms "conforming user agent(s)" 
+            and "user agent(s)" to refer to this product class.
+          </div>
+        </dd>
+      </dl>        
+      
+      <section class="section" id="dependencies">
+        <h3>Dependencies</h3>
+        <p>
+          This specification relies on several other underlying specifications. 
+        </p>
+        <dl>
+          <dt>HTML5</dt>
+          <dd>The terms and algorithms <dfn id="document-base-url">document base URL</dfn>,
+            <dfn id="event-handler-attributes">event handler attributes</dfn>, 
+            <dfn id="event-handler-event-type">event handler event type</dfn>,
+            <dfn title="Function"><code>Function</code></dfn>,
+            <dfn>origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
+            <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
+            and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
+            specification [[!HTML5]].
+          </dd>
+          <dt>WebWorkers</dt>
+          <dd>The term <dfn title="Worker"><a class="externalDFN"><code>Worker</code></a></dfn> is defined by
+          the WebWorkers specification [[!WEBWORKERS]].</dd>
+        </dl>
+      </section>
+    </section>
+  
+    <section id="database-api" class="section">
+      <h2>Indexed Database API</h2>
+      
+      <section id="constructs" class="section">
+      <h3>Constructs</h3>
+        <p>
+          An indexed database is made of records holding simple values
+          and hierarchical objects. Each record consists of a key and some value. 
+        </p>
+        
+        <section id="key-construct" class="section">
+          <h4>Keys</h4>
+          
+          <p>
+            In order to efficiently retrieve records stored in an indexed
+            database, a user agent needs to organize each record by its key. 
+            <a>Conforming user agents</a> MUST support the use of values
+            of IDL data types [[!WEBIDL]] <code>DOMString</code> and <code>long</code> 
+            as well as the value <code>null</code> as keys.
+          </p>
+          
+          <p>
+            For purposes of comparison, a <code>DOMString</code> key is always 
+            evaluated higher than any <code>long</code> key. Moreover, 
+            <code>null</code> always evaluates lower than any 
+            <code>DOMString</code> or <code>long</code> key.
+          </p>
+          <div class="note">
+            Only data types with natural ordering can be used as keys. 
+            The ECMAScript <code>undefined</code> cannot be used as a key.
+          </div>
+        </section>
+        
+        <section id="value-construct" class="section">
+          <h4>Values</h4>
+          <p>
+            Values can be any data type supported by the <a>structured clone algorithm</a> 
+            [[!HTML5]]. This includes simple types such as <code>DOMString</code>
+            and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
+            instances.
+          </p>
+          
+          <p>
+            A database may choose to derive a key from the contents of
+            the value being stored. In such a case, only <code>Object</code> 
+            instances may be stored as values. Only the direct enumerable
+            properties of a stored <code>Object</code> instance can be 
+            used to derive a key value.
+          </p>
+        </section>
+        
+        <section class="section" id="object-store-concept">  
+          <h4>Object Store</h4>
+          <p>
+            An <dfn>object store</dfn> is a persistent storage that holds 
+            key-value pairs, also called <dfn title="record">records</dfn>. An 
+            <a>object store</a>'s <a title="record">records</a> are sorted by
+            keys so as to enable fast insertion and look up as well as ordered retrieval. 
+            Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
+          </p>
+          
+          <p>
+            An <a>object store</a> must have a unique <dfn>key generator</dfn>,
+            if it uses keys generated from a monotonically
+            increasing sequence. Alternatively, if an application provides keys,
+            they can either be identified as a part of the value being stored,
+            also called <dfn>in-line keys</dfn>, or be identified separately, also
+            called <dfn>out-of-line keys</dfn>. No two <a title="record">records</a>
+            in an <a>object store</a> may be identified by the same key. An
+            <a>object store</a> must have a <dfn title="object store key path">key path</dfn> 
+            if it uses <a>in-line keys</a>. The <a>key path</a> MUST be the name of
+            an enumerated property of all objects being stored in that 
+            <a>object store</a>.
+          </p>
+          
+          <p>
+            Concurrent access to an <a>object store</a> MAY be isolated in one of 
+            three <dfn title="mode">modes</dfn>. Any number of <a title="reader">readers</a>
+            may concurrently access an <a>object store</a>. A <a>writer</a> is not allowed
+            if there is any <a>reader</a> concurrently accesing the <a>object store</a>,
+            unless the <a>reader</a> is detached, i.e., looking at a snapshot view
+            of the data that does not change once created. 
+          </p>
+          <div class="ednote">
+            The detached reading behavior may need more explanation.
+          </div>
+          <p>
+            The <a><code>IDBObjectStore</code></a> interface is used to access the metadata
+            of an <a>object store</a>.
+          </p>
+          <dl title="interface IDBObjectStore" class="idl">
+            <dt>const     unsigned short READ_WRITE    = 0</dt>
+            <dd>Modification operations are allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_ONLY    = 1</dt>
+            <dd>Modification operations are not allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
+            <dd>This mode is used solely for reading from a snapshot of the data
+            in the <a>object store</a>.</dd>
+
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            this <a>object store</a></dd>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>          
+              On getting, provide the <a title="object store name">name</a> of this
+              object store.        
+            </dd>
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="object store key path">key path</a>
+              of this <a>object store</a>. If this attribute is <code>null</code>,
+              the application MUST provide a key value for each modification operation.
+            </dd>
+            <dt>readonly attribute DOMStringList  indexNames</dt>
+            <dd>
+            On getting, provide a list of the names of <a title="index">indexes</a> on 
+            objects in this <a>object store</a>.
+            </dd>
+          </dl>
+        </section> <!-- Object store -->
+        
+        <section id="index-concept" class="section">
+          <h4>Index</h4>
+          <p>
+            <a title="record">Records</a> in an <a>object store</a> can be retrieved by 
+            means of the <a title="record">record's</a> key. However, that may not be
+            always adequate to recall <a title="record">records</a>. An <a>index</a> is
+            used to lookup records in an <a>object store</a> other than through a
+            <a>record</a> key.
+          </p>
+          <p>
+            An <dfn>index</dfn> is a specialized persistent store that holds key-value 
+            pairs such that each value is the key of objects in the <dfn>referenced</dfn>
+            <a>object store</a>. An <a>index</a> may allow duplicate  values for a key,
+            unlike an <a>object store</a>, only if its <dfn>unique</dfn> flag is not set. 
+            Every <a>index</a> has a <dfn title="index name">name</dfn>.
+          </p>
+          <p>
+            If an <a>index</a> is <dfn>auto-populated</dfn>, then the user agent populates
+            records using the values stored in the <a>referenced</a> <a>object store</a>.
+            An <a>auto-populated</a> <a>index</a> must have a 
+            <dfn title="index key path">key path</dfn>, which MUST be the name of an
+            enumerated property of all objects being stored in the <a>referenced</a> 
+            <a>object store</a>. The <a>auto-populated</a> <a>index</a> record 
+            corresponding to an <a>object store</a> record MUST satisfy the following 
+            <dfn>index maintenance conditions</dfn>:
+          </p>
+          <ul>
+            <li><a>index</a> record key = value of the enumerated property at the 
+            <a title="index key path">key path<a> in the <a>object store</a> record value</li>
+            <li><a>index</a> record value = <a>object store</a> record key</li>
+          </ul>
+          <p>
+            The <a><code>IDBIndex</code></a> interface is used to access the metadata
+            of an <a>index</a>.
+          </p>
+          <dl class="idl" title="interface IDBIndex">
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the <a title="index name">name</a> of this <a>index</a>.        
+            </dd>
+            <dt>readonly attribute DOMString      storeName</dt>
+            <dd>
+              On getting, provide the <a title="object store name">name</a> of this
+              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+            </dd>
+        
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="index key path">key path<a> of this
+              <a>index</a>. If this attribute is <code>null</code>,
+              this <a>index</a> is not <a>auto-populated</a>.
+            </dd>
+            
+            <dt>readonly attribute boolean unique</dt>
+            <dd>
+              On getting, provide the <a>unique</a> flag of this <a>index</a>.
+            </dd>
+          </dl>  
+        </section> <!-- IDBIndex -->
+        
+       <section id="database-concept" class="section">
+          <h4>Database</h4>
+          <p>
+            Each <a>origin</a> has an associated set of <a title="database">databases</a>. 
+            A <dfn>database</dfn> comprises:
+          </p>
+          <ul>
+            <li>
+              one or more <a title="object store">object stores</a> and
+            </li>
+            <li>
+              any number of <a title="index">indexes</a>.
+            </li>
+          </ul>
+          <p>
+            The <a title="object store">object stores</a> and 
+            <a title="index">indexes</a> of a <a>database</a> are also referred as
+            its <dfn>objects</dfn>.
+          </p>
+          <p>
+            Each <a>database</a> has a <a title="valid-name">valid</a> 
+            <dfn title="database name">name</dfn> and a human readable description
+            A <dfn title="valid-name">valid name</dfn> is any string including
+            the empty string. An exact match of names means that their 
+            UTF-8 encodings are identical.
+          </p>
+          
+          <div class="note">
+            Implementations can support this even in environments that only
+            support a subset of all strings as database names by mapping
+            database names (e.g. using a hashing algorithm) to the supported
+            set of names.
+          </div>
+          <p>
+          Each <a>database</a> also has a current <dfn>version</dfn>.
+          </p>
+          <div class="note">
+            Each <a>database</a> has one version at a time; a <a>database</a> can't
+            exist in multiple versions at once. 
+          </div>
+          <p>
+            The <a>object store</a> <a title="object store name">name</a> and <a>index</a> 
+            <a title="index name">name</a> MUST be <a title="valid-name">valid</a> and 
+            unique within the <a>database</a>.
+          </p>
+          <p>
+            When a <a>database</a> is opened, that creates a <dfn>connection</dfn>. There
+            may be multiple <a title="connection">connections</a> to a given <a>database</a> 
+            at any given time. A <a>connection</a> that is attempting to read a given piece
+            of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
+            attempting to write that piece of data is called a <dfn>writer</dfn>. There
+            may be zero or one <dfn>active</dfn> <a>transaction</a> in a <a>connection</a>.
+          </p>
+          <p>
+            A <a><code>IDBDatabase</code></a> object represents a <a>connection</a> to a 
+            <a>database</a>. There is no way to enumerate the 
+            <a title="database">databases</a> available for an <a>origin</a> from this API. 
+          </p>
+          
+          <dl title="interface IDBDatabase" class="idl">   
+            <dt>readonly attribute DOMString name</dt>
+            <dd>
+              On getting, this attribute must return the <a title="database name">name</a>
+              of the <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString description</dt>  
+            <dd>
+              On getting, this attribute must return the description of the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString version</dt>
+            <dd>
+              On getting, this attribute must return the <a>version</a> of this
+              <a>database</a>. This attribute has the <a>null</a> value when the
+              <a title="connection">connected</a> <a>database</a> is first created.
+            </dd>
+            <dt>readonly attribute DOMStringList objectStores</dt>
+            <dd>
+              On getting, this attribute must return a list of names of the 
+              <a title="object store">object stores</a> currently in the 
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMStringList indexes</dt>
+            <dd>
+              On getting, this attribute must return a list of names of the 
+              <a title="index">indexes</a> currently in the 
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute IDBTransaction currentTransaction</dt>
+            <dd>
+              On getting, this attribute must return a <a><code>IDBTransaction</code></a> object
+              corresponding to the <a>transaction</a> that is <a>active</a> in this
+              <a>database</a> <a>connection</a>.
+            </dd>
+          </dl>
+        </section>  <!-- IDBDatabase -->
+        
+        <section class="section" id="range-concept">
+          <h4>Key Range</h4>
+          <p>
+            An individual record can be retrieved from an <a>object store</a> using 
+            either the record's key or the key applicable for some <a>index</a> that
+            <a title="referenced">references</a> that <a>object store</a>. Multiple
+            records can be fetched using a <a>key range</a>. A <dfn>key range</dfn> 
+            is a continuous interval over some data type used for keys.
+          </p>
+          <p>
+            A <a>key range</a> may be left-bounded or right-bounded if there is a value
+            that is, respectively, smaller than or larger than all its elements. A
+            <a>key range</a> is said to be bounded if it is both left- and right-bounded
+            and unbounded otherwise. A <dfn title="valid key range">valid</dfn>
+            <a>key range</a> must be either half-bounded or bounded. A <a>key range</a>
+            may be open, i.e., not including its endpoints or closed, i.e., including
+            its endpoints. A <a>key range</a> may consist of a single value.
+          </p>
+          <p>
+            The <a><code>IDBKeyRange</code></a> interface is used to define a <a>key range</a>.
+          </p>
+          <dl class="idl" title="interface IDBKeyRange"> 
+            <dt>const     unsigned short SINGLE = 0</dt>
+            <dd>This flag indicates a single-valued <a>key range</a>.</dd>
+            <dt>const     unsigned short LEFT_OPEN = 1</dt>
+            <dd>This flag indicates a left-open <a>key range</a>.</dd>
+            <dt>const     unsigned short RIGHT_OPEN = 2</dt>
+            <dd>This flag indicates a right-open <a>key range</a>.</dd>
+            <dt>const     unsigned short LEFT_BOUND = 4</dt>
+            <dd>This flag indicates a left-bound <a>key range</a>.</dd>
+            <dt>const     unsigned short RIGHT_BOUND = 8</dt>
+            <dd>This flag indicates a right-bound <a>key range</a>.</dd>
+            <dt>readonly attribute any left</dt>
+            <dd>This value is the left-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute any right</dt>
+            <dd>This value is the right-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute unsigned short flags</dt>
+            <dd>Flags for bounding values</dd>
+            <dt>IDBKeyRange only()</dt>
+            <dd>
+              Create a new single-valued <a>key range</a>.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The only value</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange leftBound()</dt>
+            <dd>
+              Create a new left-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The left bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange rightBound()</dt>
+            <dd>
+              Create a new right-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The right bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange bound()</dt>
+            <dd>
+              Create a new left- and right-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any left</dt>
+                <dd>The left-bound value</dd>
+                <dt>any right</dt>
+                <dd>The right-bound value</dd>
+                <dt>optional boolean openLeft</dt>
+                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+                <dt>optional boolean openRight</dt>
+                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+          </dl>
+        </section> <!-- Key Range -->
+        
+        <section id="cursor-concept" class="section">
+          <h4>Cursor</h4>
+          <p>
+            <a title="cursor">Cursors</a> are a transient mechanism used to 
+            iterate over multiple records in a database. The storage operations
+            are performed on the underlying <a>index</a> or an <a>object store</a>.
+          </p>
+          
+          <p>
+            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an
+            <a>index</a> or an <a>object store</a>. A <a title="cursor">cursor</a>
+            maintains a <dfn>position</dfn> over this series, which moves in a
+            <dfn>direction</dfn> that is either monotonically increasing or 
+            decreasing order of the record keys. 
+          </p>
+          
+          <dl title="interface IDBCursor" class="idl">
+            <dt>const     unsigned short     NEXT = 0</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+            <dt>const     unsigned short     PREV = 2</dt>
+            <dd>
+              indicates that <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+
+            <dt>readonly attribute unsigned short     direction</dt>
+            <dd>            
+            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
+            </dd>
+          </dl>          
+        </section> <!-- IDBCursor -->
+        
+        <section id="transaction-concept" class="section">
+          <h4>Transaction</h4>
+          <p>
+            A <dfn>transaction</dfn> has a <dfn>scope</dfn> and a <a>database</a>.
+            A <a>transaction</a>'s <a>scope</a> is either <dfn>static</dfn>
+            or <dfn>dynamic</dfn>. If the scope is <a>static</a>, it can cover 
+            either all the <a>object store</a>s and <a>index</a>es in a 
+            <a>database</a> or it may include a subset of them.
+          </p>
+          <p>
+            A <a>connection</a> may have at most one <a>transaction</a> at any
+            given time. Moreover, there may not be any overlap among the
+            <a>scope</a>s of all open <a title="connection">connections</a>
+            to a given <a>database</a>.
+          </p>
+          <p>
+            <a title="transaction">Transactions</a> offer some protection from 
+            application and system failures. A <a>transaction</a> may be used to
+            store multiple data records or to conditionally modify certain data 
+            records. A <a>transaction</a> represents an atomic and durable set of 
+            data access and mutation operations. 
+          </p>
+          
+          <p>  
+            <a title="transaction">Transactions</a> are expected to be short
+            lived. Conforming user agents may terminate 
+            <a title="transaction">transactions</a> that take too long to
+            complete in order to free up storage resources that are locked by
+            a long running <a>transaction</a>.
+          </p>
+          <dl class="idl" title="interface IDBTransaction">
+          	<dt>attribute boolean static</dt>
+          	<dd>If <code>true</code>, then this <a>transaction</a> is <a>static</a>
+          	and <code>false</code> otherwise.
+          	<dt>attribute IDBDatabase db</dt>
+          	<dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
+          	is a part</dd>
+          </dl>
+        </section> <!-- IDBTransaction -->
+      </section>  
+      
+      <section class="section" id="algorithms">
+        <h3>Algorithms</h3>
+        <section class="section" id="opening">
+          <h4>Opening the database</h4>
+          <p>
+            The <dfn>steps for opening a database</dfn> are as follows. These steps
+            MUST be run with an origin, a database name and description. All the 
+            steps MUST be run atomically:
+          </p>
+          
+          <ol>
+            <li>
+              If there is already a database with the given name from the origin
+              <var>origin</var>, then let <var>db</var> be that database.
+            </li>
+            
+            <li>
+              If no database with the given name from the origin <var>origin</var>
+              exists, then create the database <var>db</var> with the name and
+              description passed to these steps.
+            </li>
+  
+            <li>
+              Create a <a>connection</a> to <var>db</var> and call it <var>result</var>.
+            </li>
+            
+            <li>
+              Return <var>result</var>.
+            </li>
+          </ol>        
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Storage steps</h4>
+          <p>
+            The <dfn>steps for storing a record into an object store</dfn> are as follows. 
+            These steps MUST be run with four parameters: the <a>object store</a>,
+            a value, an optional key, and an optional no-overwrite flag.
+          </p>
+          <ol>
+            <li>
+              Let <var>store</var> be the <a>object store</a>, <var>key</var> be
+              the key and <var>value</var> be the value passed to these steps.
+            </li>
+            <li>
+              If <var>store</var> uses <a>out-of-line keys</a> but no <a>key 
+              generator</a>, then a key MUST be passed to these steps. If not, 
+              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>.
+            </li>
+            <li>
+              If <var>store</var> uses <a>in-line keys</a>, then 
+              let <var>key</var> be the property of <var>object</var> at  
+              <var>store</var>'s <a title="object store key path">key path</a>.
+            </li>
+           <li>
+              Produce a <a>structured clone</a> of <var>value</var> and call it
+              <var>object</var>.
+            </li>
+            <li>
+              If <var>key</var> is not defined or null, then perform the 
+              following steps.              
+              <ol>
+                <li>
+                  Using <var>store</var>'s <a>key generator</a>, produce the next
+                  key and store it as <var>key</var>.
+                </li>
+                <li>
+                  If <var>store</var> uses <a>in-line keys</a>, then store 
+                  <var>key</var> as the property value for <var>object</var> at  
+                  <var>store</var>'s <a title="object store key path">key path</a>.
+                </li>
+              </ol>
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and 
+              a record already exists with its key being <var>key</var>, then 
+              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              <p>
+                Store a record in <var>store</var> containing <var>key</var> as its key  
+                and <var>object</var> as its value. If any <a title="index">indexes</a>  
+                are <a>auto-populated</a> for <var>store</var>, then store a record
+                in that index according to <a>index maintenance conditions</a>.
+              </p>
+              <div class="note">
+                Storing would mean inserting if no record exists for that key
+                or updating an existing record, otherwise. <a title="auto-populated">
+                Auto populated<a> <a>index</a> record will also be respectively
+                inserted or updated depending on what storing results in.
+              </div>
+            </li>
+            
+            <li>
+              Return the <var>key</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Storage steps</h4>
+          <p>
+            The <dfn>steps for storing a record into an index</dfn> are as follows. 
+            These steps MUST be run with four parameters: the <a>index</a>,
+            a key, a value, and a no-overwrite flag.
+          </p>
+          <ol>
+            <li>
+              Let <var>index</var> be the <a>index</a>, <var>key</var> be
+              the key and <var>value</var> be the value passed to these steps.
+            </li>
+            <li>
+              If <var>index</var> has a <a title="index key path">key path</a>,
+              then terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and 
+              a record already exists in <var>index</var> with its key being 
+              <var>key</var>, then terminate these steps and set error code 
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              If no record exists in <var>index</var>'s <a>referenced</a>
+              <a>object store</a> whose key is <var>value</var>, then terminate
+              these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              <p>
+                Store a record in <var>index</var> containing <var>key</var> as its key  
+                and <var>value</var> as its value. 
+              </p>
+              <div class="note">
+                Storing would mean inserting if no record exists for that key
+                or updating an existing record, otherwise. 
+              </div>
+            </li>
+            
+            <li>
+              Return the <var>key</var>.
+            </li>
+          </ol>        
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a record from an object store</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>object store</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Return the a new <a>structured clone</a> of the value in the record with 
+              key <var>key</var> in <var>store</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Referenced Value Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a record from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Let <var>value</var> be the value of the record with key <var>key</var>
+              in <var>index</var>.
+            </li>
+            <li>
+              Return the value for the record with key <var>value</var> in 
+              <var>index</var>'s <a>referenced</a> <a>object store</a>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Value Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Return the value of the record with key <var>key</var>
+              in <var>index</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Deletion steps</h4>
+          <p>
+            The <dfn>steps for deleting a record from an object store</dfn> 
+            are as follows. These steps MUST be run with two parameters: the key
+            of the record to be deleted and the <a>object store</a>.
+          </p>
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>            
+            <li>
+               If any <a title="index">indexes</a> are <a>auto-populated</a> for
+               <var>store</var>, then remove the record in that index according to
+               <a>index maintenance conditions</a>.
+            </li>
+            
+            <li>
+              Remove the record from <var>store</var> with key <var>key</var>. 
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Index Deletion steps</h4>
+          <p>
+            The <dfn>steps for deleting a record from an index</dfn> 
+            are as follows. These steps MUST be run with two parameters: the key
+            of the record to be deleted and the <a>index</a>.
+          </p>
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>            
+            <li>
+              Remove the records from <var>index</var> with key <var>key</var>. 
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Transaction Creation steps</h4>
+          <p>
+            When the user agent is to <dfn>create a <a>transaction</a></dfn>
+            it must run the following steps. These steps MUST be run with 
+            two parameters - <a>database</a> and an optional list of names of 
+            <a>database</a> <a>objects</a> to be reserved.
+          </p>
+          
+          <ol>
+            <li>
+              If the <a>database</a> passed to these steps has an <a>active</a>
+              <a>transaction</a>, then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>.
+            </li>
+            <li>
+              Pick the appropriate steps:
+              <dl class="switch">
+                <dt>If these steps are not called with a list of database objects</dt>
+                <dd>Acquire a lock on the entire database.</dd>
+                <dt>If these steps are called with a non-empty list of database objects</dt>
+                <dd><ol>
+                  <li>
+                    If any of the objects in this array is not a database object,
+                    then set <var>code</var> to <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
+                    and jump to the last step.
+                  </li>
+                  <li>
+                    Acquire appropriate locks on each of the database objects and
+                    the objects they depend on in an ordered sequence. 
+                    <div class="note">
+                      If the database does not allow fine grained locking,
+                      then a user agent may obtain a shared or exclusive lock on the database.
+                    </div>
+                  </li>
+                </ol></dd>
+                <dt>If these steps are called with an empty array of database objects</dt>
+                <dd>
+                    Do not acquire locks on any database objects now. Locks are obtained as
+                    the application attempts to access those objects.
+                    <div class="note">
+                      Using the database in this style may lead to deadlocks. Programmers
+                      must use caution to acquire and release database objects in the same
+                      global order to avoid deadlocks.
+                    </div>
+                </dd>
+              </dl>
+            </li>
+
+            <li>
+              If a timeout duration is passed to these steps and is exceeded when 
+              acquiring locks, then set <var>code</var> to 
+              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a> and jump to the last step.
+            </li>
+
+            <li>
+              Open a new transaction to the database, and create a
+              <code><a>IDBTransaction</a></code> object
+              that represents that transaction. Let <var>transaction</var> be this object.
+            </li>
+            
+            <li>
+              Set the current transaction of this <a><code>IDBDatabase</code></a> object
+              to <var>transaction</var>.
+            </li>
+            <li>
+              Return <var>transaction</var>. End these steps.
+            </li>
+            <li>
+              This step is only performed in case of error. If this step is performed
+              synchronously, then raise a newly constructed 
+              <a><code>IDBDatabaseException</code></a> 
+              exception <var>exception</var> with the code <var>code</var>.
+            </li>
+          </ol>        
+        </section>
+      </section>
+      
+      <section id="sync-database" class="section">
+        <h3>Synchronous APIs</h3>
+        <section id="opening-sync" class="section">
+          <h4>Opening a database connection</h4>
+          <p>
+            <a title="Worker"><a class="externalDFN"><code>Worker</code></a></a> objects MUST implement the 
+            <a><code>IDBEnvironmentSync</code></a> interface.
+          </p>
+          <p class="idl" title="WorkerUtils implements IDBEnvironmentSync">
+          </p>
+          
+          <dl class="idl" title="interface IDBEnvironmentSync">
+            <dt>readonly attribute IndexedDatabase indexedDB</dt>
+            <dd>This attribute provides applications a means of accessing
+              capabilities of indexed databases.</dd>
+          </dl>
+          
+          <dl class="idl" title="interface IndexedDatabase">
+            <dt>IDBDatabaseSync open()</dt>
+            <dd>
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="database name">name</a> for the <a>database</a></dd>
+                <dt>DOMString description</dt>
+                <dd>The description for the <a>database</a></dd>
+                <dt>optional boolean modifyDatabase</dt>
+                <dd>This defaults to true</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>UNKNOWN_ERR</dt>
+                <dd>if an error occurs while the <a>database</a> <a>connection</a> 
+                is being opened</dd>
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>if the <var>name</var> parameter is not <a>valid</a></dd>
+              </dl>
+              <p>
+                The synchronous API for databases blocks the calling thread until a
+                <a><code>IDBDatabaseSync</code></a> object is ready to return.
+                When this method is invoked, the user agent must run the
+                following steps:
+              </p>
+    
+              <ol>
+                <li>
+                  Let <var>origin</var> be the origin of the scripts in the worker.
+                </li>
+                <li>
+                  Perform the <a>steps for opening a database</a>, with <var>origin</var>,
+                  the <var>name</var> parameter and <var>description</var> parameter, and 
+                  call its result as <var>result</var>.
+                </li>
+                <li>
+                  If the steps were aborted with an error code, then throw a newly constructed
+                  <a><code>IDBDatabaseException</code></a> 
+                  exception with the code of that error and abort these steps.
+                </li>
+                <li>
+                  Create a <a><code>IDBDatabaseSync</code></a> object using <var>result</var>
+                  and call it <var>db</var>.
+                </li>
+                <li>
+                  Return <var>db</var>.
+                </li>
+              </ol>              
+            </dd>
+          </dl>
+        </section>
+        
+        <section id="database-interface" class="section">
+          <h4>Database connection</h4>
+          <p>
+            A <a>database</a> <a>connection</a> can be used to manipulate the 
+            <a>objects</a> of that <a>database</a>. That is also the only means of
+            obtaining a <a>transaction</a> for that <a>database</a>.
+          </p>
+          <dl class="idl" title="interface IDBDatabaseSync : IDBDatabase">
+            <dt>IDBObjectStoreSync createObjectStore()</dt>
+            <dd>
+              <p>
+                This method creates a and returns a new <a>object store</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+              </p>
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
+                <dt>[Null=Null] DOMString keyPath</dt>
+                <dd>The <a title="object store key path">key path</a> of a new 
+                <a>object store</a>. If <a>null</a> path is specified, then the 
+                <a>object store</a> created will not have a <a>key path</a> and will
+                use <a>out-of-line keys</a>.</dd>
+                <dt>optional boolean autoIncrement</dt>
+                <dd>Whether the <a>object store</a> created should have a 
+                <a>key generator</a>. The default
+                value of this parameter is false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a></dt>
+                <dd>
+                If an <a>object store</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>IDBObjectStoreSync openObjectStore()</dt>
+            <dd>
+              <p>
+                This method opens the <a>object store</a> with the given name
+                in the <a title="connection">connected</a> <a>database</a> for the
+                <a>mode</a> specified.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of an existing 
+                <a>object store</a></dd>
+                <dt>optional unsigned short mode</dt>
+                <dd>The <a>mode</a> used to access the <a>object store</a>. The default 
+                for this is <a><code>IDBObjectStore</code></a>.<a class="idlType" href="#widl-IDBObjectStore-READ_WRITE"><code>READ_WRITE</code></a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If an <a>object store</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>IDBIndexSync createIndex()</dt>
+            <dd>
+              <p>
+                This method creates a and returns a new <a>index</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+              </p>
+              <dl class="parameters">
+                <dt>DOMString      name</dt>
+                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                <dt>DOMString      storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>
+                <dt>DOMString      keyPath</dt>
+                <dd>The <a title="index key path">key path used by the new
+                <a>index</a></dd>
+                <dt>optional boolean unique</dt>
+                <dd>The <a>unique</a> flag for the new <a>index</a>. The default
+                value of this parameter is false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a></dt>
+                <dd>
+                If an <a>index</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
+                </dd>
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>object store</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>IDBIndexSync openIndex()</dt>
+            <dd>
+              <p>
+                This method opens the <a>index</a> with the given name
+                in the <a title="connection">connected</a> <a>database</a> for the
+                <a>mode</a> specified.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>      
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>index</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void removeObjectStore()</dt>
+            <dd>
+              <p>
+                This method is used to destroy an <a>object store</a> with the 
+                given name as well as all <a title="index">indexes</a> that are 
+                <a title="referenced">referencing</a> that <a>object store</a>.
+              </p>
+              
+              <dl class="parameters">
+                <dt>DOMString storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>object store</a> with the given name, compared in a
+                case-sensitive manner, does not already exist
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void removeIndex()</dt>
+            <dd>
+              <p>
+                This method is used to destroy an <a>index</a> with the 
+                given name. 
+              </p>
+              <dl class="parameters">
+                <dt>DOMString indexName</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>index</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void setVersion()</dt>
+            <dd>
+              This method is used to set the <a>version</a> of the 
+              <a title="connection">connected</a> <a>database</a>.
+              <dl class="parameters">
+                <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
+                <dd>The <a>version</a> to store in the <a>database</a></dd>
+              </dl>
+            </dd>
+            <dt>IDBTransactionSync transaction()</dt>
+            <dd>
+              Perform the <a>steps for creating a transaction</a> with the list of 
+              database objects in the scope of this transaction and a timeout 
+              duration in milliseconds, and return
+              the resulting <a><code>IDBTransactionSync</code></a> object.
+              <dl class="parameters">
+                <dt>optional DOMStringList storeNames</dt>
+                <dd>The names of <a title="object store">object stores</a> and 
+                <a title="index">indexes</a> in the <a>scope</a> of the new
+                <a>transaction</a></dd>
+                <dt>optional unsigned long timeout</dt>
+                <dd>The interval in milliseconds which this operation is allowed to 
+                take to reserve all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a>. The default
+                is user agent specific</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a></dt>
+                <dd>
+                If reserving all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a> takes longer 
+                than the specified interval.
+                </dd>
+              </dl>
+            </dd>
+          </dl>  
+        </section>
+          
+        <section class="section" id="object-store-sync">  
+          <h4>Object Store</h4>
+          <div class="example">       
+            <p>
+              In the following example, we set up an <a>object store</a> to use the 
+              <a title="object store key path">key path</a> <em>id</em>. This
+              <a>object store</a> is also designed to use a <a>key generator</a>.
+            </p>
+            <codeblock>var db = indexedDB.open('AddressBook', 'Address Book');
+if (db.version !== '1') {
+   var olddb = indexedDB.open('AddressBook', 'Address Book');
+   olddb.createObjectStore('Contact', 'id', true);
+   olddb.setVersion('1');
+}</codeblock>
+            <p>
+              Using this <a>database</a>, we can store records in the <em>Contact</em>
+              <a>object store</a>. 
+            </p>
+            <codeblock>var store = db.openObjectStore('Contact');
+
+var lincoln = {name: 'Lincoln', number: '7012'};
+var contact = store.put(lincoln);
+// contact.id === 1</codeblock>
+            <p>
+              A stored value can be retrieved using the same key used by the
+              first put operation.
+            </p>
+            <codeblock>var contact = store.get(1);
+// contact.name === 'Lincoln'</codeblock>
+            <p>
+              A second put operation will overwrite the record stored by the first 
+              put operation.
+            </p>
+            <codeblock>var abraham = {id: 1, name: 'Abraham', number: '2107'};
+store.put(abraham);</codeblock>
+            <p>
+              Now when the object store is read with the same key, the result 
+              is different compared to the object read earlier.
+            </p>
+            <codeblock>var contact = store.get(1);
+// contact.id === 1 &amp;&amp; contact.name === 'Abraham';</codeblock>
+            <p>
+              Additionally, all the <a>records</a> of an <a>object store</a> 
+              matching a certain <a>key range</a> can be retrieved in key order.
+            </p>
+            <codeblock>var range = new IDBKeyRange.bound(2, 4);
+var cursor = store.openCursor(range);
+// each value is a contact and each key is the id for that  
+// contact whose id is between 2 and 4, both inclusive
+cursor.continue();</codeblock>
+          </div>
+          
+          <dl title="interface IDBObjectStoreSync : IDBObjectStore" class="idl">
+            <dt>any put()</dt>
+            <dd>
+              Store the given value in this <a>object store</a> by following
+              the <a>steps for storing a record into an object store</a>. The
+              returned object from this method is the key for the stored record.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>This <a>object store</a> uses <a>out-of-line</a> keys and
+                no <a>key generator</a> but the <var>key</var> parameter was not
+                passed</dd>
+                <dt>SERIAL_ERR</dt>
+                <dd>The data being stored could not be serialized by the internal
+                structured cloning algorithm</dt>
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>The <var>noOverwrite</var> parameter was true and a record
+                exists in this <a>object store</a> for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void remove()</dt>
+            <dd>
+              Remove the record from this <a>object store</a> by following
+              the <a>steps for deleting a record from an object store</a>
+              corresponding to the given key.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>object store</a> 
+                for the key <var>key</var parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>any get()</dt>
+            <dd>
+              Retrieve the value from this <a>object store</a> for the record 
+              corresponding to the given key by following the
+              <a>steps for retrieving a record from an object store</a>. The
+              value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>SERIAL_ERR</dt>
+                <dd>The data being stored could not be deserialized by the internal
+                structured cloning algorithm</dt>
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>object store</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>IDBCursorSync openCursor()</dt>
+            <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this
+              <a>object store</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. 
+              <dl class="parameters">
+                <dt>optional IDBKeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>No records exist in this <a>object store</a> 
+                for the requested <a>key range</a>.
+                </dd>
+              </dl>
+            </dd>
+          </dl>                
+        </section>
+        <section id="index-sync" class="section">  
+          <h4>Index</h4>
+          
+          <div class="example">
+            <p>
+              An <a>index</a> can be created for retrieving records other than
+              by using record keys. Continuing the earlier example, an auto-populated
+              index could be maintained on the <em>name</em> property of objects
+              in the <em>Contact</em> <a>object store</a>.
+            </p>
+            <codeblock>var db = indexedDB.<a>open</a>('AddressBook', 'Address Book');
+if (db.version === '1') {
+   var olddb = indexedDB.<a>open</a>('AddressBook', 'Address Book');
+   olddb.<a>createObjectStore</a>('Contact', 'id', true);
+   olddb.<a>createIndex</a>('ContactName', 'Contact', 'name', false);
+   olddb.<a>setVersion</a>('2');
+}</codeblock>
+            <p>
+              For example, the <em>id</em> of an object with the <em>name</em> 
+              property value 'Lincoln' can be retrieved using the 
+              <em>ContactName</em> <a>index</a>.
+            </p>
+            <codeblock>var index = db.<a>openIndex</a>('ContactName');
+var id = index.<a>get</a>('Lincoln');
+// id === 1</codeblock>              
+            <p>
+              Additionally, all the records of an <a>object store</a> matching
+              a certain range index keys can be retrieved in key order. When
+              objects are retrieved from the <em>Contact</em> <a>object store</a>, 
+              they are arranged by the value of the <em>id</em> attribute. On the
+              other hand, when objects are retrieved using the <em>ContactName</em>
+              <a>index</a>, they are arranged by the value of the <em>name</em> 
+              property. 
+            </p>
+            <codeblock>var range = new <a>IDBKeyRange</a>.<a>bound</a>('L', 'M');
+var cursor = index.<a>openCursor</a>(range);
+// each value is a contact and each key is the name for that  
+// contact whose name's first letter is either L or M
+cursor.continue();</codeblock>
+            <p>
+              If, on the other hand, we only want the names but not the <em>Contact</em>
+              objects for a given range, then we can use a different mechanism for that.
+            </p>
+            <codeblock>var range = new <a>IDBKeyRange</a>.<a>bound</a>('L', 'M');
+var cursor = index.<a>openObjectCursor</a>(range);
+// each value is a contact and each key is the name for that  
+// contact whose name's first letter is either L or M
+cursor.continue();</codeblock>
+          </div>
+              
+          <dl class="idl" title="interface IDBIndexSync: IDBIndex">
+            <dt>void openObjectCursor()</dt>
+            <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this 
+              <a>index</a>'s <a>referenced</a> <a>object store</a> as arranged by
+              this <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>.
+              <dl class="parameters">
+                <dt>optional IDBKeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>No records exist in this <a>index</a> 
+                for the requested <a>key range</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void openCursor()</dt>
+            <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this 
+              <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. 
+              <dl class="parameters">
+                <dt>optional IDBKeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>No records exist in this <a>index</a> 
+                for the requested <a>key range</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>any put()</dt>
+            <dd>
+              Store the given value in this <a>index</a> by following
+              the <a>steps for storing a record into an index</a>. The
+              returned object from this method is the key for the stored record.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key. This defaults
+                to <code>false</code>.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>The <var>noOverwrite</var> parameter was <code>true</code> and a 
+                record exists in this <a>index</a> for the key <var>key</var> 
+                parameter or this <a>index</a> is <a>auto-populated</a> or if no
+                record exists with key <var>value</var> parameter in the <a>index</a>'s
+                <a>referenced</a> <a>object store</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>any getObject()</dt>
+            <dd>
+              Retrieve the value from this <a>index</a>'s <a>referenced</a>
+              <a>object store</a> for the record corresponding to the given key
+              by following the <a>steps for retrieving a record from an index</a>.
+              The value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>any get()</dt>
+            <dd>
+              Retrieve the value from this <a>index</a> for the record 
+              corresponding to the given key by following the 
+              <a>steps for retrieving a value from an index</a>.
+              The value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void remove()</dt>
+            <dd>
+              Remove the records from this <a>index</a> by following
+              the <a>steps for deleting a record from an index</a>
+              corresponding to the given key.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var parameter.
+                </dd>
+              </dl>
+            </dd>
+          </dl>
+        </section>
+        <section class="section" id="cursor-sync">  
+          <h4>Cursor</h4>
+          <p>
+            Using the synchronous API, an application can process all the records
+            in the <a>cursor</a>'s <a>range</a>. No two values provided by the
+            user agent to callbacks processing data in this <a>cursor</a> can be
+            identical.
+          </p>
+          <div class="example">
+            <p>
+              By default, a <a>cursor</a> walks over objects starting at the
+              first record and ending at the last record including
+              all the duplicates encountered along the way. If the
+              cursor callback returns true, then the iteration is 
+              stopped.
+            </p>
+            <codeblock>var objects = ...
+var cursor = objects.openCursor();
+// act on each object and continue the cursor to its end
+cursor.continue();
+</codeblock>
+            
+            <p>
+              To start at the last record and end in the first record, the cursor 
+              should be created with the direction parameter <a class="idlType" href="#widl-IDBCursor-PREV"><code>PREV</code></a>.
+            </p>
+            <codeblock>var objects = ...
+var cursor = objects.openCursor(<a>IDBCursor</a>.<a>PREV</a>);
+// act on each object and continue the cursor to its end
+cursor.continue();
+</codeblock>
+
+            <p>
+              To start at a certain key and end in the last record, i.e.,
+              for a lower-bounded cursor, while skipping duplicates,
+              the cursor should be created with both the required 
+              start key and the direction parameter. 
+            </p>
+            
+            <codeblock>var objects = ...
+var range = <a>IDBKeyRange</a>.leftBound(key);
+objects.openCursor(range, <a>IDBCursor</a>.<a>NEXT_NO_DUPLICATE</a>);
+// act on each object and continue the cursor to its end
+cursor.continue();
+</codeblock>
+        
+            <p>
+              It is also possible to create a bounded cursor, i.e., with
+              application-specified starting and ending points, the
+              cursor should be created with both the required keys.
+              If the range is inclusive of both keys, then additional
+              flags are required. In the following example, all keys
+              with values in the inclusive range (<code>start</code>, 
+              <code>end</code>) are returned with all their duplicates,
+              from the beginning of the range to its end.
+            </p>
+  
+            <codeblock>var objects = ...
+var range = <a>IDBKeyRange</a>.bound(start, end);
+objects.openCursor(range);
+// act on each object and continue the cursor to its end
+cursor.continue();
+</codeblock>
+          </div>
+          <dl title="interface IDBCursorSync : IDBCursor" class="idl">
+            <dt>readonly attribute any key</dt>
+            <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+            <dt>attribute any value</dt>
+            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.
+              <dl class="setraises" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
+                and the property at the <a title="object store key path">key path</a>
+                does not match the key in this <a>cursor</a>'s <a>position</a>.
+                <dt>SERIAL_ERR</dt>
+                <dd>The data being stored could not be serialized by the internal
+                structured cloning algorithm</dt>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The underlying <a>index</a> or <a>object store</a> does not
+                support updating the item because it is open in the 
+                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
+                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
+                <a>mode</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>An index record cannot be changed because the underlying 
+                <a>index</a> is <a>auto-populated</a>.</dd>
+              </dl>
+            </dd>
+            <dt>readonly attribute unsigned long long count</dt>
+            <dd>             
+              On getting, provide the approximate number of objects in the cursor.
+            </dd>
+
+            <dt>boolean  continue()</dt>
+            <dd>
+              Advance the <a>cursor</a> to the next position along its <a>direction</a>
+              to the item whose key matches the optional parameter. If no such
+              parameter is provided, advance to the immediate next position. If
+              the <a>cursor</a> has reached the end of its <a>range</a>, then this
+              method returns false, otherwise it returns true.
+              <dl class="parameters">
+                <dt>optional any key</dt>
+                <dd>The next key to position this <a>cursor</a> at</dd>
+              </dl>
+            </dd>
+            
+            <dt>void    remove()</dt>
+            <dd>          
+              <p>
+                Delete the object at the <a>cursor</a>'s <a>position</a>. The cursor's
+                position is not changed. Any attempts to retrieve the cursor's
+                current value will return <code>null</code>.
+              </p>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The underlying <a>index</a> or <a>object store</a> does not
+                support updating the item because it is open in the 
+                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
+                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
+                <a>mode</a>.</dd>
+              </dl>
+            </dd>
+          </dl>
+        </section>
+        <section id="transaction-sync" class="section">
+          <h4>Transaction</h4>
+          <p>
+            When an application <a title="create a transaction">creates</a> a 
+            <a>transaction</a> synchronously, it blocks until the user agent is able
+            to reserve the required <a>database</a> <a>objects</a>.
+          </p>
+          <dl class="idl" title="interface IDBTransactionSync : IDBTransaction">
+            <dt>void abort()</dt>
+            <dd>
+              This method is used to signal the need to cancel the effects of
+              operations performed in this <a>transaction</a>. To perform
+              this method, the user agent ignores all the changes performed to the
+              <a>objects</a> of this <a>database</a> since the creation of this 
+              <a>transaction</a>.
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
+            </dd>
+            <dt>void commit()</dt>
+            <dd>
+              This method is used to signal the normal and satisfactory completion
+              of a <a>transaction</a>. At this point, the user agent should durably
+              store all the changes performed to the <a>objects</a> of this 
+              <a>database</a> since the creation of this <a>transaction</a>.
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>RECOVERABLE_ERR</dt>
+                <dd>If this <a>transaction</a>'s <a>scope</a> is <a>dynamic</a>, and
+                the user agent cannot commit all the changes due to another 
+                <a>transaction</a>.
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
+            </dd>
+          </dl>
+          <div class="note">
+            Applications must not assume that committing the <a>transaction</a>
+            produces an instantaneously durable result. The user agent
+            may delay flushing data to durable storage until an appropriate
+            time.
+          </div>
+                              
+          <p>
+            Once a <a>transaction</a> is aborted or committed, the <a>active</a> 
+            <a>transaction</a> on this <a>database</a> <a>connection</a> is removed.
+            A new <a>transaction</a> can be created to perform operations atomically.
+          </p>
+        </section> <!-- IDBTransaction -->
+        <section class="section">
+          <h3>The <code>IDBDatabaseException</code> Interface</h3>
+          <dl class="idl" title="exception IDBDatabaseException">
+            <dt>const unsigned short UNKNOWN_ERR = 0</dt>
+            <dd>The operation failed for reasons unrelated to the database
+              itself and not covered by any other error code.</dd>
+            <dt>const unsigned short NON_TRANSIENT_ERR = 1</dt>
+            <dd>This error occurred because an operation was not allowed on 
+            an object. A retry of the same operation would fail unless the
+            cause of the error is corrected.</dd>
+            <dt>const unsigned short NOT_FOUND_ERR = 2</dt>
+            <dd>The operation failed because the requested database
+            object could not be found. For example, an object store
+            did not exist but was being opened.</dd>
+            <dt>const unsigned short CONSTRAINT_ERR = 3</dt>
+            <dd>A mutation operation in the transaction failed due to a
+            because a constraint was not satisfied. For example, an
+            object such as an object store or index already
+            exists and a new one was being attempted to be created.</dd>
+            <dt>const unsigned short DATA_ERR = 4</dt>
+            <dd>Data provided to an operation does not meet requirements.</dd>
+            <dt>const unsigned short NOT_ALLOWED_ERR = 5</dt>
+            <dd>A mutation operation was attempted on a database that
+            did not allow mutations.</dd>
+            <dt>const unsigned short SERIAL_ERR = 11</dt>
+            <dd>The operation failed because of the size of the data set 
+            being returned or because there was a problem in serializing or 
+            deserializing the object being processed.</dd>
+            <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
+            <dd>The operation failed because the database was prevented
+            from taking an action. The operation might be able to succeed
+            if the application performs some recovery steps and retries
+            the entire transaction. For example, there was not enough 
+            remaining storage space, or the storage quota was reached
+            and the user declined to give more space to the database.</dd>
+            <!--const unsigned short QUOTA_ERR = 22;
+                <dd>The statement failed because there was not enough remaining
+     storage space, or the storage quota was reached and the user
+     declined to give more space to the database.</dd>-->
+            <dt>const unsigned short TRANSIENT_ERR = 31</dt>
+            <dd>The operation failed because of some temporary problems.
+            The failed operation might be able to succeed when the
+            operation is retried without any intervention by 
+            application-level functionality.</dd>
+            <dt>const unsigned short TIMEOUT_ERR = 32</dt>
+            <dd>A lock for the transaction could not be obtained in a
+            reasonable time.</dd>
+            <dt>const unsigned short DEADLOCK_ERR = 33</dt>
+            <dd>The current transaction was automatically rolled back
+            by the database becuase of deadlock or other transaction
+            serialization failures.</dd>
+            <dt>attribute unsigned short code</dt>
+            <dd>
+              Return the most appropriate error code.
+            </dd>
+            <dt>attribute DOMString message</dt>
+            <dd>
+              Return an error message describing the exception raised. 
+              The message should be localized to the user's language.
+            </dd>
+          </dl>  
+        </section>     
+      </section>
+      <section class="section" id="async-api"> 
+        <h3>Asynchronous APIs</h3>
+        <p>
+          The asynchronous API returns without blocking the calling thread.
+          This API can only be used in a <a class="externalDFN"><code>Window</code></a>. 
+          Asynchronous APIs are essentially the same as the synchronous ones 
+          except that the result of an operation is not available when the 
+          operation returns.
+        </p>
+        <section class="section informative" id="events">
+          <h4>Event summary</h4>
+          <p>
+            Events are fired during asynchronous access as <a>database</a> 
+            <a>objects</a> are created and data is consumed from these objects. 
+            As requests are made to <a>database</a> <a>objects</a>, the user 
+            agent loads information about them into memory and when the required
+            object handle is available, it alerts the application through the
+            firing of events. The events are as follows:
+          </p>
+          <table>
+            <thead><tr><th>Event name</th><th>Dispatched when...</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><dfn title="event-success"><code>success</code></dfn></td>
+                <td>The database request has been completed and its results are 
+                available.</td>
+              </tr>
+              <tr>
+                <td><dfn title="event-error"><code>error</code></dfn></td>
+                <td>There was an error performing the database request.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        
+        <section class="section" id="request-api">
+          <h4>The <code>IDBRequest</code> Interface</h4>
+          <p>
+            The <a><code>IDBRequest</code></a> interface provides means to access results of  
+            asynchronous requests to <a title="database">databases</a> and <a>database</a> 
+            <a>objects</a> using <a>event handler attributes</a> [[!DOM-LEVEL-3-EVENTS]]. 
+          </p>
+          <div class="example">       
+            <p>
+              In the following example, we open a <a>database</a> asynchronously. Various 
+              event handlers are registered for responding to various situations.
+            </p>
+            <codeblock>indexedDB.request.<a>onsuccess</a> = function(evt) {...};
+indexedDB.request.<a>onerror</a> = function(evt) {...};
+indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
+          </div>
+          <dl class="idl" title="interface IDBRequest"> 
+            <dt>void abort()</dt>
+            <dd>This method has no effect if the 
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            is not <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>.
+            Otherwise, the implementation makes a best effort attempt to discontinue
+            the in-flight request. The <a title="event-success">success event</a>
+            is fired if the implementation cannot abort this request and completes
+            the request successfully, otherwise the <a title="event-error">error event</a>
+            is fired. The
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
+            If the request aborts successfully, the
+            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set
+            to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>.</dd>
+            <dt>const     unsigned short INITIAL = 0</dt>
+            <dd>This state indicates that a request has not been started.</dd>
+            <dt>const     unsigned short LOADING = 1</dt>
+            <dd>This state indicates that a request has been started but its results is not
+            yet available.</dd>
+            <dt>const     unsigned short DONE = 2</dt>
+            <dd>This state indicates that a result to a previous request is available in
+            the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
+            <dt>readonly attribute unsigned short readyState</dt>
+            <dd>The state of this object</dd>
+            <dt>readonly attribute IDBDatabaseError error</dt>
+            <dd>The error that occurred during the requested operation. In the 
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> and 
+            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
+            getting this attribute returns <code>null</code>.</dd>
+            <dt>readonly attribute any result</dt>
+            <dd>The result of a successful requested operation</dd>
+  
+            <dt>attribute Function onsuccess</dt>
+            <dd>The event handler for the <a title="event-success">success event</a></dd>
+            <dt>attribute Function onerror</dt>
+            <dd>The event handler for the <a title="event-error">error event</a></dd>
+          </dl>
+          <div class="idl" title="IDBRequest implements EventTarget"></div>
+          <p>
+            When a request is made, the 
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> changes to 
+            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. 
+            Once the result of the request is available, the
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
+            place the result of the request in 
+            <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>,
+            and <a>queue a task</a> to fire an event with the name <code>success</code>, 
+            with no namespace, which does not bubble, is not cancelable, and which uses  
+            the <a class="externalDFN"><code>Event</code></a> interface at each 
+            <a class="externalDFN"><code>Window</code></a> object.
+          </p>
+          <p>
+            If an exception occurs while performing the operation, the 
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
+            the error information is placed in a new <a><code>IDBDatabaseError</code></a>
+            object at the
+            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> 
+            attribute, and <a>queue a task</a> to fire an event with the name 
+            <code>error</code>, with no namespace, which does not bubble, is 
+            not cancelable, and which uses the <a class="externalDFN"><code>Event</code></a> 
+            interface at each <a class="externalDFN"><code>Window</code></a> object.
+          </p>
+           
+          <p>
+            The <span>task source</span> for these tasks is the 
+            <dfn id="database-access-task-source">database access task source</dfn>.
+          </p>    
+        </section>
+        
+        <section class="section" id="requests">
+          <h4>Asynchronous Request API</h4>
+         <p>
+            <a title="Window"><a class="externalDFN"><code>Window</code></a> objects MUST implement the 
+            <a><code>IDBEnvironment</code></a> interface.
+          </p>
+          <p class="idl" title="Window implements IDBEnvironment">
+          </p>
+          
+          <dl class="idl" title="interface IDBEnvironment">
+            <dt>readonly attribute IndexedDatabaseRequest indexedDB</dt>
+            <dd>This attribute provides applications a means of accessing
+              capabilities of indexed databases.</dd>
+          </dl>
+          <p>
+            Every interface for making asynchronous requests includes a 
+            <a><code>IDBRequest</code></a> object that communicates back to the requesting
+            application through events. 
+            This design means that only a single request can be active on any <a>database</a>
+            or <a title="objects">object</a> handle at a time. If a second request is
+            started, the user agent MUST abort any previous active request.
+          </p>
+          <dl class="idl" title="interface IndexedDatabaseRequest">
+            <dt>readonly attribute IDBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
+            <dt>void open()</dt>
+            <dd>
+              <p>
+                This method returns immediately and runs the
+                following steps in a different thread.
+                If an error occurs while the <a>database</a> <a>connection</a> 
+                is being opened, then this object's request 
+                <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is populated 
+                with a new <a><code>IDBDatabaseError</code></a> object whose code is set
+                to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>.
+              </p>
+    
+              <ol>
+                <li>
+                  Let <var>origin</var> be the origin of the active document from which
+                  the method was invoked.                
+                </li>
+                <li>
+                  Perform the <a>steps for opening a database</a>, with <var>origin</var>,
+                  the <var>name</var> parameter and <var>description</var> parameter, and 
+                  call its result as <var>result</var>.
+                </li>
+                <li>
+                  If the steps were aborted with an error code, then set this request's
+                  <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> with that code 
+                  and abort these steps.
+                </li>
+                <li>
+                  Create a <a><code>IDBDatabaseRequest</code></a> object for <var>result</var>
+                  and call it <var>db</var>.
+                </li>
+                <li>
+                  Set the <a>result</a> of this object's request to <var>db</var>.
+              </ol>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="database name">name</a> for the <a>database</a></dd>
+                <dt>DOMString description</dt>
+                <dd>The description for the <a>database</a></dd>
+                <dt>optional boolean modifyDatabase</dt>
+                <dd>This defaults to true</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>if the <var>name</var> parameter is not <a>valid</a></dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface IDBDatabaseRequest : IDBDatabase">
+            <dt>readonly attribute IDBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
+            <dt>void createObjectStore()</dt>
+            <dd>
+              <p>
+                This method returns immediately and creates a new <a>object store</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a>. If an <a>object store</a> with the same name, compared
+                in a case-sensitive manner, already exists in the 
+                <a title="connection">connected</a> <a>database</a>, then this object's
+                request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new <a><code>IDBDatabaseError</code></a>
+                object whose code is set to <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If the
+                <a>object store</a> is created, the 
+                <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this 
+                object's request is set to a new <a><code>IDBObjectStoreRequest</code></a> 
+                for that <a>object store</a>.
+              </p>
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
+                <dt>[TreatNullAs=EmptyString] DOMString keyPath</dt>
+                <dd>The <a title="object store key path">key path</a> of a new 
+                <a>object store</a>. If <a>null</a> path is specified, then the 
+                <a>object store</a> created will not have a <a>key path</a> and will
+                use <a>out-of-line keys</a>.</dd>
+                <dt>optional boolean autoIncrement</dt>
+                <dd>Whether the <a>object store</a> created should have a 
+                <a>key generator</a>.</dd>
+              </dl>
+            </dd>
+            <dt>void openObjectStore()</dt>
+            <dd>
+              <p>
+                This method returns immediately and opens the <a>object store</a> with 
+                the given name in the <a title="connection">connected</a> <a>database</a>
+                for the <a>mode</a> specified. If an <a>object store</a> with the given
+                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>object store</a> is opened,
+                the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this
+                object's request is set to a new 
+                <a><code>IDBObjectStoreRequest</code></a> for that <a>object store</a>.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of an existing 
+                <a>object store</a></dd>
+                <dt>optional unsigned short mode</dt>
+                <dd>The <a>mode</a> used to access the <a>object store</a></dd>
+              </dl>
+            </dd>
+            <dt>void createIndex()</dt>
+            <dd>
+              <p>
+                This method returns immediately and creates a new <a>index</a>
+                with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>. If an <a>index</a> 
+                with the same name, compared in a case-sensitive manner, already exists
+                in the <a title="connection">connected</a> <a>database</a>, then this 
+                object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If the <a>object store</a> with the
+                given name does not exist in the <a title="connection">connected</a> 
+                <a>database</a> then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is created, the
+                <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's
+                request is set to a new 
+                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
+              </p>
+              <dl class="parameters">
+                <dt>DOMString      name</dt>
+                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                <dt>DOMString      storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>
+                <dt>DOMString      keyPath</dt>
+                <dd>The <a title="index key path">key path used by the new
+                <a>index</a></dd>
+                <dt>optional boolean unique</dt>
+                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
+              </dl>
+            </dd>
+            <dt>void openIndex()</dt>
+            <dd>
+              <p>
+                This method returns immediately and opens the <a>index</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+                If an <a>index</a> with the given
+                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is opened,
+                the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+                of this object's request is set to a new 
+                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>      
+            </dd>
+            <dt>void removeObjectStore()</dt>
+            <dd>
+              <p>
+                This method returns immediately and destroys the <a>object store</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a> as well as all <a title="index">indexes</a> that are 
+                <a title="referenced">referencing</a> that <a>object store</a>. If an 
+                <a>object store</a> with the given name does not exist in the 
+                <a title="connection">connected</a> <a>database</a>, 
+                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. 
+              </p>
+              
+              <dl class="parameters">
+                <dt>DOMString storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a></dd>
+              </dl>
+            </dd>
+            <dt>void removeIndex()</dt>
+            <dd>
+              <p>
+                This method returns immediately and destroys the <a>index</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a>. If an <a>index</a> with the given name does not 
+                exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. 
+              </p>
+              <dl class="parameters">
+                <dt>DOMString indexName</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>
+            </dd>
+            <dt>void setVersion()</dt>
+            <dd>
+              This method returns immediately and sets the <a>version</a> of the 
+              <a title="connection">connected</a> <a>database</a>.
+              <dl class="parameters">
+                <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
+                <dd>The <a>version</a> to store in the <a>database</a></dd>
+              </dl>
+            </dd>
+            <dt>void openTransaction()</dt>
+            <dd>
+              This method returns immediately and performs the 
+              <a>steps for creating a transaction</a> with the list of <a>database</a> 
+              <a>objects</a> for acquiring locks required in this <a>transaction</a> 
+              and an optional timeout duration. If a <a>transaction</a> can be created
+              successfully, then the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+              of this object's request is set to a new 
+              <a><code>IDBTransactionRequest</code></a> object. If reserving all the 
+              <a>database</a> <a>objects</a> identified in the requested <a>scope</a> 
+              takes longer than the specified timeout interval, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of
+              this object's request is set to the code 
+              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a>.
+              <dl class="parameters">
+                <dt>optional DOMStringList storeNames</dt>
+                <dd>The names of <a title="object store">object stores</a> and 
+                <a title="index">indexes</a> in the <a>scope</a> of the new
+                <a>transaction</a></dd>
+                <dt>optional unsigned long timeout</dt>
+                <dd>The interval which this operation is allowed to take to
+                reserve all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a>. The default
+                is user agent specific</dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface IDBObjectStoreRequest : IDBObjectStore">
+            <dt>readonly attribute IDBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
+            <dt>void put()</dt>
+            <dd>
+              This method returns immediately and stores the given value in this 
+              <a>object store</a> by following the 
+              <a>steps for storing a record into an object store</a>. If the record
+              can be successfully stored in the <a>object store</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+              of this object's request is set to the key for the stored record.
+              If the <var>noOverwrite</var> parameter was true and a record exists
+              in this <a>object store</a> for the key <var>key</var> parameter, then
+              the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code 
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If this <a>object store</a> uses 
+              <a>out-of-line</a> keys but does not use a <a>key generator</a> and the
+              <var>key</var> parameter was not passed, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's
+              request is set to code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>. If the data being 
+              stored could not be serialized by the <a>internal structured cloning algorithm</a>,
+              then the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code 
+              <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key</dd>
+              </dl>
+            </dd>
+            <dt>void remove()</dt>
+            <dd>
+              This method returns immediately and removes the record from this 
+              <a>object store</a> by following the 
+              <a>steps for deleting a record from an object store</a> corresponding to
+              the given key. If a record did not exist in this <a>object store</a> 
+              for the key <var>key</var> parameter, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's
+              request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+            </dd>
+            <dt>void get()</dt>
+            <dd>
+              This method returns immediately and retrieves the value from this 
+              <a>object store</a> for the record corresponding to the given key by
+              following the <a>steps for retrieving a record from an object store</a>. 
+              If the operation is successful, then the 
+              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
+              is set to the retrieved value. If a record did not exist in this 
+              <a>object store</a> for the key <var>key</var> parameter, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+            </dd>
+            <dt>void openCursor()</dt>
+            <dd>
+              This method returns immediately and creates a <a>cursor</a> over the 
+              <a>records</a> of this <a>object store</a>. The <a>range</a> of this
+              <a>cursor</a> matches the <a>key range</a> specified as the
+              <var>range</var> parameter, or if that parameter is not specified or
+              <code>null</code>, then the range includes all the <a>records</a>. 
+              If there is even a single record that matches the <a>key range</a>, then  
+              the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+              of this object's request is set to the 
+              <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
+              records match the <a>key range</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of this object's request
+              is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>optional IDBKeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface IDBIndexRequest : IDBIndex">
+            <dt>readonly attribute IDBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
+            <dt>void openObjectCursor()</dt>
+            <dd>
+              This method returns immediately and creates a <a>cursor</a> over the 
+              <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
+              as arranged by this <a>index</a>. The <a>range</a> of this <a>cursor</a> 
+              matches the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>.
+              If there is even a single record that matches the <a>key range</a>, then  
+              the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+              of this object's request is set to the 
+              <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
+              records match the <a>key range</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of this object's request
+              is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>optional IDBKeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+            <dt>void openCursor()</dt>
+            <dd>
+              This method returns immediately and creates a <a>cursor</a> over the 
+              <a>records</a> of this <a>index</a>. The <a>range</a> of this <a>cursor</a>
+              matches the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. 
+              If there is even a single record that matches the <a>key range</a>, then  
+              the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this 
+              object's request is set to the 
+              <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
+              records match the <a>key range</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of this object's request
+              is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>optional IDBKeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+            <dt>void put()</dt>
+            <dd>
+              This method returns immediately and stores the given value in this <a>index</a>
+              by following the <a>steps for storing a record into an index</a>. If the
+              operation succeeds, then the 
+              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> 
+              of this object's request is set to
+              the key for the stored record. If the <var>noOverwrite</var> parameter was 
+              <code>true</code> and a record exists in this <a>index</a> for the key 
+              <var>key</var> parameter or this <a>index</a> is <a>auto-populated</a> or if no
+              record exists with key <var>value</var> parameter in the <a>index</a>'s
+              <a>referenced</a> <a>object store</a>, then the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> 
+              of this object's request
+              is set to code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key. This defaults
+                to <code>false</code>.</dd>
+              </dl>
+            </dd>
+            <dt>void getObject()</dt>
+            <dd>
+              This method returns immediately and retrieves the value from this <a>index</a>'s
+              <a>referenced</a> <a>object store</a> for the record corresponding to the given
+              key by following the <a>steps for retrieving a record from an index</a>.
+              If the operation is successful, then the 
+              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
+              is set to the retrieved value. If a record did not exist in this 
+              <a>index</a> for the key <var>key</var> parameter, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+-            </dd>
+            <dt>void get()</dt>
+            <dd>
+              This method returns immediately and retrieves the value from this <a>index</a>
+              for the record corresponding to the given <var>key</var> parameter by 
+              following the <a>steps for retrieving a value from an index</a>.
+              If the operation is successful, then the 
+              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
+              is set to the retrieved value. If a record did not exist in this 
+              <a>index</a> for the key <var>key</var> parameter, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+            </dd>
+            <dt>void remove()</dt>
+            <dd>
+              This method returns immediately and removes the records from this <a>index</a>
+              by following the <a>steps for deleting a record from an index</a>
+              corresponding to the given key. If a record did not exist in this 
+              <a>index</a> for the key <var>key</var> parameter, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface IDBCursorRequest : IDBCursor">
+            <dt>readonly attribute IDBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller. When the 
+            cursor is moved, the result attribute is set to <code>false</code>
+            if there are no more records in the cursor.</dd>
+            <dt>readonly attribute any key</dt>
+            <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+            <dt>readonly attribute any value</dt>
+            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+            <dt>readonly attribute unsigned long long count</dt>
+            <dd>             
+              On getting, provide the approximate number of objects in the cursor.
+            </dd>
+            <dt>void update(in any value)</dt>
+            <dd>
+              This method returns immediately and sets the value for the record at the
+              <a>cursor</a>'s <a>position</a>. If the underlying <a>object store</a> uses
+              <a>in-line keys</a> and the property at the 
+              <a title="object store key path">key path</a> does not match the key in this
+              <a>cursor</a>'s <a>position</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's 
+              request is set to code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>. If the underlying 
+              <a>index</a> or <a>object store</a> does not support updating the item 
+              because it is open in the <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
+              <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a> <a>mode</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this
+              object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+              If the data being stored could not be serialized by the 
+              <a>internal structured cloning algorithm</a>,  then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this 
+              object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>.
+            </dd>
+            <dt>void    continue()</dt>
+            <dd>
+              This method returns immediately and advances the <a>cursor</a> to the next
+              position along its <a>direction</a> to the item whose key matches the
+              optional parameter. If no such parameter is provided, advance to the
+              immediate next postion. If the <a>cursor</a> has reached the end of its
+              <a>range</a>, then  the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+              <dl class="parameters">
+                <dt>optional any key</dt>
+                <dd>The next key to position this <a>cursor</a> at</dd>
+              </dl>
+            </dd>
+            
+            <dt>void    remove()</dt>
+            <dd>          
+              <p>
+                This method returns immediately and deletes the object at the 
+                <a>cursor</a>'s <a>position</a>. The cursor's
+                position is not changed. Any attempts to retrieve the cursor's
+                current value will return <code>null</code>. If the underlying 
+                <a>index</a> or <a>object store</a> does not support updating the item 
+                because it is open in the 
+                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
+                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a> 
+                <a>mode</a>, then the 
+                <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's request is set to code 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+              </p>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface IDBTransactionRequest : IDBTransaction">
+            <dt>readonly attribute IDBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
+            <dt>void abort()</dt>
+            <dd>
+              This method returns immediately and undoes all the changes performed to 
+              the <a>objects</a> of this <a>database</a> since the creation of this 
+              <a>transaction</a>. If this <a>transaction</a> has already been committed
+              or aborted,  then the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code
+              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>.
+            </dd>
+            <dt>void commit()</dt>
+            <dd>
+              This method returns immediately and durably stores all the changes made
+              to the <a>objects</a> of this <a>database</a> since the creation of this
+              <a>transaction</a>. If this <a>transaction</a> has already been committed
+              or aborted,  then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's request is set to code
+              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>. If this <a>transaction</a>'s 
+              <a>scope</a> is <a>dynamic</a>, and the user agent cannot commit all the
+              changes due to conflicts with another <a>transaction</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+              for this object's request is set to code
+              <a class="idlType" href="#widl-IDBDatabaseException-RECOVERABLE_ERR"><code>RECOVERABLE_ERR</code></a>.
+            </dd>
+          </dl>
+        </section>
+                  
+        <section class="section" id="event-handler">
+          <h4>Events</h4>
+          <p>
+            The following are the <span>event handlers</span> (and their corresponding 
+            <span>event handler event types</span>) that must be supported, as IDL
+            attributes, by objects implementing the <a><code>IDBRequest</code></a> interface:
+          </p>
+          
+          <table>
+            <thead><tr>
+              <th><span>Event handler</span> </th>
+              <th><span>Event handler event type</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
+                <td> <code><a class="idlType" href="#event-success">success</a></code></td>
+              </tr>
+              <tr>
+                <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
+                <td> <code><a class="idlType" href="#event-error">error</a></code></td>
+              </tr>
+            </tbody>
+          </table>        
+        </section>
+        <section id="database-exception" class="section">
+          <h3>The <code>IDBDatabaseError</code> Interface</h3>
+          <p>
+            Errors in the asynchronous database API are reported using 
+            events that have a <a><code>IDBDatabaseError</code></a> 
+            object as one of their arguments.
+          </p>
+          <dl class="idl" title="interface IDBDatabaseError">
+            <dt>attribute unsigned short code</dt>
+            <dd>
+              Return the most appropriate error code.
+            </dd>
+            <dt>attribute DOMString message</dt>
+            <dd>
+              Return an error message describing the exception raised. 
+              The message should be localized to the user's language.
+            </dd>
+          </dl>  
+        </section>
+      </section>            
+    </section> <!-- API -->      
+      
+    <section id="privacy" class="section">
+      <h2>Privacy</h2>
+      
+      <section id="user-tracking" class="section">
+        <h3>User tracking</h3>
+        
+        <p>
+          A third-party host (or any object capable of getting content 
+          distributed to multiple sites) could use a unique identifier 
+          stored in its client-side database to track a user across multiple 
+          sessions, building a profile of the user's activities. In conjunction
+          with a site that is aware of the user's real idobject (for 
+          example an e-commerce site that requires authenticated credentials),
+          this could allow oppressive groups to target individuals with
+          greater accuracy than in a world with purely anonymous Web usage.
+        </p>
+        
+        <p>
+          There are a number of techniques that can be used to mitigate the
+          risk of user tracking:
+        </p>
+        
+        <dl>
+          <dt>Blocking third-party storage</dt>
+          <dd>
+            User agents may restrict access to the database objects
+            to scripts originating at the domain of the top-level document of
+            the <span>browsing context</span>, for instance denying access to
+            the API for pages from other domains running in <code>iframe</code>s.
+          </dd>
+
+          <dt>Expiring stored data</dt>
+          <dd>
+            <p>User agents may automatically delete stored data after a period
+            of time.</p>
+
+            <p>This can restrict the ability of a site to track a user, as the
+            site would then only be able to track the user across multiple
+            sessions when he authenticates with the site itself (e.g. by
+            making a purchase or logging in to a service).</p>
+        
+            <p>However, this also puts the user's data at risk.</p>
+          </dd>
+
+          <dt>Treating persistent storage as cookies</dt>
+          <dd>          
+            <p>User agents should present the database feature
+            to the user in a way that associates them strongly with HTTP
+            session cookies. [[!COOKIES]]</p>
+        
+            <p>This might encourage users to view such storage with healthy
+            suspicion.</p>
+          </dd>
+
+          <dt>Site-specific white-listing of access to databases</dt>
+          <dd>
+            <p>User agents may require the user to authorize access to
+            databases before a site can use the feature.</p>
+          </dd>
+      
+          <dt>Origin-tracking of stored data</dt>          
+          <dd>
+            <p>User agents may record the <span title="origin">origins</span>
+            of sites that contained content from third-party origins that
+            caused data to be stored.</p>
+            
+            <p>If this information is then used to present the view of data
+            currently in persistent storage, it would allow the user to make
+            informed decisions about which parts of the persistent storage to
+            prune. Combined with a blacklist ("delete this data and prevent
+            this domain from ever storing data again"), the user can restrict
+            the use of persistent storage to sites that he trusts.</p>
+          </dd>
+      
+          <dt>Shared blacklists</dt>
+          <dd>          
+            <p>User agents may allow users to share their persistent storage
+            domain blacklists.</p>
+      
+            <p>This would allow communities to act together to protect their
+            privacy.</p>
+          </dd>
+        </dl>
+
+        <p>
+          While these suggestions prevent trivial use of this API for user
+          tracking, they do not block it altogether. Within a single domain, a
+          site can continue to track the user during a session, and can then
+          pass all this information to the third party along with any
+          identifying information (names, credit card numbers, addresses)
+          obtained by the site. If a third party cooperates with multiple
+          sites to obtain such information, a profile can still be
+          created.
+        </p>
+        
+        <p>
+          However, user tracking is to some extent possible even with no
+          cooperation from the user agent whatsoever, for instance by using
+          session identifiers in URLs, a technique already commonly used for
+          innocuous purposes but easily repurposed for user tracking (even
+          retroactively). This information can then be shared with other
+          sites, using using visitors' IP addresses and other user-specific
+          data (e.g. user-agent headers and configuration settings) to combine
+          separate sessions into coherent user profiles.          
+        </p>
+      </section>
+
+      <section id="cookie-resurrection" class="section">
+        <h3>Cookie resurrection</h3>
+        
+        <p>
+          If the user interface for persistent storage presents data in the
+          persistent storage features described in this specification
+          separately from data in HTTP session cookies, then users are likely
+          to delete data in one and not the other. This would allow sites to
+          use the two features as redundant backup for each other, defeating a
+          user's attempts to protect his privacy.
+        </p>
+      </section>
+      
+      <section id="sensitivity-of-data" class="section">
+        <h3>Sensitivity of data</h3>
+        
+        <p>
+          User agents should treat persistently stored data as potentially
+          sensitive; it's quite possible for e-mails, calendar appointments,
+          health records, or other confidential documents to be stored in this
+          mechanism.
+        </p>
+        
+        <p>To this end, user agents should ensure that when deleting data,
+          it is promptly deleted from the underlying storage.
+        </p>
+      </section>
+    </section> <!-- Privacy -->
+
+    <section id="authorization" class="section">
+      <h2>Authorization</h2>
+      
+      <section id="dns-spoofing-attacks" class="section">
+        <h3>DNS spoofing attacks</h3>
+        
+        <p>
+          Because of the potential for DNS spoofing attacks, one cannot
+          guarantee that a host claiming to be in a certain domain really is
+          from that domain. To mitigate this, pages can use SSL. Pages using
+          SSL can be sure that only pages using SSL that have certificates
+          identifying them as being from the same domain can access their
+          databases.
+        </p>
+      </section>
+  
+      <section id="cross-directory-attacks" class="section">
+        <h3>Cross-directory attacks</h3>
+        
+        <p>
+          Different authors sharing one host name, for example users
+          hosting content on <code>geocities.com</code>, all share one
+          set of databases.
+        </p>
+        
+        <p>
+          There is no feature to restrict the access by pathname. Authors on
+          shared hosts are therefore recommended to avoid using these
+          features, as it would be trivial for other authors to read the data
+          and overwrite it.
+        </p>
+        
+        <p class="note">Even if a path-restriction feature was made
+          available, the usual DOM scripting security model would make it
+          trivial to bypass this protection and access the data from any
+          path.
+        </p>
+      </section>
+      
+      <section id="implementation-risks" class="section">
+        <h3>Implementation risks</h3>
+        
+        <p>The two primary risks when implementing these persistent storage
+        features are letting hostile sites read information from other
+        domains, and letting hostile sites write information that is then
+        read from other domains.</p>
+        
+        <p>Letting third-party sites read data that is not supposed to be
+        read from their domain causes <em>information leakage</em>, For
+        example, a user's shopping wishlist on one domain could be used by
+        another domain for targeted advertising; or a user's
+        work-in-progress confidential documents stored by a word-processing
+        site could be examined by the site of a competing company.</p>
+        
+        <p>Letting third-party sites write data to the persistent storage of
+        other domains can result in <em>information spoofing</em>, which is
+        equally dangerous. For example, a hostile site could add records to a
+        user's wishlist; or a hostile site could set a user's session
+        identifier to a known ID that the hostile site can then use to track
+        the user's actions on the victim site.</p>
+        
+        <p>Thus, strictly following the <span>origin</span> model described
+        in this specification is important for user security.</p>
+      </section>
+    </section> <!-- authorization -->
+    
+    <section class="appendix section" id="requirements">
+      <h2>Requirements</h2>
+      <div class="ednote">
+        Requirements will be written with an aim to verify that these were actually
+        met by the API specified in this document.
+      </div>
+    </section>
+    <section class="section appendix" id="acknowledgements">
+      <h2>Acknowledgements</h2>
+      <div>
+        The editor of this specification was employed by Oracle Corp during its early 
+        drafts.
+      </div>
+      <div>
+        Garret Swart was extremely influential in the design of this specification.
+        Feedback from Margo Seltzer, Jonas Sicking, Arun Ranganathan, Shawn Wilsher,
+        Pablo Castro, Kris Zyp, Chris Anderson, and Dana Florescu have led to
+        improvements to this specification over time.
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+    <title>Indexed Database API</title>
+    <meta name='revision' content='$Id: Overview.html,v 1.41 2010/03/24 17:58:17 nmehta3 Exp $'/>
+    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
+    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          specStatus:           "ED",
+
+          shortName:            "IndexedDB",
+
+          //publishDate:          "2010-01-05",
+
+          previousPublishDate:  "2010-01-05",
+          previousMaturity:     "WD",
+
+          edDraftURI:           "http://dev.w3.org/2006/webapi/WebSimpleDB/",
+
+          // if this is a LCWD, uncomment and set the end of its review period
+          // lcEnd: "2009-08-05",
+
+          extraCSS: [
+                "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css",
+                "SimpleDB.css"
+          ],
+
+          // editors, add as many as you like
+          // only "name" is required
+          editors:  [
+              { name: "Nikunj Mehta", url: "mailto:nikunj@o-micron.com",
+                company: "Invited Expert" },
+          ],
+
+          maxTocLevel: 3,
+
+          wg:           "Web Applications Working Group",
+
+          wgURI:        "http://www.w3.org/2008/webapps/",
+
+          wgPublicList: "public-webapps",
+
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
+      };
+    </script>
+    <script class="remove">
+      function examples() {
+        var examples = document.querySelectorAll('div.example');
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+        for (var i = 0; i < examples.length; i++) {
+          var example = examples.item(i);
+          var header = sn.element('div', {'class': 'exampleHeader'}, null, 'Example');
+          example.insertBefore(header, example.firstChild);
+        }
+      }
+
+      function codeblocks() {
+        document.normalize();
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+
+        var blocks = document.querySelectorAll('codeblock');
+        for (var i = 0; i < blocks.length; i++) {
+          var codeblock = blocks.item(i);
+          var div = sn.element('div', {'class': 'block'})
+          sn.element('span', {'class': 'blockTitle'},
+            sn.element('div', {'class': 'blockTitleDiv'}, div), 'ECMAScript');
+          var code = sn.element('code', {'class': 'es-code'},
+                       sn.element('pre', {'class': 'code'},
+                         sn.element('div', {'class': 'blockContent'}, div)));
+          sn.copyChildren(codeblock, code);
+          codeblock.parentNode.replaceChild(div, codeblock);
+        }
+      }
+      window.onload = function() {
+        examples();
+        codeblocks();
+        (new berjon.respec()).loadAndRun();
+      }
+    </script>
+    <!--[if IE]>
+    <style type='text/css'>
+      .ignore {
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        filter: alpha(opacity=50);
+      }
+    </style>
+    <![endif]-->
+    <style type="text/css">
+      table {
+        border-collapse: collapse;
+        border-style: hidden hidden none;
+      }
+      table thead {
+        border-bottom: medium solid;
+      }
+      table td, table th {
+        border-bottom: thin solid;
+        border-left: medium solid;
+        border-right: medium solid;
+        padding: 0.2em;
+        vertical-align: top;
+      }
+      h5 {
+        display: none
+      }
+    </style>
+  </head>
+
+  <body>
+    <section id="abstract">
+      <p>
+        This document defines APIs for a database of records holding simple values
+        and hierarchical objects. Each record consists of a key and some value.
+        Moreover, the database maintains indexes over records it stores. An
+        application developer directly uses an API to locate records either by
+        their key or by using an index. A query language can be layered on this
+        API. An indexed database can be implemented using a persistent B-tree data
+        structure.
+      </p>
+    </section>
+
+
+    <section id="database-api" class="section">
+      <h2>Indexed Database API</h2>
+
+      <!-- begin-content -->
+      <section id="constructs" class="section">
+      <h3>Constructs</h3>
+        <p>
+          An indexed database is made of records holding simple values
+          and hierarchical objects. Each record consists of a key and some value.
+        </p>
+
+        <section id="key-construct" class="section">
+          <h4>Keys</h4>
+
+          <p>
+            In order to efficiently retrieve records stored in an indexed
+            database, a user agent needs to organize each record by its key.
+            <a>Conforming user agents</a> MUST support the use of values
+            of IDL data types [[!WEBIDL]] <code>DOMString</code> and <code>long</code>
+            as well as the value <code>null</code> as keys.
+          </p>
+
+          <p>
+            For purposes of comparison, a <code>DOMString</code> key is always
+            evaluated higher than any <code>long</code> key. Moreover,
+            <code>null</code> always evaluates lower than any
+            <code>DOMString</code> or <code>long</code> key.
+          </p>
+          <div class="note">
+            Only data types with natural ordering can be used as keys.
+            The ECMAScript <code>undefined</code> cannot be used as a key.
+          </div>
+        </section>
+
+        <section id="value-construct" class="section">
+          <h4>Values</h4>
+          <p>
+            Values can be any data type supported by the <a>structured clone algorithm</a>
+            [[!HTML5]]. This includes simple types such as <code>DOMString</code>
+            and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
+            instances.
+          </p>
+
+          <p>
+            A database may choose to derive a key from the contents of
+            the value being stored. In such a case, only <code>Object</code>
+            instances may be stored as values. Only the direct enumerable
+            properties of a stored <code>Object</code> instance can be
+            used to derive a key value.
+          </p>
+        </section>
+
+        <section class="section" id="object-store-concept">
+          <h4>Object Store</h4>
+          <p>
+            An <dfn>object store</dfn> is a persistent storage that holds
+            key-value pairs, also called <dfn title="record">records</dfn>. An
+            <a>object store</a>'s <a title="record">records</a> are sorted by
+            keys so as to enable fast insertion and look up as well as ordered retrieval.
+            Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
+          </p>
+
+          <p>
+            An <a>object store</a> must have a unique <dfn>key generator</dfn>,
+            if it uses keys generated from a monotonically
+            increasing sequence. Alternatively, if an application provides keys,
+            they can either be identified as a part of the value being stored,
+            also called <dfn>in-line keys</dfn>, or be identified separately, also
+            called <dfn>out-of-line keys</dfn>. No two <a title="record">records</a>
+            in an <a>object store</a> may be identified by the same key. An
+            <a>object store</a> must have a <dfn title="object store key path">key path</dfn>
+            if it uses <a>in-line keys</a>. The <a>key path</a> MUST be the name of
+            an enumerated property of all objects being stored in that
+            <a>object store</a>.
+          </p>
+
+          <p>
+            Concurrent access to an <a>object store</a> MAY be isolated in one of
+            three <dfn title="mode">modes</dfn>. Any number of <a title="reader">readers</a>
+            may concurrently access an <a>object store</a>. A <a>writer</a> is not allowed
+            if there is any <a>reader</a> concurrently accesing the <a>object store</a>,
+            unless the <a>reader</a> is detached, i.e., looking at a snapshot view
+            of the data that does not change once created.
+          </p>
+          <div class="ednote">
+            The detached reading behavior may need more explanation.
+          </div>
+          <p>
+            The <a><code>IDBObjectStore</code></a> interface is used to access the metadata
+            of an <a>object store</a>.
+          </p>
+          <dl title="interface IDBObjectStore" class="idl">
+            <dt>const     unsigned short READ_WRITE    = 0</dt>
+            <dd>Modification operations are allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_ONLY    = 1</dt>
+            <dd>Modification operations are not allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
+            <dd>This mode is used solely for reading from a snapshot of the data
+            in the <a>object store</a>.</dd>
+
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            this <a>object store</a></dd>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the <a title="object store name">name</a> of this
+              object store.
+            </dd>
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="object store key path">key path</a>
+              of this <a>object store</a>. If this attribute is <code>null</code>,
+              the application MUST provide a key value for each modification operation.
+            </dd>
+            <dt>readonly attribute DOMStringList  indexNames</dt>
+            <dd>
+            On getting, provide a list of the names of <a title="index">indexes</a> on
+            objects in this <a>object store</a>.
+            </dd>
+          </dl>
+        </section> <!-- Object store -->
+
+        <section id="index-concept" class="section">
+          <h4>Index</h4>
+          <p>
+            <a title="record">Records</a> in an <a>object store</a> can be retrieved by
+            means of the <a title="record">record's</a> key. However, that may not be
+            always adequate to recall <a title="record">records</a>. An <a>index</a> is
+            used to lookup records in an <a>object store</a> other than through a
+            <a>record</a> key.
+          </p>
+          <p>
+            An <dfn>index</dfn> is a specialized persistent store that holds key-value
+            pairs such that each value is the key of objects in the <dfn>referenced</dfn>
+            <a>object store</a>. An <a>index</a> may allow duplicate  values for a key,
+            unlike an <a>object store</a>, only if its <dfn>unique</dfn> flag is not set.
+            Every <a>index</a> has a <dfn title="index name">name</dfn>.
+          </p>
+          <p>
+            If an <a>index</a> is <dfn>auto-populated</dfn>, then the user agent populates
+            records using the values stored in the <a>referenced</a> <a>object store</a>.
+            An <a>auto-populated</a> <a>index</a> must have a
+            <dfn title="index key path">key path</dfn>, which MUST be the name of an
+            enumerated property of all objects being stored in the <a>referenced</a>
+            <a>object store</a>. The <a>auto-populated</a> <a>index</a> record
+            corresponding to an <a>object store</a> record MUST satisfy the following
+            <dfn>index maintenance conditions</dfn>:
+          </p>
+          <ul>
+            <li><a>index</a> record key = value of the enumerated property at the
+            <a title="index key path">key path<a> in the <a>object store</a> record value</li>
+            <li><a>index</a> record value = <a>object store</a> record key</li>
+          </ul>
+          <p>
+            The <a><code>IDBIndex</code></a> interface is used to access the metadata
+            of an <a>index</a>.
+          </p>
+          <dl class="idl" title="interface IDBIndex">
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the <a title="index name">name</a> of this <a>index</a>.
+            </dd>
+            <dt>readonly attribute DOMString      storeName</dt>
+            <dd>
+              On getting, provide the <a title="object store name">name</a> of this
+              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+            </dd>
+
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="index key path">key path<a> of this
+              <a>index</a>. If this attribute is <code>null</code>,
+              this <a>index</a> is not <a>auto-populated</a>.
+            </dd>
+
+            <dt>readonly attribute boolean unique</dt>
+            <dd>
+              On getting, provide the <a>unique</a> flag of this <a>index</a>.
+            </dd>
+          </dl>
+        </section> <!-- IDBIndex -->
+
+       <section id="database-concept" class="section">
+          <h4>Database</h4>
+          <p>
+            Each <a>origin</a> has an associated set of <a title="database">databases</a>.
+            A <dfn>database</dfn> comprises:
+          </p>
+          <ul>
+            <li>
+              one or more <a title="object store">object stores</a> and
+            </li>
+            <li>
+              any number of <a title="index">indexes</a>.
+            </li>
+          </ul>
+          <p>
+            The <a title="object store">object stores</a> and
+            <a title="index">indexes</a> of a <a>database</a> are also referred as
+            its <dfn>objects</dfn>.
+          </p>
+          <p>
+            Each <a>database</a> has a <a title="valid-name">valid</a>
+            <dfn title="database name">name</dfn> and a human readable description
+            A <dfn title="valid-name">valid name</dfn> is any string including
+            the empty string. An exact match of names means that their
+            UTF-8 encodings are identical.
+          </p>
+
+          <div class="note">
+            Implementations can support this even in environments that only
+            support a subset of all strings as database names by mapping
+            database names (e.g. using a hashing algorithm) to the supported
+            set of names.
+          </div>
+          <p>
+          Each <a>database</a> also has a current <dfn>version</dfn>.
+          </p>
+          <div class="note">
+            Each <a>database</a> has one version at a time; a <a>database</a> can't
+            exist in multiple versions at once.
+          </div>
+          <p>
+            The <a>object store</a> <a title="object store name">name</a> and <a>index</a>
+            <a title="index name">name</a> MUST be <a title="valid-name">valid</a> and
+            unique within the <a>database</a>.
+          </p>
+          <p>
+            When a <a>database</a> is opened, that creates a <dfn>connection</dfn>. There
+            may be multiple <a title="connection">connections</a> to a given <a>database</a>
+            at any given time. A <a>connection</a> that is attempting to read a given piece
+            of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
+            attempting to write that piece of data is called a <dfn>writer</dfn>. There
+            may be zero or one <dfn>active</dfn> <a>transaction</a> in a <a>connection</a>.
+          </p>
+          <p>
+            A <a><code>IDBDatabase</code></a> object represents a <a>connection</a> to a
+            <a>database</a>. There is no way to enumerate the
+            <a title="database">databases</a> available for an <a>origin</a> from this API.
+          </p>
+
+          <dl title="interface IDBDatabase" class="idl">
+            <dt>readonly attribute DOMString name</dt>
+            <dd>
+              On getting, this attribute must return the <a title="database name">name</a>
+              of the <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString description</dt>
+            <dd>
+              On getting, this attribute must return the description of the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString version</dt>
+            <dd>
+              On getting, this attribute must return the <a>version</a> of this
+              <a>database</a>. This attribute has the <a>null</a> value when the
+              <a title="connection">connected</a> <a>database</a> is first created.
+            </dd>
+            <dt>readonly attribute DOMStringList objectStores</dt>
+            <dd>
+              On getting, this attribute must return a list of names of the
+              <a title="object store">object stores</a> currently in the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMStringList indexes</dt>
+            <dd>
+              On getting, this attribute must return a list of names of the
+              <a title="index">indexes</a> currently in the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute IDBTransaction currentTransaction</dt>
+            <dd>
+              On getting, this attribute must return a <a><code>IDBTransaction</code></a> object
+              corresponding to the <a>transaction</a> that is <a>active</a> in this
+              <a>database</a> <a>connection</a>.
+            </dd>
+          </dl>
+        </section>  <!-- IDBDatabase -->
+
+        <section class="section" id="range-concept">
+          <h4>Key Range</h4>
+          <p>
+            An individual record can be retrieved from an <a>object store</a> using
+            either the record's key or the key applicable for some <a>index</a> that
+            <a title="referenced">references</a> that <a>object store</a>. Multiple
+            records can be fetched using a <a>key range</a>. A <dfn>key range</dfn>
+            is a continuous interval over some data type used for keys.
+          </p>
+          <p>
+            A <a>key range</a> may be left-bounded or right-bounded if there is a value
+            that is, respectively, smaller than or larger than all its elements. A
+            <a>key range</a> is said to be bounded if it is both left- and right-bounded
+            and unbounded otherwise. A <dfn title="valid key range">valid</dfn>
+            <a>key range</a> must be either half-bounded or bounded. A <a>key range</a>
+            may be open, i.e., not including its endpoints or closed, i.e., including
+            its endpoints. A <a>key range</a> may consist of a single value.
+          </p>
+          <p>
+            The <a><code>IDBKeyRange</code></a> interface is used to define a <a>key range</a>.
+          </p>
+          <dl class="idl" title="interface IDBKeyRange">
+            <dt>const     unsigned short SINGLE = 0</dt>
+            <dd>This flag indicates a single-valued <a>key range</a>.</dd>
+            <dt>const     unsigned short LEFT_OPEN = 1</dt>
+            <dd>This flag indicates a left-open <a>key range</a>.</dd>
+            <dt>const     unsigned short RIGHT_OPEN = 2</dt>
+            <dd>This flag indicates a right-open <a>key range</a>.</dd>
+            <dt>const     unsigned short LEFT_BOUND = 4</dt>
+            <dd>This flag indicates a left-bound <a>key range</a>.</dd>
+            <dt>const     unsigned short RIGHT_BOUND = 8</dt>
+            <dd>This flag indicates a right-bound <a>key range</a>.</dd>
+            <dt>readonly attribute any left</dt>
+            <dd>This value is the left-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute any right</dt>
+            <dd>This value is the right-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute unsigned short flags</dt>
+            <dd>Flags for bounding values</dd>
+            <dt>IDBKeyRange only()</dt>
+            <dd>
+              Create a new single-valued <a>key range</a>.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The only value</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange leftBound()</dt>
+            <dd>
+              Create a new left-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The left bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange rightBound()</dt>
+            <dd>
+              Create a new right-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The right bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange bound()</dt>
+            <dd>
+              Create a new left- and right-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any left</dt>
+                <dd>The left-bound value</dd>
+                <dt>any right</dt>
+                <dd>The right-bound value</dd>
+                <dt>optional boolean openLeft</dt>
+                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+                <dt>optional boolean openRight</dt>
+                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+          </dl>
+        </section> <!-- Key Range -->
+
+        <section id="cursor-concept" class="section">
+          <h4>Cursor</h4>
+          <p>
+            <a title="cursor">Cursors</a> are a transient mechanism used to
+            iterate over multiple records in a database. The storage operations
+            are performed on the underlying <a>index</a> or an <a>object store</a>.
+          </p>
+
+          <p>
+            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an
+            <a>index</a> or an <a>object store</a>. A <a title="cursor">cursor</a>
+            maintains a <dfn>position</dfn> over this series, which moves in a
+            <dfn>direction</dfn> that is either monotonically increasing or
+            decreasing order of the record keys.
+          </p>
+
+          <dl title="interface IDBCursor" class="idl">
+            <dt>const     unsigned short     NEXT = 0</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, including
+              duplicates and its <a>direction</a> is monotonically increasing
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically increasing
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+            <dt>const     unsigned short     PREV = 2</dt>
+            <dd>
+              indicates that <a>cursor</a> should yield all records, including
+              duplicates and its <a>direction</a> is monotonically decreasing
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically decreasing
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+
+            <dt>readonly attribute unsigned short     direction</dt>
+            <dd>
+            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
+            </dd>
+          </dl>
+        </section> <!-- IDBCursor -->
+
+        <section id="transaction-concept" class="section">
+          <h4>Transaction</h4>
+          <p>
+            A <dfn>transaction</dfn> has a <dfn>scope</dfn> and a <a>database</a>.
+            A <a>transaction</a>'s <a>scope</a> is either <dfn>static</dfn>
+            or <dfn>dynamic</dfn>. If the scope is <a>static</a>, it can cover
+            either all the <a>object store</a>s and <a>index</a>es in a
+            <a>database</a> or it may include a subset of them.
+          </p>
+          <p>
+            A <a>connection</a> may have at most one <a>transaction</a> at any
+            given time. Moreover, there may not be any overlap among the
+            <a>scope</a>s of all open <a title="connection">connections</a>
+            to a given <a>database</a>.
+          </p>
+          <p>
+            <a title="transaction">Transactions</a> offer some protection from
+            application and system failures. A <a>transaction</a> may be used to
+            store multiple data records or to conditionally modify certain data
+            records. A <a>transaction</a> represents an atomic and durable set of
+            data access and mutation operations.
+          </p>
+
+          <p>
+            <a title="transaction">Transactions</a> are expected to be short
+            lived. Conforming user agents may terminate
+            <a title="transaction">transactions</a> that take too long to
+            complete in order to free up storage resources that are locked by
+            a long running <a>transaction</a>.
+          </p>
+          <dl class="idl" title="interface IDBTransaction">
+          	<dt>attribute boolean static</dt>
+          	<dd>If <code>true</code>, then this <a>transaction</a> is <a>static</a>
+          	and <code>false</code> otherwise.
+          	<dt>attribute IDBDatabase db</dt>
+          	<dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
+          	is a part</dd>
+          </dl>
+        </section> <!-- IDBTransaction -->
+      </section>
+      <!-- end-content -->
+    </section>
+  </body>
+</html>
