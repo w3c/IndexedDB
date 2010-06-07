@@ -131,34 +131,34 @@
     <section id='introduction' class='section informative'>
       <h2>Introduction</h2>
 
-
+	
       <p>
         User agents need to store large numbers of objects locally in
         order to satisfy off-line data requirements of Web applications.
         [[WEBSTORAGE]] is useful for
-        storing pairs of keys and their corresponding values. However, it does
+        storing pairs of keys and their corresponding values. However, it does 
         not provide in-order retrieval of keys, efficient searching over
-        values, or storage of duplicate values for a key.
+        values, or storage of duplicate values for a key. 
       </p>
-
+      
       <p>
         This specification provides a concrete API to perform advanced key-value data management
         that is at the heart of most sophisticated query processors. It does
-        so by using transactional databases to store keys and their
+        so by using transactional databases to store keys and their 
         corresponding values (one or more per key), and providing a means
         of traversing keys in a deterministic order. This is often implemented
         through the use of persistent B-tree data structures that are considered
         efficient for insertion and deletion as well as in-order traversal of
         very large numbers of data records.
       </p>
-
+      
       <div class="example">
         <p>
-          A script can efficiently find records in an object store that come
-          closest to the required value provided the value is stored in either
+          A script can efficiently find records in an object store that come 
+          closest to the required value provided the value is stored in either 
           a primary or a secondary key.
           In the following example, the 'books' object store holds data about
-          books which are stored by their 'isbn' attribute. Additionally,
+          books which are stored by their 'isbn' attribute. Additionally, 
           an index is maintained on the 'author' attribute of the objects
           stored in the object store. This index can be used to look up books
           for a given author. If an exact match is not found, the operation
@@ -169,9 +169,9 @@ if (db.version !== '1.0') {
   var olddb = indexedDB.open('books', 'Book store');
   olddb.createObjectStore('books', 'isbn');
   olddb.createIndex('BookAuthor', 'books', 'author', false);
-  olddb.setVersion("1.0");
+  olddb.setVersion("1.0");  
 }
-// db.version === "1.0";
+// db.version === "1.0";  
 var index = db.openIndex('BookAuthor');
 var matching = index.get('fred');
 if (matching)
@@ -189,7 +189,7 @@ else
       if (matching)
         report(matching.isbn, matching.name, matching.author);
       else
-        report(null);
+        report(null);    
     }
     index.get('fred');
   }
@@ -206,21 +206,21 @@ indexedDB.request.onsuccess = function() {
           olddb.request.onsuccess = function() {
             findFred(db);
           }
-          olddb.setVersion("1.0");
+          olddb.setVersion("1.0");   
         }
-        olddb.createIndex('BookAuthor', 'books', 'author', false);
+        olddb.createIndex('BookAuthor', 'books', 'author', false);        
       }
       olddb.createObjectStore('books', 'isbn');
     }
     indexedDB.open('books', 'Book store');
   }
   findFred(db);
-};
+};        
 indexedDB.open('books', 'Book store', false);
         </codeblock>
         <!--p>
         Here is an example of a script using this API. First, a function
-        <code>prepareDatabase()</code> is defined. This function tries to create
+        <code>prepareDatabase()</code> is defined. This function tries to create 
         the database if necessary, giving it one object store called "docids" with
         the primary key "id". If it is successful, or if the table
         doesn't need creating, it calls the function that does the
@@ -232,7 +232,7 @@ function prepareDatabase(ready, error) {
   request = new <a>IDBDatabaseRequest</a>();
   request.<a>onsuccess</a> = ready;
   request.<a>onerror</a> = error;
-  var upgrade =
+  var upgrade = 
     function(changes, db) {
       changes.<a>createObjectStore</a>('docids', 'id');
       // now db.<a>version</a> === '1.0'
@@ -242,16 +242,16 @@ function prepareDatabase(ready, error) {
 
 function showDocCount(db, span) {
   var storeRequest = new <a>IDBObjectStoreRequest</a>(db);
-  storeRequest.<a>onsuccess</a> =
+  storeRequest.<a>onsuccess</a> = 
     function() {
       var store = storeRequest.<a>store</a>, total = 0;
       var cursorRequest = new <a>IDBCursorRequest</a>(store);
-      cursorRequest.<a>onsuccess</a> =
+      cursorRequest.<a>onsuccess</a> = 
         function() {
           span.textContent = total;
         };
-      cursorRequest.<a>open</a>(function(record, cursor) {
-          total += cursor.<a>count</a>;
+      cursorRequest.<a>open</a>(function(record, cursor) { 
+          total += cursor.<a>count</a>; 
         }, <a>IDBCursor</a>.<a>NEXT_NO_DUPLICATE</a>);
     };
   storeRequest.<a>open</a>('docids', true);
@@ -277,45 +277,45 @@ prepareDatabase(function(evt) {
         <dt><dfn id='dfn-conforming-user-agent'>Conforming user agent</dfn></dt>
         <dd>
           <p>
-            A user agent must behave as described in this specification
+            A user agent MUST behave as described in this specification
             in order to be considered conformant.
           </p>
-
+          
           <p>
-            User agents may implement algorithms given in this
+            User agents MAY implement algorithms given in this
             specification in any way desired, so long as the end result is
             indistinguishable from the result that would be obtained by the
             specification's algorithms.
           </p>
-
+          
           <p>
-            A conforming Indexed Database API user agent must also be a
+            A conforming Indexed Database API user agent MUST also be a
             <em>conforming implementation</em> of the IDL fragments
             of this specification, as described in the
             “Web IDL” specification. [[!WEBIDL]]
           </p>
-
+          
           <div class="note">
-            This specification uses both the terms "conforming user agent(s)"
+            This specification uses both the terms "conforming user agent(s)" 
             and "user agent(s)" to refer to this product class.
           </div>
         </dd>
-      </dl>
-
+      </dl>        
+      
       <section class="section" id="dependencies">
         <h3>Dependencies</h3>
         <p>
-          This specification relies on several other underlying specifications.
+          This specification relies on several other underlying specifications. 
         </p>
         <dl>
           <dt>HTML5</dt>
           <dd>The terms and algorithms <dfn id="document-base-url">document base URL</dfn>,
-            <dfn id="event-handler-attributes">event handler attributes</dfn>,
+            <dfn id="event-handler-attributes">event handler attributes</dfn>, 
             <dfn id="event-handler-event-type">event handler event type</dfn>,
             <dfn title="Function"><code>Function</code></dfn>,
             <dfn>origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
-            <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>,
-            and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5
+            <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
+            and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
             specification [[!HTML5]].
           </dd>
           <dt>WebWorkers</dt>

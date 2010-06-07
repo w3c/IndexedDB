@@ -9,7 +9,7 @@
     <script class='remove'>
       var respecConfig = {
           specStatus:           "ED",
-          
+
           shortName:            "IndexedDB",
 
           //publishDate:          "2010-01-05",
@@ -33,15 +33,15 @@
               { name: "Nikunj Mehta", url: "mailto:nikunj@o-micron.com",
                 company: "Invited Expert" },
           ],
-          
+
           maxTocLevel: 3,
-          
+
           wg:           "Web Applications Working Group",
-          
+
           wgURI:        "http://www.w3.org/2008/webapps/",
-          
+
           wgPublicList: "public-webapps",
-          
+
           wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
       };
     </script>
@@ -58,22 +58,22 @@
           example.insertBefore(header, example.firstChild);
         }
       }
-      
+
       function codeblocks() {
         document.normalize();
         sn = new berjon.simpleNode({
                         "":     "http://www.w3.org/1999/xhtml",
                         "x":    "http://www.w3.org/1999/xhtml"
                     });
-        
+
         var blocks = document.querySelectorAll('codeblock');
         for (var i = 0; i < blocks.length; i++) {
           var codeblock = blocks.item(i);
           var div = sn.element('div', {'class': 'block'})
-          sn.element('span', {'class': 'blockTitle'}, 
+          sn.element('span', {'class': 'blockTitle'},
             sn.element('div', {'class': 'blockTitleDiv'}, div), 'ECMAScript');
-          var code = sn.element('code', {'class': 'es-code'}, 
-                       sn.element('pre', {'class': 'code'}, 
+          var code = sn.element('code', {'class': 'es-code'},
+                       sn.element('pre', {'class': 'code'},
                          sn.element('div', {'class': 'blockContent'}, div)));
           sn.copyChildren(codeblock, code);
           codeblock.parentNode.replaceChild(div, codeblock);
@@ -118,16 +118,16 @@
     <section id="abstract">
       <p>
         This document defines APIs for a database of records holding simple values
-        and hierarchical objects. Each record consists of a key and some value. 
+        and hierarchical objects. Each record consists of a key and some value.
         Moreover, the database maintains indexes over records it stores. An
         application developer directly uses an API to locate records either by
         their key or by using an index. A query language can be layered on this
         API. An indexed database can be implemented using a persistent B-tree data
-        structure. 
+        structure.
       </p>
     </section>
 
-    <section id='introduction' class='section informative'>
+	    <section id='introduction' class='section informative'>
       <h2>Introduction</h2>
 
 	
@@ -276,19 +276,19 @@ prepareDatabase(function(evt) {
         <dt><dfn id='dfn-conforming-user-agent'>Conforming user agent</dfn></dt>
         <dd>
           <p>
-            A user agent must behave as described in this specification
+            A user agent MUST behave as described in this specification
             in order to be considered conformant.
           </p>
           
           <p>
-            User agents may implement algorithms given in this
+            User agents MAY implement algorithms given in this
             specification in any way desired, so long as the end result is
             indistinguishable from the result that would be obtained by the
             specification's algorithms.
           </p>
           
           <p>
-            A conforming Indexed Database API user agent must also be a
+            A conforming Indexed Database API user agent MUST also be a
             <em>conforming implementation</em> of the IDL fragments
             of this specification, as described in the
             “Web IDL” specification. [[!WEBIDL]]
@@ -323,15 +323,15 @@ prepareDatabase(function(evt) {
         </dl>
       </section>
     </section>
-  
+
+
     <section id="database-api" class="section">
       <h2>Indexed Database API</h2>
-      
-      <section id="constructs" class="section">
+	        <section id="constructs" class="section">
       <h3>Constructs</h3>
         <p>
           An indexed database is made of records holding simple values
-          and hierarchical objects. Each record consists of a key and some value. 
+          and hierarchical objects. Each record consists of a key and a value. 
         </p>
         
         <section id="key-construct" class="section">
@@ -339,21 +339,21 @@ prepareDatabase(function(evt) {
           
           <p>
             In order to efficiently retrieve records stored in an indexed
-            database, a user agent needs to organize each record by its key. 
+            database, a user agent needs to organize each record according to its key. 
             <a>Conforming user agents</a> MUST support the use of values
-            of IDL data types [[!WEBIDL]] <code>DOMString</code> and <code>long</code> 
-            as well as the value <code>null</code> as keys.
+            <code>null</code> and the IDL data types [[!WEBIDL]] <code>DOMString</code> and 
+            <code>long long</code> as keys.
           </p>
           
           <p>
             For purposes of comparison, a <code>DOMString</code> key is always 
-            evaluated higher than any <code>long</code> key. Moreover, 
-            <code>null</code> always evaluates lower than any 
-            <code>DOMString</code> or <code>long</code> key.
+            evaluated greater than any <code>long long</code> key. Moreover, 
+            <code>null</code> always evaluates lesser than any 
+            <code>DOMString</code> or <code>long long</code> key.
           </p>
           <div class="note">
             Only data types with natural ordering can be used as keys. 
-            The ECMAScript <code>undefined</code> cannot be used as a key.
+            The ECMAScript <code>undefined</code> MUST NOT be used as a key.
           </div>
         </section>
         
@@ -367,10 +367,10 @@ prepareDatabase(function(evt) {
           </p>
           
           <p>
-            A database may choose to derive a key from the contents of
+            A database can derive a key from the contents of
             the value being stored. In such a case, only <code>Object</code> 
-            instances may be stored as values. Only the direct enumerable
-            properties of a stored <code>Object</code> instance can be 
+            instances MAY be stored as values. Only the direct enumerable
+            properties of a stored <code>Object</code> instance SHOULD be 
             used to derive a key value.
           </p>
         </section>
@@ -378,22 +378,23 @@ prepareDatabase(function(evt) {
         <section class="section" id="object-store-concept">  
           <h4>Object Store</h4>
           <p>
-            An <dfn>object store</dfn> is a persistent storage that holds 
+            An <dfn>object store</dfn> is a persistent storage mechanism that holds 
             key-value pairs, also called <dfn title="record">records</dfn>. An 
             <a>object store</a>'s <a title="record">records</a> are sorted by
-            keys so as to enable fast insertion and look up as well as ordered retrieval. 
+            keys to enable fast insertion and look up as well as ordered retrieval. 
             Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
           </p>
           
           <p>
-            An <a>object store</a> must have a unique <dfn>key generator</dfn>,
-            if it uses keys generated from a monotonically
-            increasing sequence. Alternatively, if an application provides keys,
-            they can either be identified as a part of the value being stored,
+            If an <a>object store</a> uses keys generated from a monotonically
+            increasing sequence, it MUST have a <dfn>key generator</dfn> that produces
+            unique keys for records in that <a>object store</a>. 
+            Alternatively, if an application provides keys,
+            they MAY either be identified as a part of the value being stored,
             also called <dfn>in-line keys</dfn>, or be identified separately, also
             called <dfn>out-of-line keys</dfn>. No two <a title="record">records</a>
-            in an <a>object store</a> may be identified by the same key. An
-            <a>object store</a> must have a <dfn title="object store key path">key path</dfn> 
+            in an <a>object store</a> MAY be identified by the same key. An
+            <a>object store</a> MUST have a <dfn title="object store key path">key path</dfn> 
             if it uses <a>in-line keys</a>. The <a>key path</a> MUST be the name of
             an enumerated property of all objects being stored in that 
             <a>object store</a>.
@@ -401,17 +402,25 @@ prepareDatabase(function(evt) {
           
           <p>
             Concurrent access to an <a>object store</a> MAY be isolated in one of 
-            three <dfn title="mode">modes</dfn>. Any number of <a title="reader">readers</a>
-            may concurrently access an <a>object store</a>. A <a>writer</a> is not allowed
-            if there is any <a>reader</a> concurrently accesing the <a>object store</a>,
+            three <dfn title="mode">modes</dfn>. These are:
+            <ol>
+              <li><code>READ_ONLY</code></li>
+              <li><code>READ_WRITE</code></li>
+              <li><code>SNAPSHOT_READ</code></li>
+            </ol>
+          </p>
+          <p>  
+            Any number of <a title="reader">readers</a>
+            MAY concurrently access an <a>object store</a>. A <a>writer</a> is not allowed
+            if there is any <a>reader</a> concurrently accessing the <a>object store</a>,
             unless the <a>reader</a> is detached, i.e., looking at a snapshot view
             of the data that does not change once created. 
           </p>
-          <div class="ednote">
-            The detached reading behavior may need more explanation.
-          </div>
+          <!--div class="ednote">
+            The detached reading behavior MAY need more explanation.
+          </div-->
           <p>
-            The <a><code>IDBObjectStore</code></a> interface is used to access the metadata
+            The <a><code>IDBObjectStore</code></a> interface provides access to the metadata
             of an <a>object store</a>.
           </p>
           <dl title="interface IDBObjectStore" class="idl">
@@ -450,26 +459,27 @@ prepareDatabase(function(evt) {
         <section id="index-concept" class="section">
           <h4>Index</h4>
           <p>
-            <a title="record">Records</a> in an <a>object store</a> can be retrieved by 
-            means of the <a title="record">record's</a> key. However, that may not be
-            always adequate to recall <a title="record">records</a>. An <a>index</a> is
+            <a title="record">Records</a> in an <a>object store</a> can be retrieved using 
+            the <a title="record">record's</a> key. However, that MAY not 
+            always be adequate to recall <a title="record">records</a>. An <a>index</a> is
             used to lookup records in an <a>object store</a> other than through a
             <a>record</a> key.
           </p>
           <p>
             An <dfn>index</dfn> is a specialized persistent store that holds key-value 
             pairs such that each value is the key of objects in the <dfn>referenced</dfn>
-            <a>object store</a>. An <a>index</a> may allow duplicate  values for a key,
-            unlike an <a>object store</a>, only if its <dfn>unique</dfn> flag is not set. 
+            <a>object store</a>. If an <a>index</a>'s <dfn>unique</dfn> flag is set, then
+            it MUST NOT allow duplicate values for a key.
             Every <a>index</a> has a <dfn title="index name">name</dfn>.
           </p>
           <p>
             If an <a>index</a> is <dfn>auto-populated</dfn>, then the user agent populates
             records using the values stored in the <a>referenced</a> <a>object store</a>.
-            An <a>auto-populated</a> <a>index</a> must have a 
-            <dfn title="index key path">key path</dfn>, which MUST be the name of an
-            enumerated property of all objects being stored in the <a>referenced</a> 
-            <a>object store</a>. The <a>auto-populated</a> <a>index</a> record 
+            An <a>auto-populated</a> <a>index</a> MUST have a 
+            <dfn title="index key path">key path</dfn>. This <a>key path</a> MUST be the
+            name of an enumerated property of every object to be stored in the  
+            <a>object store</a> <a>referenced</a> by that <a>index</a>. The 
+            <a>auto-populated</a> <a>index</a> record 
             corresponding to an <a>object store</a> record MUST satisfy the following 
             <dfn>index maintenance conditions</dfn>:
           </p>
@@ -479,7 +489,7 @@ prepareDatabase(function(evt) {
             <li><a>index</a> record value = <a>object store</a> record key</li>
           </ul>
           <p>
-            The <a><code>IDBIndex</code></a> interface is used to access the metadata
+            The <a><code>IDBIndex</code></a> interface provides the metadata
             of an <a>index</a>.
           </p>
           <dl class="idl" title="interface IDBIndex">
@@ -528,15 +538,15 @@ prepareDatabase(function(evt) {
           </p>
           <p>
             Each <a>database</a> has a <a title="valid-name">valid</a> 
-            <dfn title="database name">name</dfn> and a human readable description
+            <dfn title="database name">name</dfn> and a human readable description.
             A <dfn title="valid-name">valid name</dfn> is any string including
             the empty string. An exact match of names means that their 
             UTF-8 encodings are identical.
           </p>
           
           <div class="note">
-            Implementations can support this even in environments that only
-            support a subset of all strings as database names by mapping
+            If an implementation does not support all sets of strings, it may implement
+            support for arbitrary strings by mapping
             database names (e.g. using a hashing algorithm) to the supported
             set of names.
           </div>
@@ -553,51 +563,51 @@ prepareDatabase(function(evt) {
             unique within the <a>database</a>.
           </p>
           <p>
-            When a <a>database</a> is opened, that creates a <dfn>connection</dfn>. There
-            may be multiple <a title="connection">connections</a> to a given <a>database</a> 
+            The act of opening a <a>database</a> is creates a <dfn>connection</dfn>. There
+            MAY be multiple <a title="connection">connections</a> to a given <a>database</a> 
             at any given time. A <a>connection</a> that is attempting to read a given piece
             of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
-            attempting to write that piece of data is called a <dfn>writer</dfn>. There
-            may be zero or one <dfn>active</dfn> <a>transaction</a> in a <a>connection</a>.
+            attempting to write a piece of data is called a <dfn>writer</dfn>. A
+            <a>connection</a> MAY have zero or one <dfn>active</dfn> <a>transaction</a>s.
           </p>
           <p>
-            A <a><code>IDBDatabase</code></a> object represents a <a>connection</a> to a 
-            <a>database</a>. There is no way to enumerate the 
+            An <a><code>IDBDatabase</code></a> object represents a <a>connection</a> to a 
+            <a>database</a>. This API does not provide a way to enumerate the 
             <a title="database">databases</a> available for an <a>origin</a> from this API. 
           </p>
           
           <dl title="interface IDBDatabase" class="idl">   
             <dt>readonly attribute DOMString name</dt>
             <dd>
-              On getting, this attribute must return the <a title="database name">name</a>
+              On getting, this attribute MUST return the <a title="database name">name</a>
               of the <a title="connection">connected</a> <a>database</a>.
             </dd>
             <dt>readonly attribute DOMString description</dt>  
             <dd>
-              On getting, this attribute must return the description of the
+              On getting, this attribute MUST return the description of the
               <a title="connection">connected</a> <a>database</a>.
             </dd>
             <dt>readonly attribute DOMString version</dt>
             <dd>
-              On getting, this attribute must return the <a>version</a> of this
+              On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has the <a>null</a> value when the
               <a title="connection">connected</a> <a>database</a> is first created.
             </dd>
             <dt>readonly attribute DOMStringList objectStores</dt>
             <dd>
-              On getting, this attribute must return a list of names of the 
+              On getting, this attribute MUST return a list of names of the 
               <a title="object store">object stores</a> currently in the 
               <a title="connection">connected</a> <a>database</a>.
             </dd>
             <dt>readonly attribute DOMStringList indexes</dt>
             <dd>
-              On getting, this attribute must return a list of names of the 
+              On getting, this attribute MUST return a list of names of the 
               <a title="index">indexes</a> currently in the 
               <a title="connection">connected</a> <a>database</a>.
             </dd>
             <dt>readonly attribute IDBTransaction currentTransaction</dt>
             <dd>
-              On getting, this attribute must return a <a><code>IDBTransaction</code></a> object
+              On getting, this attribute MUST return a <a><code>IDBTransaction</code></a> object
               corresponding to the <a>transaction</a> that is <a>active</a> in this
               <a>database</a> <a>connection</a>.
             </dd>
@@ -614,16 +624,16 @@ prepareDatabase(function(evt) {
             is a continuous interval over some data type used for keys.
           </p>
           <p>
-            A <a>key range</a> may be left-bounded or right-bounded if there is a value
+            A <a>key range</a> MAY be left-bounded or right-bounded if there is a value
             that is, respectively, smaller than or larger than all its elements. A
             <a>key range</a> is said to be bounded if it is both left- and right-bounded
             and unbounded otherwise. A <dfn title="valid key range">valid</dfn>
-            <a>key range</a> must be either half-bounded or bounded. A <a>key range</a>
-            may be open, i.e., not including its endpoints or closed, i.e., including
-            its endpoints. A <a>key range</a> may consist of a single value.
+            <a>key range</a> MUST be either half-bounded or bounded. A <a>key range</a>
+            MAY be open, i.e., not including its endpoints or closed, i.e., including
+            its endpoints. A <a>key range</a> MAY consist of a single value.
           </p>
           <p>
-            The <a><code>IDBKeyRange</code></a> interface is used to define a <a>key range</a>.
+            The <a><code>IDBKeyRange</code></a> interface defines a <a>key range</a>.
           </p>
           <dl class="idl" title="interface IDBKeyRange"> 
             <dt>const     unsigned short SINGLE = 0</dt>
@@ -745,17 +755,17 @@ prepareDatabase(function(evt) {
             A <a>transaction</a>'s <a>scope</a> is either <dfn>static</dfn>
             or <dfn>dynamic</dfn>. If the scope is <a>static</a>, it can cover 
             either all the <a>object store</a>s and <a>index</a>es in a 
-            <a>database</a> or it may include a subset of them.
+            <a>database</a> or it MAY include a subset of them.
           </p>
           <p>
-            A <a>connection</a> may have at most one <a>transaction</a> at any
-            given time. Moreover, there may not be any overlap among the
+            A <a>connection</a> MAY have at most one <a>transaction</a> at any
+            given time. Moreover, there MAY not be any overlap among the
             <a>scope</a>s of all open <a title="connection">connections</a>
             to a given <a>database</a>.
           </p>
           <p>
             <a title="transaction">Transactions</a> offer some protection from 
-            application and system failures. A <a>transaction</a> may be used to
+            application and system failures. A <a>transaction</a> MAY be used to
             store multiple data records or to conditionally modify certain data 
             records. A <a>transaction</a> represents an atomic and durable set of 
             data access and mutation operations. 
@@ -763,7 +773,7 @@ prepareDatabase(function(evt) {
           
           <p>  
             <a title="transaction">Transactions</a> are expected to be short
-            lived. Conforming user agents may terminate 
+            lived. Conforming user agents MAY terminate 
             <a title="transaction">transactions</a> that take too long to
             complete in order to free up storage resources that are locked by
             a long running <a>transaction</a>.
@@ -778,7 +788,6 @@ prepareDatabase(function(evt) {
           </dl>
         </section> <!-- IDBTransaction -->
       </section>  
-      
       <section class="section" id="algorithms">
         <h3>Algorithms</h3>
         <section class="section" id="opening">
@@ -1055,7 +1064,7 @@ prepareDatabase(function(evt) {
           <h4>Transaction Creation steps</h4>
           <p>
             When the user agent is to <dfn>create a <a>transaction</a></dfn>
-            it must run the following steps. These steps MUST be run with 
+            it MUST run the following steps. These steps MUST be run with 
             two parameters - <a>database</a> and an optional list of names of 
             <a>database</a> <a>objects</a> to be reserved.
           </p>
@@ -1083,7 +1092,7 @@ prepareDatabase(function(evt) {
                     the objects they depend on in an ordered sequence. 
                     <div class="note">
                       If the database does not allow fine grained locking,
-                      then a user agent may obtain a shared or exclusive lock on the database.
+                      then a user agent MAY obtain a shared or exclusive lock on the database.
                     </div>
                   </li>
                 </ol></dd>
@@ -1092,8 +1101,8 @@ prepareDatabase(function(evt) {
                     Do not acquire locks on any database objects now. Locks are obtained as
                     the application attempts to access those objects.
                     <div class="note">
-                      Using the database in this style may lead to deadlocks. Programmers
-                      must use caution to acquire and release database objects in the same
+                      Using the database in this style MAY lead to deadlocks. Programmers
+                      MUST use caution to acquire and release database objects in the same
                       global order to avoid deadlocks.
                     </div>
                 </dd>
@@ -1128,7 +1137,6 @@ prepareDatabase(function(evt) {
           </ol>        
         </section>
       </section>
-      
       <section id="sync-database" class="section">
         <h3>Synchronous APIs</h3>
         <section id="opening-sync" class="section">
@@ -1142,7 +1150,7 @@ prepareDatabase(function(evt) {
           
           <dl class="idl" title="interface IDBEnvironmentSync">
             <dt>readonly attribute IndexedDatabase indexedDB</dt>
-            <dd>This attribute provides applications a means of accessing
+            <dd>This attribute provides applications a mechanism for accessing
               capabilities of indexed databases.</dd>
           </dl>
           
@@ -1167,7 +1175,7 @@ prepareDatabase(function(evt) {
               <p>
                 The synchronous API for databases blocks the calling thread until a
                 <a><code>IDBDatabaseSync</code></a> object is ready to return.
-                When this method is invoked, the user agent must run the
+                When this method is invoked, the user agent MUST run the
                 following steps:
               </p>
     
@@ -1201,7 +1209,7 @@ prepareDatabase(function(evt) {
           <h4>Database connection</h4>
           <p>
             A <a>database</a> <a>connection</a> can be used to manipulate the 
-            <a>objects</a> of that <a>database</a>. That is also the only means of
+            <a>objects</a> of that <a>database</a>. That is also the only way to 
             obtaining a <a>transaction</a> for that <a>database</a>.
           </p>
           <dl class="idl" title="interface IDBDatabaseSync : IDBDatabase">
@@ -1312,7 +1320,7 @@ prepareDatabase(function(evt) {
             <dt>void removeObjectStore()</dt>
             <dd>
               <p>
-                This method is used to destroy an <a>object store</a> with the 
+                This method destroys an <a>object store</a> with the 
                 given name as well as all <a title="index">indexes</a> that are 
                 <a title="referenced">referencing</a> that <a>object store</a>.
               </p>
@@ -1334,7 +1342,7 @@ prepareDatabase(function(evt) {
             <dt>void removeIndex()</dt>
             <dd>
               <p>
-                This method is used to destroy an <a>index</a> with the 
+                This method destroys an <a>index</a> with the 
                 given name. 
               </p>
               <dl class="parameters">
@@ -1351,7 +1359,7 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>void setVersion()</dt>
             <dd>
-              This method is used to set the <a>version</a> of the 
+              This method sets the <a>version</a> of the 
               <a title="connection">connected</a> <a>database</a>.
               <dl class="parameters">
                 <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
@@ -1827,7 +1835,7 @@ cursor.continue();
           <dl class="idl" title="interface IDBTransactionSync : IDBTransaction">
             <dt>void abort()</dt>
             <dd>
-              This method is used to signal the need to cancel the effects of
+              This method signals the need to cancel the effects of
               operations performed in this <a>transaction</a>. To perform
               this method, the user agent ignores all the changes performed to the
               <a>objects</a> of this <a>database</a> since the creation of this 
@@ -1839,7 +1847,7 @@ cursor.continue();
             </dd>
             <dt>void commit()</dt>
             <dd>
-              This method is used to signal the normal and satisfactory completion
+              This method signals the normal and satisfactory completion
               of a <a>transaction</a>. At this point, the user agent should durably
               store all the changes performed to the <a>objects</a> of this 
               <a>database</a> since the creation of this <a>transaction</a>.
@@ -1854,9 +1862,9 @@ cursor.continue();
             </dd>
           </dl>
           <div class="note">
-            Applications must not assume that committing the <a>transaction</a>
+            Applications MUST not assume that committing the <a>transaction</a>
             produces an instantaneously durable result. The user agent
-            may delay flushing data to durable storage until an appropriate
+            MAY delay flushing data to durable storage until an appropriate
             time.
           </div>
                               
@@ -1915,7 +1923,7 @@ cursor.continue();
             reasonable time.</dd>
             <dt>const unsigned short DEADLOCK_ERR = 33</dt>
             <dd>The current transaction was automatically rolled back
-            by the database becuase of deadlock or other transaction
+            by the database because of deadlock or other transaction
             serialization failures.</dd>
             <dt>attribute unsigned short code</dt>
             <dd>
@@ -2064,7 +2072,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           
           <dl class="idl" title="interface IDBEnvironment">
             <dt>readonly attribute IndexedDatabaseRequest indexedDB</dt>
-            <dd>This attribute provides applications a means of accessing
+            <dd>This attribute provides applications a mechanism for accessing
               capabilities of indexed databases.</dd>
           </dl>
           <p>
@@ -2552,7 +2560,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               This method returns immediately and advances the <a>cursor</a> to the next
               position along its <a>direction</a> to the item whose key matches the
               optional parameter. If no such parameter is provided, advance to the
-              immediate next postion. If the <a>cursor</a> has reached the end of its
+              immediate next position. If the <a>cursor</a> has reached the end of its
               <a>range</a>, then  the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
               for this object's request is set to code
               <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
@@ -2613,7 +2621,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           <h4>Events</h4>
           <p>
             The following are the <span>event handlers</span> (and their corresponding 
-            <span>event handler event types</span>) that must be supported, as IDL
+            <span>event handler event types</span>) that MUST be supported, as IDL
             attributes, by objects implementing the <a><code>IDBRequest</code></a> interface:
           </p>
           
@@ -2655,8 +2663,12 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         </section>
       </section>            
     </section> <!-- API -->      
-      
-    <section id="privacy" class="section">
+
+
+    </section> <!-- database-api -->
+
+
+	    <section id="privacy" class="section">
       <h2>Privacy</h2>
       
       <section id="user-tracking" class="section">
@@ -2667,7 +2679,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           distributed to multiple sites) could use a unique identifier 
           stored in its client-side database to track a user across multiple 
           sessions, building a profile of the user's activities. In conjunction
-          with a site that is aware of the user's real idobject (for 
+          with a site that is aware of the user's real id object (for 
           example an e-commerce site that requires authenticated credentials),
           this could allow oppressive groups to target individuals with
           greater accuracy than in a world with purely anonymous Web usage.
@@ -2681,7 +2693,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         <dl>
           <dt>Blocking third-party storage</dt>
           <dd>
-            User agents may restrict access to the database objects
+            User agents MAY restrict access to the database objects
             to scripts originating at the domain of the top-level document of
             the <span>browsing context</span>, for instance denying access to
             the API for pages from other domains running in <code>iframe</code>s.
@@ -2689,7 +2701,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
 
           <dt>Expiring stored data</dt>
           <dd>
-            <p>User agents may automatically delete stored data after a period
+            <p>User agents MAY automatically delete stored data after a period
             of time.</p>
 
             <p>This can restrict the ability of a site to track a user, as the
@@ -2712,13 +2724,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
 
           <dt>Site-specific white-listing of access to databases</dt>
           <dd>
-            <p>User agents may require the user to authorize access to
+            <p>User agents MAY require the user to authorize access to
             databases before a site can use the feature.</p>
           </dd>
       
           <dt>Origin-tracking of stored data</dt>          
           <dd>
-            <p>User agents may record the <span title="origin">origins</span>
+            <p>User agents MAY record the <span title="origin">origins</span>
             of sites that contained content from third-party origins that
             caused data to be stored.</p>
             
@@ -2732,7 +2744,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
       
           <dt>Shared blacklists</dt>
           <dd>          
-            <p>User agents may allow users to share their persistent storage
+            <p>User agents MAY allow users to share their persistent storage
             domain blacklists.</p>
       
             <p>This would allow communities to act together to protect their
@@ -2841,7 +2853,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         
         <p>Letting third-party sites read data that is not supposed to be
         read from their domain causes <em>information leakage</em>, For
-        example, a user's shopping wishlist on one domain could be used by
+        example, a user's shopping wish list on one domain could be used by
         another domain for targeted advertising; or a user's
         work-in-progress confidential documents stored by a word-processing
         site could be examined by the site of a competing company.</p>
@@ -2849,7 +2861,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         <p>Letting third-party sites write data to the persistent storage of
         other domains can result in <em>information spoofing</em>, which is
         equally dangerous. For example, a hostile site could add records to a
-        user's wishlist; or a hostile site could set a user's session
+        user's wish list; or a hostile site could set a user's session
         identifier to a known ID that the hostile site can then use to track
         the user's actions on the victim site.</p>
         
@@ -2878,5 +2890,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         improvements to this specification over time.
       </div>
     </section>
+
+
   </body>
 </html>
