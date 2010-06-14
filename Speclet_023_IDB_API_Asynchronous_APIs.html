@@ -17,7 +17,7 @@
           previousPublishDate:  "2010-01-05",
           previousMaturity:     "WD",
 
-          edDraftURI:           "http://dev.w3.org/2006/webapi/WebSimpleDB/",
+          edDraftURI:           "http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html",
 
           // if this is a LCWD, uncomment and set the end of its review period
           // lcEnd: "2009-08-05",
@@ -135,13 +135,12 @@
         <h3>Asynchronous APIs</h3>
         <p>
           The asynchronous API returns without blocking the calling thread.
-          This API can only be used in a <a class="externalDFN"><code>Window</code></a>. 
           Asynchronous APIs are essentially the same as the synchronous ones 
           except that the result of an operation is not available when the 
           operation returns.
         </p>
-        <section class="section informative" id="events">
-          <h4>Event summary</h4>
+        <section class="section" id="events">
+          <h4>Event interfaces</h4>
           <p>
             Events are fired during asynchronous access as <a>database</a> 
             <a>objects</a> are created and data is consumed from these objects. 
@@ -150,20 +149,25 @@
             object handle is available, it alerts the application through the
             firing of events. The events are as follows:
           </p>
-          <table>
-            <thead><tr><th>Event name</th><th>Dispatched when...</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><dfn title="event-success"><code>success</code></dfn></td>
-                <td>The database request has been completed and its results are 
-                available.</td>
-              </tr>
-              <tr>
-                <td><dfn title="event-error"><code>error</code></dfn></td>
-                <td>There was an error performing the database request.</td>
-              </tr>
-            </tbody>
-          </table>
+          <dl class="idl" title="interface IDBEvent"> 
+            <dt>readonly attribute any source</dt>
+            <dd>Returns the asynchronous request object that fired this event.</dd>
+          </dl>
+          <dl class="idl" title="interface IDBSuccessEvent : IDBEvent"> 
+            <dt>readonly attribute any result</dt>
+            <dd>Returns the result of the successful completion of an asynchronous request
+            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.</dd>
+          </dl>
+          <dl class="idl" title="interface IDBErrorEvent : IDBEvent"> 
+            <dt>readonly attribute unsigned short code</dt>
+            <dd>Returns the most appropriate error code from carrying out the asynchronous request
+            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>. The 
+            valid values of this error code are defined on the exception
+            <a class="idlType" href="#widl-IDBDatabaseException"><code>IDBDatabaseException</code></a>.</dd>
+            <dt>readonly attribute DOMString message</dt>
+            <dd>Returns the describing the reason for the error. The message should be localized 
+            to the user's language.</dd>
+          </dl>
         </section>
         
         <section class="section" id="request-api">
@@ -182,17 +186,17 @@
 indexedDB.request.<a>onerror</a> = function(evt) {...};
 indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </div>
-          <dl class="idl" title="interface IDBRequest"> 
+          <dl class="idl" title="interface IDBRequest : EventTarget"> 
             <dt>void abort()</dt>
             <dd>This method has no effect if the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             is not <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>.
-            Otherwise, the implementation makes a best effort attempt to discontinue
-            the in-flight request. The <a title="event-success">success event</a>
-            is fired if the implementation cannot abort this request and completes
-            the request successfully, otherwise the <a title="event-error">error event</a>
-            is fired. The
-            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            If made on a read request, the implementation discontinues the in-flight request 
+            even if the implementation has already read the data, and is ready to fire a
+            <a title="event-success">success event</a>. The <a title="event-error">error event</a> 
+            is always fired if <a class="idlType" href="#widl-IDBRequest-abort"><code>abort()</code></a> 
+            is called, and the <a title="event-success">success event</a> is suppressed.
+            The <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If the request aborts successfully, the
             <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set
@@ -207,52 +211,61 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
             <dt>readonly attribute unsigned short readyState</dt>
             <dd>The state of this object</dd>
-            <dt>readonly attribute IDBDatabaseError error</dt>
-            <dd>The error that occurred during the requested operation. In the 
-            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> and 
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
-            getting this attribute returns <code>null</code>.</dd>
-            <dt>readonly attribute any result</dt>
-            <dd>The result of a successful requested operation</dd>
-  
             <dt>attribute Function onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
             <dt>attribute Function onerror</dt>
             <dd>The event handler for the <a title="event-error">error event</a></dd>
           </dl>
-          <div class="idl" title="IDBRequest implements EventTarget"></div>
           <p>
             When a request is made, the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> changes to 
             <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. 
-            Once the result of the request is available, the
+            If a request completes successfully, the
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
-            place the result of the request in 
-            <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>,
-            and <a>queue a task</a> to fire an event with the name <code>success</code>, 
-            with no namespace, which does not bubble, is not cancelable, and which uses  
-            the <a class="externalDFN"><code>Event</code></a> interface at each 
+            the result of the request is included as the 
+            <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> of
+            a new <a class="idlType" href="#widl-IDBSuccessEvent"><code>IDBSuccessEvent</code></a> 
+            event, and <a>queue a task</a> to fire that event with the name <code>success</code>, 
+            with no namespace, which does not bubble, is not cancelable at each 
             <a class="externalDFN"><code>Window</code></a> object.
           </p>
           <p>
-            If an exception occurs while performing the operation, the 
+            If an error occurs while performing the operation, the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
-            the error information is placed in a new <a><code>IDBDatabaseError</code></a>
-            object at the
-            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> 
-            attribute, and <a>queue a task</a> to fire an event with the name 
+            the error code and message are included in a new <a><code>IDBDatabaseError</code></a>
+            event, and <a>queue a task</a> to fire that event with the name 
             <code>error</code>, with no namespace, which does not bubble, is 
-            not cancelable, and which uses the <a class="externalDFN"><code>Event</code></a> 
-            interface at each <a class="externalDFN"><code>Window</code></a> object.
+            not cancelable at each <a class="externalDFN"><code>Window</code></a> object.
           </p>
            
           <p>
             The <span>task source</span> for these tasks is the 
             <dfn id="database-access-task-source">database access task source</dfn>.
           </p>    
+          <p>
+            The following are the <span>event handlers</span> (and their corresponding 
+            <span>event handler event types</span>) that MUST be supported, as IDL
+            attributes, by objects implementing the <a><code>IDBRequest</code></a> interface:
+          </p>
+          
+          <table>
+            <thead><tr>
+              <th><span>Event handler</span> </th>
+              <th><span>Event handler event type</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
+                <td> <code><a class="idlType" href="#event-success">success</a></code></td>
+              </tr>
+              <tr>
+                <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
+                <td> <code><a class="idlType" href="#event-error">error</a></code></td>
+              </tr>
+            </tbody>
+          </table>        
         </section>
         
         <section class="section" id="requests">
@@ -811,50 +824,6 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </dl>
         </section>
                   
-        <section class="section" id="event-handler">
-          <h4>Events</h4>
-          <p>
-            The following are the <span>event handlers</span> (and their corresponding 
-            <span>event handler event types</span>) that MUST be supported, as IDL
-            attributes, by objects implementing the <a><code>IDBRequest</code></a> interface:
-          </p>
-          
-          <table>
-            <thead><tr>
-              <th><span>Event handler</span> </th>
-              <th><span>Event handler event type</span></th>
-            </tr></thead>
-            <tbody>
-              <tr>
-                <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
-                <td> <code><a class="idlType" href="#event-success">success</a></code></td>
-              </tr>
-              <tr>
-                <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
-                <td> <code><a class="idlType" href="#event-error">error</a></code></td>
-              </tr>
-            </tbody>
-          </table>        
-        </section>
-        <section id="database-exception" class="section">
-          <h3>The <code>IDBDatabaseError</code> Interface</h3>
-          <p>
-            Errors in the asynchronous database API are reported using 
-            events that have a <a><code>IDBDatabaseError</code></a> 
-            object as one of their arguments.
-          </p>
-          <dl class="idl" title="interface IDBDatabaseError">
-            <dt>attribute unsigned short code</dt>
-            <dd>
-              Return the most appropriate error code.
-            </dd>
-            <dt>attribute DOMString message</dt>
-            <dd>
-              Return an error message describing the exception raised. 
-              The message should be localized to the user's language.
-            </dd>
-          </dl>  
-        </section>
       </section>            
     </section> <!-- API -->      
 
