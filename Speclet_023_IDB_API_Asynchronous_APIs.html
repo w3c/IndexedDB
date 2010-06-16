@@ -190,12 +190,12 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>void abort()</dt>
             <dd>This method has no effect if the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            is not <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>.
+            is <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If made on a read request, the implementation discontinues the in-flight request 
             even if the implementation has already read the data, and is ready to fire a
-            <a title="event-success">success event</a>. The <a title="event-error">error event</a> 
+            <a href="#event-success">success event</a>. The <a href="#event-error">error event</a> 
             is always fired if <a class="idlType" href="#widl-IDBRequest-abort"><code>abort()</code></a> 
-            is called, and the <a title="event-success">success event</a> is suppressed.
+            is called, and the <a href="#event-success">success event</a> is suppressed.
             The <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If the request aborts successfully, the
@@ -210,7 +210,12 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dd>This state indicates that a result to a previous request is available in
             the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
             <dt>readonly attribute unsigned short readyState</dt>
-            <dd>The state of this object</dd>
+            <dd>Every request starts in the 
+            <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> state.
+            As soon as the implementation starts executing the request, its state changes to
+            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. When either
+            the request completes, fails or aborts successfully, the state changes to 
+            <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.</dd>
             <dt>attribute Function onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
             <dt>attribute Function onerror</dt>
@@ -283,18 +288,14 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               capabilities of indexed databases.</dd>
           </dl>
           <p>
-            Every interface for making asynchronous requests includes a 
+            Every method for making asynchronous requests returns an 
             <a><code>IDBRequest</code></a> object that communicates back to the requesting
             application through events.
-            This design means that only a single request can be active on any <a>database</a>
-            or <a title="objects">object</a> handle at a time. If a second request is
-            started, the user agent MUST abort any previous active request.
+            This design means that any number of requests can be active on any <a>database</a>
+            or <a title="objects">object</a> handle at a time. 
           </p>
           <dl class="idl" title="[NoInterfaceObject] interface IDBFactoryRequest">
-            <dt>readonly attribute IDBRequest request</dt>
-            <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller</dd>
-            <dt>void open()</dt>
+            <dt>IDBRequest open()</dt>
             <dd>
               <p>
                 This method returns immediately and runs the
@@ -333,6 +334,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
                 <dt>DOMString description</dt>
                 <dd>The description for the <a>database</a></dd>
+                <!-- TODO Jonas wants to take this out-->
                 <dt>optional boolean modifyDatabase</dt>
                 <dd>This defaults to true</dd>
               </dl>
@@ -343,10 +345,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
           </dl>
           <dl class="idl" title="[NoInterfaceObject] interface IDBDatabaseRequest : IDBDatabase">
-            <dt>readonly attribute IDBRequest request</dt>
-            <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller</dd>
-            <dt>void createObjectStore()</dt>
+            <dt>IDBRequest createObjectStore()</dt>
             <dd>
               <p>
                 This method returns immediately and creates a new <a>object store</a>
@@ -365,17 +364,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
-                <dt>[TreatNullAs=EmptyString] DOMString keyPath</dt>
+                <dt>[TreatNullAs=EmptyString] optional DOMString keyPath</dt>
                 <dd>The <a title="object store key path">key path</a> of a new 
                 <a>object store</a>. If <a>null</a> path is specified, then the 
                 <a>object store</a> created will not have a <a>key path</a> and will
                 use <a>out-of-line keys</a>.</dd>
                 <dt>optional boolean autoIncrement</dt>
                 <dd>Whether the <a>object store</a> created should have a 
-                <a>key generator</a>.</dd>
+                <a>key generator</a>. This defaults to <code>true</code>.</dd>
               </dl>
             </dd>
-            <dt>void openObjectStore()</dt>
+            <dt>IDBRequest openObjectStore()</dt>
             <dd>
               <p>
                 This method returns immediately and opens the <a>object store</a> with 
@@ -398,61 +397,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>mode</a> used to access the <a>object store</a></dd>
               </dl>
             </dd>
-            <dt>void createIndex()</dt>
-            <dd>
-              <p>
-                This method returns immediately and creates a new <a>index</a>
-                with the given name and parameters in the 
-                <a title="connection">connected</a> <a>database</a>. If an <a>index</a> 
-                with the same name, compared in a case-sensitive manner, already exists
-                in the <a title="connection">connected</a> <a>database</a>, then this 
-                object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If the <a>object store</a> with the
-                given name does not exist in the <a title="connection">connected</a> 
-                <a>database</a> then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is created, the
-                <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's
-                request is set to a new 
-                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
-              </p>
-              <dl class="parameters">
-                <dt>DOMString      name</dt>
-                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
-                <dt>DOMString      storeName</dt>
-                <dd>The <a title="object store name">name</a> of an existing
-                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>
-                <dt>DOMString      keyPath</dt>
-                <dd>The <a title="index key path">key path used by the new
-                <a>index</a></dd>
-                <dt>optional boolean unique</dt>
-                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
-              </dl>
-            </dd>
-            <dt>void openIndex()</dt>
-            <dd>
-              <p>
-                This method returns immediately and opens the <a>index</a> with the
-                given name in the <a title="connection">connected</a> <a>database</a>.
-                If an <a>index</a> with the given
-                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
-                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is opened,
-                the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-                of this object's request is set to a new 
-                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
-              </p>              
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
-              </dl>      
-            </dd>
-            <dt>void removeObjectStore()</dt>
+            <dt>IDBRequest removeObjectStore()</dt>
             <dd>
               <p>
                 This method returns immediately and destroys the <a>object store</a>
@@ -473,23 +418,6 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a>object store</a></dd>
               </dl>
             </dd>
-            <dt>void removeIndex()</dt>
-            <dd>
-              <p>
-                This method returns immediately and destroys the <a>index</a>
-                with the given name in the <a title="connection">connected</a> 
-                <a>database</a>. If an <a>index</a> with the given name does not 
-                exist in the <a title="connection">connected</a> <a>database</a>, 
-                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. 
-              </p>
-              <dl class="parameters">
-                <dt>DOMString indexName</dt>
-                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
-              </dl>
-            </dd>
             <dt>void setVersion()</dt>
             <dd>
               This method returns immediately and sets the <a>version</a> of the 
@@ -499,7 +427,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
-            <dt>void openTransaction()</dt>
+            <dt>IDBRequest openTransaction()</dt>
             <dd>
               This method returns immediately and performs the 
               <a>steps for creating a transaction</a> with the list of <a>database</a> 
@@ -527,10 +455,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
           </dl>
           <dl class="idl" title="[NoInterfaceObject] interface IDBObjectStoreRequest : IDBObjectStore">
-            <dt>readonly attribute IDBRequest request</dt>
-            <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller</dd>
-            <dt>void put()</dt>
+            <dt>IDBRequest put()</dt>
             <dd>
               This method returns immediately and stores the given value in this 
               <a>object store</a> by following the 
@@ -560,7 +485,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Whether to overwrite an existing record with the same key</dd>
               </dl>
             </dd>
-            <dt>void remove()</dt>
+            <dt>IDBRequest remove()</dt>
             <dd>
               This method returns immediately and removes the record from this 
               <a>object store</a> by following the 
@@ -574,7 +499,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Key identifying the record to be removed</dd>
               </dl>
             </dd>
-            <dt>void get()</dt>
+            <dt>IDBRequest get()</dt>
             <dd>
               This method returns immediately and retrieves the value from this 
               <a>object store</a> for the record corresponding to the given key by
@@ -590,7 +515,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
             </dd>
-            <dt>void openCursor()</dt>
+            <dt>IDBRequest openCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>object store</a>. The <a>range</a> of this
@@ -611,12 +536,81 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
+            <dt>IDBRequest createIndex()</dt>
+            <dd>
+              <p>
+                This method returns immediately and creates a new <a>index</a>
+                with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>. If an <a>index</a> 
+                with the same name, compared in a case-sensitive manner, already exists
+                in the <a title="connection">connected</a> <a>database</a>, then this 
+                object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If the <a>object store</a> with the
+                given name does not exist in the <a title="connection">connected</a> 
+                <a>database</a> then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is created, the
+                <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's
+                request is set to a new 
+                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
+              </p>
+              <dl class="parameters">
+                <dt>DOMString      name</dt>
+                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                <!-- this is removed because it is implicit on the store
+                <dt>DOMString      storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>-->
+                <dt>DOMString      keyPath</dt>
+                <dd>The <a title="index key path">key path used by the new
+                <a>index</a></dd>
+                <dt>optional boolean unique</dt>
+                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
+              </dl>
+            </dd>
+            <dt>IDBRequest openIndex()</dt>
+            <dd>
+              <p>
+                This method returns immediately and opens the <a>index</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+                If an <a>index</a> with the given
+                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is opened,
+                the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+                of this object's request is set to a new 
+                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>      
+            </dd>
+            <dt>IDBRequest removeIndex()</dt>
+            <dd>
+              <p>
+                This method returns immediately and destroys the <a>index</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a>. If an <a>index</a> with the given name does not 
+                exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
+                is populated with a new 
+                <a><code>IDBDatabaseError</code></a> object whose code is set to 
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. 
+              </p>
+              <dl class="parameters">
+                <dt>DOMString indexName</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>
+            </dd>
           </dl>
           <dl class="idl" title="[NoInterfaceObject] interface IDBIndexRequest : IDBIndex">
-            <dt>readonly attribute IDBRequest request</dt>
-            <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller</dd>
-            <dt>void openObjectCursor()</dt>
+            <dt>IDBRequest openObjectCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
@@ -638,7 +632,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
-            <dt>void openCursor()</dt>
+            <dt>IDBRequest openCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>index</a>. The <a>range</a> of this <a>cursor</a>
@@ -659,7 +653,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
-            <dt>void put()</dt>
+            <dt>IDBRequest put()</dt>
             <dd>
               This method returns immediately and stores the given value in this <a>index</a>
               by following the <a>steps for storing a record into an index</a>. If the
@@ -683,7 +677,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 to <code>false</code>.</dd>
               </dl>
             </dd>
-            <dt>void getObject()</dt>
+            <dt>IDBRequest getObject()</dt>
             <dd>
               This method returns immediately and retrieves the value from this <a>index</a>'s
               <a>referenced</a> <a>object store</a> for the record corresponding to the given
@@ -699,7 +693,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
 -            </dd>
-            <dt>void get()</dt>
+            <dt>IDBRequest get()</dt>
             <dd>
               This method returns immediately and retrieves the value from this <a>index</a>
               for the record corresponding to the given <var>key</var> parameter by 
@@ -715,7 +709,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
             </dd>
-            <dt>void remove()</dt>
+            <dt>IDBRequest remove()</dt>
             <dd>
               This method returns immediately and removes the records from this <a>index</a>
               by following the <a>steps for deleting a record from an index</a>
@@ -730,11 +724,6 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
           </dl>
           <dl class="idl" title="[NoInterfaceObject] interface IDBCursorRequest : IDBCursor">
-            <dt>readonly attribute IDBRequest request</dt>
-            <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller. When the 
-            cursor is moved, the result attribute is set to <code>false</code>
-            if there are no more records in the cursor.</dd>
             <dt>readonly attribute any key</dt>
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute any value</dt>
@@ -743,7 +732,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dd>             
               On getting, provide the approximate number of objects in the cursor.
             </dd>
-            <dt>void update(in any value)</dt>
+            <dt>IDBRequest update(in any value)</dt>
             <dd>
               This method returns immediately and sets the value for the record at the
               <a>cursor</a>'s <a>position</a>. If the underlying <a>object store</a> uses
@@ -762,7 +751,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this 
               object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>.
             </dd>
-            <dt>void    continue()</dt>
+            <dt>boolean    continue()</dt>
             <dd>
               This method returns immediately and advances the <a>cursor</a> to the next
               position along its <a>direction</a> to the item whose key matches the
@@ -777,7 +766,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
             
-            <dt>void    remove()</dt>
+            <dt>IDBRequest    remove()</dt>
             <dd>          
               <p>
                 This method returns immediately and deletes the object at the 
@@ -795,9 +784,6 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
           </dl>
           <dl class="idl" title="[NoInterfaceObject] interface IDBTransactionRequest : IDBTransaction">
-            <dt>readonly attribute IDBRequest request</dt>
-            <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller</dd>
             <dt>void abort()</dt>
             <dd>
               This method returns immediately and undoes all the changes performed to 
