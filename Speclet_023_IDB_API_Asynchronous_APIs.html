@@ -193,9 +193,9 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             is <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If made on a read request, the implementation discontinues the in-flight request 
             even if the implementation has already read the data, and is ready to fire a
-            <a href="#event-success">success event</a>. The <a href="#event-error">error event</a> 
+            <a title="event-success">success event</a>. The <a title="event-error">error event</a> 
             is always fired if <a class="idlType" href="#widl-IDBRequest-abort"><code>abort()</code></a> 
-            is called, and the <a href="#event-success">success event</a> is suppressed.
+            is called, and the <a title="event-success">success event</a> is suppressed.
             The <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If the request aborts successfully, the
@@ -263,11 +263,11 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <tbody>
               <tr>
                 <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
-                <td> <code><a class="idlType" href="#event-success">success</a></code></td>
+                <td> <code><dfn title="event-success">success</dfn></td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
-                <td> <code><a class="idlType" href="#event-error">error</a></code></td>
+                <td> <code><dfn title="event-error">error</dfn></code></td>
               </tr>
             </tbody>
           </table>        
@@ -301,10 +301,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 This method returns immediately and runs the
                 following steps in a different thread.
                 If an error occurs while the <a>database</a> <a>connection</a> 
-                is being opened, then this object's request 
-                <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is populated 
-                with a new <a><code>IDBDatabaseError</code></a> object whose code is set
-                to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>.
+                is being opened, then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set
+                to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               </p>
     
               <ol>
@@ -327,7 +330,10 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                   and call it <var>db</var>.
                 </li>
                 <li>
-                  Set the <a>result</a> of this object's request to <var>db</var>.
+                  Fire a <a title="event-success">success event</a> on this method's
+                  returned object with its 
+                  <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set
+                  to <var>db</var>.
               </ol>              
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -352,14 +358,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 with the given name in the <a title="connection">connected</a> 
                 <a>database</a>. If an <a>object store</a> with the same name, compared
                 in a case-sensitive manner, already exists in the 
-                <a title="connection">connected</a> <a>database</a>, then this object's
-                request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new <a><code>IDBDatabaseError</code></a>
-                object whose code is set to <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If the
-                <a>object store</a> is created, the 
-                <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this 
-                object's request is set to a new <a><code>IDBObjectStoreRequest</code></a> 
-                for that <a>object store</a>.
+                <a title="connection">connected</a> <a>database</a>, then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
+                set to <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                If the <a>object store</a> is created successfully, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set
+                to a new <a><code>IDBObjectStoreRequest</code></a> for that <a>object store</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -381,12 +390,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 the given name in the <a title="connection">connected</a> <a>database</a>
                 for the <a>mode</a> specified. If an <a>object store</a> with the given
                 name does not exist in the <a title="connection">connected</a> <a>database</a>, 
-                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>object store</a> is opened,
-                the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this
-                object's request is set to a new 
+                then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                If the <a>object store</a> is opened, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
                 <a><code>IDBObjectStoreRequest</code></a> for that <a>object store</a>.
               </p>              
               <dl class="parameters">
@@ -406,10 +420,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="referenced">referencing</a> that <a>object store</a>. If an 
                 <a>object store</a> with the given name does not exist in the 
                 <a title="connection">connected</a> <a>database</a>, 
-                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. 
+                then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               </p>
               
               <dl class="parameters">
@@ -433,14 +450,19 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a>steps for creating a transaction</a> with the list of <a>database</a> 
               <a>objects</a> for acquiring locks required in this <a>transaction</a> 
               and an optional timeout duration. If a <a>transaction</a> can be created
-              successfully, then the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-              of this object's request is set to a new 
+              successfully, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
               <a><code>IDBTransactionRequest</code></a> object. If reserving all the 
               <a>database</a> <a>objects</a> identified in the requested <a>scope</a> 
-              takes longer than the specified timeout interval, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of
-              this object's request is set to the code 
-              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a>.
+              takes longer than the specified timeout interval, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>optional DOMStringList storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
@@ -460,29 +482,74 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               This method returns immediately and stores the given value in this 
               <a>object store</a> by following the 
               <a>steps for storing a record into an object store</a>. If the record
-              can be successfully stored in the <a>object store</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-              of this object's request is set to the key for the stored record.
-              If the <var>noOverwrite</var> parameter was true and a record exists
-              in this <a>object store</a> for the key <var>key</var> parameter, then
-              the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code 
-              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If this <a>object store</a> uses 
+              can be successfully stored in the <a>object store</a>, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
+              the key for the stored record.
+              If this <a>object store</a> uses 
               <a>out-of-line</a> keys but does not use a <a>key generator</a> and the
-              <var>key</var> parameter was not passed, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's
-              request is set to code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>. If the data being 
+              <var>key</var> parameter was not passed, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              If the data being 
               stored could not be serialized by the <a>internal structured cloning algorithm</a>,
-              then the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code 
-              <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>.
+              then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the record</dd>
                 <dt>optional any key</dt>
                 <dd>The key used to identify the record</dd>
-                <dt>optional boolean noOverwrite</dt>
-                <dd>Whether to overwrite an existing record with the same key</dd>
+              </dl>
+            </dd>
+            <dt>IDBRequest putNoOverwrite()</dt>
+            <dd>
+              This method returns immediately and stores the given value in this 
+              <a>object store</a> by following the 
+              <a>steps for storing a record into an object store</a> with the no-overwrite flag
+              set. If the record
+              can be successfully stored in the <a>object store</a>, then the 
+              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+              of this object's request is set to the key for the stored record.
+              If a record exists
+              in this <a>object store</a> for the key <var>key</var> parameter, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              If this <a>object store</a> uses 
+              <a>out-of-line</a> keys but does not use a <a>key generator</a> and the
+              <var>key</var> parameter was not passed, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              If the data being 
+              stored could not be serialized by the <a>internal structured cloning algorithm</a>,
+              then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
               </dl>
             </dd>
             <dt>IDBRequest remove()</dt>
@@ -491,9 +558,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a>object store</a> by following the 
               <a>steps for deleting a record from an object store</a> corresponding to
               the given key. If a record did not exist in this <a>object store</a> 
-              for the key <var>key</var> parameter, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's
-              request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              for the key <var>key</var> parameter, then an 
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be removed</dd>
@@ -507,9 +578,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               If the operation is successful, then the 
               <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
               is set to the retrieved value. If a record did not exist in this 
-              <a>object store</a> for the key <var>key</var> parameter, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <a>object store</a> for the key <var>key</var> parameter, then an 
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
@@ -522,13 +597,18 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a>cursor</a> matches the <a>key range</a> specified as the
               <var>range</var> parameter, or if that parameter is not specified or
               <code>null</code>, then the range includes all the <a>records</a>. 
-              If there is even a single record that matches the <a>key range</a>, then  
-              the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-              of this object's request is set to the 
+              If there is even a single record that matches the <a>key range</a>, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
               <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
-              records match the <a>key range</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of this object's request
-              is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              records match the <a>key range</a>, then an 
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -543,18 +623,26 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>. If an <a>index</a> 
                 with the same name, compared in a case-sensitive manner, already exists
-                in the <a title="connection">connected</a> <a>database</a>, then this 
-                object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>. If the <a>object store</a> with the
+                in the <a title="connection">connected</a> <a>database</a>, then an 
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                If the <a>object store</a> with the
                 given name does not exist in the <a title="connection">connected</a> 
-                <a>database</a> then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is created, the
-                <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's
-                request is set to a new 
+                <a>database</a> then an 
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                If the <a>index</a> is created, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new
                 <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
               </p>
               <dl class="parameters">
@@ -577,13 +665,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 This method returns immediately and opens the <a>index</a> with the
                 given name in the <a title="connection">connected</a> <a>database</a>.
                 If an <a>index</a> with the given
-                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
-                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is opened,
-                the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-                of this object's request is set to a new 
+                name does not exist in the <a title="connection">connected</a> <a>database</a>, then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                If the <a>index</a> is opened, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
                 <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
               </p>              
               <dl class="parameters">
@@ -597,11 +689,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 This method returns immediately and destroys the <a>index</a>
                 with the given name in the <a title="connection">connected</a> 
                 <a>database</a>. If an <a>index</a> with the given name does not 
-                exist in the <a title="connection">connected</a> <a>database</a>, 
-                then this object's request <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-                is populated with a new 
-                <a><code>IDBDatabaseError</code></a> object whose code is set to 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>. 
+                exist in the <a title="connection">connected</a> <a>database</a>, then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
@@ -610,7 +704,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
           </dl>
           <dl class="idl" title="[NoInterfaceObject] interface IDBIndexRequest : IDBIndex">
-            <dt>IDBRequest openObjectCursor()</dt>
+            <dt>IDBCursorRequest openObjectCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
@@ -618,13 +712,18 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               matches the <a>key range</a> specified as the <var>range</var> parameter, or
               if that parameter is not specified or <code>null</code>, then the 
               range includes all the <a>records</a>.
-              If there is even a single record that matches the <a>key range</a>, then  
-              the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-              of this object's request is set to the 
+              If there is even a single record that matches the <a>key range</a>, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
               <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
-              records match the <a>key range</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of this object's request
-              is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              records match the <a>key range</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -639,13 +738,18 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               matches the <a>key range</a> specified as the <var>range</var> parameter, or
               if that parameter is not specified or <code>null</code>, then the 
               range includes all the <a>records</a>. 
-              If there is even a single record that matches the <a>key range</a>, then  
-              the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this 
-              object's request is set to the 
+              If there is even a single record that matches the <a>key range</a>, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the 
               <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
-              records match the <a>key range</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> of this object's request
-              is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              records match the <a>key range</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -657,24 +761,39 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dd>
               This method returns immediately and stores the given value in this <a>index</a>
               by following the <a>steps for storing a record into an index</a>. If the
-              operation succeeds, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> 
-              of this object's request is set to
-              the key for the stored record. If the <var>noOverwrite</var> parameter was 
-              <code>true</code> and a record exists in this <a>index</a> for the key 
-              <var>key</var> parameter or this <a>index</a> is <a>auto-populated</a> or if no
-              record exists with key <var>value</var> parameter in the <a>index</a>'s
-              <a>referenced</a> <a>object store</a>, then the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> 
-              of this object's request
-              is set to code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
+              operation succeeds, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
+              key for the stored record. 
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the record</dd>
                 <dt>optional any key</dt>
                 <dd>The key used to identify the record</dd>
-                <dt>optional boolean noOverwrite</dt>
-                <dd>Whether to overwrite an existing record with the same key. This defaults
-                to <code>false</code>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBRequest putNoOverwrite()</dt>
+            <dd>
+              This method returns immediately and stores the given value in this <a>index</a>
+              by following the <a>steps for storing a record into an index</a>. If the
+              operation succeeds, then a
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a the
+              key for the stored record. If a record exists in this <a>index</a> for the key 
+              <var>key</var> parameter or this <a>index</a> is <a>auto-populated</a> or if no
+              record exists with key <var>value</var> parameter in the <a>index</a>'s
+              <a>referenced</a> <a>object store</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
               </dl>
             </dd>
             <dt>IDBRequest getObject()</dt>
@@ -685,9 +804,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               If the operation is successful, then the 
               <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
               is set to the retrieved value. If a record did not exist in this 
-              <a>index</a> for the key <var>key</var> parameter, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <a>index</a> for the key <var>key</var> parameter, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
@@ -701,9 +824,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               If the operation is successful, then the 
               <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
               is set to the retrieved value. If a record did not exist in this 
-              <a>index</a> for the key <var>key</var> parameter, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <a>index</a> for the key <var>key</var> parameter, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
@@ -714,9 +841,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               This method returns immediately and removes the records from this <a>index</a>
               by following the <a>steps for deleting a record from an index</a>
               corresponding to the given key. If a record did not exist in this 
-              <a>index</a> for the key <var>key</var> parameter, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <a>index</a> for the key <var>key</var> parameter, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be removed</dd>
@@ -738,18 +869,31 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a>cursor</a>'s <a>position</a>. If the underlying <a>object store</a> uses
               <a>in-line keys</a> and the property at the 
               <a title="object store key path">key path</a> does not match the key in this
-              <a>cursor</a>'s <a>position</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's 
-              request is set to code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>. If the underlying 
+              <a>cursor</a>'s <a>position</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.                             
+              If the underlying 
               <a>index</a> or <a>object store</a> does not support updating the item 
               because it is open in the <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
-              <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a> <a>mode</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this
-              object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+              <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a> <a>mode</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               If the data being stored could not be serialized by the 
-              <a>internal structured cloning algorithm</a>,  then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this 
-              object's request is set to code <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>.
+              <a>internal structured cloning algorithm</a>,  then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-SERIAL_ERR"><code>SERIAL_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
             </dd>
             <dt>boolean    continue()</dt>
             <dd>
@@ -757,9 +901,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               position along its <a>direction</a> to the item whose key matches the
               optional parameter. If no such parameter is provided, advance to the
               immediate next position. If the <a>cursor</a> has reached the end of its
-              <a>range</a>, then  the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+              <a>range</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
@@ -777,9 +925,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 because it is open in the 
                 <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
                 <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a> 
-                <a>mode</a>, then the 
-                <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's request is set to code 
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+                <a>mode</a>, then an
+                <a title="event-error">error event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+                <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>
+                and a suitable 
+                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               </p>
             </dd>
           </dl>
@@ -789,23 +941,35 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               This method returns immediately and undoes all the changes performed to 
               the <a>objects</a> of this <a>database</a> since the creation of this 
               <a>transaction</a>. If this <a>transaction</a> has already been committed
-              or aborted,  then the <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code
-              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>.
+              or aborted,  then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
             </dd>
             <dt>void commit()</dt>
             <dd>
               This method returns immediately and durably stores all the changes made
               to the <a>objects</a> of this <a>database</a> since the creation of this
               <a>transaction</a>. If this <a>transaction</a> has already been committed
-              or aborted,  then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> for this object's request is set to code
-              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>. If this <a>transaction</a>'s 
+              or aborted,  then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              If this <a>transaction</a>'s 
               <a>scope</a> is <a>dynamic</a>, and the user agent cannot commit all the
-              changes due to conflicts with another <a>transaction</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a>
-              for this object's request is set to code
-              <a class="idlType" href="#widl-IDBDatabaseException-RECOVERABLE_ERR"><code>RECOVERABLE_ERR</code></a>.
+              changes due to conflicts with another <a>transaction</a>, then an
+              <a title="event-error">error event</a> is fired on this method's
+              returned object with its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
+              <a class="idlType" href="#widl-IDBDatabaseException-RECOVERABLE_ERR"><code>RECOVERABLE_ERR</code></a>
+              and a suitable 
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
             </dd>
           </dl>
         </section>
