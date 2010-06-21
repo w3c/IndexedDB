@@ -4,9 +4,9 @@
 @intro = ('Speclet_010_Intro.html');
 @content = (
   'Speclet_020_IDB_API_Constructs.html',
-  'Speclet_021_IDB_API_Algorithms.html',
-  'Speclet_022_IDB_API_Synchronous_APIs.html',
   'Speclet_023_IDB_API_Asynchronous_APIs.html',
+  'Speclet_022_IDB_API_Synchronous_APIs.html',
+  'Speclet_021_IDB_API_Algorithms.html'
 );
 @ending = ('Speclet_030_Privacy_Authorization.html');
 
