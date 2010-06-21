@@ -335,18 +335,19 @@ prepareDatabase(function(evt) {
       <h3>Constructs</h3>
         <p>
           An indexed database is made of records holding simple values
-          and hierarchical objects. Each record consists of a key and a value. 
+          and hierarchical objects. Each <dfn>record</dfn> consists of a key and a value. 
         </p>
         
         <section id="key-construct" class="section">
           <h4>Keys</h4>
           
           <p>
-            In order to efficiently retrieve records stored in an indexed
-            database, a user agent needs to organize each record according to its key. 
-            <a>Conforming user agents</a> MUST support the use of values
-            <code>null</code> and the IDL data types [[!WEBIDL]] <code>DOMString</code> and 
-            <code>long long</code> as keys.
+            In order to efficiently retrieve <a title="record">records</a> 
+            stored in an indexed database, a user agent needs to organize each 
+            <a>record</a> according to its key. <a>Conforming user agents</a> 
+            MUST support the use of values <code>null</code> and the IDL data 
+            types [[!WEBIDL]] <code>DOMString</code> and <code>long long</code> 
+            as keys.
           </p>
           
           <p>
@@ -397,11 +398,11 @@ prepareDatabase(function(evt) {
           <p>
             If an <a>object store</a> uses keys generated from a monotonically
             increasing sequence, it MUST have a <dfn>key generator</dfn> that 
-            produces unique keys for records in that <a>object store</a>. 
-            Alternatively, if an application provides keys, they MAY either be 
-            identified as a part of the value being stored, also called 
-            <dfn>in-line keys</dfn>, or be identified separately, also
-            called <dfn>out-of-line keys</dfn>. No two 
+            produces unique keys for <a title="record">records</a> in that 
+            <a>object store</a>. Alternatively, if an application provides keys, 
+            they MAY either be identified as a part of the value being stored, 
+            also called <dfn>in-line keys</dfn>, or be identified separately, 
+            also called <dfn>out-of-line keys</dfn>. No two 
             <a title="record">records</a> in an <a>object store</a> MAY be 
             identified by the same key. An <a>object store</a> MUST have a 
             <dfn title="object store key path">key path</dfn> if it uses 
@@ -1261,20 +1262,24 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               This method returns immediately and stores the given value in this 
               <a>object store</a> by following the 
               <a>steps for storing a record into an object store</a>. If the 
-              record can be successfully stored in the <a>object store</a>, then 
+              <a>record</a> can be successfully stored in the <a>object store</a>, then 
               a <a title="event-success">success event</a> is fired on this 
-              method's returned object with its 
+              method's returned object using the 
+              <a><code>IDBTransactionEvent</code></a> interface with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the key for the stored record. If this <a>object store</a> uses 
-              <a>out-of-line</a> keys but does not use a <a>key generator</a> 
-              and the <var>key</var> parameter was not passed, then an
+              the key for the stored <a>record</a> and 
+              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              set to the <a>transaction</a> in which this <a>object store</a> is 
+              opened. If this <a>object store</a> uses <a>out-of-line</a> keys 
+              but does not use a <a>key generator</a> and the <var>key</var> 
+              parameter was not passed, then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
               <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>
               and a suitable 
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-              If the data being stored could not be serialized by the <a>internal structured cloning algorithm</a>, then an
+              If the value being stored could not be serialized by the <a>internal structured cloning algorithm</a>, then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
@@ -1283,23 +1288,27 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any value</dt>
-                <dd>The value to be stored in the record</dd>
+                <dd>The value to be stored in the <a>record</a></dd>
                 <dt>optional any key</dt>
-                <dd>The key used to identify the record, which defaults to 
-                <code>null</code></dd>
+                <dd>The key used to identify the <a>record</a>, which defaults 
+                to <code>null</code></dd>
               </dl>
             </dd>
             <dt>IDBRequest add()</dt>
             <dd>
               This method returns immediately and stores the given value in this 
               <a>object store</a> by following the 
-              <a>steps for storing a record into an object store</a> with the no-overwrite flag
-              set. If the record
-              can be successfully stored in the <a>object store</a>, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
-              of this object's request is set to the key for the stored record.
-              If a record exists
-              in this <a>object store</a> for the key <var>key</var> parameter, then an
+              <a>steps for storing a record into an object store</a> with the 
+              no-overwrite flag set. If the <a>record</a> can be successfully 
+              stored in the <a>object store</a>, then a 
+              <a title="event-success">success event</a> is fired on this 
+              method's returned object using the 
+              <a><code>IDBTransactionEvent</code></a> interface with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
+              the key for the stored record and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              set to the <a>transaction</a> in which this <a>object store</a> is 
+              opened. If a <a>record</a> exists in this <a>object store</a> for 
+              the key <var>key</var> parameter, then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
@@ -1313,9 +1322,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>
               and a suitable 
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-              If the data being 
-              stored could not be serialized by the <a>internal structured cloning algorithm</a>,
-              then an
+              If the value being stored could not be serialized by the 
+              <a>internal structured cloning algorithm</a>, then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
@@ -1324,28 +1332,36 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
               <dl class="parameters">
                 <dt>any value</dt>
-                <dd>The value to be stored in the record</dd>
+                <dd>The value to be stored in the <a>record</a></dd>
                 <dt>optional any key</dt>
-                <dd>The key used to identify the record, which defaults to 
-                <code>null</code></dd>
+                <dd>The key used to identify the <a>record</a>, which defaults 
+                to <code>null</code></dd>
               </dl>
             </dd>
             <dt>IDBRequest remove()</dt>
             <dd>
-              This method returns immediately and removes the record from this 
-              <a>object store</a> by following the 
+              This method returns immediately and removes the <a>record</a> from 
+              this <a>object store</a> by following the 
               <a>steps for deleting a record from an object store</a> 
-              corresponding to the given key. If a record did not exist in this 
-              <a>object store</a> for the key <var>key</var> parameter, then an 
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
+              corresponding to the given key. If a <a>record</a> did not exist 
+              in this <a>object store</a> for the key <var>key</var> parameter, 
+              then an <a title="event-error">error event</a> is fired on this 
+              method's returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
               <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
               and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If the <a>record</a> can be successfully 
+              removed from the <a>object store</a>, then a 
+              <a title="event-success">success event</a> is fired on this 
+              method's returned object using the 
+              <a><code>IDBTransactionEvent</code></a> interface with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
+              the value of the removed <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              set to the <a>transaction</a> in which this <a>object store</a> is 
+              opened. 
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be removed</dd>
+                <dd>Key identifying the <a>record</a> to be removed</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
@@ -1363,10 +1379,18 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
               <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
               and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If the <a>record</a> can be successfully 
+              retrieved from the <a>object store</a>, then a 
+              <a title="event-success">success event</a> is fired on this 
+              method's returned object using the 
+              <a><code>IDBTransactionEvent</code></a> interface with its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
+              the value of the retrieved <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              set to the <a>transaction</a> in which this <a>object store</a> is 
+              opened. 
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be retrieved</dd>
+                <dd>Key identifying the <a>record</a> to be retrieved</dd>
               </dl>
             </dd>
             <dt>IDBRequest openCursor()</dt>
