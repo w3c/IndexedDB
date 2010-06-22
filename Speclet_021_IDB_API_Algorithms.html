@@ -137,15 +137,15 @@
         <section class="section" id="opening">
           <h4>Opening the database</h4>
           <p>
-            The <dfn>steps for opening a database</dfn> are as follows. These steps
-            MUST be run with an origin, a database name and description. All the 
-            steps MUST be run atomically:
+            The <dfn>steps for opening a database</dfn> are as follows. These 
+            steps MUST be run with an origin, a database name and an optional
+            description. All the steps MUST be run atomically:
           </p>
           
           <ol>
             <li>
               If there is already a database with the given name from the origin
-              <var>origin</var>, then let <var>db</var> be that database.
+              <var>origin</var>, then let <var>db</var> be that database. If a description is passed to these steps, set the description of <var>db</var> to that.
             </li>
             
             <li>
@@ -192,11 +192,15 @@
             </li>
             <li>
               If <var>key</var> is not defined or null, then perform the 
-              following steps.              
+              following steps.
               <ol>
                 <li>
-                  Using <var>store</var>'s <a>key generator</a>, produce the next
-                  key and store it as <var>key</var>.
+                  If <var>store</var> does not have a <a>key generator</a>, then 
+                  terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
+                </li>
+                <li>
+                  Using <var>store</var>'s <a>key generator</a>, produce the 
+                  next key and store it as <var>key</var>.
                 </li>
                 <li>
                   If <var>store</var> uses <a>in-line keys</a>, then store 
@@ -373,8 +377,8 @@
             </li>            
             <li>
                If any <a title="index">indexes</a> are <a>auto-populated</a> for
-               <var>store</var>, then remove the record in that index according to
-               <a>index maintenance conditions</a>.
+               <var>store</var>, then remove the record in that index according 
+               to <a>index maintenance conditions</a>.
             </li>
             
             <li>
@@ -409,60 +413,57 @@
           <p>
             When the user agent is to <dfn>create a <a>transaction</a></dfn>
             it MUST run the following steps. These steps MUST be run with 
-            two parameters - <a>database</a> and an optional list of names of 
-            <a>database</a> <a>objects</a> to be reserved.
+            two parameters - <a>database</a>, an optional global flag, and an 
+            optional list of names of <a>database</a> <a>objects</a> to be 
+            reserved.
           </p>
           
           <ol>
             <li>
-              If the <a>database</a> passed to these steps has an <a>active</a>
+              If the global flag passed to these steps is set, and the 
+              <a>database</a> passed to these steps has an <a>active</a>
               <a>transaction</a>, then terminate these steps and set error code
               <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>.
             </li>
             <li>
               Pick the appropriate steps:
               <dl class="switch">
-                <dt>If these steps are not called with a list of database objects</dt>
+                <dt>If these steps are called with the global flag set</dt>
                 <dd>Acquire a lock on the entire database.</dd>
-                <dt>If these steps are called with a non-empty list of database objects</dt>
-                <dd><ol>
-                  <li>
-                    If any of the objects in this array is not a database object,
-                    then set <var>code</var> to <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
-                    and jump to the last step.
-                  </li>
-                  <li>
-                    Acquire appropriate locks on each of the database objects and
-                    the objects they depend on in an ordered sequence. 
-                    <div class="note">
-                      If the database does not allow fine grained locking,
-                      then a user agent MAY obtain a shared or exclusive lock on the database.
-                    </div>
-                  </li>
-                </ol></dd>
-                <dt>If these steps are called with an empty array of database objects</dt>
+                <dt>If these steps are called with a non-empty list of <a>object store</a> <a title="object store name">name</a>s</dt>
                 <dd>
-                    Do not acquire locks on any database objects now. Locks are obtained as
-                    the application attempts to access those objects.
+                    Acquire appropriate locks on each of the named 
+                    <a>object store</a> in an ordered sequence. 
                     <div class="note">
-                      Using the database in this style MAY lead to deadlocks. Programmers
-                      MUST use caution to acquire and release database objects in the same
-                      global order to avoid deadlocks.
+                      A user agent MAY obtain a shared or exclusive lock on 
+                      the database if it does not perform fine grained locking.
+                    </div>
+                </dd>
+                <dt>If these steps are called with an empty list of <a>object store</a> <a title="object store name">name</a>s</dt>
+                <dd>
+                    Do not acquire locks on any database objects now. Locks are 
+                    obtained as the application attempts to access those 
+                    objects.
+                    <div class="note">
+                      Using the database in this style MAY lead to deadlocks. Programmers are advised to use caution to acquire and 
+                      release object stores in the same global order to avoid 
+                      deadlocks.
                     </div>
                 </dd>
               </dl>
             </li>
 
             <li>
-              If a timeout duration is passed to these steps and is exceeded when 
-              acquiring locks, then set <var>code</var> to 
+              If a timeout duration is passed to these steps and is exceeded 
+              when acquiring locks, then set <var>code</var> to 
               <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a> and jump to the last step.
             </li>
 
             <li>
               Open a new transaction to the database, and create a
               <code><a>IDBTransaction</a></code> object
-              that represents that transaction. Let <var>transaction</var> be this object.
+              that represents that transaction. Let <var>transaction</var> be 
+              this object.
             </li>
             
             <li>

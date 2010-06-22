@@ -131,12 +131,11 @@
     <section id="database-api" class="section">
       <h2>Indexed Database API</h2>
 
-
       <!-- begin-content -->
       <section id="sync-database" class="section">
         <h3>Synchronous APIs</h3>
         <section id="opening-sync" class="section">
-          <h4>Opening a database connection</h4>
+          <h4>Opening a database</h4>
           <p>
             <a title="Worker"><a class="externalDFN"><code>Worker</code></a></a> objects MUST implement the 
             <a><code>IDBEnvironmentSync</code></a> interface.
@@ -145,12 +144,12 @@
           </p>
           
           <dl class="idl" title="[NoInterfaceObject] interface IDBEnvironmentSync">
-            <dt>readonly attribute IDBFactory indexedDB</dt>
+            <dt>readonly attribute IDBFactorySync indexedDBSync</dt>
             <dd>This attribute provides applications a mechanism for accessing
               capabilities of indexed databases.</dd>
           </dl>
           
-          <dl class="idl" title="[NoInterfaceObject] interface IDBFactory">
+          <dl class="idl" title="[NoInterfaceObject] interface IDBFactorySync">
             <dt>IDBDatabaseSync open()</dt>
             <dd>
               <dl class="parameters">
@@ -158,8 +157,6 @@
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
                 <dt>DOMString description</dt>
                 <dd>The description for the <a>database</a></dd>
-                <dt>optional boolean modifyDatabase</dt>
-                <dd>This defaults to true</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>UNKNOWN_ERR</dt>
@@ -201,14 +198,38 @@
           </dl>
         </section>
         
-        <section id="database-interface" class="section">
-          <h4>Database connection</h4>
-          <p>
-            A <a>database</a> <a>connection</a> can be used to manipulate the 
-            <a>objects</a> of that <a>database</a>. That is also the only way to 
-            obtaining a <a>transaction</a> for that <a>database</a>.
-          </p>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBDatabaseSync : IDBDatabase">
+        <section id="database-interface-sync" class="section">
+          <h4>Database</h4>
+          <!-- TODO Add example. Should examples be in a separate section?-->
+          <dl class="idl" title="[NoInterfaceObject] interface IDBDatabaseSync">
+            <dt>readonly attribute DOMString name</dt>
+            <dd>
+              On getting, this attribute MUST return the <a title="database name">name</a>
+              of the <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString description</dt>  
+            <dd>
+              On getting, this attribute MUST return the description of the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString version</dt>
+            <dd>
+              On getting, this attribute MUST return the <a>version</a> of this
+              <a>database</a>. This attribute has the <a>null</a> value when the
+              <a title="connection">connected</a> <a>database</a> is first created.
+            </dd>
+            <dt>readonly attribute DOMStringList objectStores</dt>
+            <dd>
+              On getting, this attribute MUST return a list of names of the 
+              <a title="object store">object stores</a> currently in the 
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute IDBTransactionSync currentTransaction</dt>
+            <dd>
+              On getting, this attribute MUST return a <a><code>IDBTransaction</code></a> object
+              corresponding to the <a>transaction</a> that is <a>active</a> in this
+              <a>database</a> <a>connection</a>.
+            </dd>
             <dt>IDBObjectStoreSync createObjectStore()</dt>
             <dd>
               <p>
@@ -387,7 +408,36 @@ var cursor = store.openCursor(range);
 cursor.continue();</codeblock>
           </div>
           
-          <dl title="[NoInterfaceObject] interface IDBObjectStoreSync : IDBObjectStore" class="idl">
+          <dl title="[NoInterfaceObject] interface IDBObjectStoreSync" class="idl">
+            <dt>const     unsigned short READ_WRITE    = 0</dt>
+            <dd>Modification operations are allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_ONLY    = 1</dt>
+            <dd>Modification operations are not allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
+            <dd>This mode is used solely for reading from a snapshot of the data
+            in the <a>object store</a>.</dd>
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            this <a>object store</a></dd>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>          
+              On getting, provide the <a title="object store name">name</a> of this
+              object store.        
+            </dd>
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="object store key path">key path</a>
+              of this <a>object store</a>. If this attribute is <code>null</code>,
+              the application MUST provide a key value for each modification operation.
+            </dd>
+            <dt>readonly attribute DOMStringList  indexNames</dt>
+            <dd>
+            On getting, provide a list of the names of <a title="index">indexes</a> on 
+            objects in this <a>object store</a>.
+            </dd>
+          </dl>
             <dt>any put()</dt>
             <dd>
               Store the given value in this <a>object store</a> by following
@@ -595,7 +645,28 @@ var cursor = index.<a>openObjectCursor</a>(range);
 cursor.continue();</codeblock>
           </div>
               
-          <dl class="idl" title="[NoInterfaceObject] interface IDBIndexSync: IDBIndex">
+          <dl class="idl" title="[NoInterfaceObject] interface IDBIndexSync">
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the <a title="index name">name</a> of this <a>index</a>.        
+            </dd>
+            <dt>readonly attribute DOMString      storeName</dt>
+            <dd>
+              On getting, provide the <a title="object store name">name</a> of this
+              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+            </dd>
+        
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="index key path">key path<a> of this
+              <a>index</a>. If this attribute is <code>null</code>,
+              this <a>index</a> is not <a>auto-populated</a>.
+            </dd>
+            
+            <dt>readonly attribute boolean unique</dt>
+            <dd>
+              On getting, provide the <a>unique</a> flag of this <a>index</a>.
+            </dd>
             <dt>void openObjectCursor()</dt>
             <dd>
               Create a <a>cursor</a> over the <a>records</a> of this 
@@ -785,7 +856,38 @@ objects.openCursor(range);
 cursor.continue();
 </codeblock>
           </div>
-          <dl title="[NoInterfaceObject] interface IDBCursorSync : IDBCursor" class="idl">
+          <dl title="[NoInterfaceObject] interface IDBCursorSync" class="idl">
+            <dt>const     unsigned short     NEXT = 0</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+            <dt>const     unsigned short     PREV = 2</dt>
+            <dd>
+              indicates that <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+
+            <dt>readonly attribute unsigned short     direction</dt>
+            <dd>            
+            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
+            </dd>
             <dt>readonly attribute any key</dt>
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>attribute any value</dt>
@@ -847,12 +949,35 @@ cursor.continue();
         </section>
         <section id="transaction-sync" class="section">
           <h4>Transaction</h4>
+          <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
             When an application <a title="create a transaction">creates</a> a 
             <a>transaction</a> synchronously, it blocks until the user agent is able
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBTransactionSync : IDBTransaction">
+          <dl class="idl" title="[NoInterfaceObject] interface IDBTransactionSync">
+            <dt>attribute boolean static</dt>
+            <dd>If <code>true</code>, then this <a>transaction</a> is <a>static</a>
+              and <code>false</code> otherwise.
+            <dt>attribute IDBDatabaseSync db</dt>
+            <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
+              is a part</dd>
+            <dt>IDBObjectStoreSync objectStore()</dt>
+            <dd>
+              Immediately returns the object store that has been already added 
+              to the <a>scope</a> of this <a>transaction</a>. 
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The requested <a>object store</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the requested <a>object store</a> is not in this 
+                <a>transaction</a>'s <a>scope</a>.
+                </dd>
+              </dl>
+            </dd>
             <dt>void abort()</dt>
             <dd>
               This method signals the need to cancel the effects of
@@ -894,68 +1019,7 @@ cursor.continue();
             A new <a>transaction</a> can be created to perform operations atomically.
           </p>
         </section> <!-- IDBTransaction -->
-        <section class="section">
-          <h3>The <code>IDBDatabaseException</code> Interface</h3>
-          <dl class="idl" title="exception IDBDatabaseException">
-            <dt>const unsigned short UNKNOWN_ERR = 0</dt>
-            <dd>The operation failed for reasons unrelated to the database
-              itself and not covered by any other error code.</dd>
-            <dt>const unsigned short NON_TRANSIENT_ERR = 1</dt>
-            <dd>This error occurred because an operation was not allowed on 
-            an object. A retry of the same operation would fail unless the
-            cause of the error is corrected.</dd>
-            <dt>const unsigned short NOT_FOUND_ERR = 2</dt>
-            <dd>The operation failed because the requested database
-            object could not be found. For example, an object store
-            did not exist but was being opened.</dd>
-            <dt>const unsigned short CONSTRAINT_ERR = 3</dt>
-            <dd>A mutation operation in the transaction failed due to a
-            because a constraint was not satisfied. For example, an
-            object such as an object store or index already
-            exists and a new one was being attempted to be created.</dd>
-            <dt>const unsigned short DATA_ERR = 4</dt>
-            <dd>Data provided to an operation does not meet requirements.</dd>
-            <dt>const unsigned short NOT_ALLOWED_ERR = 5</dt>
-            <dd>A mutation operation was attempted on a database that
-            did not allow mutations.</dd>
-            <dt>const unsigned short SERIAL_ERR = 11</dt>
-            <dd>The operation failed because of the size of the data set 
-            being returned or because there was a problem in serializing or 
-            deserializing the object being processed.</dd>
-            <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
-            <dd>The operation failed because the database was prevented
-            from taking an action. The operation might be able to succeed
-            if the application performs some recovery steps and retries
-            the entire transaction. For example, there was not enough 
-            remaining storage space, or the storage quota was reached
-            and the user declined to give more space to the database.</dd>
-            <!--const unsigned short QUOTA_ERR = 22;
-                <dd>The statement failed because there was not enough remaining
-     storage space, or the storage quota was reached and the user
-     declined to give more space to the database.</dd>-->
-            <dt>const unsigned short TRANSIENT_ERR = 31</dt>
-            <dd>The operation failed because of some temporary problems.
-            The failed operation might be able to succeed when the
-            operation is retried without any intervention by 
-            application-level functionality.</dd>
-            <dt>const unsigned short TIMEOUT_ERR = 32</dt>
-            <dd>A lock for the transaction could not be obtained in a
-            reasonable time.</dd>
-            <dt>const unsigned short DEADLOCK_ERR = 33</dt>
-            <dd>The current transaction was automatically rolled back
-            by the database because of deadlock or other transaction
-            serialization failures.</dd>
-            <dt>attribute unsigned short code</dt>
-            <dd>
-              Return the most appropriate error code.
-            </dd>
-            <dt>attribute DOMString message</dt>
-            <dd>
-              Return an error message describing the exception raised. 
-              The message should be localized to the user's language.
-            </dd>
-          </dl>  
-        </section>     
+       </section>
       </section>
       <!-- end-content -->
      </section>
