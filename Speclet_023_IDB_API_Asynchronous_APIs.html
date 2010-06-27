@@ -134,10 +134,9 @@
       <section class="section" id="async-api"> 
         <h3>Asynchronous APIs</h3>
         <p>
-          The asynchronous API returns without blocking the calling thread.
-          Asynchronous APIs are essentially the same as the synchronous ones 
-          except that the result of an operation is not available when the 
-          operation returns.
+          The asynchronous API methods return without blocking the calling thread.
+          All asynchronous operations return an <a><code>IDBRequest</code></a> instance,
+          which can be used to access the results of the operation as they become available.
         </p>
         <section class="section" id="events">
           <h4>Event interfaces</h4>
@@ -309,7 +308,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         </section>
         
         <section class="section" id="requests">
-          <h4>Asynchronous Request API</h4>
+          <h4>Opening a database</h4>
          <p>
             <a title="Window"><a class="externalDFN"><code>Window</code></a> and 
             <a title="Worker"><a class="externalDFN"><code>Worker</code></a> objects 
@@ -320,7 +319,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </p>
           
           <dl class="idl" title="[NoInterfaceObject] interface IDBEnvironment">
-            <dt>readonly attribute IDBFactoryRequest indexedDB</dt>
+            <dt>readonly attribute IDBFactory indexedDB</dt>
             <dd>This attribute provides applications a mechanism for accessing
               capabilities of indexed databases.</dd>
           </dl>
@@ -331,7 +330,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             This design means that any number of requests can be active on any <a>database</a>
             or <a title="objects">object</a> handle at a time. 
           </p>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBFactoryRequest">
+
+          <dl class="idl" title="[NoInterfaceObject] interface IDBFactory">
             <dt>readonly attribute DOMStringList databases</dt>
             <dd>
             This value is the list of the names of databases available in the global scope object.
@@ -368,8 +368,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                   code and abort these steps.
                 </li>
                 <li>
-                  Create a <a><code>IDBDatabaseRequest</code></a> object for 
-                  <var>result</var> and call it <var>db</var>.
+                  Create a <a><code>IDBDatabase</code></a> object for <var>result</var>
+                  and call it <var>db</var>.
                 </li>
                 <li>
                   Fire a <a title="event-success">success event</a> on this 
@@ -389,7 +389,45 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
           </dl>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBDatabaseRequest : IDBDatabase">
+        </section>
+        <section id="database-interface" class="section">
+          <h4>Database</h4>
+          <!-- TODO Add example. Should examples be in a separate section?-->
+          <p>
+            A <a>database</a> object can be used to manipulate the 
+            <a>objects</a> of that <a>database</a>. That is also the only way to 
+            obtaining a <a>transaction</a> for that <a>database</a>.
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBDatabase">
+            <dt>readonly attribute DOMString name</dt>
+            <dd>
+              On getting, this attribute MUST return the <a title="database name">name</a>
+              of the <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString description</dt>  
+            <dd>
+              On getting, this attribute MUST return the description of the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString version</dt>
+            <dd>
+              On getting, this attribute MUST return the <a>version</a> of this
+              <a>database</a>. This attribute has the <a>null</a> value when the
+              <a title="connection">connected</a> <a>database</a> is first created.
+            </dd>
+            <dt>readonly attribute DOMStringList objectStores</dt>
+            <dd>
+              On getting, this attribute MUST return a list of names of the 
+              <a title="object store">object stores</a> currently in the 
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <!-- There is no currentTransaction any more.
+            <dt>readonly attribute IDBTransaction currentTransaction</dt>
+            <dd>
+              On getting, this attribute MUST return a <a><code>IDBTransaction</code></a> object
+              corresponding to the <a>transaction</a> that is <a>active</a> in this
+              <a>database</a> <a>connection</a>.
+            </dd> -->
             <dt>IDBRequest createObjectStore()</dt>
             <dd>
               <p>
@@ -413,7 +451,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="event-success">success event</a> is fired on this 
                 method's returned object using the <a><code>IDBTransactionEvent</code></a> interfacewith its 
                 <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set
-                to a new <a><code>IDBObjectStoreRequest</code></a> for that <a>object store</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
+                to a new <a><code>IDBObjectStore</code></a> for that <a>object store</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
                 to the <a>transaction</a> passed to this method.
               </p>
               <dl class="parameters">
@@ -442,7 +480,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               returned object using the <a><code>IDBTransactionEvent</code></a> 
               interface with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
-              <a><code>IDBObjectStoreRequest</code></a> for that <a>object store</a> and  <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              <a><code>IDBObjectStore</code></a> for that <a>object store</a> and  <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
               set to a new <code>IDBTransactionRequest</code> for the 
               implicit <a>transaction</a>.
               <dl class="parameters">
@@ -480,7 +518,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 returned object using the <a><code>IDBTransactionEvent</code></a> 
                 interface with its 
                 <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
-                <a><code>IDBObjectStoreRequest</code></a> for that <a>object store</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
+                <a><code>IDBObjectStore</code></a> for that <a>object store</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
                 to the <a>transaction</a> passed to this method.
               </p>              
               <dl class="parameters">
@@ -559,7 +597,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               fired on this method's returned object using the 
               <a><code>IDBTransactionEvent</code></a> interface with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to 
-              a new <a><code>IDBTransactionRequest</code></a> object and 
+              a new <a><code>IDBTransaction</code></a> object and 
               <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
               set to the <a>transaction</a> passed to this method. If reserving all the 
               <a>object store</a>s identified in the requested <a>scope</a> 
@@ -586,7 +624,41 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
           </dl>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBObjectStoreRequest : IDBObjectStore">
+        </section>
+        <section class="section" id="object-store-sync">  
+          <h4>Object Store</h4>
+          <a title="object store">Object store</a> objects implement the following
+          interface:
+          <dl class="idl" title="[NoInterfaceObject] interface IDBObjectStore">
+            <dt>const     unsigned short READ_WRITE    = 0</dt>
+            <dd>Modification operations are allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_ONLY    = 1</dt>
+            <dd>Modification operations are not allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
+            <dd>This mode is used solely for reading from a snapshot of the data
+            in the <a>object store</a>.</dd>
+
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            this <a>object store</a></dd>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>          
+              On getting, provide the <a title="object store name">name</a> of this
+              object store.        
+            </dd>
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="object store key path">key path</a>
+              of this <a>object store</a>. If this attribute is <code>null</code>,
+              the application MUST provide a key value for each modification operation.
+            </dd>
+            <dt>readonly attribute DOMStringList  indexNames</dt>
+            <dd>
+            On getting, provide a list of the names of <a title="index">indexes</a> on 
+            objects in this <a>object store</a>.
+            </dd>
             <dt>IDBRequest put()</dt>
             <dd>
               This method returns immediately and stores the given value in this 
@@ -734,7 +806,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a title="event-success">success event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-              <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
+              <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
               records match the <a>key range</a>, then an 
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
@@ -776,7 +848,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="event-success">success event</a> is fired on this method's
                 returned object with its 
                 <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new
-                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
+                <a><code>IDBIndex</code></a> for that <a>index</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
@@ -792,7 +864,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>unique</a> flag for the new <a>index</a></dd>
               </dl>
             </dd>
-            <dt>IDBIndexRequest index()</dt>
+            <dt>IDBIndex index()</dt>
             <dd>
               <p>
                 This method returns immediately and opens the <a>index</a> with the
@@ -809,7 +881,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="event-success">success event</a> is fired on this method's
                 returned object with its 
                 <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
-                <a><code>IDBIndexRequest</code></a> for that <a>index</a>.
+                <a><code>IDBIndex</code></a> for that <a>index</a>.
               </p>              
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -836,8 +908,36 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
           </dl>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBIndexRequest : IDBIndex">
-            <dt>IDBCursorRequest openObjectCursor()</dt>
+        </section>
+        <section class="section" id="index">
+        <h4>Index</h4>
+          <!-- TODO Add example. Should examples be in a separate section?-->
+          <p>
+            <a title="index">Index</a> objects implement the following interface:
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBIndex">
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the <a title="index name">name</a> of this <a>index</a>.        
+            </dd>
+            <dt>readonly attribute DOMString      storeName</dt>
+            <dd>
+              On getting, provide the <a title="object store name">name</a> of this
+              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+            </dd>
+        
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="index key path">key path<a> of this
+              <a>index</a>. If this attribute is <code>null</code>,
+              this <a>index</a> is not <a>auto-populated</a>.
+            </dd>
+            
+            <dt>readonly attribute boolean unique</dt>
+            <dd>
+              On getting, provide the <a>unique</a> flag of this <a>index</a>.
+            </dd>
+            <dt>IDBCursor openObjectCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
@@ -849,7 +949,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a title="event-success">success event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-              <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
+              <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
               records match the <a>key range</a>, then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
@@ -875,7 +975,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a title="event-success">success event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the 
-              <a><code>IDBCursorRequest</code></a> object for that <a>cursor</a>. If no
+              <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
               records match the <a>key range</a>, then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
@@ -987,7 +1087,45 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
           </dl>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBCursorRequest : IDBCursor">
+        </section>
+        <section class="section" id="cursor">
+          <h4>Cursor</h4>
+          <!-- TODO Add example. Should examples be in a separate section?-->
+          <p>
+            <a title="cursor">Cursor</a> objects implement the following interface:
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBCursor">
+  <dt>const     unsigned short     NEXT = 0</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+            <dt>const     unsigned short     PREV = 2</dt>
+            <dd>
+              indicates that <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+
+            <dt>readonly attribute unsigned short     direction</dt>
+            <dd>            
+            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
+            </dd>
             <dt>readonly attribute any key</dt>
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute any value</dt>
@@ -1068,8 +1206,23 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </p>
             </dd>
           </dl>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBTransactionRequest : IDBTransaction">
-            <dt>IDBObjectStoreRequest objectStore()</dt>
+        </section>
+        <section class="section" id="transaction">
+        <h4>Transaction</h4>
+          <!-- TODO Add example. Should examples be in a separate section?-->
+          <p>
+            <a title="transaction">Transaction</a> objects implement the following interface:
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBTransaction : EventTarget">
+            <dt>attribute boolean static</dt>
+            <dd>If <code>true</code>, then this <a>transaction</a> is <a>static</a>
+              and <code>false</code> otherwise.
+            </dd>
+            <dt>attribute IDBDatabase db</dt>
+            <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
+              is a part
+            </dd>
+            <dt>IDBObjectStore objectStore()</dt>
             <dd>
               Immediately returns the object store that has been already added 
               to the <a>scope</a> of this <a>transaction</a>. 
@@ -1088,8 +1241,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>void abort()</dt>
             <dd>
               This method returns immediately and undoes all the changes performed to 
-              the <a>objects</a> of this <a>database</a> in this <a>transaction</a>. If this <a>transaction</a> has already been committed
-              or aborted,  then an
+              the <a>objects</a> of this <a>database</a> in this <a>transaction</a>. If this <a>transaction</a> 
+              has already been committed or aborted,  then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
@@ -1120,15 +1273,14 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
             </dd>
             <dt>attribute Function onabort</dt>
+            <dd>The event handler for the <a>onabort</a> event.</dd>
             <dt>attribute Function oncomplete</dt>
+            <dd>The event handler for the <a>oncomplete</a> event.</dd>
             <dt>attribute Function ontimeout</dt>
+            <dd>The event handler for the <a>ontimeout</a> event.</dd>
           </dl>
-          <p class="idl" title="IDBTransactionRequest implements EventTarget">
         </section>
-                  
-      </section>            
-    </section> <!-- API -->      
-
+      </section>
       <!-- end-content -->
     </section>
   </body>

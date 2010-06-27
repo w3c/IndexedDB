@@ -186,7 +186,7 @@
           <h4>Object Store</h4>
           <p>
             An <dfn>object store</dfn> is a persistent storage mechanism that 
-            holds key-value pairs, also called <dfn title="record">records</dfn> 
+            holds key-value pairs, also called <a title="record">records</a> 
             or <dfn>stored objects</dfn>. An <a>object store</a>'s 
             <a title="record">records</a> are sorted by keys to enable fast 
             insertion and look up as well as ordered retrieval. 
@@ -234,40 +234,9 @@
             The detached reading behavior MAY need more explanation.
           </div-->
           <p>
-            The <a><code>IDBObjectStore</code></a> interface provides access to 
-            the metadata of an <a>object store</a>.
+            The <a><code>IDBObjectStore</code></a> and <a><code>IDBObjectStoreSync</code></a>
+            interfaces provide access to the metadata of an <a>object store</a>.
           </p>
-          <dl title="interface IDBObjectStore" class="idl">
-            <dt>const     unsigned short READ_WRITE    = 0</dt>
-            <dd>Modification operations are allowed on the <a>object store</a>
-            in this mode.</dd>
-            <dt>const     unsigned short READ_ONLY    = 1</dt>
-            <dd>Modification operations are not allowed on the <a>object 
-            store</a> in this mode.</dd>
-            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
-            <dd>This mode is used solely for reading from a snapshot of the data
-            in the <a>object store</a>.</dd>
-            <dt>readonly attribute unsigned short mode</dt>
-            <dd>On getting, provide the <a>mode</a> for isolating access to data 
-            inside this <a>object store</a></dd>
-            <dt>readonly attribute DOMString      name</dt>
-            <dd>          
-              On getting, provide the <a title="object store name">name</a> of 
-              this object store.        
-            </dd>
-            <dt>readonly attribute DOMString      keyPath</dt>
-            <dd>
-              On getting, provide the 
-              <a title="object store key path">key path</a> of this 
-              <a>object store</a>. If this attribute is <code>null</code>,
-              the application MUST provide a key value for each modification operation.
-            </dd>
-            <dt>readonly attribute DOMStringList  indexNames</dt>
-            <dd>
-            On getting, provide a list of the names of 
-            <a title="index">indexes</a> on objects in this <a>object store</a>.
-            </dd>
-          </dl>
         </section> <!-- Object store -->
         
         <section id="index-concept" class="section">
@@ -309,34 +278,9 @@
             <li><a>index</a> record value = <a>object store</a> record key</li>
           </ul>
           <p>
-            The <a><code>IDBIndex</code></a> interface provides the metadata
-            of an <a>index</a>.
+            The <a><code>IDBIndex</code></a> and <a><code>IDBIndexSync</code></a> interfaces
+            provide access to the metadata of an <a>index</a>.
           </p>
-          <dl class="idl" title="interface IDBIndex">
-            <dt>readonly attribute DOMString      name</dt>
-            <dd>
-              On getting, provide the <a title="index name">name</a> of this 
-              <a>index</a>.        
-            </dd>
-            <dt>readonly attribute DOMString      storeName</dt>
-            <dd>
-              On getting, provide the <a title="object store name">name</a> of 
-              this <a title="index">index's</a> <a>referenced</a> 
-              <a>object store</a>.
-            </dd>
-        
-            <dt>readonly attribute DOMString      keyPath</dt>
-            <dd>
-              On getting, provide the <a title="index key path">key path<a> of 
-              this <a>index</a>. If this attribute is <code>null</code>,
-              this <a>index</a> is not <a>auto-populated</a>.
-            </dd>
-            
-            <dt>readonly attribute boolean unique</dt>
-            <dd>
-              On getting, provide the <a>unique</a> flag of this <a>index</a>.
-            </dd>
-          </dl>  
         </section> <!-- IDBIndex -->
         
        <section id="database-concept" class="section">
@@ -377,53 +321,21 @@
             zero or one <dfn>active</dfn> <a>transaction</a>s.
           </p>
           <p>
-            An <a><code>IDBDatabase</code></a> object represents a 
-            <a>connection</a> to a <a>database</a>. 
+            <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
+            interfaces represent <a title="connection">connections</a> to a <a>database</a>. 
           </p>
-          
-          <dl title="[NoInterfaceObject] interface IDBDatabase" class="idl">   
-            <dt>readonly attribute DOMString name</dt>
-            <dd>
-              On getting, this attribute MUST return the 
-              <a title="database name">name</a>
-              of the <a title="connection">connected</a> <a>database</a>.
-            </dd>
-            <dt>readonly attribute DOMString description</dt>  
-            <dd>
-              On getting, this attribute MUST return the description of the
-              <a title="connection">connected</a> <a>database</a>.
-            </dd>
-            <dt>readonly attribute DOMString version</dt>
-            <dd>
-              On getting, this attribute MUST return the <a>version</a> of this
-              <a>database</a>. This attribute has the <a>null</a> value when the
-              <a title="connection">connected</a> <a>database</a> is first 
-              created.
-            </dd>
-            <dt>readonly attribute DOMStringList objectStores</dt>
-            <dd>
-              On getting, this attribute MUST return a list of names of the 
-              <a title="object store">object stores</a> currently in the 
-              <a title="connection">connected</a> <a>database</a>.
-            </dd>
-            <dt>readonly attribute IDBTransactionList transactions</dt>
-            <dd>
-              On getting, this attribute MUST return a sequence of
-              <a><code>IDBTransaction</code></a> objects
-              corresponding to the <a>transactions</a> that are <a>active</a> in this <a>database</a> <a>connection</a>.
-            </dd>
-          </dl>
         </section>  <!-- IDBDatabase -->
         
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
           <p>
-            An individual record can be retrieved from an <a>object store</a> 
-            using either the record's key or the key applicable for some 
-            <a>index</a> that <a title="referenced">references</a> that 
-            <a>object store</a>. Multiple records can be fetched using a <a>key 
-            range</a>. A <dfn>key range</dfn> is a continuous interval over some 
-            data type used for keys.
+            An individual <a>record</a> can be retrieved from an 
+            <a>object store</a> using either the record's key or the key 
+            applicable for some <a>index</a> that 
+            <a title="referenced">references</a> that <a>object store</a>. 
+            Multiple records can be fetched using a <a>key range</a>. A 
+            <dfn>key range</dfn> is a continuous interval over some data type 
+            used for keys.
           </p>
           <p>
             A <a>key range</a> MAY be left-bounded or right-bounded if there is 
@@ -517,42 +429,12 @@
             this series, which moves in a <dfn>direction</dfn> that is either 
             monotonically increasing or decreasing order of the record keys. 
           </p>
-          
-          <dl title="[NoInterfaceObject] interface IDBCursor" class="idl">
-            <dt>const     unsigned short     NEXT = 0</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, 
-              including duplicates and its <a>direction</a> is monotonically 
-              increasing order of keys.
-            </dd>
-            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not 
-              including duplicates and its <a>direction</a> is monotonically 
-              increasing order of keys. For every key with duplicate values, 
-              only the first record is yielded.
-            </dd>
-            <dt>const     unsigned short     PREV = 2</dt>
-            <dd>
-              indicates that <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not 
-              including duplicates and its <a>direction</a> is monotonically 
-              decreasing order of keys. For every key with duplicate values, 
-              only the first record is yielded.
-            </dd>
-
-            <dt>readonly attribute unsigned short     direction</dt>
-            <dd>            
-            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
-            </dd>
-          </dl>          
+          <p>
+            <a title="cursor">Cursor</a> objects implement the <a><code>IDBCursor</code></a> 
+            or the <a><code>IDBCursorSync</code></a> interfaces.
+          </p>
         </section> <!-- IDBCursor -->
-        
+
         <section id="transaction-concept" class="section">
           <h4>Transaction</h4>
           <p>
@@ -590,18 +472,74 @@
             created, if an exception is propagated to that scope.
             </li>
           </ul>
-          <dl class="idl" title="interface IDBTransaction">
-            <dt>attribute boolean static</dt>
-            <dd>If <code>true</code>, then this <a>transaction</a> is 
-            <a>static</a> and <code>false</code> otherwise.
-            <dt>attribute IDBDatabase db</dt>
-            <dd>The <a>database</a> <a>connection</a> of which this 
-            <a>transaction</a> is a part</dd>
-            <dt>attribute DOMStringList scope</dt>
-            <dd>The names of <a>object store</a>s that are included in the scope 
-            of this <a>transaction</a></dd>
-          </dl>
+          <p>
+            <a title="transaction">Transaction</a> objects implement the 
+            <a><code>IDBTransaction</code></a> or the
+            <a><code>IDBTransactionSync</code></a> interfaces.
+          </p>
         </section> <!-- IDBTransaction -->
+        <section class="section">
+          <h3>The <code>IDBDatabaseException</code> Interface</h3>
+          <dl class="idl" title="exception IDBDatabaseException">
+            <dt>const unsigned short UNKNOWN_ERR = 0</dt>
+            <dd>The operation failed for reasons unrelated to the database
+              itself and not covered by any other error code.</dd>
+            <dt>const unsigned short NON_TRANSIENT_ERR = 1</dt>
+            <dd>This error occurred because an operation was not allowed on 
+            an object. A retry of the same operation would fail unless the
+            cause of the error is corrected.</dd>
+            <dt>const unsigned short NOT_FOUND_ERR = 2</dt>
+            <dd>The operation failed because the requested database
+            object could not be found. For example, an object store
+            did not exist but was being opened.</dd>
+            <dt>const unsigned short CONSTRAINT_ERR = 3</dt>
+            <dd>A mutation operation in the transaction failed due to a
+            because a constraint was not satisfied. For example, an
+            object such as an object store or index already
+            exists and a new one was being attempted to be created.</dd>
+            <dt>const unsigned short DATA_ERR = 4</dt>
+            <dd>Data provided to an operation does not meet requirements.</dd>
+            <dt>const unsigned short NOT_ALLOWED_ERR = 5</dt>
+            <dd>A mutation operation was attempted on a database that
+            did not allow mutations.</dd>
+            <dt>const unsigned short SERIAL_ERR = 11</dt>
+            <dd>The operation failed because of the size of the data set 
+            being returned or because there was a problem in serializing or 
+            deserializing the object being processed.</dd>
+            <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
+            <dd>The operation failed because the database was prevented
+            from taking an action. The operation might be able to succeed
+            if the application performs some recovery steps and retries
+            the entire transaction. For example, there was not enough 
+            remaining storage space, or the storage quota was reached
+            and the user declined to give more space to the database.</dd>
+            <!--const unsigned short QUOTA_ERR = 22;
+                <dd>The statement failed because there was not enough remaining
+     storage space, or the storage quota was reached and the user
+     declined to give more space to the database.</dd>-->
+            <dt>const unsigned short TRANSIENT_ERR = 31</dt>
+            <dd>The operation failed because of some temporary problems.
+            The failed operation might be able to succeed when the
+            operation is retried without any intervention by 
+            application-level functionality.</dd>
+            <dt>const unsigned short TIMEOUT_ERR = 32</dt>
+            <dd>A lock for the transaction could not be obtained in a
+            reasonable time.</dd>
+            <dt>const unsigned short DEADLOCK_ERR = 33</dt>
+            <dd>The current transaction was automatically rolled back
+            by the database because of deadlock or other transaction
+            serialization failures.</dd>
+            <dt>attribute unsigned short code</dt>
+            <dd>
+              Return the most appropriate error code.
+            </dd>
+            <dt>attribute DOMString message</dt>
+            <dd>
+              Return an error message describing the exception raised. 
+              The message should be localized to the user's language.
+            </dd>
+          </dl>
+        </section>
       </section>  
       <!-- end-content -->
     </section>
