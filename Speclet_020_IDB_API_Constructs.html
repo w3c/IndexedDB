@@ -212,24 +212,6 @@
             of an enumerated property of all stored objects in that 
             <a>object store</a>.
           </p>
-          
-          <p>
-            Concurrent access to an <a>object store</a> MAY be isolated in one 
-            of three <dfn title="mode">modes</dfn>. These are:
-            <ol>
-              <li><code>READ_ONLY</code></li>
-              <li><code>READ_WRITE</code></li>
-              <li><code>SNAPSHOT_READ</code></li>
-            </ol>
-          </p>
-          <p>  
-            Any number of <a title="reader">readers</a> MAY concurrently access 
-            an <a>object store</a>. A <a>writer</a> is not allowed
-            if there is any <a>reader</a> concurrently accessing the 
-            <a>object store</a>, unless the <a>reader</a> is detached, i.e., 
-            looking at a snapshot view of the data that does not change once 
-            created. 
-          </p>
           <!--div class="ednote">
             The detached reading behavior MAY need more explanation.
           </div-->
@@ -273,7 +255,7 @@
           </p>
           <ul>
             <li><a>index</a> record key = value of the enumerated property at 
-            the <a title="index key path">key path<a> in the <a>object store</a> 
+            the <a title="index key path">key path</a> in the <a>object store</a> 
             record value</li>
             <li><a>index</a> record value = <a>object store</a> record key</li>
           </ul>
@@ -314,11 +296,13 @@
             The act of opening a <a>database</a> creates a database 
             <dfn>connection</dfn>. There MAY be multiple 
             <a title="connection">connections</a> to a given <a>database</a> 
-            at any given time. A <a>connection</a> that is attempting to read a 
+            at any given time. An operation that is attempting to read a 
             given piece of data in a <a>database</a> is called a 
             <dfn>reader</dfn> and one that is attempting to write a piece of 
-            data is called a <dfn>writer</dfn>. A <a>connection</a> MAY have 
-            zero or one <dfn>active</dfn> <a>transaction</a>s.
+            data is called a <dfn>writer</dfn>.
+            <a title="reader">Readers</a> and <a title="writer">writers</a> SHOULD only operate through
+            <a title="transaction">transactions</a>. A <a>connection</a> MAY have 
+            any number of <dfn>active</dfn> <a title="transaction">transactions</a>.
           </p>
           <p>
             <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
@@ -444,8 +428,29 @@
             <a>database</a>. If the <a>scope</a> is <a>static</a>, then it MAY 
             be <dfn>global</dfn>, meaning that it includes every existing and 
             to be created <a>object store</a>s of the <a>database</a>. There MAY 
-            not be any overlap among the <a>scope</a>s of all open 
-            <a title="connection">connections</a> to a given <a>database</a>.
+            be multiple <a title="transaction">transactions</a> active in a <a>database</a>
+            as long as their <a title="scope">scopes</a> do not overlap or the overlapping
+            objects are locked in <a title="mode">modes</a> that are not mutually exclusive.
+          </p>
+          <p class="XXX">TODO: decide what happens when dynamic transactions need to lock a database
+            object that is already exclusively locked by another transaction.
+          </p>
+          <p>
+            Concurrent access to the <a title="object store">object stores</a> in a <a>transaction</a>
+            MAY be isolated in one of three <dfn title="mode">modes</dfn>. These are:
+            <ol>
+              <li><code>READ_ONLY</code></li>
+              <li><code>READ_WRITE</code></li>
+              <li><code>SNAPSHOT_READ</code></li>
+            </ol>
+          </p>
+          <p>  
+            Any number of <a title="reader">readers</a> MAY concurrently access 
+            all <a title="object store">object stores</a>. A <a>writer</a> is not allowed
+            if there is any <a>reader</a> concurrently accessing the 
+            <a title="object store">object stores</a>, unless the <a>reader</a> is detached, i.e., 
+            looking at a snapshot view of the data that does not change once 
+            created. 
           </p>
           <p>
             <a title="transaction">Transactions</a> offer some protection from 
@@ -456,9 +461,8 @@
           </p>
           <p>  
             <a title="transaction">Transactions</a> are expected to be short
-            lived. A <a>transaction</a> may be programmatically committed or 
-            aborted. Unless a <a>transaction</a> is programmatically committed 
-            or aborted, conforming user agents MUST automatically:
+            lived. A <a>transaction</a> may be programmatically aborted. 
+            Conforming user agents MUST automatically:
           </p>
           <ul>
             <li>
@@ -473,10 +477,16 @@
             </li>
           </ul>
           <p>
-            <a title="transaction">Transaction</a> objects implement the 
+            Static <a>transaction</a> objects implement the 
             <a><code>IDBTransaction</code></a> or the
             <a><code>IDBTransactionSync</code></a> interfaces.
           </p>
+          <p>
+             Dynamic <a>transaction</a> objects implement the 
+            <a><code>IDBDynamicTransaction</code></a> or the
+            <a><code>IDBDynamicTransactionSync</code></a> interfaces.
+          </p>
+          <p class="XXX">TODO: Define dynamic transactions if we agree they should be part of this specification.</p>
         </section> <!-- IDBTransaction -->
         <section class="section">
           <h3>The <code>IDBDatabaseException</code> Interface</h3>

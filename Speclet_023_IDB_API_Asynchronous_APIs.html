@@ -20,7 +20,7 @@
           edDraftURI:           "http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html",
 
           // if this is a LCWD, uncomment and set the end of its review period
-          // lcEnd: "2009-08-05",
+                       // lcEnd: "2009-08-05",
 
           extraCSS: [
                 "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css",
@@ -148,7 +148,7 @@
             object handle is available, it alerts the application through the
             firing of events. The events are as follows:
           </p>
-          <p>The <a><code>IDBEvent</a></code> interface extends
+          <p>The <a><code>IDBEvent</code></a> interface extends
             the <code>Event</code> interface defined in [[!DOM-LEVEL-3-EVENTS]].
           </p>
           <dl class="idl" title="[NoInterfaceObject] interface IDBEvent : Event"> 
@@ -217,10 +217,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
             <dt>readonly attribute unsigned short readyState</dt>
             <dd>Every request starts in the 
-            <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> state.
-            As soon as the implementation starts executing the request, its state changes to
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. When either
-            the request completes, fails or aborts successfully, the state changes to 
+            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a> state.
+            When either the request completes, fails or aborts successfully, the state changes to 
             <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.</dd>
             <dt>attribute Function onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
@@ -270,7 +268,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <tbody>
               <tr>
                 <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
-                <td> <code><dfn title="event-success">success</dfn></td>
+                <td> <code><dfn title="event-success">success</dfn></code></td>
                 <td> <a class="idlType" href="#widl-IDBSuccessEvent"><code>IDBSuccessEvent</code></a>,
                 <a class="idlType" href="#widl-IDBTransactionEvent"><code>IDBTransactionEvent</code></a></td>
               </tr>
@@ -285,7 +283,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           <p>
             The following are the <span>event handlers</span> (and their corresponding 
             <span>event handler event types</span>) that MUST be supported, as IDL
-            attributes, by objects implementing the <a><code>IDBTransactionRequest</code></a> interface:
+            attributes, by objects implementing the <a><code>IDBTransaction</code></a> interface:
           </p>
           
           <table>
@@ -296,7 +294,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <tbody>
               <tr>
                 <td><dfn id="handler-request-oncomplete"><code>oncomplete</code></dfn> </td>
-                <td> <code><dfn title="event-complete">complete</dfn></td>
+                <td> <code><dfn title="event-complete">complete</dfn></code></td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-onabort"><code>onabort</code></dfn> </td>
@@ -313,8 +311,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         <section class="section" id="requests">
           <h4>Opening a database</h4>
          <p>
-            <a title="Window"><a class="externalDFN"><code>Window</code></a> and 
-            <a title="Worker"><a class="externalDFN"><code>Worker</code></a> objects 
+            <a title="Window" class="externalDFN"><code>Window</code></a> and 
+            <a title="Worker" class="externalDFN"><code>Worker</code></a> objects 
             MUST implement the <a><code>IDBEnvironment</code></a> interface.
           </p>
           <p class="idl" title="Window implements IDBEnvironment">
@@ -431,35 +429,14 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               corresponding to the <a>transaction</a> that is <a>active</a> in this
               <a>database</a> <a>connection</a>.
             </dd> -->
-            <dt>IDBRequest createObjectStore()</dt>
+            <dt>IDBObjectStore createObjectStore()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a new <a>object 
-                store</a> with the given name in the 
-                <a title="connection">connected</a> <a>database</a>. If the specified <a>transaction</a> does not have <a>global</a> <a>scope</a>, then an  
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
-                set to <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                <a>object store</a> with the same name, compared in a 
-                case-sensitive manner, already exists in the 
-                <a title="connection">connected</a> <a>database</a>, then an
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
-                set to <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                If the <a>object store</a> is created successfully, then a
-                <a title="event-success">success event</a> is fired on this 
-                method's returned object using the <a><code>IDBTransactionEvent</code></a> interfacewith its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set
-                to a new <a><code>IDBObjectStore</code></a> for that <a>object store</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
-                to the <a>transaction</a> passed to this method.
+                This method creates and returns a new <a>object store</a> with the given name in the 
+                <a title="connection">connected</a> <a>database</a>. Note that this method must only
+                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
               </p>
               <dl class="parameters">
-                <dt>IDBTransaction txn</dt>
-                <dd>An active <a>transaction</a> open in this <a>database</a> <a>connection</a> whose <a>scope</a> is <a>static</a> and <a>global</a></dd>
                 <dt>DOMString name</dt>
                 <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
                 <dt>[TreatNullAs=EmptyString] optional DOMString keyPath</dt>
@@ -471,108 +448,61 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Whether the <a>object store</a> created should have a 
                 <a>key generator</a>. This defaults to <code>true</code>.</dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.</dd>
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>An <a>object store</a> with the same name, compared in a 
+                case-sensitive manner, already exists in the 
+                <a title="connection">connected</a> <a>database</a>. </dd>
+              </dl>
             </dd>
-            <dt>IDBRequest objectStore()</dt>
+            <dt>IDBObjectStore objectStore()</dt>
             <dd>
               This method implicitly creates a <a>transaction</a> and opens the 
               <a>object store</a> with the given name in the 
               <a title="connection">connected</a> <a>database</a> as the
               <a>transaction</a>'s <a>static</a> <a>scope</a>.
-              If the <a>object store</a> is opened, then a
-              <a title="event-success">success event</a> is fired on this method's
-              returned object using the <a><code>IDBTransactionEvent</code></a> 
-              interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
-              <a><code>IDBObjectStore</code></a> for that <a>object store</a> and  <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to a new <code>IDBTransactionRequest</code> for the 
-              implicit <a>transaction</a>.
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="object store name">name</a> of an existing 
                 <a>object store</a></dd>
                 <dt>optional unsigned short mode</dt>
                 <dd>The <a>mode</a> used to access the <a>object store</a>, which defaults to 
-                <a class="idlType" href="#widl-IDBDatabaseObjectStore-READ_ONLY"><code>READ_ONLY</code></a>.</dd>
+                <code>READ_ONLY</code>.</dd>
                 <dt>optional unsigned long timeout</dt>
                 <dd>The interval which this operation is allowed to take to
                 reserve all the <a>database</a> objects identified in the new
                 <a title="transaction">transaction's</a> <a>scope</a>. The default
                 is user agent specific.</dd>
               </dl>
-            </dd>
-            <dt>IDBRequest openObjectStore()</dt>
-            <dd>
-              <p>
-                This method returns immediately and opens the 
-                <a>object store</a> with the given name in the 
-                <a title="connection">connected</a> <a>database</a>
-                for the <a>mode</a> specified. If an <a>object store</a> with 
-                the given name does not exist in the 
-                <a title="connection">connected</a> <a>database</a>, 
-                then an
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                If the <a>object store</a> is opened, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object using the <a><code>IDBTransactionEvent</code></a> 
-                interface with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
-                <a><code>IDBObjectStore</code></a> for that <a>object store</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
-                to the <a>transaction</a> passed to this method.
-              </p>              
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The <a title="object store name">name</a> of an existing 
-                <a>object store</a></dd>
-                <dt>IDBTransaction txn</dt>
-                <dd>An active <a>transaction</a> open in this <a>database</a> <a>connection</a></dd> 
-                <dt>optional unsigned short mode</dt>
-                <dd>The <a>mode</a> used to access the <a>object store</a>, which defaults to 
-                <a class="idlType" href="#widl-IDBDatabaseObjectStore-READ_ONLY"><code>READ_ONLY</code></a>.</dd>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>There is no <a>object store</a> with the given name, compared in a 
+                case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBRequest removeObjectStore()</dt>
+            <dt>void removeObjectStore()</dt>
             <dd>
               <p>
-                This method returns immediately and destroys the 
-                <a>object store</a> with the given name in the 
+                This method destroys the <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a> as well as 
                 all <a title="index">indexes</a> that are 
-                <a title="referenced">referencing</a> that <a>object store</a>. If the specified <a>transaction</a> does not have <a>global</a> <a>scope</a>, then an  
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
-                set to <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If 
-                an <a>object store</a> with the given name does not exist in the 
-                <a title="connection">connected</a> <a>database</a>, 
-                then an
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                If the <a>object store</a> is destroyed successfully, then a
-                <a title="event-success">success event</a> is fired on this 
-                method's returned object using the <a><code>IDBTransactionEvent</code></a> interface with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set
-                to a <code>null</code> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> set
-                to the <a>transaction</a> passed to this method.
+                <a title="referenced">referencing</a> that <a>object store</a>.
+                Note that this method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                <a>transaction</a> callback.
               </p>
-              
               <dl class="parameters">
-                <dt>IDBTransaction txn</dt>
-                <dd>An active <a>transaction</a> open in this <a>database</a> 
-                <a>connection</a> whose <a>scope</a> is <a>static</a> and 
-                <a>global</a></dd>
-                <dt>DOMString storeName</dt>
+                <dt>DOMString name</dt>
                 <dd>The <a title="object store name">name</a> of an existing
                 <a>object store</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.</dd>
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>There is no <a>object store</a> with the given name, compared in a 
+                case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
             </dd>
             <dt>void setVersion()</dt>
@@ -588,24 +518,16 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
-            <dt>IDBRequest openTransaction()</dt>
-            <dd>
-              This method returns immediately and performs the 
-              <a>steps for creating a transaction</a> with either the list of 
+            <dt>IDBTransaction transaction()</dt>
+            <dd> This method returns an <a><code>IDBTransaction</code></a> object immediately and 
+              performs the <a title="create a static transaction">steps for creating a transaction</a> with either the list of 
               <a>object store</a> <a title="object store name">names</a>
               for acquiring locks required in this <a>transaction</a> or the 
-              global flag set to true, and an optional timeout duration. The global flag is set only if the list is not passed or passed as 
-              <code>null</code>. If a <a>transaction</a> can be created 
-              successfully, then a <a title="event-success">success event</a> is 
-              fired on this method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to 
-              a new <a><code>IDBTransaction</code></a> object and 
-              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> passed to this method. If reserving all the 
-              <a>object store</a>s identified in the requested <a>scope</a> 
+              global flag set to true, and an optional timeout duration. The global flag is set only if 
+              the list is either empty, not passed or passed as  <code>null</code>. If reserving all the 
+              <a>object store</a>s identified in the requested <a>scope</a>
               takes longer than the specified timeout interval, then an
-              <a title="event-error">error event</a> is fired on this method's
+              <a title="event-timeout">timeout event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
               <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a>
@@ -616,11 +538,12 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
-                <dt>optional IDBTransaction parent</dt>
-                <dd>An active <a>transaction</a> open in this <a>database</a> 
-                <a>connection</a></dd>
+                <dt>optional unsigned short mode</dt>
+                <dd> The <a>mode</a> for isolating access to data inside the given
+                <a title="object store">object stores</a>. If this parameter is not provided, the default
+                access <a>mode</a> is <code>READ_ONLY</code>.</dd>
                 <dt>optional unsigned long timeout</dt>
-                <dd>The interval which this operation is allowed to take to
+                <dd>The interval, specified in milliseconds, which this operation is allowed to take to
                 reserve all the <a>database</a> objects identified in the new
                 <a title="transaction">transaction's</a> <a>scope</a>. The default
                 is user agent specific</dd>
@@ -633,19 +556,6 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           <a title="object store">Object store</a> objects implement the following
           interface:
           <dl class="idl" title="[NoInterfaceObject] interface IDBObjectStore">
-            <dt>const     unsigned short READ_WRITE    = 0</dt>
-            <dd>Modification operations are allowed on the <a>object store</a>
-            in this mode.</dd>
-            <dt>const     unsigned short READ_ONLY    = 1</dt>
-            <dd>Modification operations are not allowed on the <a>object store</a>
-            in this mode.</dd>
-            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
-            <dd>This mode is used solely for reading from a snapshot of the data
-            in the <a>object store</a>.</dd>
-
-            <dt>readonly attribute unsigned short mode</dt>
-            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
-            this <a>object store</a></dd>
             <dt>readonly attribute DOMString      name</dt>
             <dd>          
               On getting, provide the <a title="object store name">name</a> of this
@@ -685,8 +595,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <!-- TODO: make mode a link once this attribute moves to Transaction. -->
-                <dd>The current <a>transaction</a> <code>mode</code> is <code>READ_ONLY</code>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
                 or <code>SNAPSHOT_READ</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
@@ -711,7 +621,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               method's returned object using the 
               <a><code>IDBTransactionEvent</code></a> interface with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the key for the stored record and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              the key for the stored record and 
+              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
               set to the <a>transaction</a> in which this <a>object store</a> is 
               opened. If a <a>record</a> exists in this <a>object store</a> for 
               the key <var>key</var> parameter, then an
@@ -728,8 +639,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <!-- TODO: make mode a link once this attribute moves to Transaction. -->
-                <dd>The current <a>transaction</a> <code>mode</code> is <code>READ_ONLY</code>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
                 or <code>SNAPSHOT_READ</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
@@ -770,8 +681,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <!-- TODO: make mode a link once this attribute moves to Transaction. -->
-                <dd>The current <a>transaction</a> <code>mode</code> is <code>READ_ONLY</code>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
                 or <code>SNAPSHOT_READ</code>.</dd>
               </dl>
             </dd>
@@ -803,6 +714,10 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>any key</dt>
                 <dd>Key identifying the <a>record</a> to be retrieved</dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+              </dl>
             </dd>
             <dt>IDBRequest openCursor()</dt>
             <dd>
@@ -817,47 +732,27 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
               <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
               records match the <a>key range</a>, then an 
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
+              set to <code>null</code>.
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+              </dl>
             </dd>
-            <dt>IDBRequest createIndex()</dt>
+            <dt>IDBIndex createIndex()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a new <a>index</a>
-                with the given name and parameters in the 
-                <a title="connection">connected</a> <a>database</a>. If an <a>index</a> 
-                with the same name, compared in a case-sensitive manner, already exists
-                in the <a title="connection">connected</a> <a>database</a>, then an 
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-                <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                If the <a>object store</a> with the
-                given name does not exist in the <a title="connection">connected</a> 
-                <a>database</a> then an 
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                If the <a>index</a> is created, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new
-                <a><code>IDBIndex</code></a> for that <a>index</a>.
+                This creates and returns a new <a>index</a> with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>.  Note that this method must only
+                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
@@ -872,48 +767,51 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>optional boolean unique</dt>
                 <dd>The <a>unique</a> flag for the new <a>index</a></dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                <a>transaction</a> callback.</dd>
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>An <a>index</a> with the same name, compared in a 
+                case-sensitive manner, already exists in the 
+                <a title="connection">connected</a> <a>database</a>. </dd>
+              </dl>
             </dd>
             <dt>IDBIndex index()</dt>
             <dd>
               <p>
                 This method returns immediately and opens the <a>index</a> with the
                 given name in the <a title="connection">connected</a> <a>database</a>.
-                If an <a>index</a> with the given
-                name does not exist in the <a title="connection">connected</a> <a>database</a>, then an
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-                If the <a>index</a> is opened, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a new 
-                <a><code>IDBIndex</code></a> for that <a>index</a>.
               </p>              
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
-              </dl>      
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>There is no <a>index</a> with the given name, compared in a 
+                case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>.</dd>
+              </dl>
             </dd>
-            <dt>IDBRequest removeIndex()</dt>
+            <dt>void removeIndex()</dt>
             <dd>
               <p>
-                This method returns immediately and destroys the <a>index</a>
-                with the given name in the <a title="connection">connected</a> 
-                <a>database</a>. If an <a>index</a> with the given name does not 
-                exist in the <a title="connection">connected</a> <a>database</a>, then an
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-                <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                This method destroys the <a>index</a> with the given name in the
+                <a title="connection">connected</a> <a>database</a>. Note that this
+                method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                <a>transaction</a> callback.
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                <a>transaction</a> callback.</dd>
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>There is no <a>index</a> with the given name, compared in a 
+                case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
             </dd>
           </dl>
@@ -972,6 +870,10 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+              </dl>
             </dd>
             <dt>IDBRequest openCursor()</dt>
             <dd>
@@ -998,44 +900,9 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
-            </dd>
-            <dt>IDBRequest put()</dt>
-            <dd>
-              This method returns immediately and stores the given value in this <a>index</a>
-              by following the <a>steps for storing a record into an index</a>. If the
-              operation succeeds, then a
-              <a title="event-success">success event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-              key for the stored record. 
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The value to be stored in the record</dd>
-                <dt>optional any key</dt>
-                <dd>The key used to identify the record</dd>
-              </dl>
-            </dd>
-            <dt>IDBRequest add()</dt>
-            <dd>
-              This method returns immediately and stores the given value in this <a>index</a>
-              by following the <a>steps for storing a record into an index</a>. If the
-              operation succeeds, then a
-              <a title="event-success">success event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to a the
-              key for the stored record. If a record exists in this <a>index</a> for the key 
-              <var>key</var> parameter or this <a>index</a> is <a>auto-populated</a> or if no
-              record exists with key <var>value</var> parameter in the <a>index</a>'s
-              <a>referenced</a> <a>object store</a>, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The value to be stored in the record</dd>
-                <dt>optional any key</dt>
-                <dd>The key used to identify the record</dd>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest getObject()</dt>
@@ -1057,6 +924,10 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+              </dl>
             </dd>
             <dt>IDBRequest get()</dt>
             <dd>
@@ -1077,22 +948,9 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
-            </dd>
-            <dt>IDBRequest remove()</dt>
-            <dd>
-              This method returns immediately and removes the records from this <a>index</a>
-              by following the <a>steps for deleting a record from an index</a>
-              corresponding to the given key. If a record did not exist in this 
-              <a>index</a> for the key <var>key</var> parameter, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-              <dl class="parameters">
-                <dt>any key</dt>
-                <dd>Key identifying the record to be removed</dd>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
               </dl>
             </dd>
           </dl>
@@ -1149,8 +1007,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               <a>cursor</a>'s <a>position</a>.
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <!-- TODO: make mode a link once this attribute moves to Transaction. -->
-                <dd>The current <a>transaction</a> <code>mode</code> is <code>READ_ONLY</code>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
                 or <code>SNAPSHOT_READ</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property at the 
@@ -1168,12 +1026,10 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               optional parameter. If no such parameter is provided, advance to the
               immediate next position. If the <a>cursor</a> has reached the end of its
               <a>range</a>, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <a title="event-success">success event</a> is fired on this method's
+              returned object with its
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
+              set to <code>null</code>.
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
@@ -1190,8 +1046,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </p>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <!-- TODO: make mode a link once this attribute moves to Transaction. -->
-                <dd>The current <a>transaction</a> <code>mode</code> is <code>READ_ONLY</code>
+                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
                 or <code>SNAPSHOT_READ</code>.</dd>
               </dl>
             </dd>
@@ -1201,14 +1057,25 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
         <h4>Transaction</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
-            <a title="transaction">Transaction</a> objects implement the following interface:
+            <a title="transaction">Static transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="[NoInterfaceObject] interface IDBTransaction : EventTarget">
-            <dt>attribute boolean static</dt>
-            <dd>If <code>true</code>, then this <a>transaction</a> is <a>static</a>
-              and <code>false</code> otherwise.
-            </dd>
-            <dt>attribute IDBDatabase db</dt>
+            <dt>const     unsigned short READ_WRITE    = 0</dt>
+            <dd>Modification operations are allowed in the <a>transactions</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_ONLY    = 1</dt>
+            <dd>Modification operations are not allowed in the <a>transaction</a>
+            in this mode.</dd>
+            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
+            <dd>This mode is used solely for reading from a snapshot of the data
+            in the <a title="object store">object stores</a> that are in the
+            <a>scope</a> of the <a>transaction</a>.</dd>
+
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            the <a title="object store">object stores</a> that are in the
+            <a>scope</a> of the <a>transaction</a>.</dd>
+            <dt>readonly attribute IDBDatabase db</dt>
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part
             </dd>
@@ -1240,25 +1107,40 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               and a suitable 
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
             </dd>
-            <dt>void commit()</dt>
+            <dt>attribute Function onabort</dt>
+            <dd>The event handler for the <a>onabort</a> event.</dd>
+            <dt>attribute Function oncomplete</dt>
+            <dd>The event handler for the <a>oncomplete</a> event.</dd>
+            <dt>attribute Function ontimeout</dt>
+            <dd>The event handler for the <a>ontimeout</a> event.</dd>
+          </dl>
+
+          <p>
+            <a title="dynamic transaction">Dynamic transaction</a> objects implement the following interface:
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBDynamicTransaction : EventTarget">
+            <dt>readonly attribute IDBDatabase db</dt>
+            <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a> is a part.</dd>
+            <dt>IDBRequest openObjectStore()</dt>
             <dd>
-              This method returns immediately and durably stores all the changes 
-              made to the <a>objects</a> of this <a>database</a> since the 
-              creation of this <a>transaction</a>. If this <a>transaction</a> 
+              Returns immediately and then attempts to lock the requesed <a>object store</a> in the given <a>mode</a>. 
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The requested <a>object store</a>.</dd>
+                <dt>optional unsigned short mode</dt>
+                <dd>The <a>mode</a> for isolating access to the <a>object store</a>, which defaults to 
+                <code>READ_ONLY</code>.</dd>
+              </dl>
+            </dd>
+            <dt>void abort()</dt>
+            <dd>
+              This method returns immediately and undoes all the changes performed to 
+              the <a>objects</a> of this <a>database</a> in this <a>transaction</a>. If this <a>transaction</a> 
               has already been committed or aborted,  then an
               <a title="event-error">error event</a> is fired on this method's
               returned object with its 
               <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
               <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-              If this <a>transaction</a>'s <a>scope</a> is <a>dynamic</a>, and
-              the user agent cannot commit all the changes due to conflicts with 
-              another <a>transaction</a>, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-RECOVERABLE_ERR"><code>RECOVERABLE_ERR</code></a>
               and a suitable 
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
             </dd>
@@ -1269,6 +1151,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>attribute Function ontimeout</dt>
             <dd>The event handler for the <a>ontimeout</a> event.</dd>
           </dl>
+          <p class="XXX">TODO: Finish the dynamic transaction IDL and define the behavior of dynamic transactions.</p>
         </section>
       </section>
       <!-- end-content -->

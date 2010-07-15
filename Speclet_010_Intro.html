@@ -185,42 +185,44 @@ else
         <p>
         The next example performs the exact same logic as above asynchronously.
         </p>
-        <codeblock>function findFred() {
-  db.request.onsuccess = function() {
-    var index = db.request.result;
-    index.request.onsuccess = function() {
-      var matching = index.request.result;
-      if (matching)
-        report(matching.isbn, matching.name, matching.author);
-      else
-        report(null);    
+        <codeblock>
+  function findFred() {
+    var store = db.objectStore('books');
+    var index = store.index('BookAuthor');
+    var req = index.get('fred');
+    req.onsuccess = function(event) {
+      var matching = event.result;
+      report(matching.isbn, matching.name, matching.author);
     }
-    index.get('fred');
+    req.onerror = function(event) {
+      report(null);
+    }
   }
-  db.openIndex('BookAuthor');
-}
 
-indexedDB.request.onsuccess = function() {
-  var db = indexedDB.request.result;
-  if (db.version !== '1.0') {
-    indexedDB.request.onsuccess = function() {
-      var olddb = indexedDB.request.result;
-      olddb.request.onsuccess = function() {
-        olddb.request.onsuccess = function() {
-          olddb.request.onsuccess = function() {
-            findFred(db);
-          }
-          olddb.setVersion("1.0");   
-        }
-        olddb.createIndex('BookAuthor', 'books', 'author', false);        
+  var db;
+  var dbRequest = indexedDB.open('books', 'Book store');
+  dbRequest.onsuccess = function(event) {
+    db = event.result;
+    if (db.version != "1.0") {
+      var versionRequest = db.setVersion("1.0");
+      versionRequest.ontimeout = function(event) {
+        throw new Error("timeout trying to set version to 1.0");
       }
-      olddb.createObjectStore('books', 'isbn');
+      versionRequest.onsuccess = function(event) {
+        var store = db.createObjectStore('books', 'isbn');
+        store.createIndex('BookAuthor', 'books', 'author', false);
+        event.transaction.onerror = function(event) {
+          throw new Error("error while trying to set version to 1.0");
+        }
+        event.transaction.onsuccess = function(event) {
+          findFred(db);
+        }
+      }
+    } else {
+      findFred(db);
     }
-    indexedDB.open('books', 'Book store');
   }
-  findFred(db);
-};        
-indexedDB.open('books', 'Book store', false);
+   
         </codeblock>
         <!--p>
         Here is an example of a script using this API. First, a function
