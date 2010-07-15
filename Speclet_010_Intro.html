@@ -33,7 +33,7 @@
               { name: "Nikunj Mehta", url: "mailto:nikunj@o-micron.com",
                 company: "Invited Expert" },
               { name: "Jonas Sicking", url: "mailto:jonas@sicking.cc",
-                company: "Invited Expert" },
+                company: "Mozilla" },
               { name: "Eliot Graff", url: "mailto:eliotgra@microsoft.com",
                 company: "Microsoft" },
               { name: "Andrei Popescu", url: "mailto:andreip@google.com",
@@ -213,10 +213,10 @@ else
       versionRequest.onsuccess = function(event) {
         var store = db.createObjectStore('books', 'isbn');
         store.createIndex('BookAuthor', 'books', 'author', false);
-        event.transaction.onerror = function(event) {
+        event.transaction.onabort = function(event) {
           throw new Error("error while trying to set version to 1.0");
         }
-        event.transaction.onsuccess = function(event) {
+        event.transaction.oncomplete = function(event) {
           findFred(db);
         }
       }
