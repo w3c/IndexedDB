@@ -645,6 +645,7 @@ prepareDatabase(function(evt) {
               <li><code>READ_ONLY</code></li>
               <li><code>READ_WRITE</code></li>
               <li><code>SNAPSHOT_READ</code></li>
+              <li><code>VERSION_CHANGE</code></li>
             </ol>
           </p>
           <p>  
@@ -801,6 +802,13 @@ prepareDatabase(function(evt) {
             <dd>Returns the describing the reason for the error. The message should be localized 
             to the user's language.</dd>
           </dl>
+
+          <dl class="idl" title="[NoInterfaceObject] interface IDBVersionChangeEvent : IDBEvent"> 
+            <dt>readonly attribute DOMString version</dt>
+            <dd>Returns the new version of the database during a VERSION_CHANGE transaction.
+            See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
+          </dl>
+
         </section>
         
         <section class="section" id="request-api">
@@ -1130,15 +1138,12 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
             </dd>
-            <dt>void setVersion()</dt>
+            <dt>IDBRequest setVersion()</dt>
             <dd>
               This method returns immediately and sets the <a>version</a> of the 
-              <a title="connection">connected</a> <a>database</a>.
+              <a title="connection">connected</a> <a>database</a> by following the
+              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>. 
               <dl class="parameters">
-                <dt>IDBTransaction txn</dt>
-                <dd>An active <a>transaction</a> open in this <a>database</a> 
-                <a>connection</a> whose <a>scope</a> is <a>static</a> and 
-                <a>global</a></dd>
                 <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
@@ -1173,6 +1178,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="transaction">transaction's</a> <a>scope</a>. The default
                 is user agent specific</dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TIMEOUT_ERR</dt>
+                <dd>The required locks could not be acquired in the given timeout interval</dd>.
+                <dt>CLOSE_PENDING_ERR</dt>
+                <dd>The <code>close()</code> method has been called on this IDBDatabase instance and
+                its internal <code>closePending</code> flag is set.</dd>
+              </dl>
+            </dd>
+            <dt>void close()</dt>
+            <dd>
+              This method returns immediately and performs the <a>steps for closing a database connection</a>.
             </dd>
           </dl>
         </section>
@@ -1695,7 +1711,9 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dd>This mode is used solely for reading from a snapshot of the data
             in the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
-
+            <dt>const     unsigned short VERSION_CHANGE = 3</dt>
+            <dd>This mode is used solely for updating the version number of
+            transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabase</code></a>.</dd>
             <dt>readonly attribute unsigned short mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
@@ -2872,7 +2890,7 @@ cursor.continue();
           </ol>
         </section>
         
-        <section class="section">
+        <Section class="section">
           <h4>Index Value Retrieval steps</h4>
           <p>
             The <dfn>steps for retrieving a value from an index</dfn> are
@@ -3005,6 +3023,63 @@ cursor.continue();
           <div class="issue">
             <p>Add steps for creating dynamic transactions.</p>
           </div>     
+        </section>
+        <section class="section">
+          <h4>VERSION_CHANGE transaction steps</h4>
+          <p>
+            The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
+            as follows. These steps MUST be run with three parameters - a <var>database</var>,
+            a new <var>version number</var> to be set for the <var>database</var> and a <var>request</var>
+            object representing the <a><code>IDBRequest</code></a> instance associated with this transaction.
+          </p>
+          <ol>
+            <li>
+              Let <var>openDatabases</var> be the set of all <a><code>IDBDatabase</code></a> object representing
+              the given <var>database</var>.
+            </li>
+            <li>
+              Fire a <a><code>versionchange</code></a> event targeted at each object in the <var>openDatabases</var> set.
+              The <code>version</code> property of this event must be set to the given <var>version number</var>.
+            </li>
+            <li>
+              Wait until all objects in <var>openDatabases</var> are closed.
+            </li>
+            <li>
+              Start a new <a><code>transaction</code></a> with <a><code>mode</code></a> set to <a><code>VERSION_CHANGE</code></a>.
+              Note that as long as this transaction is running, no other <a><code>IDBDatabase</code></a> objects can be open.
+            </li>
+            <li>
+              Set the version of the <var>database</var> to the given <var>version number</var>.
+            </li>
+            <li>
+              Fire a <a><code>success</code></a> event targeted at the <var>request</var> object. The <a><code>result</code></a>
+              propety of the event should be set to a new <a><code>IDBTransaction</code></a> object representing the
+              <a><code>VERSION_CHANGE</code></a> transaction created in step 4.
+            </li>
+            <li>
+              Follow the normal steps for executing a <a><code>transaction</a></code> and let the  <a><code>transaction</a></code>
+              complete normally.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Database closing steps</h4>
+          <p>The <dfn>steps for closing a database connection</dfn> are as follows. These steps MUST be run with one parameter
+            - a <var>database</var> object of type <a><code>IDBDatabase</code></a>.</p>
+          <ol>
+            <li>
+              Set the internal <code>closePending</code> flag of the <var>database</var> object to true. If the <code>transaction()</code> method
+              is called on the <var>database</var> object while the <code>closePending</code> is set, an exception will be thrown.
+            </li>
+            <li>
+              Wait for all pending transactions on the <var>database</var> to complete. Once they are complete, the <var>database</var> is
+              fully closed.
+            </li>
+            <li>
+              Unblock any pending <code>setVersion()</code> calls made on other <a><code>IDBDatabase</code></a> objects connected to the same
+              database.
+            </li>
+          </ol>
         </section>
       </section>
 

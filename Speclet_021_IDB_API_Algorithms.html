@@ -333,7 +333,7 @@
           </ol>
         </section>
         
-        <section class="section">
+        <Section class="section">
           <h4>Index Value Retrieval steps</h4>
           <p>
             The <dfn>steps for retrieving a value from an index</dfn> are
@@ -466,6 +466,63 @@
           <div class="issue">
             <p>Add steps for creating dynamic transactions.</p>
           </div>     
+        </section>
+        <section class="section">
+          <h4>VERSION_CHANGE transaction steps</h4>
+          <p>
+            The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
+            as follows. These steps MUST be run with three parameters - a <var>database</var>,
+            a new <var>version number</var> to be set for the <var>database</var> and a <var>request</var>
+            object representing the <a><code>IDBRequest</code></a> instance associated with this transaction.
+          </p>
+          <ol>
+            <li>
+              Let <var>openDatabases</var> be the set of all <a><code>IDBDatabase</code></a> object representing
+              the given <var>database</var>.
+            </li>
+            <li>
+              Fire a <a><code>versionchange</code></a> event targeted at each object in the <var>openDatabases</var> set.
+              The <code>version</code> property of this event must be set to the given <var>version number</var>.
+            </li>
+            <li>
+              Wait until all objects in <var>openDatabases</var> are closed.
+            </li>
+            <li>
+              Start a new <a><code>transaction</code></a> with <a><code>mode</code></a> set to <a><code>VERSION_CHANGE</code></a>.
+              Note that as long as this transaction is running, no other <a><code>IDBDatabase</code></a> objects can be open.
+            </li>
+            <li>
+              Set the version of the <var>database</var> to the given <var>version number</var>.
+            </li>
+            <li>
+              Fire a <a><code>success</code></a> event targeted at the <var>request</var> object. The <a><code>result</code></a>
+              propety of the event should be set to a new <a><code>IDBTransaction</code></a> object representing the
+              <a><code>VERSION_CHANGE</code></a> transaction created in step 4.
+            </li>
+            <li>
+              Follow the normal steps for executing a <a><code>transaction</a></code> and let the  <a><code>transaction</a></code>
+              complete normally.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Database closing steps</h4>
+          <p>The <dfn>steps for closing a database connection</dfn> are as follows. These steps MUST be run with one parameter
+            - a <var>database</var> object of type <a><code>IDBDatabase</code></a>.</p>
+          <ol>
+            <li>
+              Set the internal <code>closePending</code> flag of the <var>database</var> object to true. If the <code>transaction()</code> method
+              is called on the <var>database</var> object while the <code>closePending</code> is set, an exception will be thrown.
+            </li>
+            <li>
+              Wait for all pending transactions on the <var>database</var> to complete. Once they are complete, the <var>database</var> is
+              fully closed.
+            </li>
+            <li>
+              Unblock any pending <code>setVersion()</code> calls made on other <a><code>IDBDatabase</code></a> objects connected to the same
+              database.
+            </li>
+          </ol>
         </section>
       </section>
       <!-- end-content -->

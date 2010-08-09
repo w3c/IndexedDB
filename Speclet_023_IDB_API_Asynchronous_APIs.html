@@ -176,6 +176,13 @@
             <dd>Returns the describing the reason for the error. The message should be localized 
             to the user's language.</dd>
           </dl>
+
+          <dl class="idl" title="[NoInterfaceObject] interface IDBVersionChangeEvent : IDBEvent"> 
+            <dt>readonly attribute DOMString version</dt>
+            <dd>Returns the new version of the database during a VERSION_CHANGE transaction.
+            See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
+          </dl>
+
         </section>
         
         <section class="section" id="request-api">
@@ -505,15 +512,12 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
             </dd>
-            <dt>void setVersion()</dt>
+            <dt>IDBRequest setVersion()</dt>
             <dd>
               This method returns immediately and sets the <a>version</a> of the 
-              <a title="connection">connected</a> <a>database</a>.
+              <a title="connection">connected</a> <a>database</a> by following the
+              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>. 
               <dl class="parameters">
-                <dt>IDBTransaction txn</dt>
-                <dd>An active <a>transaction</a> open in this <a>database</a> 
-                <a>connection</a> whose <a>scope</a> is <a>static</a> and 
-                <a>global</a></dd>
                 <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
@@ -548,6 +552,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="transaction">transaction's</a> <a>scope</a>. The default
                 is user agent specific</dd>
               </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TIMEOUT_ERR</dt>
+                <dd>The required locks could not be acquired in the given timeout interval</dd>.
+                <dt>CLOSE_PENDING_ERR</dt>
+                <dd>The <code>close()</code> method has been called on this IDBDatabase instance and
+                its internal <code>closePending</code> flag is set.</dd>
+              </dl>
+            </dd>
+            <dt>void close()</dt>
+            <dd>
+              This method returns immediately and performs the <a>steps for closing a database connection</a>.
             </dd>
           </dl>
         </section>
@@ -1070,7 +1085,9 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dd>This mode is used solely for reading from a snapshot of the data
             in the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
-
+            <dt>const     unsigned short VERSION_CHANGE = 3</dt>
+            <dd>This mode is used solely for updating the version number of
+            transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabase</code></a>.</dd>
             <dt>readonly attribute unsigned short mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
