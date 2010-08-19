@@ -1476,7 +1476,7 @@ interface <span class="idlInterfaceID">IDBErrorEvent</span> : <span class="idlSu
 </pre><div class="section"><h5 id="attributes-4">Attributes</h5><dl class="attributes"><dt id="widl-IDBErrorEvent-code"><code>code</code> of type <span class="idlAttrType"><a>unsigned short</a></span>, readonly</dt><dd>Returns the most appropriate error code from carrying out the asynchronous request
             on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>. The 
             valid values of this error code are defined on the exception
-            <a class="idlType" href="#widl-IDBDatabaseException"><code>IDBDatabaseException</code></a>.<div><em>No exceptions.</em></div></dd><dt id="widl-IDBErrorEvent-message"><code>message</code> of type <span class="idlAttrType"><a>DOMString</a></span>, readonly</dt><dd>Returns the describing the reason for the error. The message should be localized 
+            <a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a>.<div><em>No exceptions.</em></div></dd><dt id="widl-IDBErrorEvent-message"><code>message</code> of type <span class="idlAttrType"><a>DOMString</a></span>, readonly</dt><dd>Returns the describing the reason for the error. The message should be localized 
             to the user's language.<div><em>No exceptions.</em></div></dd></dl></div>
 
           <pre class="idl"><span class="idlInterface" id="idl-def-IDBVersionChangeEvent">[<span class="extAttr">NoInterfaceObject</span>]
@@ -1529,9 +1529,9 @@ interface <span class="idlInterfaceID">IDBRequest</span> : <span class="idlSuper
             The <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If the request aborts successfully, the
-            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set
+            <a class="idlType" href="#widl-IDBRequest-onerror"><code>error</code></a> is set
             to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>.<div><em>No parameters.</em></div><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd></dl></div><div class="section"><h5 id="constants-2">Constants</h5><dl class="constants"><dt id="widl-IDBRequest-DONE"><code>DONE</code> of type <span class="idlConstType"><a>unsigned short</a></span></dt><dd>This state indicates that a result to a previous request is available in
-            the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd><dt id="widl-IDBRequest-LOADING"><code>LOADING</code> of type <span class="idlConstType"><a>unsigned short</a></span></dt><dd>This state indicates that a request has been started but its results is not
+            the <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> attribute.</dd><dt id="widl-IDBRequest-LOADING"><code>LOADING</code> of type <span class="idlConstType"><a>unsigned short</a></span></dt><dd>This state indicates that a request has been started but its results is not
             yet available.</dd></dl></div>
           <p>
             When a request is made, the 
@@ -1542,7 +1542,7 @@ interface <span class="idlInterfaceID">IDBRequest</span> : <span class="idlSuper
             changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
             the result of the request is included as the 
             <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> of
-            a new <a class="idlType" href="#widl-IDBSuccessEvent"><code>IDBSuccessEvent</code></a> 
+            a new <a class="idlType" href="#idl-ref-IDBSuccessEvent"><code>IDBSuccessEvent</code></a> 
             event, and <a>queue a task</a> to fire that event with the name <code>success</code>, 
             with no namespace, which does not bubble, is not cancelable at each 
             <a class="externalDFN"><code>Window</code></a> object.
@@ -1577,13 +1577,13 @@ interface <span class="idlInterfaceID">IDBRequest</span> : <span class="idlSuper
               <tr>
                 <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
                 <td> <code><dfn id="dfn-event-success" title="event-success">success</dfn></code></td>
-                <td> <a class="idlType" href="#widl-IDBSuccessEvent"><code>IDBSuccessEvent</code></a>,
-                <a class="idlType" href="#widl-IDBTransactionEvent"><code>IDBTransactionEvent</code></a></td>
+                <td> <a class="idlType" href="#idl-ref-IDBSuccessEvent"><code>IDBSuccessEvent</code></a>,
+                <a class="idlType" href="#idl-ref-IDBTransactionEvent"><code>IDBTransactionEvent</code></a></td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
                 <td> <code><dfn id="dfn-event-error" title="event-error">error</dfn></code></td>
-                <td> <a class="idlType" href="#widl-IDBErrorEvent"><code>IDBErrorEvent</code></a></td>
+                <td> <a class="idlType" href="#idl-ref-IDBErrorEvent"><code>IDBErrorEvent</code></a></td>
               </tr>
             </tbody>
           </table>        
@@ -1675,7 +1675,7 @@ interface <span class="idlInterfaceID">IDBFactory</span> {
                 </li>
                 <li>
                   If the steps were aborted with an error code, then set this 
-                  request's <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> with that 
+                  request's <a class="idlType" href="#widl-IDBRequest-onerror"><code>error</code></a> with that 
                   code and abort these steps.
                 </li>
                 <li>
@@ -1876,7 +1876,7 @@ interface <span class="idlInterfaceID">IDBObjectStore</span> {
               by following the 
               <a class="internalDFN" href="#dfn-steps-for-retrieving-a-record-from-an-object-store">steps for retrieving a record from an object store</a>. 
               If the operation is successful, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> of this object's request
               is set to the retrieved value. If a record did not exist in this 
               <a class="internalDFN" href="#dfn-object-store">object store</a> for the key <var>key</var> parameter, then an 
               <a class="internalDFN" href="#dfn-event-error" title="event-error">error event</a> is fired on this method's
@@ -2015,7 +2015,7 @@ interface <span class="idlInterfaceID">IDBIndex</span> {
               for the record corresponding to the given <var>key</var> parameter by 
               following the <a class="internalDFN" href="#dfn-steps-for-retrieving-a-value-from-an-index">steps for retrieving a value from an index</a>.
               If the operation is successful, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> of this object's request
               is set to the retrieved value. If a record did not exist in this 
               <a class="internalDFN" href="#dfn-index">index</a> for the key <var>key</var> parameter, then an
               <a class="internalDFN" href="#dfn-event-error" title="event-error">error event</a> is fired on this method's
@@ -2031,7 +2031,7 @@ interface <span class="idlInterfaceID">IDBIndex</span> {
               <a class="internalDFN" href="#dfn-referenced">referenced</a> <a class="internalDFN" href="#dfn-object-store">object store</a> for the record corresponding to the given
               key by following the <a class="internalDFN" href="#dfn-steps-for-retrieving-a-record-from-an-index">steps for retrieving a record from an index</a>.
               If the operation is successful, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> of this object's request
               is set to the retrieved value. If a record did not exist in this 
               <a class="internalDFN" href="#dfn-index">index</a> for the key <var>key</var> parameter, then an
               <a class="internalDFN" href="#dfn-event-error" title="event-error">error event</a> is fired on this method's
@@ -2786,8 +2786,8 @@ interface <span class="idlInterfaceID">IDBCursorSync</span> {
                 </td></tr><tr><td class="excCodeName"><code>SERIAL_ERR</code></td><td class="excCodeDesc">The data being stored could not be serialized by the internal
                 structured cloning algorithm</td></tr><tr><td class="excCodeName"><code>NOT_ALLOWED_ERR</code></td><td class="excCodeDesc">The underlying <a class="internalDFN" href="#dfn-index">index</a> or <a class="internalDFN" href="#dfn-object-store">object store</a> does not
                 support updating the item because it is open in the 
-                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
-                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
+                <a class="idlType" href="#widl-IDBTransaction-READ_ONLY"><code>READ_ONLY</code></a> or 
+                <a class="idlType" href="#widl-IDBTransaction-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
                 <a class="internalDFN" href="#dfn-mode">mode</a>.</td></tr><tr><td class="excCodeName"><code>NOT_ALLOWED_ERR</code></td><td class="excCodeDesc">An index record cannot be changed because the underlying 
                 <a class="internalDFN" href="#dfn-index">index</a> is <a class="internalDFN" href="#dfn-auto-populated">auto-populated</a>.</td></tr></table></td></tr></table></dd></dl></div><div class="section"><h5 id="methods-13">Methods</h5><dl class="methods"><dt id="widl-IDBCursorSync-continue"><code>continue</code></dt><dd>
               Advance the <a class="internalDFN" href="#dfn-cursor">cursor</a> to the next position along its <a class="internalDFN" href="#dfn-direction">direction</a>
@@ -2805,8 +2805,8 @@ interface <span class="idlInterfaceID">IDBCursorSync</span> {
               
             <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>NOT_ALLOWED_ERR</code></td><td class="excCodeDesc">The underlying <a class="internalDFN" href="#dfn-index">index</a> or <a class="internalDFN" href="#dfn-object-store">object store</a> does not
                 support updating the item because it is open in the 
-                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
-                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
+                <a class="idlType" href="#widl-IDBTransaction-READ_ONLY"><code>READ_ONLY</code></a> or 
+                <a class="idlType" href="#widl-IDBTransaction-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
                 <a class="internalDFN" href="#dfn-mode">mode</a>.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a>void</a></code></div></dd></dl></div><div class="section"><h5 id="constants-6">Constants</h5><dl class="constants"><dt id="widl-IDBCursorSync-NEXT"><code>NEXT</code> of type <span class="idlConstType"><a>unsigned short</a></span></dt><dd>
               indicates that this <a class="internalDFN" href="#dfn-cursor">cursor</a> should yield all records, including  
               duplicates and its <a class="internalDFN" href="#dfn-direction">direction</a> is monotonically increasing 
@@ -3508,11 +3508,11 @@ interface <span class="idlInterfaceID">IDBTransactionSync</span> {
 
 
   <div class="appendix section" id="references"><!--OddPage--><h2><span class="secno">C. </span>References</h2><div class="section" id="normative-references"><h3><span class="secno">C.1 </span>Normative references</h3><dl class="bibliography"><dt id="bib-COOKIES">[COOKIES]</dt><dd>Adam Barth. <cite><a href="http://tools.ietf.org/html/draft-abarth-cookie">HTTP State Management Mechanism</a>.</cite> IETF, November 2009
-</dd><dt id="bib-DOM-LEVEL-3-EVENTS">[DOM-LEVEL-3-EVENTS]</dt><dd>Björn Höhrmann; Tom Pixley; Philippe Le Hégaret. <a href="http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221"><cite>Document Object Model (DOM) Level 3 Events Specification.</cite></a> 21 December 2007. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221">http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221</a> 
+</dd><dt id="bib-DOM-LEVEL-3-EVENTS">[DOM-LEVEL-3-EVENTS]</dt><dd>Björn Höhrmann; Tom Pixley; Philippe Le Hégaret. <a href="http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/"><cite>Document Object Model (DOM) Level 3 Events Specification.</cite></a> 21 December 2007. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/">http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221</a> 
 </dd><dt id="bib-ECMA-262">[ECMA-262]</dt><dd><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm"><cite>ECMAScript Language Specification, Third Edition.</cite></a> December 1999. URL: <a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">http://www.ecma-international.org/publications/standards/Ecma-262.htm</a> 
 </dd><dt id="bib-HTML5">[HTML5]</dt><dd>Ian Hickson; David Hyatt. <a href="http://www.w3.org/TR/2010/WD-html5-20100304/"><cite>HTML 5.</cite></a> 4 March 2010. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2010/WD-html5-20100304/">http://www.w3.org/TR/2010/WD-html5-20100304/</a> 
 </dd><dt id="bib-RFC2119">[RFC2119]</dt><dd>S. Bradner. <a href="http://www.ietf.org/rfc/rfc2119.txt"><cite>Key words for use in RFCs to Indicate Requirement Levels.</cite></a> Internet RFC 2119. URL: <a href="http://www.ietf.org/rfc/rfc2119.txt">http://www.ietf.org/rfc/rfc2119.txt</a> 
-</dd><dt id="bib-WEBIDL">[WEBIDL]</dt><dd>Cameron McCormack. <a href="http://www.w3.org/TR/2008/WD-WebIDL-20081219"><cite>Web IDL.</cite></a> 19 December 2008. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2008/WD-WebIDL-20081219">http://www.w3.org/TR/2008/WD-WebIDL-20081219</a> 
+</dd><dt id="bib-WEBIDL">[WEBIDL]</dt><dd>Cameron McCormack. <a href="http://www.w3.org/TR/2008/WD-WebIDL-20081219/"><cite>Web IDL.</cite></a> 19 December 2008. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2008/WD-WebIDL-20081219/">http://www.w3.org/TR/2008/WD-WebIDL-20081219</a> 
 </dd><dt id="bib-WEBWORKERS">[WEBWORKERS]</dt><dd>Ian Hickson. <cite><a href="http://www.w3.org/TR/2009/WD-workers-20091222/">Web Workers</a>.</cite> 22 December 2009. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2009/WD-workers-20091222/">http://www.w3.org/TR/2009/WD-workers-20091222/</a> 
 </dd></dl></div><div class="section" id="informative-references"><h3><span class="secno">C.2 </span>Informative references</h3><dl class="bibliography"><dt id="bib-WEBSTORAGE">[WEBSTORAGE]</dt><dd>Ian Hickson. <a href="http://www.w3.org/TR/2009/WD-webstorage-20090910/"><cite>Web Storage.</cite></a> 10 September 2009. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2009/WD-webstorage-20090910/">http://www.w3.org/TR/2009/WD-webstorage-20090910/</a> 
 </dd></dl></div></div></body></html>
