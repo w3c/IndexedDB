@@ -644,16 +644,19 @@ prepareDatabase(function(evt) {
             <ol>
               <li><code>READ_ONLY</code></li>
               <li><code>READ_WRITE</code></li>
-              <li><code>SNAPSHOT_READ</code></li>
               <li><code>VERSION_CHANGE</code></li>
             </ol>
-          <p>  
-            Any number of <a title="reader">readers</a> MAY concurrently access 
-            all <a title="object store">object stores</a>. A <a>writer</a> is not allowed
-            if there is any <a>reader</a> concurrently accessing the 
-            <a title="object store">object stores</a>, unless the <a>reader</a> is detached, i.e., 
-            looking at a snapshot view of the data that does not change once 
-            created. 
+          <p>
+          	Any number of <a title="reader">readers</a> may concurrently access all <a title="object store">object stores</a>.
+          	A <a>writer</a> MUST behave as if there were no 
+          	<a title="reader">readers</a> concurrently accessing the <a>object store</a>, such that 
+          	a <a>writer</a> either cannot access the <a>object store</a> while <a title="reader">readers</a>
+          	are accessing the <a>object store</a> or their changes are not 
+          	visible to <a title="reader">readers</a> that were active at the time the <a>writer</a> started. 
+          </p>
+          <p>
+          	User agents need to ensure a reasonable level of fairness across <a title="reader">readers</a>
+          	and <a title="writer">writers</a> to prevent starvation.
           </p>
           <p>
             <a title="transaction">Transactions</a> offer some protection from 
@@ -1194,8 +1197,7 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
-                or <code>SNAPSHOT_READ</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
                 no <a>key generator</a> but the <var>key</var> parameter was not
@@ -1238,8 +1240,7 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
-                or <code>SNAPSHOT_READ</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
                 no <a>key generator</a> but the <var>key</var> parameter was not
@@ -1252,9 +1253,9 @@ prepareDatabase(function(evt) {
                 structured cloning algorithm.</dd>
               </dl>
             </dd>
-            <dt>IDBRequest remove()</dt>
+            <dt>IDBRequest delete()</dt>
             <dd>
-              This method returns immediately and removes the <a>record</a> from 
+              This method returns immediately and deletes the <a>record</a> from 
               this <a>object store</a> by following the 
               <a>steps for deleting a record from an object store</a> 
               corresponding to the given key. If a <a>record</a> did not exist 
@@ -1265,23 +1266,22 @@ prepareDatabase(function(evt) {
               <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
               and a suitable 
               <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If the <a>record</a> can be successfully 
-              removed from the <a>object store</a>, then a 
+              deleted from the <a>object store</a>, then a 
               <a title="event-success">success event</a> is fired on this 
               method's returned object using the 
               <a><code>IDBTransactionEvent</code></a> interface with its 
               <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the value of the removed <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
+              the value of the deleted <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
               set to the <a>transaction</a> in which this <a>object store</a> is 
               opened. 
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the <a>record</a> to be removed</dd>
+                <dd>Key identifying the <a>record</a> to be deleted</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
-                or <code>SNAPSHOT_READ</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
@@ -1606,8 +1606,7 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
-                or <code>SNAPSHOT_READ</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property at the 
                 <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
@@ -1640,7 +1639,7 @@ prepareDatabase(function(evt) {
               </dl>
             </dd>
             
-            <dt>IDBRequest    remove()</dt>
+            <dt>IDBRequest    delete()</dt>
             <dd>          
               <p>
                 This method returns immediately and deletes the object at the 
@@ -1651,8 +1650,7 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>
-                or <code>SNAPSHOT_READ</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
               </dl>
             </dd>
           </dl>
@@ -1670,11 +1668,7 @@ prepareDatabase(function(evt) {
             <dt>const     unsigned short READ_ONLY    = 1</dt>
             <dd>Modification operations are not allowed in the <a>transaction</a>
             in this mode.</dd>
-            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
-            <dd>This mode is used solely for reading from a snapshot of the data
-            in the <a title="object store">object stores</a> that are in the
-            <a>scope</a> of the <a>transaction</a>.</dd>
-            <dt>const     unsigned short VERSION_CHANGE = 3</dt>
+            <dt>const     unsigned short VERSION_CHANGE = 2</dt>
             <dd>This mode is used solely for updating the version number of
             transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabase</code></a>.</dd>
             <dt>readonly attribute unsigned short mode</dt>
@@ -2047,9 +2041,6 @@ cursor.continue();</codeblock>
             <dt>const     unsigned short READ_ONLY    = 1</dt>
             <dd>Modification operations are not allowed on the <a>object store</a>
             in this mode.</dd>
-            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
-            <dd>This mode is used solely for reading from a snapshot of the data
-            in the <a>object store</a>.</dd>
             <dt>readonly attribute unsigned short mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data 
             inside this <a>object store</a>.
@@ -2116,14 +2107,14 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>void remove()</dt>
+            <dt>void delete()</dt>
             <dd>
               Remove the record from this <a>object store</a> by following
               the <a>steps for deleting a record from an object store</a>
               corresponding to the given key.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be removed</dd>
+                <dd>Key identifying the record to be deleted</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_FOUND_ERR</dt>
@@ -2406,14 +2397,14 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>void remove()</dt>
+            <dt>void delete()</dt>
             <dd>
               Remove the records from this <a>index</a> by following
               the <a>steps for deleting a record from an index</a>
               corresponding to the given key.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be removed</dd>
+                <dd>Key identifying the record to be deleted</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_FOUND_ERR</dt>
@@ -2535,9 +2526,7 @@ cursor.continue();
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>The underlying <a>index</a> or <a>object store</a> does not
                 support updating the item because it is open in the 
-                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
-                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
-                <a>mode</a>.</dd>
+                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> <a>mode</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>An index record cannot be changed because the underlying 
                 <a>index</a> is <a>auto-populated</a>.</dd>
@@ -2561,7 +2550,7 @@ cursor.continue();
               </dl>
             </dd>
             
-            <dt>void    remove()</dt>
+            <dt>void    delete()</dt>
             <dd>          
               <p>
                 Delete the object at the <a>cursor</a>'s <a>position</a>. The cursor's
@@ -2572,9 +2561,7 @@ cursor.continue();
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>The underlying <a>index</a> or <a>object store</a> does not
                 support updating the item because it is open in the 
-                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
-                <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
-                <a>mode</a>.</dd>
+                <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> <a>mode</a>.</dd>
               </dl>
             </dd>
           </dl>
