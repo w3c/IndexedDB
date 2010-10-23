@@ -1442,7 +1442,7 @@ prepareDatabase(function(evt) {
             <dd>
               On getting, provide the <a>unique</a> flag of this <a>index</a>.
             </dd>
-            <dt>IDBRequest openObjectCursor()</dt>
+            <dt>IDBRequest openCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
@@ -1473,7 +1473,7 @@ prepareDatabase(function(evt) {
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBRequest openCursor()</dt>
+            <dt>IDBRequest openKeyCursor()</dt>
             <dd>
               This method returns immediately and creates a <a>cursor</a> over the 
               <a>records</a> of this <a>index</a>. The <a>range</a> of this <a>cursor</a>
@@ -1503,7 +1503,7 @@ prepareDatabase(function(evt) {
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBRequest getObject()</dt>
+            <dt>IDBRequest get()</dt>
             <dd>
               This method returns immediately and retrieves the value from this <a>index</a>'s
               <a>referenced</a> <a>object store</a> for the record corresponding to the given
@@ -1527,7 +1527,7 @@ prepareDatabase(function(evt) {
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBRequest get()</dt>
+            <dt>IDBRequest getKey()</dt>
             <dd>
               This method returns immediately and retrieves the value from this <a>index</a>
               for the record corresponding to the given <var>key</var> parameter by 
@@ -1606,7 +1606,9 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>. Also
+                thrown if cursor was created using
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property at the 
                 <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
@@ -1650,7 +1652,9 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>. Also
+                thrown if cursor was created using
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.</dd>
               </dl>
             </dd>
           </dl>
@@ -2290,7 +2294,8 @@ cursor.continue();</codeblock>
             <dd>
               On getting, provide the <a>unique</a> flag of this <a>index</a>.
             </dd>
-            <dt>void openObjectCursor()</dt>
+
+            <dt>void openCursor()</dt>
             <dd>
               Create a <a>cursor</a> over the <a>records</a> of this 
               <a>index</a>'s <a>referenced</a> <a>object store</a> as arranged by
@@ -2311,7 +2316,8 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>void openCursor()</dt>
+
+            <dt>void openKeyCursor()</dt>
             <dd>
               Create a <a>cursor</a> over the <a>records</a> of this 
               <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
@@ -2331,39 +2337,7 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>any put()</dt>
-            <dd>
-              Store the given value in this <a>index</a> by following
-              the <a>steps for storing a record into an index</a>. The
-              returned object from this method is the key for the stored record.
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The value to be stored in the record</dd>
-                <dt>optional any key</dt>
-                <dd>The key used to identify the record</dd>
-              </dl>
-            </dd>
-            <dt>any add()</dt>
-            <dd>
-              Store the given value in this <a>index</a> by following
-              the <a>steps for storing a record into an index</a> and the no-overwrite flag set. The
-              returned object from this method is the key for the stored record.
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The value to be stored in the record</dd>
-                <dt>optional any key</dt>
-                <dd>The key used to identify the record</dd>
-              </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>CONSTRAINT_ERR</dt>
-                <dd> 
-                A record exists in this <a>index</a> for the key <var>key</var> 
-                parameter or this <a>index</a> is <a>auto-populated</a> or if no
-                record exists with key <var>value</var> parameter in the <a>index</a>'s <a>referenced</a> <a>object store</a>.
-                </dd>
-              </dl>
-            </dd>
-            <dt>any getObject()</dt>
+            <dt>any get()</dt>
             <dd>
               Retrieve the value from this <a>index</a>'s <a>referenced</a>
               <a>object store</a> for the record corresponding to the given key
@@ -2380,7 +2354,7 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>any get()</dt>
+            <dt>any getKey()</dt>
             <dd>
               Retrieve the value from this <a>index</a> for the record 
               corresponding to the given key by following the 
@@ -2389,22 +2363,6 @@ cursor.continue();</codeblock>
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
-              </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
-                <dd>A record did not exist in this <a>index</a> 
-                for the key <var>key</var> parameter.
-                </dd>
-              </dl>
-            </dd>
-            <dt>void delete()</dt>
-            <dd>
-              Remove the records from this <a>index</a> by following
-              the <a>steps for deleting a record from an index</a>
-              corresponding to the given key.
-              <dl class="parameters">
-                <dt>any key</dt>
-                <dd>Key identifying the record to be deleted</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_FOUND_ERR</dt>
@@ -2741,50 +2699,6 @@ cursor.continue();
               Return the <var>key</var>.
             </li>
           </ol>
-        </section>
-        
-        <section class="section">
-          <h4>Index Storage steps</h4>
-          <p>
-            The <dfn>steps for storing a record into an index</dfn> are as follows. 
-            These steps MUST be run with four parameters: the <a>index</a>,
-            a key, a value, and a no-overwrite flag.
-          </p>
-          <ol>
-            <li>
-              Let <var>index</var> be the <a>index</a>, <var>key</var> be
-              the key and <var>value</var> be the value passed to these steps.
-            </li>
-            <li>
-              If <var>index</var> has a <a title="index key path">key path</a>,
-              then terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
-            </li>
-            <li>
-              If the no-overwrite flag was passed to these steps and is set, and 
-              a record already exists in <var>index</var> with its key being 
-              <var>key</var>, then terminate these steps and set error code 
-              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
-            </li>
-            <li>
-              If no record exists in <var>index</var>'s <a>referenced</a>
-              <a>object store</a> whose key is <var>value</var>, then terminate
-              these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
-            </li>
-            <li>
-              <p>
-                Store a record in <var>index</var> containing <var>key</var> as its key  
-                and <var>value</var> as its value. 
-              </p>
-              <div class="note">
-                Storing would mean inserting if no record exists for that key
-                or updating an existing record, otherwise. 
-              </div>
-            </li>
-            
-            <li>
-              Return the <var>key</var>.
-            </li>
-          </ol>        
         </section>
         
         <section class="section">
