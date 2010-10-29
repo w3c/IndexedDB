@@ -137,29 +137,37 @@
         <section class="section" id="opening">
           <h4>Opening the database</h4>
           <p>
-            The <dfn>steps for opening a database</dfn> are as follows. These 
-            steps MUST be run with an origin, a database name and an optional
-            description. All the steps MUST be run atomically:
+            The <dfn>steps for opening a database</dfn> are as follows. The algorithm in these steps
+            take three arguments. A <var>origin</var> which requested the <a>database</a> to be opened,
+            a database <var>name</var>. It also optionally takes a <var>request</var> which represents
+            a <a>request</a> used when opening the database is done using an asynchronous API.
           </p>
           
           <ol>
             <li>
-              If there is already a database with the given name from the origin
-              <var>origin</var>, then let <var>db</var> be that database. If a description is passed to these steps, set the description of <var>db</var> to that.
+              If these steps fail for any reason, return a error with the appropriate code and abort
+              this algorithm.
             </li>
-            
+            <li>
+              If there is already a database with the given name from the origin <var>origin</var>, then
+              let <var>db</var> be that database.
+            </li>
             <li>
               If no database with the given name from the origin <var>origin</var>
-              exists, then create the database <var>db</var> with the name and
-              description passed to these steps.
+              exists, then create the database <var>db</var> with name <var>name</var>.
             </li>
-  
             <li>
-              Create a <a>connection</a> to <var>db</var> and call it <var>result</var>.
+              Wait until no already existing <a>connection</a>s to <var>db</var>, have
+              non-<a title="transaction finish">finished</a> VERSION_CHANGE <a>transaction</a>s.
+              <p class="note">
+                There can potentially be several <a>connection</a>s waiting for a VERSION_CHANGE transaction
+                to finish. Once that transaction <a title="transaction finish">finishes</a> another <a>connection</a>
+                could be created and a new VERSION_CHANGE transaction could be started before these steps has
+                a chance to continue. In that case the implementation MUST keep waiting at this step.
+              </p>
             </li>
-            
             <li>
-              Return <var>result</var>.
+              Create a <a>connection</a> to <var>db</var> and return it.
             </li>
           </ol>        
         </section>
@@ -368,55 +376,43 @@
           <h4>Transaction Creation steps</h4>
           <p>
             When the user agent is to <dfn>create a static <a>transaction</a></dfn>
-            it MUST run the following steps. These steps MUST be run with 
-            two parameters - <a>database</a>, an optional global flag, and an 
-            optional list of names of <a>database</a> <a>objects</a> to be 
-            reserved.
+            it MUST run the following steps. This algorithm takes four parameters:
+            A <a><var>connection</var></a>, a <a><var>mode</var></a>, a list of <var>names</var> of
+            <a>object store</a>s to be included in the <a>scope</a> of the transaction, and a
+            <var>timeout</var> for the transaction <a title="transaction start">starting</a>.
           </p>
           
           <ol>
             <li>
-              Pick the appropriate steps:
-              <dl class="switch">
-                <dt>If these steps are called with the global flag set</dt>
-                <dd>Acquire a lock on the entire database.</dd>
-                <dt>If these steps are called with a non-empty list of <a>object store</a> <a title="object store name">name</a>s</dt>
-                <dd>
-                    Acquire appropriate locks on each of the named 
-                    <a>object store</a> in an ordered sequence. 
-                    <div class="note">
-                      A user agent MAY obtain a shared or exclusive lock on 
-                      the database if it does not perform fine grained locking.
-                    </div>
-                </dd>
-              </dl>
-            </li>
-
-            <li>
-              If a timeout duration is passed to these steps and is exceeded 
-              when acquiring locks, then set <var>code</var> to 
-              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a> and jump to the last step.
-            </li>
-
-            <li>
-              Open a new transaction to the database, and create a
-              <a><code>IDBTransaction</code></a> object
-              that represents that transaction. Let <var>transaction</var> be 
-              this object.
-            </li>
-            
-            <li>
-              Set the current transaction of this <a><code>IDBDatabase</code></a> object
-              to <var>transaction</var>.
+              If any of the strings in <var>names</var> identifies an <a>object store</a> which doesn't
+              exist, throw a NOT_FOUND_ERR exception. If the <a>closePending</a>
+              flag is set on <var>connection</var> the throw a NOT_ALLOWED_ERR.
             </li>
             <li>
-              Return <var>transaction</var>. End these steps.
+              <a title="transaction create">Create</a> a <a>transaction</a> using <var>connection</var> as
+              <a>connection</a>, <var>mode</var> as <a>mode</a>, and the <a>object store</a>s identified in
+              <var>names</var> as <a>scope</a>.
             </li>
             <li>
-              This step is only performed in case of error. If this step is performed
-              synchronously, then raise a newly constructed 
-              <a><code>IDBDatabaseException</code></a> 
-              exception <var>exception</var> with the code <var>code</var>.
+              If these steps are running asynchronously, return the created <a>transaction</a> and run the
+              remaining steps asynchronously. When control is returned to the event loop, the implementation
+              MUST set the <a>active</a> flag to false.
+            </li>
+            <li>
+              Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
+              <a>transaction lifetime</a> rules. If this takes longer than the specified <var>timeout</var> then:
+              <ul>
+                <li>
+                  If these steps are run asynchronously, run the <a>steps for aborting a transaction</a> using
+                  TIMEOUT_ERR as <var>code</var>.
+                </li>
+                <li>
+                  If steps are run synchronously, throw a TIMEOUT_ERR exception.
+                </li>
+              </ul>
+            </li>
+            <li>
+              If these steps are running synchronously, return the created <a>transaction</a>.
             </li>
           </ol>
           <div class="issue">
@@ -424,31 +420,144 @@
           </div>     
         </section>
         <section class="section">
-          <h4>VERSION_CHANGE transaction steps</h4>
+          <h4>Steps for aborting a transaction</h4>
           <p>
-            The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
-            as follows. These steps MUST be run with three parameters - a <var>database</var>,
-            a new <var>version number</var> to be set for the <var>database</var> and a <var>request</var>
-            object representing the <a><code>IDBRequest</code></a> instance associated with this transaction.
+            When taking the <dfn>steps for aborting a <a>transaction</a></dfn> the implementation MUST
+            execute the following algorithm. This algorithm takes two parameter, the <var>transaction</var> to abort
+            and a <var>code</var>.
           </p>
           <ol>
             <li>
-              Let <var>openDatabases</var> be the set of all <a><code>IDBDatabase</code></a> object representing
-              the given <var>database</var>.
+              All the changes made to the <a>database</a> the transaction uses are reverted. For VERSION_CHANGE
+              transactions this includes changes to the set of <a>object store</a>s and <a>index</a>es, as well
+              as the change to the <a>version</a>.
             </li>
             <li>
-              Fire a <a><code>versionchange</code></a> event targeted at each object in the <var>openDatabases</var> set.
-              The <code>version</code> property of this event must be set to the given <var>version number</var>.
+              If the transaction's <a>request list</a> contain any <a>request</a>s whose <a title="request done">done</a> flag
+              is still false, <a>fire a error event</a> with code <var>code</code> against each such <a>request</a>
+              and set its <a title="request done">done</a> flag to true. Also abort the <a>steps for asynchronously
+              executing a request</a> for each such transaction.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Steps for asynchronously executing a <a>request</a></h4>
+          <p>
+            When taking the <dfn>steps to a asynchronously execute a request</dfn> the implementation MUST run the
+            following algorithm. The algorithm takes a <var>source</var> object and a <var>operation</var> to
+            perform on a database.
+          </p>
+          <p>
+            These steps can be aborted at any point if the <a>transaction</a> the created <a>request</a> belongs
+            to is <a title="transaction abort">aborted</a> using the <a>steps for aborting a transaction</a>
+          </p>
+          <ol>
+            <li>
+              Set <var>transaction</var> to the <a>transaction</a> associated with <var>source</var>.
             </li>
             <li>
-              Wait until all objects in <var>openDatabases</var> are closed.
+              Create a <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
+              <a title="request source">source</a> to <var>source</var> and add <var>request</var> to the end of the
+              <a title="request list">list</a> of <a>request</a>s in <var>transaction</var>. Return
+              this object and run the remaining steps in this algorithm asynchronously.
+              <p class="note">
+                Cursors override this step to reuse an existing <a>IDBRequest</a>. However they still put the
+                <a>IDBRequest</a> at the end of the list of <a>request</a>s in <var>transaction</var>.
+              </p>
             </li>
             <li>
-              Start a new <a><code>transaction</code></a> with <a><code>mode</code></a> set to <a><code>VERSION_CHANGE</code></a>.
-              Note that as long as this transaction is running, no other <a><code>IDBDatabase</code></a> objects can be open.
+              Wait until all previously added <a>requests<a> in <var>transaction</var> have their
+              <a title="request done">done</a> flag set to true.
             </li>
             <li>
-              Set the version of the <var>database</var> to the given <var>version number</var>.
+              Perform <var>operation</var>.
+            </li>
+            <li>
+              If performing <var>operation</var> succeeded then set the <a title="request done">done</a> flag
+              on the <var>request</var> to true and <a>fire a success event</a> at <var>request</var> with
+              the result of the operation.
+            </li>
+            <li>
+              If performing <var>operation</var> failed then set the <a title="request done">done</a> flag
+              on the <var>request</var> to true and <a>fire a error event</a> at <var>request</var> with
+              the code of the error from <var>operation</var>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Steps for synchronously executing a <a>request</a></h4>
+          <p>
+            When taking the <dfn>steps to a synchronously execute a request</dfn> the implementation MUST run the
+            following algorithm. The algorithm takes a <var>transaction</var> object and a <var>operation</var> to
+            perform on a database.
+          </p>
+          <ol>
+            <li>
+              Perform <var>operation</var>.
+            </li>
+            <li>
+              If performing <var>operation</var> succeeded then set return the result of the operation.
+            </li>
+            <li>
+              If performing <var>operation</var> failed then throw a IDBDatabaseException with the code
+              of the error from <var>operation</var>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>VERSION_CHANGE transaction steps</h4>
+          <p>
+            The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
+            as follows. This algorithm takes two parameters - a <var>connection</var> object which is used
+            to update the <a>database</a> and a new <var>version number</var> to be set for the <a>database</a>.
+          </p>
+          <ol>
+            <li>
+              Create a new <a>transaction</a> with <a>mode</a> set to VERSION_CHANGE and <var>connection</var> used as <a>connection</a>.
+              The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
+              <a>active</a> flag to false.
+            </li>
+            <li>
+              Create a new <a>request</a> which uses the <a>IDBVersionChangeRequest</a> interface and return it.
+              The remaining steps in this algorithm are run asynchronously.
+            </li>
+            <li>
+              Let <var>openDatabases</var> be the set of all <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
+              objects, except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
+            </li>
+            <li>
+              <p>
+                Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
+                be fired on objects which has the <code>closePending</code> flag set. The event MUST use the
+                <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
+                This event MUST NOT bubble or be cancelable.
+              </p>
+              <p class="note">
+                Firing this event might cause one or more of the other objects in <var>openDatabases</var> to be closed, in which case
+                the <code>versionchange</code> event MUST NOT be fired at those objects if that hasn't yet been done.
+              </p>
+            </li>
+            <li>
+              <p>
+                If any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, fire a <code>blocked</code> event at
+                <var>request</var>. The event MUST use the <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
+                This event MUST NOT bubble or be cancelable.
+              </p>
+            </li>
+            <li>
+              Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
+              their transactions are <a title="transaction finish">finished</a>.
+              <p class="issue">Should we allow <code>blocked</code> to be fired here too, if waiting takes "too long"?</p>.
+            </li>
+            <li>
+              Start a the <a>transaction</a> created above. Note that until this <a>transaction</a> is finished, no other <a>connection</a>s
+              can be opened to the same <a>database</a>.
+            </li>
+            <li>
+              Set the version of <var>database</var> to the given <var>version number</var>. This change is considered part of the
+              <a><code>transaction</code></a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
             </li>
             <li>
               Fire a <a><code>success</code></a> event targeted at the <var>request</var> object. The <a><code>result</code></a>
@@ -456,29 +565,83 @@
               <a><code>VERSION_CHANGE</code></a> transaction created in step 4.
             </li>
             <li>
-              Follow the normal steps for executing a <a><code>transaction</code></a> and let the  <a><code>transaction</code></a>
-              complete normally.
+              Follow the normal steps for executing a <a><code>transaction</code></a> and let the <a><code>transaction</code></a>
+              finish normally.
             </li>
           </ol>
         </section>
         <section class="section">
           <h4>Database closing steps</h4>
-          <p>The <dfn>steps for closing a database connection</dfn> are as follows. These steps MUST be run with one parameter
-            - a <var>database</var> object of type <a><code>IDBDatabase</code></a>.</p>
+          <p>The <dfn>steps for closing a database connection</dfn> are as follows. These steps take one argument, a <var>connection</var> object.
           <ol>
             <li>
-              Set the internal <code>closePending</code> flag of the <var>database</var> object to true. If the <code>transaction()</code> method
-              is called on the <var>database</var> object while the <code>closePending</code> is set, an exception will be thrown.
+              Set the internal <a><code>closePending</code></a> flag of <var>connection</var> to true.
             </li>
             <li>
-              Wait for all pending transactions on the <var>database</var> to complete. Once they are complete, the <var>database</var> is
-              fully closed.
-            </li>
-            <li>
-              Unblock any pending <code>setVersion()</code> calls made on other <a><code>IDBDatabase</code></a> objects connected to the same
-              database.
+              Wait for all transactions <a title="transaction create">created</a> using <var>connection</var> to complete.
+              Once they are complete, <var>connection</var> is <dfn title="database close">closed</dfn>.
             </li>
           </ol>
+          <p class="note">
+            Once the <a><code>closePending</code></a> flag has ben set to true no new transactions can be
+            <a title="transaction create">created</a> using <var>connection</var>. All functions that
+            <a title="transaction create">create</a> transactions first check the the <a>closePending</a> flag first and
+            throw an exception if it is true.
+          </p>
+        </section>
+        <section class="section">
+          <h4>Fire a success event</h4>
+          <p>
+            To <dfn title="fire a success event">fire a success event with result <var>result</var></dfn> at a <a>request</a>,
+            the implementation MUST run the following steps:
+          </p>
+          <ol>
+            <li>
+              Set <var>transaction</var> to the <a>transaction</a> associated with the <a title="request source">source</a>.
+            </li>
+            <li>
+              Set the <a>active</a> flag of <var>transaction</var> to true.
+            </li>
+            <li>
+              Dispatch a <a title="event-success">success event</a>, which does not bubble and is not
+              cancelable, at <a>request</a>. The event must use the <a><code>IDBSuccessEvent</code></a> interface and have its 
+              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to <var>result</var>. The
+              <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a> is set to <var>request</var>s
+              <a title="request source">source</a>. And <a class="idlType" href="#widl-IDBTransactionEvent-result"><code>transaction</code></a>
+              is set to <var>transaction</var>.
+            </li>
+            <li>
+              Set the <a>active</a> flag of <var>transaction</var> to false.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Fire an error event</h4>
+          <p>
+            To <dfn title="fire a error event">fire a error event with code <var>code</var></dfn> at a <a>request</a>,
+            the implementation MUST run the following steps:
+          </p>
+          <ol>
+            <li>
+              Set <var>transaction</var> to the <a>transaction</a> associated with the <a title="request source">source</a>.
+            </li>
+            <li>
+              Set the <a>active</a> flag of <var>transaction</var> to true.
+            </li>
+            <li>
+              Dispatch a <a title="event-error">error event</a> at <a>request</a>. The event must use
+              the <a><code>IDBErrorEvent</code></a> interface and have its 
+              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to <var>code</var>. The
+              <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a> is set to <var>request</var>s internal
+              <a title="request source">source</a>. The <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a> is
+              set to a string appropriate for <var>code</var>.
+            <li>
+              Set the <a>active</a> flag of <var>transaction</var> to false.
+            </li>
+          </ol>
+          <p class="issue">
+            TODO: need to define more error handling here.
+          </p>
         </section>
       </section>
       <!-- end-content -->

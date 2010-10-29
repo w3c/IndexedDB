@@ -271,45 +271,275 @@
             Each <a>origin</a> has an associated set of 
             <a title="database">databases</a>. A <dfn>database</dfn> comprises
             one or more <a title="object store">object stores</a>.
-          <p>
-            Each <a>database</a> has a <a title="valid-name">valid</a> 
-            <dfn title="database name">name</dfn> and a human readable 
-            description. A <dfn title="valid-name">valid name</dfn> is any 
-            string including the empty string. An exact match of names means 
-            that their UTF-8 encodings are identical.
           </p>
-          
-          <div class="note">
-            If an implementation does not support all sets of strings, it may 
-            implement support for arbitrary strings by mapping
-            database names (e.g. using a hashing algorithm) to the supported
-            set of names.
-          </div>
           <p>
-            Each <a>database</a> also has a current <dfn>version</dfn>.
+            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it
+            within a specific <a>origin</a>. The name can be any string value, including the empty string, and
+            stays constant for the lifetime of the database. Each <a>database</a> also has a current
+            <dfn>version</dfn>.
+          </p>
+          <p class="note">
+            Implementations MUST support all names. If a implementation
+            uses a storage mechanism which can't handle arbitrary database names,
+            the implementation must use an escaping mechanism or something similar
+            to map the provided name to a name that it can handle.
           </p>
           <div class="note">
             Each <a>database</a> has one version at a time; a <a>database</a> 
-            can't exist in multiple versions at once. 
+            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
+            <a>transaction</a>.
           </div>
           <p>
-            The act of opening a <a>database</a> creates a database 
-            <dfn>connection</dfn>. There MAY be multiple 
-            <a title="connection">connections</a> to a given <a>database</a> 
-            at any given time. An operation that is attempting to read a 
-            given piece of data in a <a>database</a> is called a 
-            <dfn>reader</dfn> and one that is attempting to write a piece of 
-            data is called a <dfn>writer</dfn>.
-            <a title="reader">Readers</a> and <a title="writer">writers</a> SHOULD only operate through
-            <a title="transaction">transactions</a>. A <a>connection</a> MAY have 
-            any number of <dfn>active</dfn> <a title="transaction">transactions</a>.
+            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
+            can changed, but can only be changed using VERSION_CHANGE transactions. When a new database is
+            created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
           </p>
           <p>
-            <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
-            interfaces represent <a title="connection">connections</a> to a <a>database</a>. 
+            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple 
+            <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
+            <dfn>closePending</dfn> flag which initially is set to false.
+          </p>
+          <p>
+            When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
+            can be <dfn title="database close">closed</dfn> through several means. If the connection is GCed
+            or execution context where the <a>connection</a> is created is destroyed (for example due to the
+            user navigating away from that page), the connection is closed. The connection can also be closed
+            explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
+            the <a>closePending</a> flag is always set to true if it hasn't already been.
+          </p>
+          <p>
+            The <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
+            interfaces represent a <a>connection</a> to a <a>database</a>. 
           </p>
         </section>  <!-- IDBDatabase -->
-        
+
+        <section id="transaction-concept" class="section">
+          <h4>Transaction</h4>
+          <p>
+            A <dfn>transaction</dfn> is used to interact with the data in a <a>database</a>.
+            Whenever data is read or written to the database this is done using a <a>transaction</a>.
+          </p>
+          <p>
+            All transactions are created using a <a>connection</a>.
+            The transaction has a <a>mode</a> which determines which types of interactions can be performed
+            using the transaction. The <a>mode</a> is set when the transaction is created and remains
+            constant for the lifetime of the transaction. The transaction also has a <dfn>scope</dfn> which
+            determines which <a>object store</a>s the transaction can interact with. Finally, transactions
+            have a <dfn>active</dfn> flag, which determines if new <a>request</a>s can currently be placed
+            against the transaction. Finally, transactions also contain a <dfn>request list<dfn> of
+            <a>request</a>s which have been placed against the transaction.
+          </p>
+          <p>
+            Transactions are either static or dynamic which determines if the <a>scope</a> of the transaction
+            can change during the lifetime of the transaction. <dfn>Static</dfn> transactions have a constant
+            scope which is determined when the transaction is created and remains contant for the lifetime of
+            the transaction. <dfn>Dynamic</dfn> transactions scope can change during the lifetime of the
+            transaction.
+          </p>
+          <p class="issue">TODO: decide what happens when dynamic transactions need to lock a database
+            object that is already exclusively locked by another transaction.
+          </p>
+          <p>
+            <a title="transaction">Transactions</a> offer some protection from 
+            application and system failures. A <a>transaction</a> may be used to
+            store multiple data records or to conditionally modify certain data 
+            records. A <a>transaction</a> represents an atomic and durable set 
+            of data access and mutation operations. 
+          </p>
+          <p>
+            <a title="transaction">Transactions</a> are expected to be short lived. This is encouraged
+            using the automatically committing functionality described below. Authors can still cause
+            transactions to run for a long time, however this is generally not a usage pattern which
+            is recommended and can lead to bad user experience in some implementations.
+          </p>
+          <p>
+            The <dfn title="transaction lifetime">lifetime</dfn> of a <a>transaction</a> is as follows:
+          </p>
+          <ol>
+            <li>
+              A transaction is <dfn title="transaction create">created</dfn> using of one of the available explicit
+              APIs, for example <a class="idlType" href="#widl-IDBDatabase-transaction">IDBDatabase.transaction</a>.
+              Which constructor is used, and the arguments passed to that constructor, determines if the transaction
+              is <a>static</a> or <a>dynamic</a>, as well as which <a>mode</a> the transaction uses. If the transaction
+              is <a>static</a>, the constructor arguments also determine what the <a>scope</a> of the transaction is.
+              When a transaction is created its <a>active</a> flag is initially set to true.
+            </li>
+            <li>
+              The implementation MUST allow <a>request</a>s to be <a title="place request">placed</a> against the transaction
+              whenever the <a>active</a> flag is true. This is the case even if the transaction has not yet been
+              <a title="transaction start">started</a>. Until the transaction is <a title="transaction start">started</a>
+              the implementation MUST NOT execute these requests, but the implementation MUST still keep track of the
+              <a>request</a>s and their order. Requests may only be placed against the transaction while the transaction
+              is <a>active</a>. If a request is attempted to be placed against a transaction when it is not
+              <a>active</a>, the implementation MUST reject the attempt by throwing a TRANSACTION_INACTIVE_ERR exception.
+            </li>
+            <li>
+              Once an implementation is able to enforce the constraints defined for the <a>mode</a> of
+              the transaction, defined below, the implementation MUST asynchronously
+              <dfn title="transaction start">start</dfn> the transaction. When this happens is affected
+              by the <a>mode</a> in which the transaction is opened, and which <a>object store</a>s are
+              included in <a>scope</a> of the transaction.
+            </li>
+            <li class="issue">
+              <p>
+                Should we also define that if an implementation can't run two transactions at the same time,
+                it MUST <a title="transaction start">start</a> them in the order they were
+                <a title="transaction create">created</a>. Maybe only specify this if they have any overlapping
+                <a>scope</a>. If we don't do this then starting two write transactions at the same time could
+                result in the second one that's created running before the first one that is created.
+              </p>
+              <p>
+                At least we need to ensure that a READ_ONLY transaction which is created after a READ_WRITE
+                transaction has started sees the data that the READ_WRITE transaction wrote, and not a snapshot
+                of what the object store looked like before the READ_WRITE transaction was started.
+              </p>
+              <p>
+                Might be best to define this as part of the <a>mode</a> restrictions.
+              </p>
+            </li>
+            <li>
+              Once the transaction has been <a title="transaction start">started</a> the implementation can
+              start executing the <a>request</a>s placed against the transaction. Unless otherwise defined requests
+              MUST be executed in the order they are placed against the transaction. Likewise, their result MUST
+              be returned in the order the request was placed against a specific transaction.
+              There is no guarentee about the order that results from requests in different transactions are returned.
+              Similarly, the isolation <a>mode</a> ensure that it doesn't matter which order requests placed against
+              different transactions are executed.
+            </li>
+            <li>
+              At any time a transaction can be <dfn>abort</dfn>ed, even if the transaction isn't currently
+              <a>active</a>. When a transaction is aborted the implementation MUST undo (roll back) any changes
+              made to the <a>database</a> using the transaction. This includes both changes to the contents of
+              <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
+              <p class="note">
+                A transaction can be aborted at any time before it is <a title="transaction finish">finished</a>.
+                Including if it isn't <a>active</a> or hasn't yet
+                <a title="transaction start">started</a>.
+            </li>
+            <li>
+              Once a transaction no longer can become <a>active</a>, and if the transaction
+              hasn't been <a>abort</a>ed, the implementation MUST automatically attempt to
+              <dfn title="commit">commit</dfn> it. This usually happens after all requests placed against the
+              transaction has been executed and their returned results handled, but no new requests has been placed
+              against the transaction. When a transaction is committed implementation MUST atomically write
+              any changes to the <a>database</a> made by requests placed against the transaction. That is, either all
+              of the changes MUST be written, or if an error occurs, such as a disk write error, the implementation
+              MUST NOT write any of the changes to the database. If such an error occurs the implementation MUST
+              <a>abort</a> the transaction.
+            </li>
+            <li>
+              When a transaction is <a>commit</a>ted or <a>abort</a>ed, it is said to be
+              <def title="transaction finish">finished</def>. If a transaction can't be finished, for example
+              due to the implementation crashing or the user taking some explicit action to cancel it, the
+              implementation MUST <a>abort</a> the transaction.
+            </li>
+          </ol>
+          <p>
+            Transactions are opened in one of three <dfn title="mode">modes</dfn>. The mode
+            determine how concurrent access to <a>object store</a>s in the transaction is isolated.
+          </p>
+          <ol>
+            <li><code><dfn>READ_ONLY</dfn></code></li>
+            <li><code><dfn>READ_WRITE</dfn></code></li>
+            <li><code><dfn>VERSION_CHANGE</dfn></code></li>
+          </ol>
+
+          <p>
+            The transaction <a>mode</a> determines both which operations are allowed to be performed
+            during the transaction, as well whether two transactions can run concurrently or not.
+            Which operations are allowed be be performed are defined in detail below, but in general
+            transactions opened in <code><a>READ_ONLY</a><code> mode are only allowed to perform
+            reading operations which does not change data. READ_WRITE transactions are allowed to
+            perform reading and writing transactions to existing <a>object store</a>s, where as
+            VERSION_CHANGE transactions are allowed to perform any operations, including ones that
+            delete and create <a>object store</a>s and <a>index</a>es.
+          </p>
+          
+          <p>
+            A VERSION_CHANGE transaction can never run concurrently with other transactions. When
+            a VERSION_CHANGE transaction is created, the implementation MUST wait to
+            <a title="transaction start">start</a> the VERSION_CHANGE transaction until no other transactions
+            against the same <a>database</a> are running. As long as the VERSION_CHANGE transaction, the implementation
+            MUST wait with <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
+            until the VERSION_CHANGE transaction is finished.
+          </p>
+          <p>
+            Any number of transactions opened in <a>READ_ONLY</a> mode are allowed to run concurrently,
+            even if the transaction's <a>scope</a> overlap and include the same <a>object store</a>s.
+            As long as a READ_ONLY transaction is running, the data that the implementation returns
+            through <a>request</a>s created with that transaction MUST remain
+            constant. That is, two requests to read the same piece of data MUST yield the same result
+            both for the case when data is found and the result is that data, and for the case when data
+            is not found and a lack of data is indicated.
+          </p>
+          <p>
+            There are a number of ways that an implementation ensure this. It can prevent
+            READ_WRITE transactions whose scope overlap the scope of the READ_ONLY transaction from
+            starting until the READ_ONLY transaction is finished. Or it can allow the READ_ONLY
+            transaction to see a snapshot of contents of the <a>object store</a>s which is taken when
+            the READ_ONLY transaction is started.
+          </p>
+          <p>
+            Similarly, implementations MUST ensure that a READ_WRITE transaction is only affected by
+            changes to <a>object store</a>s that are made using the transaction itself. I.e. the
+            implementation MUST ensure that another transaction does not modify the contents of
+            <a>object store</a>s in the READ_WRITE transactions <a>scope</a>. The implementation
+            MUST also ensure that if the READ_WRITE transaction completes successfully, that the
+            changes written to <a>object store</a>s using the transaction can be comitted to the
+            <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
+            due to merge conflicts.
+          </p>
+          <p>
+            A result of these requirements is that an implementation MUST NOT allow two READ_WRITE
+            transactions access the same <a>object store</a> at the same time. Even to perform just
+            read operations. One implementation strategy is to never start a READ_WRITE transaction
+            until all other READ_WRITE transactions with overlapping <a>scope</a>s have finished.
+          </p>
+          <p class="issue">
+            TODO: This requirement could be tightened further. Currently two READ_WRITE transactions
+            with <b>partially</b> overlapping scopes can run in paralell, until both (or "the second") of
+            them touch object stores in the overlapping scope.
+          </p>
+          <p>
+            User agents MUST ensure a reasonable level of fairness across transactions to prevent
+            starvation. For example if multiple READ_ONLY transaction are started one after another
+            the implementation MUST ensure that that doesn't indefinitely prevent a pending READ_WRITE
+            transaction from <a title="transaction start">starting</a>.
+          </p>
+          <p>
+            Conforming user agents MUST automatically abort a <a>transaction</a> at
+            the end of the scope in which it was created, if an exception is propagated to that scope.
+          </p>
+          <p>
+            Static <a>transaction</a> objects implement the 
+            <a><code>IDBTransaction</code></a> or the
+            <a><code>IDBTransactionSync</code></a> interfaces.
+          </p>
+          <p>
+             Dynamic <a>transaction</a> objects implement the 
+            <a><code>IDBDynamicTransaction</code></a> or the
+            <a><code>IDBDynamicTransactionSync</code></a> interfaces.
+          </p>
+          <div class="issue">
+            <p>Define dynamic transactions if we agree they should be part of this specification.</p>
+          </div>
+        </section> <!-- IDBTransaction -->
+
+        <section class="section" id="request-concept">
+          <h4>Requests</h4>
+          <p>
+            Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
+            Every request represents one read or write operation. <a>Request</a>s are always belong to
+            a <a>transaction</a>. The only exception to this is the request created when a <a>connection</a>
+            is opened. <a>Request</a>s have a <dfn title="request done"><var>done</var></dfn> flag which
+            initially is false, and a <dfn title="request source">source</dfn> object.
+          </p>
+          <p>
+            When a request is created, it is always <dfn title="place request">placed</a> against a
+            <a>transaction</a> using either the <a>steps to a asynchronously execute a request</a> or
+            the <a>steps to a synchronously execute a request</a>.
+        </section>
+
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
           <p>
@@ -419,80 +649,6 @@
           </p>
         </section> <!-- IDBCursor -->
 
-        <section id="transaction-concept" class="section">
-          <h4>Transaction</h4>
-          <p>
-            A <dfn>transaction</dfn> is defined on a <a>database</a>. A 
-            <a>transaction</a>'s <a>scope</a> is either 
-            <dfn>static</dfn> or <dfn>dynamic</dfn> and it MAY include a subset of the <a>object store</a>s of the <a>transaction</a>'s 
-            <a>database</a>. If the <a>scope</a> is <a>static</a>, then it MAY 
-            be <dfn>global</dfn>, meaning that it includes every existing and 
-            to be created <a>object store</a>s of the <a>database</a>. There MAY 
-            be multiple <a title="transaction">transactions</a> active in a <a>database</a>
-            as long as their <a title="scope">scopes</a> do not overlap or the overlapping
-            objects are locked in <a title="mode">modes</a> that are not mutually exclusive.
-          </p>
-          <p class="XXX">TODO: decide what happens when dynamic transactions need to lock a database
-            object that is already exclusively locked by another transaction.
-          </p>
-          <p>
-            Concurrent access to the <a title="object store">object stores</a> in a <a>transaction</a>
-            MAY be isolated in one of three <dfn title="mode">modes</dfn>. These are:</p>
-            <ol>
-              <li><code>READ_ONLY</code></li>
-              <li><code>READ_WRITE</code></li>
-              <li><code>VERSION_CHANGE</code></li>
-            </ol>
-          <p>
-          	Any number of <a title="reader">readers</a> may concurrently access all <a title="object store">object stores</a>.
-          	A <a>writer</a> MUST behave as if there were no 
-          	<a title="reader">readers</a> concurrently accessing the <a>object store</a>, such that 
-          	a <a>writer</a> either cannot access the <a>object store</a> while <a title="reader">readers</a>
-          	are accessing the <a>object store</a> or their changes are not 
-          	visible to <a title="reader">readers</a> that were active at the time the <a>writer</a> started. 
-          </p>
-          <p>
-          	User agents need to ensure a reasonable level of fairness across <a title="reader">readers</a>
-          	and <a title="writer">writers</a> to prevent starvation.
-          </p>
-          <p>
-            <a title="transaction">Transactions</a> offer some protection from 
-            application and system failures. A <a>transaction</a> MAY be used to
-            store multiple data records or to conditionally modify certain data 
-            records. A <a>transaction</a> represents an atomic and durable set 
-            of data access and mutation operations. 
-          </p>
-          <p>  
-            <a title="transaction">Transactions</a> are expected to be short
-            lived. A <a>transaction</a> may be programmatically aborted. 
-            Conforming user agents MUST automatically:
-          </p>
-          <ul>
-            <li>
-            commit a <a>transaction</a> at the end of the scope in
-            which it was created unless there is an active operation being 
-            performed using that transaction, in which case, the transaction is 
-            automatically committed when that operation is completed. 
-            </li>
-            <li>
-            abort a <a>transaction</a> at the end of the scope in which it was 
-            created, if an exception is propagated to that scope.
-            </li>
-          </ul>
-          <p>
-            Static <a>transaction</a> objects implement the 
-            <a><code>IDBTransaction</code></a> or the
-            <a><code>IDBTransactionSync</code></a> interfaces.
-          </p>
-          <p>
-             Dynamic <a>transaction</a> objects implement the 
-            <a><code>IDBDynamicTransaction</code></a> or the
-            <a><code>IDBDynamicTransactionSync</code></a> interfaces.
-          </p>
-          <div class="issue">
-            <p>Define dynamic transactions if we agree they should be part of this specification.</p>
-          </div>
-        </section> <!-- IDBTransaction -->
         <section class="section">
           <h3>The <code>IDBDatabaseException</code> Interface</h3>
           <dl class="idl" title="exception IDBDatabaseException">
@@ -516,7 +672,13 @@
             <dd>Data provided to an operation does not meet requirements.</dd>
             <dt>const unsigned short NOT_ALLOWED_ERR = 5</dt>
             <dd>A mutation operation was attempted on a database that
-            did not allow mutations.</dd>
+            <dt>const unsigned short TRANSACTION_INACTIVE_ERR = 6</dt>
+            <dd>A <a>request</a> was placed against a transaction which is
+            currently not <a>active</a>, or which is
+            <a title="transaction finish">finished</a>.</dd>
+            <dt>const unsigned short ABORT_ERR = 7</dt>
+            <dd>A <a>request</a> was aborted, for example through a call
+            to <a href="#widl-IDBTransaction-abort"><code>IDBTransaction.abort</code></a>.</dd>
             <dt>const unsigned short SERIAL_ERR = 11</dt>
             <dd>The operation failed because of the size of the data set 
             being returned or because there was a problem in serializing or 

@@ -152,48 +152,33 @@
           <dl class="idl" title="interface IDBFactorySync">
             <dt>IDBDatabaseSync open()</dt>
             <dd>
+              <p>
+                When invoked, this method synchronously runs the <a>steps for opening a database</a>.
+                Let <var>origin</var> be the origin of the <a>IDBEnvironmentSync</a> used to access
+                this <a>IDBFactorySync</a>, <var>name</var> be the <var>name</var> argument passed
+                to the function and <var>request</var> be the created <a>IDBRequest</a>.
+              </p>
+              <p>
+                The <var>description</var> argument is intentionally ignored. The implementation MAY
+                use it to improve UI if so desired.
+              </p>
+              <p>
+                If an error is returned from the steps above, then the implementation MUST
+                throw an <a><code>IDBDatabaseException</code></a> with its 
+                <a class="idlType" href="#widl-IDBDatabaseException-code"><code>code</code></a>
+                and <a class="idlType" href="#widl-IDBDatabaseException-message"><code>message</code></a> set to
+                appropriate values for the error.
+              </p>
+              <p>
+                If the steps above are successful, the implementation MUST create a IDBDatabaseSync
+                object representing the created <a>connection</a> and return it.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>DOMString description</dt>
+                <dt>optional DOMString description</dt>
                 <dd>The description for the <a>database</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>UNKNOWN_ERR</dt>
-                <dd>if an error occurs while the <a>database</a> <a>connection</a> 
-                is being opened</dd>
-                <dt>NON_TRANSIENT_ERR</dt>
-                <dd>if the <var>name</var> parameter is not <a>valid</a></dd>
-              </dl>
-              <p>
-                The synchronous API for databases blocks the calling thread until a
-                <a><code>IDBDatabaseSync</code></a> object is ready to return.
-                When this method is invoked, the user agent MUST run the
-                following steps:
-              </p>
-    
-              <ol>
-                <li>
-                  Let <var>origin</var> be the origin of the scripts in the worker.
-                </li>
-                <li>
-                  Perform the <a>steps for opening a database</a>, with <var>origin</var>,
-                  the <var>name</var> parameter and <var>description</var> parameter, and 
-                  call its result as <var>result</var>.
-                </li>
-                <li>
-                  If the steps were aborted with an error code, then throw a newly constructed
-                  <a><code>IDBDatabaseException</code></a> 
-                  exception with the code of that error and abort these steps.
-                </li>
-                <li>
-                  Create a <a><code>IDBDatabaseSync</code></a> object using <var>result</var>
-                  and call it <var>db</var>.
-                </li>
-                <li>
-                  Return <var>db</var>.
-                </li>
-              </ol>              
             </dd>
           </dl>
         </section>
@@ -331,10 +316,20 @@
             </dd>
             <dt>IDBTransactionSync transaction()</dt>
             <dd>
-              Perform the <a>steps for creating a transaction</a> with the list of 
-              database objects in the scope of this transaction and a timeout 
-              duration in milliseconds, and return
-              the resulting <a><code>IDBTransactionSync</code></a> object.
+              <p>
+                This method, when called MUST execute the
+                <a title="create a static transaction">steps for creating a transaction</a> in a asychronous
+                fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
+                list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
+                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
+                <var>timeout</var> arguments are forwarded to the algorithm as-is. The <var>connection</var>
+                argument is set to the <a>IDBDatabase</a> that the <code>transaction()</code> method was
+                called on.
+              </p>
+              <p>
+                The method returns a <a>IDBTransactionSync</a> object representing the <a>transaction</a>
+                returned by the steps above</a>.
+              </p>
               <dl class="parameters">
                 <dt>optional DOMStringList storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
@@ -349,10 +344,12 @@
               <dl class="exception" title="IDBDatabaseException">
                 <dt><a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a></dt>
                 <dd>
-                If reserving all the <a>database</a> objects identified in the new
-                <a title="transaction">transaction's</a> <a>scope</a> takes longer 
-                than the specified interval.
+                If <a title="transaction start">starting</a> the transaction takes longer than the specified timeout.
                 </dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The close() method has been called on this <a>IDBDatabase</a> instance.</dd>
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
               </dl>
             </dd>
           </dl>  
@@ -535,13 +532,15 @@ cursor.continue();</codeblock>
                 <dd>The <a>unique</a> flag for the new <a>index</a>. The default
                 value of this parameter is false.</dd>
               </dl>
-            <dt>IDBIndexSync openIndex()</dt>
+            <dt>IDBIndexSync index()</dt>
             <dd>
-              <p>
-                This method opens the <a>index</a> with the given name
-                in the <a title="connection">connected</a> <a>database</a> for the
-                <a>mode</a> specified.
-              </p>              
+              Returns a <a>IDBIndexSync</a> representing a <a>index</a> that is part of the
+              to this <a>object store</a>. Every call to this function on the same
+              <a>IDBObjectStoreSync</a> instance and with the same <var>name</var> returns the same <a>IDBIndexSync</a> instance.
+              However the retured <a>IDBIndexSync</a> instance is specific to this <a>IDBObjectStoreSync</a> instance. If this
+              function is called on a different <a>IDBObjectStoreSync</a> instance, a different <a>IDBIndexSync</a> instance is
+              returned. A result of this is that different <a>IDBTransactionSync</a>s use different <a>IDBIndexSync</a> instances
+              to represent the same <a>index</a>.
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
@@ -913,8 +912,11 @@ cursor.continue();
               is a part</dd>
             <dt>IDBObjectStoreSync objectStore()</dt>
             <dd>
-              Immediately returns the object store that has been already added 
-              to the <a>scope</a> of this <a>transaction</a>. 
+              Returns a <a>IDBObjectStoreSync</a> representing a <a>object store</a> that is part of the
+              to the <a>scope</a> of this <a>transaction</a>. Every call to this function on the same
+              <a>IDBTransactionSync</a> instance and with the same <var>name</var> returns the same <a>IDBObjectStoreSync</a> instance.
+              However the retured <a>IDBObjectStoreSync</a> instance is specific to this <a>IDBTransactionSync</a>. If this
+              function is called on a different <a>IDBTransactionSync</a>, a different <a>IDBObjectStoreSync</a> instance is returned.
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The requested <a>object store</a></dd>
@@ -929,13 +931,11 @@ cursor.continue();
             </dd>
             <dt>void abort()</dt>
             <dd>
-              This method signals the need to cancel the effects of
-              operations performed in this <a>transaction</a>. To perform
-              this method, the user agent ignores all the changes performed to the
-              <a>objects</a> of this <a>database</a> since the creation of this 
-              <a>transaction</a>.
+              If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a NOT_ALLOWED_ERR
+              exception. Otherwise this method <a title="transaction abort">aborts</a> the transaction by running the
+              <a>steps to abort a transaction</a> with <var>code</var> set to ABORT_ERR.
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NON_TRANSIENT_ERR</dt>
+                <dt>NOT_ALLOWED_ERR</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
               </dl>
             </dd>

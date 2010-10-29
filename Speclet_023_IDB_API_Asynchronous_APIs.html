@@ -211,9 +211,9 @@
             <dd>This state indicates that a result to a previous request is available in
             the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
             <dt>readonly attribute unsigned short readyState</dt>
-            <dd>Every request starts in the 
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a> state.
-            When either the request completes or fails, the state changes to 
+            <dd>When the <a title="request done">done</a> flag is false, returns
+            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
+            otherwise returns
             <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.</dd>
             <dt>attribute Function onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
@@ -243,7 +243,15 @@
             <code>error</code>, with no namespace, which does not bubble, is 
             not cancelable at each <a class="externalDFN"><code>Window</code></a> object.
           </p>
-           
+          <p>
+            The <a href="#widl-IDBDatabase-setVersion">setVersion</a> function on <a>IDBDatabase</a>
+            uses a separate interface for its <a>request</a>s in order to make use of the
+            <code>blocked event</a> eaiser.
+          </p>
+          <dl class="idl" title="interface IDBVersionChangeRequest : IDBRequest"> 
+            <dt>attribute Function onblocked</dt>
+            <dd>The event handler for the <code>blocked event</code></dd>
+          </dl>
           <p>
             The <span>task source</span> for these tasks is the 
             <dfn id="database-access-task-source">database access task source</dfn>.
@@ -335,53 +343,35 @@
             <dt>IDBRequest open()</dt>
             <dd>
               <p>
-                This method returns immediately and runs the
-                following steps in a different thread.
-                If an error occurs while the <a>database</a> <a>connection</a> 
-                is being opened, then an
-                <a title="event-error">error event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set
-                to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>
-                and a suitable 
-                <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+                When invoked, this method creates an <a>IDBRequest</a> and returns it.
+                It then asynchronously runs the <a>steps for opening a database</a>.
+                Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
+                this <a>IDBFactory</a>, <var>name</var> be the <var>name</var> argument passed
+                to the function and <var>request</var> be the created <a>IDBRequest</a>.
               </p>
-    
-              <ol>
-                <li>
-                  Let <var>origin</var> be the origin of the active document 
-                  from which the method was invoked.                
-                </li>
-                <li>
-                  Perform the <a>steps for opening a database</a>, with 
-                  <var>origin</var>, the <var>name</var> parameter and 
-                  <var>description</var> parameter, and call its result as 
-                  <var>result</var>.
-                </li>
-                <li>
-                  If the steps were aborted with an error code, then set this 
-                  request's <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> with that 
-                  code and abort these steps.
-                </li>
-                <li>
-                  Create a <a><code>IDBDatabase</code></a> object for <var>result</var>
-                  and call it <var>db</var>.
-                </li>
-                <li>
-                  Fire a <a title="event-success">success event</a> on this 
-                  method's returned object using the <a><code>IDBSuccessEvent</code></a> interface with its 
-                  <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> 
-                  set to <var>db</var>.
-              </ol>              
+              <p>
+                The <var>description</var> argument is intentionally ignored. The implementation MAY
+                use it to improve UI if so desired.
+              </p>
+              <p>
+                If an error is returned from the steps above, then the implementation MUST
+                fire an <a title="event-error">error event</a> on the <a>IDBRequest</a> returned from
+                this method, with its 
+                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
+                and <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a> set to
+                appropriate values for the error.
+              </p>
+              <p>
+                If the steps above are successful, the implementation MUST fire a <a title="event-success">success event</a>
+                on the <a>IDBRequest</a> returned above. The event MUST use the <a><code>IDBSuccessEvent</code></a> interface with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> 
+                set to the <var>result</var> returned from the steps.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
                 <dt>optional DOMString description</dt>
                 <dd>The description for the <a>database</a></dd>
-              </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NON_TRANSIENT_ERR</dt>
-                <dd>if the <var>name</var> parameter is not <a>valid</a></dd>
               </dl>
             </dd>
           </dl>
@@ -470,31 +460,34 @@
                 case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBRequest setVersion()</dt>
+            <dt>IDBVersionChangeRequest setVersion()</dt>
             <dd>
-              This method returns immediately and sets the <a>version</a> of the 
-              <a title="connection">connected</a> <a>database</a> by following the
-              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>. 
+              This method updates the <a>version</a> of the <a>database</a> by following the
+              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a> using
+              the <var>version</var> argument as <var>version</var> and the <a>IDBDatabase</a>
+              this function was called on as <var>connection</var>. Return the <a>IDBVersionChangeRequest</a>
+              returned by those steps.
               <dl class="parameters">
                 <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
             <dt>IDBTransaction transaction()</dt>
-            <dd> This method returns an <a><code>IDBTransaction</code></a> object immediately and 
-              performs the <a title="create a static transaction">steps for creating a transaction</a> with either the list of 
-              <a>object store</a> <a title="object store name">names</a>
-              for acquiring locks required in this <a>transaction</a> or the 
-              global flag set to true, and an optional timeout duration. The global flag is set only if 
-              the list is either empty, not passed or passed as  <code>null</code>. If reserving all the 
-              <a>object store</a>s identified in the requested <a>scope</a>
-              takes longer than the specified timeout interval, then an
-              <a title="event-timeout">timeout event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+            <dd>
+              <p>
+                This method, when called MUST execute the
+                <a title="create a static transaction">steps for creating a transaction</a> in a asychronous
+                fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
+                list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
+                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
+                <var>timeout</var> arguments are forwarded to the algorithm as-is. The <var>connection</var>
+                argument is set to the <a>IDBDatabase</a> that the <code>transaction()</code> method was
+                called on.
+              </p>
+              <p>
+                The method returns a <a>IDBTransaction</a> object representing the <a>transaction</a>
+                returned by the steps above</a>.
+              </p>
               <dl class="parameters">
                 <dt>optional DOMStringList storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
@@ -511,11 +504,10 @@
                 is user agent specific</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TIMEOUT_ERR</dt>
-                <dd>The required locks could not be acquired in the given timeout interval</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>The <code>close()</code> method has been called on this IDBDatabase instance and
-                its internal <code>closePending</code> flag is set.</dd>
+                <dd>The close() method has been called on this <a>IDBDatabase</a> instance.</dd>
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
               </dl>
             </dd>
             <dt>void close()</dt>
@@ -749,10 +741,13 @@
             </dd>
             <dt>IDBIndex index()</dt>
             <dd>
-              <p>
-                This method returns immediately and opens the <a>index</a> with the
-                given name in the <a title="connection">connected</a> <a>database</a>.
-              </p>              
+              Returns a <a>IDBIndex</a> representing a <a>index</a> that is part of the
+              to this <a>object store</a>. Every call to this function on the same
+              <a>IDBObjectStore</a> instance and with the same <var>name</var> returns the same <a>IDBIndex</a> instance.
+              However the retured <a>IDBIndex</a> instance is specific to this <a>IDBObjectStore</a> instance. If this
+              function is called on a different <a>IDBObjectStore</a> instance, a different <a>IDBIndex</a> instance is
+              returned. A result of this is that different <a>IDBTransaction</a>s use different <a>IDBIndex</a> instances
+              to represent the same <a>index</a>.
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
@@ -1057,8 +1052,11 @@
             </dd>
             <dt>IDBObjectStore objectStore()</dt>
             <dd>
-              Immediately returns the object store that has been already added 
-              to the <a>scope</a> of this <a>transaction</a>. 
+              Returns a <a>IDBObjectStore</a> representing a <a>object store</a> that is part of the
+              to the <a>scope</a> of this <a>transaction</a>. Every call to this function on the same
+              <a>IDBTransaction</a> instance and with the same <var>name</var> returns the same <a>IDBObjectStore</a> instance.
+              However the retured <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
+              function is called on a different <a>IDBTransaction</a>, a different <a>IDBObjectStore</a> instance is returned.
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The requested <a>object store</a></dd>
@@ -1073,15 +1071,13 @@
             </dd>
             <dt>void abort()</dt>
             <dd>
-              This method returns immediately and undoes all the changes performed to 
-              the <a>objects</a> of this <a>database</a> in this <a>transaction</a>. If this <a>transaction</a> 
-              has already been committed or aborted,  then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a NOT_ALLOWED_ERR
+              exception. Otherwise this method <a title="transaction abort">aborts</a> the transaction by running the
+              <a>steps to abort a transaction</a> with <var>code</var> set to ABORT_ERR.
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
             </dd>
             <dt>attribute Function onabort</dt>
             <dd>The event handler for the <a>onabort</a> event.</dd>
