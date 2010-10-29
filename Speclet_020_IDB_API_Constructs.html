@@ -146,22 +146,29 @@
             In order to efficiently retrieve <a title="record">records</a> 
             stored in an indexed database, a user agent needs to organize each 
             <a>record</a> according to its key. <a>Conforming user agents</a>
-            MUST support the use of the following values as keys: IDL data types
-            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
+            MUST support the use of the following types as <dfn>key value</dfn>s: IDL data types
+            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the
+            <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
+            For the particular case of <code>float</code>, the value NaN is not allowed.
           </p>
-          
+          <p class="note">
+            Inifinite <code>float</code> values are allowed.
+          </p>
           <p>
             For purposes of comparison, all <code>DOMString</code> values are evaluated as greater than 
             <code>long</code>, <code>float</code>, and <code>Date</code> values; <code>Date</code> values are evaluated as greater than <code>long</code> 
             and <code>float</code> values; and <code>long</code> and <code>float</code> values are evaluated by their numeric 
             value with no need to separate them by type. Moreover, <code>null</code> always evaluates 
-            less than any other key value that is a non-null value. For the particular case 
-            of floating point numbers, the value NaN is not allowed.
+            less than any other key value that is a non-null value.
           </p>
-          <div class="note">
+          <p>
+            The terms <dfn>greater than</dfn>, <dfn>less than</dfn> and <dfn>equal to</dfn> is defined in the terms of
+            the above comparisons.
+          </p>
+          <p class="note">
             Only data types with natural ordering can be used as keys. 
             The ECMAScript <code>undefined</code> MUST NOT be used as a key.
-          </div>
+          </p>
         </section>
         
         <section id="value-construct" class="section">
@@ -543,21 +550,16 @@
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
           <p>
-            An individual <a>record</a> can be retrieved from an 
-            <a>object store</a> using either the record's key or the key 
-            applicable for some <a>index</a> that 
-            <a title="referenced">references</a> that <a>object store</a>. 
-            Multiple records can be fetched using a <a>key range</a>. A 
-            <dfn>key range</dfn> is a continuous interval over some data type 
+            Records can be retrived from <a>object store</a>s and <a>index</a>es
+            using either <a>key value</a>s or <dfn>key range</dfn>s. A 
+            key range is a continuous interval over some data type 
             used for keys.
           </p>
           <p>
-            A <a>key range</a> MAY be left-bounded or right-bounded if there is 
+            A <a>key range</a> MAY be lower-bounded or upper-bounded if there is 
             a value that is, respectively, smaller than or larger than all its 
             elements. A <a>key range</a> is said to be bounded if it is both 
-            left- and right-bounded and unbounded otherwise. A 
-            <dfn title="valid key range">valid</dfn> <a>key range</a> MUST be 
-            either half-bounded or bounded. A <a>key range</a> MAY be open, 
+            lower- and upper-bounded and unbounded otherwise. A <a>key range</a> MAY be open, 
             i.e., not including its endpoints or closed, i.e., including
             its endpoints. A <a>key range</a> MAY consist of a single value.
           </p>
@@ -566,62 +568,107 @@
             <a>key range</a>.
           </p>
           <dl class="idl" title="interface IDBKeyRange"> 
-            <dt>const     unsigned short SINGLE = 0</dt>
-            <dd>This flag indicates a single-valued <a>key range</a>.</dd>
-            <dt>const     unsigned short LEFT_OPEN = 1</dt>
-            <dd>This flag indicates a left-open <a>key range</a>.</dd>
-            <dt>const     unsigned short RIGHT_OPEN = 2</dt>
-            <dd>This flag indicates a right-open <a>key range</a>.</dd>
-            <dt>const     unsigned short LEFT_BOUND = 4</dt>
-            <dd>This flag indicates a left-bound <a>key range</a>.</dd>
-            <dt>const     unsigned short RIGHT_BOUND = 8</dt>
-            <dd>This flag indicates a right-bound <a>key range</a>.</dd>
-            <dt>readonly attribute any left</dt>
-            <dd>This value is the left-bound of the <a>key range</a>.</dd>
-            <dt>readonly attribute any right</dt>
-            <dd>This value is the right-bound of the <a>key range</a>.</dd>
-            <dt>readonly attribute unsigned short flags</dt>
-            <dd>Flags for bounding values</dd>
+            <dt>readonly attribute any lower</dt>
+            <dd>This value is the lower-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute any upper</dt>
+            <dd>This value is the upper-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute boolean lowerOpen</dt>
+            <dd>Returns false if the lower-bound value is included in the <a>key range</a>.</dd>
+            <dt>readonly attribute boolean upperOpen</dt>
+            <dd>Returns false if the upper-bound value is included in the <a>key range</a>.</dd>
+          </dl>
+          <p>
+            A <a><var>key value</var></a> is <dfn>in a <a>key range</a></dfn> if both the following conditions are
+            fulfilled:
+          </p>
+          <ul>
+            <li>
+              The <a>key range</a> <a href="#widl-IDBKeyRange-lower"><code>lower</code></a> value is <code>undefined</code> or
+              <a>less than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a href="#widl-IDBKeyRange-lowerOpen"><code>lowerOpen</code></a> is <code>false</code>.
+            </li>
+            <li>
+              The <a>key range</a> <a href="#widl-IDBKeyRange-upper"><code>upper</code></a> value is <code>undefined</code> or
+              <a>greater than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a href="#widl-IDBKeyRange-upperOpen"><code>upperOpen</code></a> is <code>false</code>.
+            </li>
+          </ul>
+
+          <p>
+            To construct a <a>key range</a> a set of constructors are available. In languages with
+            interface objects [[!WEBIDL]], these constructors are available on the <code>IDBKeyRange</code>
+            interface object. In other languages these constructors are available through language specific
+            means, for example as static functions.
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBKeyRangeConstructors"> 
             <dt>IDBKeyRange only()</dt>
             <dd>
-              Create a new single-valued <a>key range</a>.
+              Creates and returns a new <a>key range</a> with both <a href="#widl-IDBKeyRange-lower">lower</a> and
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and both
+              <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a>
+              set to false.
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The only value</dd>
               </dl>
-            </dd>
-            <dt>IDBKeyRange leftBound()</dt>
-            <dd>
-              Create a new left-bound <a>key range</a>.
-              <dl class="parameters">
-                <dt>any bound</dt>
-                <dd>The left bound value</dd>
-                <dt>optional boolean open</dt>
-                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBKeyRange rightBound()</dt>
+            <dt>IDBKeyRange lowerBound()</dt>
             <dd>
-              Create a new right-bound <a>key range</a>.
+              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
+              <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>open</var>,
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <code>undefined</code> and
+              and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to false.
               <dl class="parameters">
                 <dt>any bound</dt>
-                <dd>The right bound value</dd>
+                <dd>The lower bound value</dd>
                 <dt>optional boolean open</dt>
-                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+                <dd>Is the lower-bound value included in the <a>key range</a>. Defaults to false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange upperBound()</dt>
+            <dd>
+              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
+              <code>undefined</code>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to false,
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and
+              and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>open</var>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The upper bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the upper-bound value included in the <a>key range</a>. Defaults to false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
             <dt>IDBKeyRange bound()</dt>
             <dd>
-              Create a new left- and right-bound <a>key range</a>.
+              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
+              <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to false,
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and
+              and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>open</var>.
               <dl class="parameters">
-                <dt>any left</dt>
-                <dd>The left-bound value</dd>
-                <dt>any right</dt>
-                <dd>The right-bound value</dd>
-                <dt>optional boolean openLeft</dt>
-                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
-                <dt>optional boolean openRight</dt>
-                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+                <dt>any lower</dt>
+                <dd>The lower-bound value</dd>
+                <dt>any upper</dt>
+                <dd>The upper-bound value</dd>
+                <dt>optional boolean openLower</dt>
+                <dd>Is the lower-bound value included in the <a>key range</a>. Defaults to false.</dd>
+                <dt>optional boolean openUpper</dt>
+                <dd>Is the upper-bound value included in the <a>key range</a>. Defaults to false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>lower</var> or <var>upper</var> parameters were not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
           </dl>

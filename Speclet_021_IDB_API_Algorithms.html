@@ -257,13 +257,17 @@
               store</a> passed to these steps.
             </li>
             <li>
-              If no record exists with key <var>key</var> in <var>store</var>,
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step,
               then terminate these steps and set error code
               <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
             </li>
             <li>
-              Return the a new <a>structured clone</a> of the value in the record with 
-              key <var>key</var> in <var>store</var>.
+              Return the a new <a>structured clone</a> of the value in the found record.
             </li>
           </ol>
         </section>
@@ -282,17 +286,18 @@
               passed to these steps.
             </li>
             <li>
-              If no record exists with key <var>key</var> in <var>index</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
             </li>
             <li>
-              Let <var>value</var> be the value of the record with key <var>key</var>
-              in <var>index</var>.
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
             </li>
             <li>
-              Return the value for the record with key <var>value</var> in 
-              <var>index</var>'s <a>referenced</a> <a>object store</a>.
+              If a record was found, let <var>value</var> be the value of the found record. The result of
+              this algorithm is a new <a>structured clone</a> of the value for the record with key
+              <var>value</val> in <var>index</var>'s <a>referenced</a> <a>object store</a>
             </li>
           </ol>
         </section>
@@ -311,13 +316,16 @@
               passed to these steps.
             </li>
             <li>
-              If no record exists with key <var>key</var> in <var>index</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
             </li>
             <li>
-              Return the value of the record with key <var>key</var>
-              in <var>index</var>.
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
+            </li>
+            <li>
+              If a record was found, the result of this algorithm is the value of the found <a>record</a>.
             </li>
           </ol>
         </section>
@@ -443,7 +451,7 @@
         <section class="section">
           <h4>Steps for asynchronously executing a <a>request</a></h4>
           <p>
-            When taking the <dfn>steps to a asynchronously execute a request</dfn> the implementation MUST run the
+            When taking the <dfn>steps for asynchronously executing a request</dfn> the implementation MUST run the
             following algorithm. The algorithm takes a <var>source</var> object and a <var>operation</var> to
             perform on a database.
           </p>
@@ -454,6 +462,9 @@
           <ol>
             <li>
               Set <var>transaction</var> to the <a>transaction</a> associated with <var>source</var>.
+            </li>
+            <li>
+              If <var>transaction</var> is not <a>active</a> throw a TRANSACTION_INACTIVE_ERR exception.
             </li>
             <li>
               Create a <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s

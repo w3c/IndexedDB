@@ -349,22 +349,29 @@ prepareDatabase(function(evt) {
             In order to efficiently retrieve <a title="record">records</a> 
             stored in an indexed database, a user agent needs to organize each 
             <a>record</a> according to its key. <a>Conforming user agents</a>
-            MUST support the use of the following values as keys: IDL data types
-            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
+            MUST support the use of the following types as <dfn>key value</dfn>s: IDL data types
+            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the
+            <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
+            For the particular case of <code>float</code>, the value NaN is not allowed.
           </p>
-          
+          <p class="note">
+            Inifinite <code>float</code> values are allowed.
+          </p>
           <p>
             For purposes of comparison, all <code>DOMString</code> values are evaluated as greater than 
             <code>long</code>, <code>float</code>, and <code>Date</code> values; <code>Date</code> values are evaluated as greater than <code>long</code> 
             and <code>float</code> values; and <code>long</code> and <code>float</code> values are evaluated by their numeric 
             value with no need to separate them by type. Moreover, <code>null</code> always evaluates 
-            less than any other key value that is a non-null value. For the particular case 
-            of floating point numbers, the value NaN is not allowed.
+            less than any other key value that is a non-null value.
           </p>
-          <div class="note">
+          <p>
+            The terms <dfn>greater than</dfn>, <dfn>less than</dfn> and <dfn>equal to</dfn> is defined in the terms of
+            the above comparisons.
+          </p>
+          <p class="note">
             Only data types with natural ordering can be used as keys. 
             The ECMAScript <code>undefined</code> MUST NOT be used as a key.
-          </div>
+          </p>
         </section>
         
         <section id="value-construct" class="section">
@@ -746,21 +753,16 @@ prepareDatabase(function(evt) {
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
           <p>
-            An individual <a>record</a> can be retrieved from an 
-            <a>object store</a> using either the record's key or the key 
-            applicable for some <a>index</a> that 
-            <a title="referenced">references</a> that <a>object store</a>. 
-            Multiple records can be fetched using a <a>key range</a>. A 
-            <dfn>key range</dfn> is a continuous interval over some data type 
+            Records can be retrived from <a>object store</a>s and <a>index</a>es
+            using either <a>key value</a>s or <dfn>key range</dfn>s. A 
+            key range is a continuous interval over some data type 
             used for keys.
           </p>
           <p>
-            A <a>key range</a> MAY be left-bounded or right-bounded if there is 
+            A <a>key range</a> MAY be lower-bounded or upper-bounded if there is 
             a value that is, respectively, smaller than or larger than all its 
             elements. A <a>key range</a> is said to be bounded if it is both 
-            left- and right-bounded and unbounded otherwise. A 
-            <dfn title="valid key range">valid</dfn> <a>key range</a> MUST be 
-            either half-bounded or bounded. A <a>key range</a> MAY be open, 
+            lower- and upper-bounded and unbounded otherwise. A <a>key range</a> MAY be open, 
             i.e., not including its endpoints or closed, i.e., including
             its endpoints. A <a>key range</a> MAY consist of a single value.
           </p>
@@ -769,62 +771,107 @@ prepareDatabase(function(evt) {
             <a>key range</a>.
           </p>
           <dl class="idl" title="interface IDBKeyRange"> 
-            <dt>const     unsigned short SINGLE = 0</dt>
-            <dd>This flag indicates a single-valued <a>key range</a>.</dd>
-            <dt>const     unsigned short LEFT_OPEN = 1</dt>
-            <dd>This flag indicates a left-open <a>key range</a>.</dd>
-            <dt>const     unsigned short RIGHT_OPEN = 2</dt>
-            <dd>This flag indicates a right-open <a>key range</a>.</dd>
-            <dt>const     unsigned short LEFT_BOUND = 4</dt>
-            <dd>This flag indicates a left-bound <a>key range</a>.</dd>
-            <dt>const     unsigned short RIGHT_BOUND = 8</dt>
-            <dd>This flag indicates a right-bound <a>key range</a>.</dd>
-            <dt>readonly attribute any left</dt>
-            <dd>This value is the left-bound of the <a>key range</a>.</dd>
-            <dt>readonly attribute any right</dt>
-            <dd>This value is the right-bound of the <a>key range</a>.</dd>
-            <dt>readonly attribute unsigned short flags</dt>
-            <dd>Flags for bounding values</dd>
+            <dt>readonly attribute any lower</dt>
+            <dd>This value is the lower-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute any upper</dt>
+            <dd>This value is the upper-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute boolean lowerOpen</dt>
+            <dd>Returns false if the lower-bound value is included in the <a>key range</a>.</dd>
+            <dt>readonly attribute boolean upperOpen</dt>
+            <dd>Returns false if the upper-bound value is included in the <a>key range</a>.</dd>
+          </dl>
+          <p>
+            A <a><var>key value</var></a> is <dfn>in a <a>key range</a></dfn> if both the following conditions are
+            fulfilled:
+          </p>
+          <ul>
+            <li>
+              The <a>key range</a> <a href="#widl-IDBKeyRange-lower"><code>lower</code></a> value is <code>undefined</code> or
+              <a>less than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a href="#widl-IDBKeyRange-lowerOpen"><code>lowerOpen</code></a> is <code>false</code>.
+            </li>
+            <li>
+              The <a>key range</a> <a href="#widl-IDBKeyRange-upper"><code>upper</code></a> value is <code>undefined</code> or
+              <a>greater than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a href="#widl-IDBKeyRange-upperOpen"><code>upperOpen</code></a> is <code>false</code>.
+            </li>
+          </ul>
+
+          <p>
+            To construct a <a>key range</a> a set of constructors are available. In languages with
+            interface objects [[!WEBIDL]], these constructors are available on the <code>IDBKeyRange</code>
+            interface object. In other languages these constructors are available through language specific
+            means, for example as static functions.
+          </p>
+          <dl class="idl" title="[NoInterfaceObject] interface IDBKeyRangeConstructors"> 
             <dt>IDBKeyRange only()</dt>
             <dd>
-              Create a new single-valued <a>key range</a>.
+              Creates and returns a new <a>key range</a> with both <a href="#widl-IDBKeyRange-lower">lower</a> and
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and both
+              <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a>
+              set to false.
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The only value</dd>
               </dl>
-            </dd>
-            <dt>IDBKeyRange leftBound()</dt>
-            <dd>
-              Create a new left-bound <a>key range</a>.
-              <dl class="parameters">
-                <dt>any bound</dt>
-                <dd>The left bound value</dd>
-                <dt>optional boolean open</dt>
-                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBKeyRange rightBound()</dt>
+            <dt>IDBKeyRange lowerBound()</dt>
             <dd>
-              Create a new right-bound <a>key range</a>.
+              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
+              <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>open</var>,
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <code>undefined</code> and
+              and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to false.
               <dl class="parameters">
                 <dt>any bound</dt>
-                <dd>The right bound value</dd>
+                <dd>The lower bound value</dd>
                 <dt>optional boolean open</dt>
-                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+                <dd>Is the lower-bound value included in the <a>key range</a>. Defaults to false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
+              </dl>
+            </dd>
+            <dt>IDBKeyRange upperBound()</dt>
+            <dd>
+              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
+              <code>undefined</code>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to false,
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and
+              and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>open</var>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The upper bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the upper-bound value included in the <a>key range</a>. Defaults to false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
             <dt>IDBKeyRange bound()</dt>
             <dd>
-              Create a new left- and right-bound <a>key range</a>.
+              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
+              <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to false,
+              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and
+              and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>open</var>.
               <dl class="parameters">
-                <dt>any left</dt>
-                <dd>The left-bound value</dd>
-                <dt>any right</dt>
-                <dd>The right-bound value</dd>
-                <dt>optional boolean openLeft</dt>
-                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
-                <dt>optional boolean openRight</dt>
-                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+                <dt>any lower</dt>
+                <dd>The lower-bound value</dd>
+                <dt>any upper</dt>
+                <dd>The upper-bound value</dd>
+                <dt>optional boolean openLower</dt>
+                <dd>Is the lower-bound value included in the <a>key range</a>. Defaults to false.</dd>
+                <dt>optional boolean openUpper</dt>
+                <dd>Is the upper-bound value included in the <a>key range</a>. Defaults to false.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>The <var>lower</var> or <var>upper</var> parameters were not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
           </dl>
@@ -1440,63 +1487,60 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBRequest get()</dt>
             <dd>
-              This method returns immediately and retrieves the value from this 
-              <a>object store</a> for the record corresponding to the given key 
-              by following the 
-              <a>steps for retrieving a record from an object store</a>. 
-              If the operation is successful, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
-              is set to the retrieved value. If a record did not exist in this 
-              <a>object store</a> for the key <var>key</var> parameter, then an 
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If the <a>record</a> can be successfully 
-              retrieved from the <a>object store</a>, then a 
-              <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the value of the retrieved <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened. 
+              If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
+              throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for asynchronously executing
+              a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a record from an
+              object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and the
+              <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the <a>record</a> to be retrieved</dd>
+                <dd>Key identifying the <a>record</a> to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
+                the function retreives the first existing value in that range.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>IDBRequest openCursor()</dt>
             <dd>
-              This method returns immediately and creates a <a>cursor</a> over the 
-              <a>records</a> of this <a>object store</a>. The <a>range</a> of this
-              <a>cursor</a> matches the <a>key range</a> specified as the
-              <var>range</var> parameter, or if that parameter is not specified or
-              <code>null</code>, then the range includes all the <a>records</a>. 
-              If there is even a single record that matches the <a>key range</a>, then a
-              <a title="event-success">success event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-              <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-              records match the <a>key range</a>, then an 
-              <a title="event-success">success event</a> is fired on this method's
-              returned object with its
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-              set to <code>null</code>.
+              <p>
+                This method returns immediately and creates a <a>cursor</a> over the 
+                <a>records</a> of this <a>object store</a>.
+              </p>
+              <p>
+                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
+                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
+                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
+                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
+                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+              </p>
+              <p>
+                If there is even a single record that matches the <a>key range</a>, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
+                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
+                records match the <a>key range</a>, then an 
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
+                set to <code>null</code>.
+              </p>
               <dl class="parameters">
-                <dt>optional IDBKeyRange    range</dt>
+                <dt>optional any            range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>IDBIndex createIndex()</dt>
@@ -1601,24 +1645,30 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBRequest openCursor()</dt>
             <dd>
-              This method returns immediately and creates a <a>cursor</a> over the 
-              <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
-              as arranged by this <a>index</a>. The <a>range</a> of this <a>cursor</a> 
-              matches the <a>key range</a> specified as the <var>range</var> parameter, or
-              if that parameter is not specified or <code>null</code>, then the 
-              range includes all the <a>records</a>.
-              If there is even a single record that matches the <a>key range</a>, then a
-              <a title="event-success">success event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-              <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-              records match the <a>key range</a>, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <p>
+                This method returns immediately and creates a <a>cursor</a> over the 
+                <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
+                as arranged by this <a>index</a>.
+              </p>
+              <p>
+                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
+                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
+                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
+                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
+                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+              </p>
+              <p>
+                If there is even a single record that matches the <a>key range</a>, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
+                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
+                records match the <a>key range</a>, then an 
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
+                set to <code>null</code>.
+              </p>
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -1626,29 +1676,37 @@ prepareDatabase(function(evt) {
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
-              This method returns immediately and creates a <a>cursor</a> over the 
-              <a>records</a> of this <a>index</a>. The <a>range</a> of this <a>cursor</a>
-              matches the <a>key range</a> specified as the <var>range</var> parameter, or
-              if that parameter is not specified or <code>null</code>, then the 
-              range includes all the <a>records</a>. 
-              If there is even a single record that matches the <a>key range</a>, then a
-              <a title="event-success">success event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the 
-              <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-              records match the <a>key range</a>, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              <p>
+                This method returns immediately and creates a <a>cursor</a> over the 
+                <a>records</a> of this <a>index</a>.
+              </p>
+              <p>
+                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
+                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
+                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
+                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
+                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+              </p>
+              <p>
+                If there is even a single record that matches the <a>key range</a>, then a
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its 
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
+                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
+                records match the <a>key range</a>, then an 
+                <a title="event-success">success event</a> is fired on this method's
+                returned object with its
+                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
+                set to <code>null</code>.
+              </p>
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -1656,56 +1714,50 @@ prepareDatabase(function(evt) {
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
             <dd>
-              This method returns immediately and retrieves the value from this <a>index</a>'s
-              <a>referenced</a> <a>object store</a> for the record corresponding to the given
-              key by following the <a>steps for retrieving a record from an index</a>.
-              If the operation is successful, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
-              is set to the retrieved value. If a record did not exist in this 
-              <a>index</a> for the key <var>key</var> parameter, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
+              throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
+              and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a record from an
+              index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
+              <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be retrieved</dd>
+                <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
+                the function retreives the first existing value in that range.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>IDBRequest getKey()</dt>
             <dd>
-              This method returns immediately and retrieves the value from this <a>index</a>
-              for the record corresponding to the given <var>key</var> parameter by 
-              following the <a>steps for retrieving a value from an index</a>.
-              If the operation is successful, then the 
-              <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> of this object's request
-              is set to the retrieved value. If a record did not exist in this 
-              <a>index</a> for the key <var>key</var> parameter, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
+              If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
+              throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
+              and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
+              index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
+              <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be retrieved</dd>
+                <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
+                the function retreives the first existing value in that range.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
           </dl>
@@ -2881,13 +2933,17 @@ cursor.continue();
               store</a> passed to these steps.
             </li>
             <li>
-              If no record exists with key <var>key</var> in <var>store</var>,
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step,
               then terminate these steps and set error code
               <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
             </li>
             <li>
-              Return the a new <a>structured clone</a> of the value in the record with 
-              key <var>key</var> in <var>store</var>.
+              Return the a new <a>structured clone</a> of the value in the found record.
             </li>
           </ol>
         </section>
@@ -2906,17 +2962,18 @@ cursor.continue();
               passed to these steps.
             </li>
             <li>
-              If no record exists with key <var>key</var> in <var>index</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
             </li>
             <li>
-              Let <var>value</var> be the value of the record with key <var>key</var>
-              in <var>index</var>.
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
             </li>
             <li>
-              Return the value for the record with key <var>value</var> in 
-              <var>index</var>'s <a>referenced</a> <a>object store</a>.
+              If a record was found, let <var>value</var> be the value of the found record. The result of
+              this algorithm is a new <a>structured clone</a> of the value for the record with key
+              <var>value</val> in <var>index</var>'s <a>referenced</a> <a>object store</a>
             </li>
           </ol>
         </section>
@@ -2935,13 +2992,16 @@ cursor.continue();
               passed to these steps.
             </li>
             <li>
-              If no record exists with key <var>key</var> in <var>index</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
             </li>
             <li>
-              Return the value of the record with key <var>key</var>
-              in <var>index</var>.
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
+            </li>
+            <li>
+              If a record was found, the result of this algorithm is the value of the found <a>record</a>.
             </li>
           </ol>
         </section>
@@ -3067,7 +3127,7 @@ cursor.continue();
         <section class="section">
           <h4>Steps for asynchronously executing a <a>request</a></h4>
           <p>
-            When taking the <dfn>steps to a asynchronously execute a request</dfn> the implementation MUST run the
+            When taking the <dfn>steps for asynchronously executing a request</dfn> the implementation MUST run the
             following algorithm. The algorithm takes a <var>source</var> object and a <var>operation</var> to
             perform on a database.
           </p>
@@ -3078,6 +3138,9 @@ cursor.continue();
           <ol>
             <li>
               Set <var>transaction</var> to the <a>transaction</a> associated with <var>source</var>.
+            </li>
+            <li>
+              If <var>transaction</var> is not <a>active</a> throw a TRANSACTION_INACTIVE_ERR exception.
             </li>
             <li>
               Create a <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
