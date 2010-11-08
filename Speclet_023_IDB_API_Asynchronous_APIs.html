@@ -533,105 +533,142 @@
             </dd>
             <dt>IDBRequest put()</dt>
             <dd>
-              This method returns immediately and stores the given value in this 
-              <a>object store</a> by following the 
-              <a>steps for storing a record into an object store</a>. If the 
-              <a>record</a> can be successfully stored in the <a>object store</a>, then 
-              a <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the key for the stored <a>record</a> and 
-              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened.
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                throws a DATA_ERR exception:
+              </p>
+              <ul>
+                <li>
+                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and
+                  the <var>key</var> parameter was provided.
+                </li>
+                <li>
+                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                  and the <var>key</var> parameter was not provided.
+                </li>
+                <li>
+                  The object store uses <a>in-line keys</a> but no <a>key generator</a>
+                  and the result of <a title="evaluate key path">evaluating</a> the 
+                  <a title="object store key path">object store's key path</a> does not yield a
+                  <a>valid key</a>.
+                </li>
+                <li>
+                  The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store and <a title="evaluate key path">evaluating</a> their key path on the
+                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
+                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to false.
+              </p>
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the <a>record</a></dd>
                 <dt>optional any key</dt>
-                <dd>The key used to identify the <a>record</a>, which defaults 
-                to <code>null</code></dd>
+                <dd>The key used to identify the <a>record</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
-                no <a>key generator</a> but the <var>key</var> parameter was not
-                passed, or the <a>object store</a> uses <a>in-line keys</a> and
-                no <a>key generator</a> but the <var>value</var> object does not
-                have a property identified by the store's 
-                <a title="object store key path">key path</a>.</dd>
-                <dt>SERIAL_ERR</dt>
-                <dd>The data being stored could not be serialized by the internal
+                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
+                calculated key for any of the indexes which belong to this object store had a calculated
+                key which was not a <a>valid key</a></dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
             </dd>
             <dt>IDBRequest add()</dt>
             <dd>
-              This method returns immediately and stores the given value in this 
-              <a>object store</a> by following the 
-              <a>steps for storing a record into an object store</a> with the 
-              no-overwrite flag set. If the <a>record</a> can be successfully 
-              stored in the <a>object store</a>, then a 
-              <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the key for the stored record and 
-              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened. If a <a>record</a> exists in this <a>object store</a> for 
-              the key <var>key</var> parameter, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                throws a DATA_ERR exception:
+              </p>
+              <ul>
+                <li>
+                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and
+                  the <var>key</var> parameter was provided.
+                </li>
+                <li>
+                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                  and the <var>key</var> parameter was not provided.
+                </li>
+                <li>
+                  The object store uses <a>in-line keys</a> but no <a>key generator</a>
+                  and the result of <a title="evaluate key path">evaluating</a> the 
+                  <a title="object store key path">object store's key path</a> does not yield a
+                  <a>valid key</a>.
+                </li>
+                <li>
+                  The <var>key parameter was provided but does not contain a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store and <a title="evaluate key path">evaluating</a> their key path on the
+                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
+                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to true.
+              </p>
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the <a>record</a></dd>
                 <dt>optional any key</dt>
-                <dd>The key used to identify the <a>record</a>, which defaults 
-                to <code>null</code></dd>
+                <dd>The key used to identify the <a>record</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
-                no <a>key generator</a> but the <var>key</var> parameter was not
-                passed, or the <a>object store</a> uses <a>in-line keys</a> and
-                no <a>key generator</a> but the <var>value</var> object does not
-                have a property identified by the store's
-                <a title="object store key path">key path</a>.</dd>
-                <dt>SERIAL_ERR</dt>
-                <dd>The data being stored could not be serialized by the internal
+                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
+                calculated key for any of the indexes which belong to this object store had a calculated
+                key which was not a <a>valid key</a></dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
             </dd>
             <dt>IDBRequest delete()</dt>
             <dd>
-              This method returns immediately and deletes the <a>record</a> from 
-              this <a>object store</a> by following the 
-              <a>steps for deleting a record from an object store</a> 
-              corresponding to the given key. If a <a>record</a> did not exist 
-              in this <a>object store</a> for the <var>key</var> parameter, 
-              then an <a title="event-error">error event</a> is fired on this 
-              method's returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If the <a>record</a> can be successfully 
-              deleted from the <a>object store</a>, then a 
-              <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the value of the deleted <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened. 
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</var>
+                this method throws a DATA_ERR exception.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for deleting
+                a record from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                as <var>store</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the <a>record</a> to be deleted</dd>
@@ -647,7 +684,7 @@
               If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
               throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for asynchronously executing
               a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a record from an
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
               object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and the
               <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
@@ -665,27 +702,24 @@
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a <a>cursor</a> over the 
-                <a>records</a> of this <a>object store</a>.
+                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBObjectStore</a> this function was called on.
               </p>
               <p>
-                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
-                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
-                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
-                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
-                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
               </p>
               <p>
-                If there is even a single record that matches the <a>key range</a>, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-                records match the <a>key range</a>, then an 
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-                set to <code>null</code>.
+                This method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a>
+                created by these steps. The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the
+                <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>.
               </p>
               <dl class="parameters">
                 <dt>optional any            range</dt>
@@ -803,28 +837,24 @@
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a <a>cursor</a> over the 
-                <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
-                as arranged by this <a>index</a>.
+                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBIndex</a> this function was called on.
               </p>
               <p>
-                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
-                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
-                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
-                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
-                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
               </p>
               <p>
-                If there is even a single record that matches the <a>key range</a>, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-                records match the <a>key range</a>, then an 
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-                set to <code>null</code>.
+                This method runs the <a>steps for asynchronously executing
+                a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
               </p>
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
@@ -842,27 +872,24 @@
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a <a>cursor</a> over the 
-                <a>records</a> of this <a>index</a>.
+                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBIndex</a> this function was called on.
               </p>
               <p>
-                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
-                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
-                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
-                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
-                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
               </p>
               <p>
-                If there is even a single record that matches the <a>key range</a>, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-                records match the <a>key range</a>, then an 
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-                set to <code>null</code>.
+                This method runs the <a>steps for asynchronously executing
+                a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
               </p>
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
@@ -882,7 +909,7 @@
               If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
               throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
               and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a record from an
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
               index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
               <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
@@ -961,65 +988,107 @@
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute any value</dt>
             <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.</dd>
-            <dt>readonly attribute unsigned long long count</dt>
-            <dd>             
-              On getting, provide the approximate number of objects in the cursor.
-            </dd>
+
             <dt>IDBRequest update(in any value)</dt>
             <dd>
-              This method returns immediately and sets the value for the record at the
-              <a>cursor</a>'s <a>position</a>.
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBCursor belongs to
+                has its <a>mode</a> set to READ_ONLY, or if this cursor's <a>got value</a> flag is false. If the
+                <a>effective object store</a> of this cursor uses <a>in-line</a>
+                keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
+                of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
+                this method throws DATA_ERR.
+              </p>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this IDBCursor as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> as <var>store</var>, the created clone as <var>value</var>,
+                this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
+                flag set to false.
+              </p>
+              <p class="issue">
+                Should this fire an error if the record had been deleted since we iterated to it? I.e. should
+                this never be able to create a new record?
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
+                and the <a>steps for deleting a record from an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
+              </p>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
                 the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>. Also
                 thrown if cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property at the 
-                <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
+                <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
+                at the object store's <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
                 <a>position</a>.</dd>
-                <dt>SERIAL_ERR</dt>
-                <dd>The data being stored could not be serialized by the internal structured cloning
-                algorithm.</dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
+                structured cloning algorithm.</dd>
               </dl>
             </dd>
             <dt>void    continue()</dt>
             <dd>
-              This method returns immediately and advances the <a>cursor</a> to the next
-              position along its <a>direction</a> to the item whose key matches the
-              optional parameter. If no such parameter is provided, advance to the
-              immediate next position. If the <a>cursor</a> has reached the end of its
-              <a>range</a>, then a
-              <a title="event-success">success event</a> is fired on the
-              <a><code>IDBRequest</code></a> object that was returned when the cursor
-              was opened, with its
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-              set to <code>null</code>. Otherwise, a
-              <a title="event-success">success event</a> is fired on the
-              <a><code>IDBRequest</code></a> object that was returned when the cursor
-              was opened, with its
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-              set to the corresponding <a><code>IDBCursor</code></a> object.
+              <p>
+                If the <var>key</var> parameter is specified but is not a <a>valid key</a>,
+                this method throws a DATA_ERR exception. If this cursor's <a>got value</a> flag is false, this method
+                throws a NOT_ALLOWED_ERR. Otherwise this method runs the <a>steps for asynchronously executing a request</a>.
+                However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
+                <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
+                on the request is set to false before the request is returned.  The steps are run with the cursor's
+                <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p>
+                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag fn the cursor to false.
+              </p>
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>got value</a> on the cursor is set to false.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was specified but did not contain a <a>valid key</a>.</dd>
               </dl>
             </dd>
             
             <dt>IDBRequest    delete()</dt>
             <dd>          
               <p>
-                This method returns immediately and deletes the object at the 
-                <a>cursor</a>'s <a>position</a>. The cursor's
-                position is not changed. Any attempts to retrieve the cursor's
-                current value will return <code>null</code>.
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBCursor belongs to
+                has its <a>mode</a> set to READ_ONLY, or if this cursor's <a>got value</a> flag is false.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
+                and the <a>steps for deleting a record from an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
+              </p>
+              <p class="issue">
+                This method used to set this cursor's <a title="cursor value">value</a> to <code>null</code>. Do we want to
+                keep that?
               </p>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>. Also
-                thrown if cursor was created using
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>
+                is <code>READ_ONLY</code>. Also thrown if cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.</dd>
               </dl>
             </dd>

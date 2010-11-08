@@ -134,25 +134,123 @@
       <!-- begin-content -->
       <section id="constructs" class="section">
       <h3>Constructs</h3>
-        <p>
-          An indexed database is made of records holding simple values
-          and hierarchical objects. Each <dfn>record</dfn> consists of a key and a value. 
-        </p>
-        
-        <section id="key-construct" class="section">
-          <h4>Keys</h4>
-          
+       <section id="database-concept" class="section">
+          <h4>Database</h4>
           <p>
-            In order to efficiently retrieve <a title="record">records</a> 
-            stored in an indexed database, a user agent needs to organize each 
-            <a>record</a> according to its key. <a>Conforming user agents</a>
-            MUST support the use of the following types as <dfn>key value</dfn>s: IDL data types
-            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the
-            <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
-            For the particular case of <code>float</code>, the value NaN is not allowed.
+            Each <a>origin</a> has an associated set of 
+            <a title="database">databases</a>. A <dfn>database</dfn> comprises
+            one or more <a title="object store">object stores</a> which hold the data stored
+            in the database.
+          </p>
+          <p>
+            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it
+            within a specific <a>origin</a>. The name can be any string value, including the empty string, and
+            stays constant for the lifetime of the database. Each <a>database</a> also has a current
+            <dfn>version</dfn>. When a database is first created, its <a>version</a> is the empty string.
           </p>
           <p class="note">
-            Inifinite <code>float</code> values are allowed.
+            Implementations MUST support all names. If a implementation
+            uses a storage mechanism which can't handle arbitrary database names,
+            the implementation must use an escaping mechanism or something similar
+            to map the provided name to a name that it can handle.
+          </p>
+          <div class="note">
+            Each <a>database</a> has one version at a time; a <a>database</a> 
+            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
+            <a>transaction</a>.
+          </div>
+          <p>
+            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple 
+            <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
+            <dfn>closePending</dfn> flag which initially is set to false.
+          </p>
+          <p>
+            When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
+            can be <dfn title="database close">closed</dfn> through several means. If the connection is GCed
+            or execution context where the <a>connection</a> is created is destroyed (for example due to the
+            user navigating away from that page), the connection is closed. The connection can also be closed
+            explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
+            the <a>closePending</a> flag is always set to true if it hasn't already been.
+          </p>
+          <p>
+            The <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
+            interfaces represent a <a>connection</a> to a <a>database</a>. 
+          </p>
+        </section>  <!-- IDBDatabase -->
+
+        <section class="section" id="object-store-concept">  
+          <h4>Object Store</h4>
+          <p>
+            An <dfn>object store</dfn> is the primary storage mechanism for storing data in a
+            <a>database</a>.
+          </p>
+          <p>
+            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
+            can be changed, but can only be changed using a VERSION_CHANGE transactions. When a new database is
+            created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
+          </p>
+          <p>
+            The object store has a <a title="object store record list">list of records</a> which hold the
+            data stored in the object store. Each <dfn>record</dfn> consists of a <dfn>key</dfn> and a <dfn>value</dfn>.
+            The list is sorted according to key in ascending order. There can never be multiple records in a given object
+            store with the same key.
+          </p>
+          <p>
+            Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
+            The name is unique within the <a>database</a> to which it belongs. Every object store also optionally has a
+            <a>key generator</a> and a optional <dfn title="object store key path">key path</dfn>.
+            If the object store has a key path it is said to use <dfn>in-line keys</dfn>. Otherwise it is said to
+            use <dfn>out-of-line</dfn> keys.
+          </p>
+          <p>
+            The object store can derive the <a>key</a> from one of three sources. Which source is used is determined
+            when the object store is created. The three sources are:
+          </p>
+          <ol>
+            <li>
+              A <dfn>key generator</dfn>. A key generator generates a monotonically increasing numbers every time
+              a key is needed.
+              <p class="issue">
+                specify that generators are not shared between stores.
+              </p>
+            </li>
+            <li>
+              A <dfn>key path</dfn>. A key path points to a property in a given <a>value</a>. When a object store uses a
+              <a>key path</a> to generate keys, the key is the property in the stored <a>value</a> pointed to by the
+              <a>key path</a>.
+              <p class="issue">
+                Need to specify how a key path is parsed and how a "evaluated" against a value. Including the requirement
+                that the value needs to be a object and that the property must be enumerated.
+              </p>
+            </li>
+            <li>
+              Keys can also be explicitly specified when a <a>value</a> is stored in the object store.
+            </li>
+          </p>
+          <!--div class="ednote">
+            The detached reading behavior MAY need more explanation.
+            What is detached reading?
+          </div-->
+          <p>
+            The <a><code>IDBObjectStore</code></a> and <a><code>IDBObjectStoreSync</code></a>
+            interfaces represent a <a>object store</a>. Note however that multiple instances of those
+            interfaces representing the same <a>object store</a> can exist.
+          </p>
+        </section> <!-- Object store -->
+
+        <section id="key-construct" class="section">
+          <h4>Keys</h4>
+          <p>
+            In order to efficiently retrieve <a>record</a>s stored in an indexed database,
+            each <a>record</a> is organized according to its key. A value is said to be a <dfn>valid key</dfn>
+            if it is one of the following types: IDL data types
+            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the
+            <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
+            Additionally, if the value os of type <code>float</code>, it is only a <a>valid key</a> if it is not NaN.
+            <a>Conforming user agents</a> MUST support all <a>valid key</a>s as keys.
+          </p>
+          <p class="note">
+            Inifinite <code>float</code> values are <a>valid key</a>s.
           </p>
           <p>
             For purposes of comparison, all <code>DOMString</code> values are evaluated as greater than 
@@ -174,152 +272,67 @@
         <section id="value-construct" class="section">
           <h4>Values</h4>
           <p>
-            Values can be any data type supported by the <a>structured clone algorithm</a> 
+            Each record is associated with a <dfn>value</dfn>. <a>Conforming user agents</a> MUST support
+            any value supported by the <a>structured clone algorithm</a> 
             [[!HTML5]]. This includes simple types such as <code>DOMString</code>
             and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
             instances.
           </p>
-          
-          <p>
-            A database can derive a key from the contents of
-            the value being stored. In such a case, only <code>Object</code> 
-            instances MAY be stored as values. Only the direct enumerable
-            properties of a stored <code>Object</code> instance SHOULD be 
-            used to derive a key value.
-          </p>
         </section>
-        
-        <section class="section" id="object-store-concept">  
-          <h4>Object Store</h4>
-          <p>
-            An <dfn>object store</dfn> is a persistent storage mechanism that 
-            holds key-value pairs, also called <a title="record">records</a> 
-            or <dfn>stored objects</dfn>. An <a>object store</a>'s 
-            <a title="record">records</a> are sorted by keys to enable fast 
-            insertion and look up as well as ordered retrieval. 
-          </p>
-          <p>
-            Every <a>object store</a> has a 
-            <dfn title="object store name">name</dfn>. Within a <a>database</a>, 
-            each <a>object store</a> MUST have a <a title="valid-name">valid</a> 
-            and unique <a title="object store name">name</a>. 
-          </p>          
-          <p>
-            If an <a>object store</a> uses keys generated from a monotonically
-            increasing sequence, it MUST have a <dfn>key generator</dfn> that 
-            produces unique keys for <a title="record">records</a> in that 
-            <a>object store</a>. Alternatively, if an application provides keys, 
-            they MAY either be identified as a part of the value being stored, 
-            also called <dfn>in-line keys</dfn>, or be identified separately, 
-            also called <dfn>out-of-line keys</dfn>. No two 
-            <a title="record">records</a> in an <a>object store</a> MAY be 
-            identified by the same key. An <a>object store</a> MUST have a 
-            <dfn title="object store key path">key path</dfn> if it uses 
-            <a>in-line keys</a>. The <a>key path</a> MUST be the name 
-            of an enumerated property of all stored objects in that 
-            <a>object store</a>.
-          </p>
-          <!--div class="ednote">
-            The detached reading behavior MAY need more explanation.
-          </div-->
-          <p>
-            The <a><code>IDBObjectStore</code></a> and <a><code>IDBObjectStoreSync</code></a>
-            interfaces provide access to the metadata of an <a>object store</a>.
-          </p>
-        </section> <!-- Object store -->
         
         <section id="index-concept" class="section">
           <h4>Index</h4>
           <p>
-            <a title="record">Records</a> in an <a>object store</a> can be 
-            retrieved using the <a title="record">record's</a> key. However, 
-            that MAY not always be adequate to recall 
-            <a title="record">records</a>. An <a>index</a> is used to lookup 
-            records in an <a>object store</a> other than through a
-            <a>record</a> key.
+            It is sometimes useful to retreive <a>records</a> in a <a>object store</a> through other means
+            than their <a>key</a>. A <dfn>index</dfn> allows looking up <a>record</a>s in a <a>object store</a>
+            using properties of the <a>value</a>s in the <a>object store</a>s <a>record</a>s.
           </p>
           <p>
-            An <dfn>index</dfn> is a specialized persistent store that holds 
-            key-value pairs such that each value is the key of objects in the 
-            <dfn>referenced</dfn> <a>object store</a>. If an <a>index</a>'s 
-            <dfn>unique</dfn> flag is set, then it MUST NOT allow duplicate 
-            values for a key. Every <a>index</a> has a 
-            <dfn title="index name">name</dfn>. Within an 
-            <a>object store</a>, each <a>index</a> MUST have a
-            <a title="valid-name">valid</a> and unique 
-            <a title="index name">name</a>.
+            An index is a specialized persistent key-value storage and has a <dfn>referenced</dfn> <a>object store</a>.
+            The index has a <dfn title="index record list">list of records</dfn> which hold the
+            data stored in the index. The records in an index are automatically populated whenever records in the
+            <a>referenced</a> object store are inserted, updated or deleted. There can be several <a>index</a>es
+            referencing the same <a>object store</a>, in which changes to the object store cause all such indexes
+            to get updated.
           </p>
           <p>
-            If an <a>index</a> is <dfn>auto-populated</dfn>, then the user agent 
-            populates records using the values stored in the <a>referenced</a> 
-            <a>object store</a>. An <a>auto-populated</a> <a>index</a> MUST have 
-            a <dfn title="index key path">key path</dfn>. This <a>key path</a> 
-            MUST be the name of an enumerated property of every object to be 
-            stored in the <a>object store</a> <a>referenced</a> by that 
-            <a>index</a>. The <a>auto-populated</a> <a>index</a> record 
-            corresponding to an <a>object store</a> record MUST satisfy the 
-            following <dfn>index maintenance conditions</dfn>:
+            The values in the index's <a>record</a>s are always values of <a>keys</a> in the index's <a>referenced</a>
+            object store. The keys are derived from the referenced object store's <a>value</a>s using a <dfn title="index key path"><a>key path</a></dfn>.
+            If a given <a>record</a> with key <var>X</var> in the object store referenced by the index has the value <var>A</var>, and
+            <a title="evaluate key path">evaluting</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
+            <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
           </p>
-          <ul>
-            <li><a>index</a> record key = value of the enumerated property at 
-            the <a title="index key path">key path</a> in the <a>object store</a> 
-            record value</li>
-            <li><a>index</a> record value = <a>object store</a> record key</li>
-          </ul>
+          <p>
+            Records in an index are said to have a <dfn>referenced value</dfn>. This is the value of the record in the index's referenced
+            object store which has a key equal to the index's record's value. So in the example above,
+            the record in the index whose key is <var>Y</var> and value is <var>X</var> has a <a>referenced value</a> of <var>A</var>.
+          </p>
+          <p class="note">
+            Each record in an index reference one and only one record in the index's <a>referenced</a> object store. However there can be
+            multiple records in an index which reference the same record in the object store. And there can also be no records in an index
+            which reference a given record in an object store.
+          </p>
+          <p class="issue">
+            Some of the statements in the note are only true once we've implemented decisions made at TPAC.
+          </p>
+          <p>
+            The <a>record</a>s in an index are always sorted according to the <a>record</a>s key. However unlike object stores,
+            a given index can contain multiple records with the same key. Such records are additionally sorted according to
+            the records value.
+          </p>
+          <p>
+            A index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
+            in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
+            modified such that evaluating the index's key path on the records new value yields a result which already exists in the
+            index, then the attempted modification to the object store fails.
+          </p>
           <p>
             The <a><code>IDBIndex</code></a> and <a><code>IDBIndexSync</code></a> interfaces
-            provide access to the metadata of an <a>index</a>.
+            provide access to the metadata of an <a>index</a>. Note however that multiple instances of those
+            interfaces representing the same <a>index</a> can exist.
           </p>
         </section> <!-- IDBIndex -->
         
-       <section id="database-concept" class="section">
-          <h4>Database</h4>
-          <p>
-            Each <a>origin</a> has an associated set of 
-            <a title="database">databases</a>. A <dfn>database</dfn> comprises
-            one or more <a title="object store">object stores</a>.
-          </p>
-          <p>
-            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it
-            within a specific <a>origin</a>. The name can be any string value, including the empty string, and
-            stays constant for the lifetime of the database. Each <a>database</a> also has a current
-            <dfn>version</dfn>.
-          </p>
-          <p class="note">
-            Implementations MUST support all names. If a implementation
-            uses a storage mechanism which can't handle arbitrary database names,
-            the implementation must use an escaping mechanism or something similar
-            to map the provided name to a name that it can handle.
-          </p>
-          <div class="note">
-            Each <a>database</a> has one version at a time; a <a>database</a> 
-            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
-            <a>transaction</a>.
-          </div>
-          <p>
-            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
-            can changed, but can only be changed using VERSION_CHANGE transactions. When a new database is
-            created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
-          </p>
-          <p>
-            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple 
-            <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
-            <dfn>closePending</dfn> flag which initially is set to false.
-          </p>
-          <p>
-            When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
-            can be <dfn title="database close">closed</dfn> through several means. If the connection is GCed
-            or execution context where the <a>connection</a> is created is destroyed (for example due to the
-            user navigating away from that page), the connection is closed. The connection can also be closed
-            explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
-            the <a>closePending</a> flag is always set to true if it hasn't already been.
-          </p>
-          <p>
-            The <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
-            interfaces represent a <a>connection</a> to a <a>database</a>. 
-          </p>
-        </section>  <!-- IDBDatabase -->
-
         <section id="transaction-concept" class="section">
           <h4>Transaction</h4>
           <p>
@@ -682,17 +695,49 @@
             are performed on the underlying <a>index</a> or an 
             <a>object store</a>.
           </p>
-          
           <p>
-            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in 
-            either an <a>index</a> or an <a>object store</a>. A 
-            <a title="cursor">cursor</a> maintains a <dfn>position</dfn> over 
+            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an <a>index</a>
+            or an <a>object store</a>. The cursor has a <dfn title="cursor source">source</dfn> indicating
+            which index or object store whose records it is iterating. A <a>cursor</a> maintains a <dfn>position</dfn> over 
             this series, which moves in a <dfn>direction</dfn> that is either 
-            monotonically increasing or decreasing order of the record keys. 
+            monotonically increasing or decreasing order of the <a>record</a> keys. Cursors
+            also have a <dfn title="cursor key">key</dfn> and a <dfn title="cursor value">value</dfn>
+            which represent the <a>key</a> and the <a>value</a> of the last iterated <a>record</a>.
+            Cursors finally have a <dfn>got value</dfn> flag. When this flag is false, the cursor is either
+            in the process of loading the next value or it has reached the end of its <a>range</a>, when it
+            is true, it indicates that the cursor is currently holding a value and that it is ready to iterate
+            to the next one.
+          </p>
+          <p>
+            If the <a title="cursor source">source</a> of a cursor is a <a>object store</a>, the <dfn>effective object store</dfn>
+            of the cursor is that object store and the <dfn>effective key</dfn> of the cursor is the cursors <a>position</a>.
+            If the <a title="cursor source">source</a> of a cursor is a <a>index</a>, the <a>effective object store</a>
+            of the cursor is that index's <a>referenced</a> object store and the <a>effective key</a> is the cursors
+            <a>object store position</a>.
+          </p>
+          <p>
+            It is possible for the list of records which the cursor is iterating over to
+            change before the full <a>range</a> of the cursor has been iterated. In order to
+            handle this, cursors maintain their <a>position</a> not as an index, but rather
+            as a <a>key</a> of the previously returned record. For a forward iterating cursor,
+            the next time the cursor is asked to iterate to the next record it returns the
+            record with the lowest <a>key</a> <a>greater than</a> the one previously returned. For
+            a backwards iterating cursor, the situation is opposite and it returns the record
+            with the highest <a>key</a> <a>less than</a> the one previously returned.
+          </p>
+          <p>
+            For cursors iterating indexes the situation is a little bit more complicated since
+            multiple records can have the same key and are therefor also sorted by <a>value</a>.
+            When iterating indexes the <a>cursor</a>'s also has a <dfn>object store position</dfn>, which indicates
+            the <a>value</a> of the previously found <a>record</a> in the index. Both
+            <a>position</a> and the <a>object store position</a> is used when finding the next appropriate record.
           </p>
           <p>
             <a title="cursor">Cursor</a> objects implement the <a><code>IDBCursor</code></a> 
-            or the <a><code>IDBCursorSync</code></a> interfaces.
+            or the <a><code>IDBCursorSync</code></a> interfaces. There is only ever one
+            <a><code>IDBCursor</code></a> or <a><code>IDBCursorSync</code></a> instance representing
+            a given <a>cursor</a>. However there is no limit on how many cursors can be used at the
+            same time.
           </p>
         </section> <!-- IDBCursor -->
 

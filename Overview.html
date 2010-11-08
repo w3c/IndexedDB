@@ -337,25 +337,123 @@ prepareDatabase(function(evt) {
       <h2>Indexed Database API</h2>
 	        <section id="constructs" class="section">
       <h3>Constructs</h3>
-        <p>
-          An indexed database is made of records holding simple values
-          and hierarchical objects. Each <dfn>record</dfn> consists of a key and a value. 
-        </p>
-        
-        <section id="key-construct" class="section">
-          <h4>Keys</h4>
-          
+       <section id="database-concept" class="section">
+          <h4>Database</h4>
           <p>
-            In order to efficiently retrieve <a title="record">records</a> 
-            stored in an indexed database, a user agent needs to organize each 
-            <a>record</a> according to its key. <a>Conforming user agents</a>
-            MUST support the use of the following types as <dfn>key value</dfn>s: IDL data types
-            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the
-            <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
-            For the particular case of <code>float</code>, the value NaN is not allowed.
+            Each <a>origin</a> has an associated set of 
+            <a title="database">databases</a>. A <dfn>database</dfn> comprises
+            one or more <a title="object store">object stores</a> which hold the data stored
+            in the database.
+          </p>
+          <p>
+            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it
+            within a specific <a>origin</a>. The name can be any string value, including the empty string, and
+            stays constant for the lifetime of the database. Each <a>database</a> also has a current
+            <dfn>version</dfn>. When a database is first created, its <a>version</a> is the empty string.
           </p>
           <p class="note">
-            Inifinite <code>float</code> values are allowed.
+            Implementations MUST support all names. If a implementation
+            uses a storage mechanism which can't handle arbitrary database names,
+            the implementation must use an escaping mechanism or something similar
+            to map the provided name to a name that it can handle.
+          </p>
+          <div class="note">
+            Each <a>database</a> has one version at a time; a <a>database</a> 
+            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
+            <a>transaction</a>.
+          </div>
+          <p>
+            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple 
+            <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
+            <dfn>closePending</dfn> flag which initially is set to false.
+          </p>
+          <p>
+            When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
+            can be <dfn title="database close">closed</dfn> through several means. If the connection is GCed
+            or execution context where the <a>connection</a> is created is destroyed (for example due to the
+            user navigating away from that page), the connection is closed. The connection can also be closed
+            explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
+            the <a>closePending</a> flag is always set to true if it hasn't already been.
+          </p>
+          <p>
+            The <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
+            interfaces represent a <a>connection</a> to a <a>database</a>. 
+          </p>
+        </section>  <!-- IDBDatabase -->
+
+        <section class="section" id="object-store-concept">  
+          <h4>Object Store</h4>
+          <p>
+            An <dfn>object store</dfn> is the primary storage mechanism for storing data in a
+            <a>database</a>.
+          </p>
+          <p>
+            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
+            can be changed, but can only be changed using a VERSION_CHANGE transactions. When a new database is
+            created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
+          </p>
+          <p>
+            The object store has a <a title="object store record list">list of records</a> which hold the
+            data stored in the object store. Each <dfn>record</dfn> consists of a <dfn>key</dfn> and a <dfn>value</dfn>.
+            The list is sorted according to key in ascending order. There can never be multiple records in a given object
+            store with the same key.
+          </p>
+          <p>
+            Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
+            The name is unique within the <a>database</a> to which it belongs. Every object store also optionally has a
+            <a>key generator</a> and a optional <dfn title="object store key path">key path</dfn>.
+            If the object store has a key path it is said to use <dfn>in-line keys</dfn>. Otherwise it is said to
+            use <dfn>out-of-line</dfn> keys.
+          </p>
+          <p>
+            The object store can derive the <a>key</a> from one of three sources. Which source is used is determined
+            when the object store is created. The three sources are:
+          </p>
+          <ol>
+            <li>
+              A <dfn>key generator</dfn>. A key generator generates a monotonically increasing numbers every time
+              a key is needed.
+              <p class="issue">
+                specify that generators are not shared between stores.
+              </p>
+            </li>
+            <li>
+              A <dfn>key path</dfn>. A key path points to a property in a given <a>value</a>. When a object store uses a
+              <a>key path</a> to generate keys, the key is the property in the stored <a>value</a> pointed to by the
+              <a>key path</a>.
+              <p class="issue">
+                Need to specify how a key path is parsed and how a "evaluated" against a value. Including the requirement
+                that the value needs to be a object and that the property must be enumerated.
+              </p>
+            </li>
+            <li>
+              Keys can also be explicitly specified when a <a>value</a> is stored in the object store.
+            </li>
+          </p>
+          <!--div class="ednote">
+            The detached reading behavior MAY need more explanation.
+            What is detached reading?
+          </div-->
+          <p>
+            The <a><code>IDBObjectStore</code></a> and <a><code>IDBObjectStoreSync</code></a>
+            interfaces represent a <a>object store</a>. Note however that multiple instances of those
+            interfaces representing the same <a>object store</a> can exist.
+          </p>
+        </section> <!-- Object store -->
+
+        <section id="key-construct" class="section">
+          <h4>Keys</h4>
+          <p>
+            In order to efficiently retrieve <a>record</a>s stored in an indexed database,
+            each <a>record</a> is organized according to its key. A value is said to be a <dfn>valid key</dfn>
+            if it is one of the following types: IDL data types
+            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; the
+            <code>Date</code> JavaScript object [[!ECMA-262]]; as well as the value <code>null</code>.
+            Additionally, if the value os of type <code>float</code>, it is only a <a>valid key</a> if it is not NaN.
+            <a>Conforming user agents</a> MUST support all <a>valid key</a>s as keys.
+          </p>
+          <p class="note">
+            Inifinite <code>float</code> values are <a>valid key</a>s.
           </p>
           <p>
             For purposes of comparison, all <code>DOMString</code> values are evaluated as greater than 
@@ -377,152 +475,67 @@ prepareDatabase(function(evt) {
         <section id="value-construct" class="section">
           <h4>Values</h4>
           <p>
-            Values can be any data type supported by the <a>structured clone algorithm</a> 
+            Each record is associated with a <dfn>value</dfn>. <a>Conforming user agents</a> MUST support
+            any value supported by the <a>structured clone algorithm</a> 
             [[!HTML5]]. This includes simple types such as <code>DOMString</code>
             and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
             instances.
           </p>
-          
-          <p>
-            A database can derive a key from the contents of
-            the value being stored. In such a case, only <code>Object</code> 
-            instances MAY be stored as values. Only the direct enumerable
-            properties of a stored <code>Object</code> instance SHOULD be 
-            used to derive a key value.
-          </p>
         </section>
-        
-        <section class="section" id="object-store-concept">  
-          <h4>Object Store</h4>
-          <p>
-            An <dfn>object store</dfn> is a persistent storage mechanism that 
-            holds key-value pairs, also called <a title="record">records</a> 
-            or <dfn>stored objects</dfn>. An <a>object store</a>'s 
-            <a title="record">records</a> are sorted by keys to enable fast 
-            insertion and look up as well as ordered retrieval. 
-          </p>
-          <p>
-            Every <a>object store</a> has a 
-            <dfn title="object store name">name</dfn>. Within a <a>database</a>, 
-            each <a>object store</a> MUST have a <a title="valid-name">valid</a> 
-            and unique <a title="object store name">name</a>. 
-          </p>          
-          <p>
-            If an <a>object store</a> uses keys generated from a monotonically
-            increasing sequence, it MUST have a <dfn>key generator</dfn> that 
-            produces unique keys for <a title="record">records</a> in that 
-            <a>object store</a>. Alternatively, if an application provides keys, 
-            they MAY either be identified as a part of the value being stored, 
-            also called <dfn>in-line keys</dfn>, or be identified separately, 
-            also called <dfn>out-of-line keys</dfn>. No two 
-            <a title="record">records</a> in an <a>object store</a> MAY be 
-            identified by the same key. An <a>object store</a> MUST have a 
-            <dfn title="object store key path">key path</dfn> if it uses 
-            <a>in-line keys</a>. The <a>key path</a> MUST be the name 
-            of an enumerated property of all stored objects in that 
-            <a>object store</a>.
-          </p>
-          <!--div class="ednote">
-            The detached reading behavior MAY need more explanation.
-          </div-->
-          <p>
-            The <a><code>IDBObjectStore</code></a> and <a><code>IDBObjectStoreSync</code></a>
-            interfaces provide access to the metadata of an <a>object store</a>.
-          </p>
-        </section> <!-- Object store -->
         
         <section id="index-concept" class="section">
           <h4>Index</h4>
           <p>
-            <a title="record">Records</a> in an <a>object store</a> can be 
-            retrieved using the <a title="record">record's</a> key. However, 
-            that MAY not always be adequate to recall 
-            <a title="record">records</a>. An <a>index</a> is used to lookup 
-            records in an <a>object store</a> other than through a
-            <a>record</a> key.
+            It is sometimes useful to retreive <a>records</a> in a <a>object store</a> through other means
+            than their <a>key</a>. A <dfn>index</dfn> allows looking up <a>record</a>s in a <a>object store</a>
+            using properties of the <a>value</a>s in the <a>object store</a>s <a>record</a>s.
           </p>
           <p>
-            An <dfn>index</dfn> is a specialized persistent store that holds 
-            key-value pairs such that each value is the key of objects in the 
-            <dfn>referenced</dfn> <a>object store</a>. If an <a>index</a>'s 
-            <dfn>unique</dfn> flag is set, then it MUST NOT allow duplicate 
-            values for a key. Every <a>index</a> has a 
-            <dfn title="index name">name</dfn>. Within an 
-            <a>object store</a>, each <a>index</a> MUST have a
-            <a title="valid-name">valid</a> and unique 
-            <a title="index name">name</a>.
+            An index is a specialized persistent key-value storage and has a <dfn>referenced</dfn> <a>object store</a>.
+            The index has a <dfn title="index record list">list of records</dfn> which hold the
+            data stored in the index. The records in an index are automatically populated whenever records in the
+            <a>referenced</a> object store are inserted, updated or deleted. There can be several <a>index</a>es
+            referencing the same <a>object store</a>, in which changes to the object store cause all such indexes
+            to get updated.
           </p>
           <p>
-            If an <a>index</a> is <dfn>auto-populated</dfn>, then the user agent 
-            populates records using the values stored in the <a>referenced</a> 
-            <a>object store</a>. An <a>auto-populated</a> <a>index</a> MUST have 
-            a <dfn title="index key path">key path</dfn>. This <a>key path</a> 
-            MUST be the name of an enumerated property of every object to be 
-            stored in the <a>object store</a> <a>referenced</a> by that 
-            <a>index</a>. The <a>auto-populated</a> <a>index</a> record 
-            corresponding to an <a>object store</a> record MUST satisfy the 
-            following <dfn>index maintenance conditions</dfn>:
+            The values in the index's <a>record</a>s are always values of <a>keys</a> in the index's <a>referenced</a>
+            object store. The keys are derived from the referenced object store's <a>value</a>s using a <dfn title="index key path"><a>key path</a></dfn>.
+            If a given <a>record</a> with key <var>X</var> in the object store referenced by the index has the value <var>A</var>, and
+            <a title="evaluate key path">evaluting</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
+            <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
           </p>
-          <ul>
-            <li><a>index</a> record key = value of the enumerated property at 
-            the <a title="index key path">key path</a> in the <a>object store</a> 
-            record value</li>
-            <li><a>index</a> record value = <a>object store</a> record key</li>
-          </ul>
+          <p>
+            Records in an index are said to have a <dfn>referenced value</dfn>. This is the value of the record in the index's referenced
+            object store which has a key equal to the index's record's value. So in the example above,
+            the record in the index whose key is <var>Y</var> and value is <var>X</var> has a <a>referenced value</a> of <var>A</var>.
+          </p>
+          <p class="note">
+            Each record in an index reference one and only one record in the index's <a>referenced</a> object store. However there can be
+            multiple records in an index which reference the same record in the object store. And there can also be no records in an index
+            which reference a given record in an object store.
+          </p>
+          <p class="issue">
+            Some of the statements in the note are only true once we've implemented decisions made at TPAC.
+          </p>
+          <p>
+            The <a>record</a>s in an index are always sorted according to the <a>record</a>s key. However unlike object stores,
+            a given index can contain multiple records with the same key. Such records are additionally sorted according to
+            the records value.
+          </p>
+          <p>
+            A index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
+            in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
+            modified such that evaluating the index's key path on the records new value yields a result which already exists in the
+            index, then the attempted modification to the object store fails.
+          </p>
           <p>
             The <a><code>IDBIndex</code></a> and <a><code>IDBIndexSync</code></a> interfaces
-            provide access to the metadata of an <a>index</a>.
+            provide access to the metadata of an <a>index</a>. Note however that multiple instances of those
+            interfaces representing the same <a>index</a> can exist.
           </p>
         </section> <!-- IDBIndex -->
         
-       <section id="database-concept" class="section">
-          <h4>Database</h4>
-          <p>
-            Each <a>origin</a> has an associated set of 
-            <a title="database">databases</a>. A <dfn>database</dfn> comprises
-            one or more <a title="object store">object stores</a>.
-          </p>
-          <p>
-            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it
-            within a specific <a>origin</a>. The name can be any string value, including the empty string, and
-            stays constant for the lifetime of the database. Each <a>database</a> also has a current
-            <dfn>version</dfn>.
-          </p>
-          <p class="note">
-            Implementations MUST support all names. If a implementation
-            uses a storage mechanism which can't handle arbitrary database names,
-            the implementation must use an escaping mechanism or something similar
-            to map the provided name to a name that it can handle.
-          </p>
-          <div class="note">
-            Each <a>database</a> has one version at a time; a <a>database</a> 
-            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
-            <a>transaction</a>.
-          </div>
-          <p>
-            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
-            can changed, but can only be changed using VERSION_CHANGE transactions. When a new database is
-            created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
-          </p>
-          <p>
-            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple 
-            <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
-            <dfn>closePending</dfn> flag which initially is set to false.
-          </p>
-          <p>
-            When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
-            can be <dfn title="database close">closed</dfn> through several means. If the connection is GCed
-            or execution context where the <a>connection</a> is created is destroyed (for example due to the
-            user navigating away from that page), the connection is closed. The connection can also be closed
-            explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
-            the <a>closePending</a> flag is always set to true if it hasn't already been.
-          </p>
-          <p>
-            The <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
-            interfaces represent a <a>connection</a> to a <a>database</a>. 
-          </p>
-        </section>  <!-- IDBDatabase -->
-
         <section id="transaction-concept" class="section">
           <h4>Transaction</h4>
           <p>
@@ -885,17 +898,49 @@ prepareDatabase(function(evt) {
             are performed on the underlying <a>index</a> or an 
             <a>object store</a>.
           </p>
-          
           <p>
-            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in 
-            either an <a>index</a> or an <a>object store</a>. A 
-            <a title="cursor">cursor</a> maintains a <dfn>position</dfn> over 
+            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an <a>index</a>
+            or an <a>object store</a>. The cursor has a <dfn title="cursor source">source</dfn> indicating
+            which index or object store whose records it is iterating. A <a>cursor</a> maintains a <dfn>position</dfn> over 
             this series, which moves in a <dfn>direction</dfn> that is either 
-            monotonically increasing or decreasing order of the record keys. 
+            monotonically increasing or decreasing order of the <a>record</a> keys. Cursors
+            also have a <dfn title="cursor key">key</dfn> and a <dfn title="cursor value">value</dfn>
+            which represent the <a>key</a> and the <a>value</a> of the last iterated <a>record</a>.
+            Cursors finally have a <dfn>got value</dfn> flag. When this flag is false, the cursor is either
+            in the process of loading the next value or it has reached the end of its <a>range</a>, when it
+            is true, it indicates that the cursor is currently holding a value and that it is ready to iterate
+            to the next one.
+          </p>
+          <p>
+            If the <a title="cursor source">source</a> of a cursor is a <a>object store</a>, the <dfn>effective object store</dfn>
+            of the cursor is that object store and the <dfn>effective key</dfn> of the cursor is the cursors <a>position</a>.
+            If the <a title="cursor source">source</a> of a cursor is a <a>index</a>, the <a>effective object store</a>
+            of the cursor is that index's <a>referenced</a> object store and the <a>effective key</a> is the cursors
+            <a>object store position</a>.
+          </p>
+          <p>
+            It is possible for the list of records which the cursor is iterating over to
+            change before the full <a>range</a> of the cursor has been iterated. In order to
+            handle this, cursors maintain their <a>position</a> not as an index, but rather
+            as a <a>key</a> of the previously returned record. For a forward iterating cursor,
+            the next time the cursor is asked to iterate to the next record it returns the
+            record with the lowest <a>key</a> <a>greater than</a> the one previously returned. For
+            a backwards iterating cursor, the situation is opposite and it returns the record
+            with the highest <a>key</a> <a>less than</a> the one previously returned.
+          </p>
+          <p>
+            For cursors iterating indexes the situation is a little bit more complicated since
+            multiple records can have the same key and are therefor also sorted by <a>value</a>.
+            When iterating indexes the <a>cursor</a>'s also has a <dfn>object store position</dfn>, which indicates
+            the <a>value</a> of the previously found <a>record</a> in the index. Both
+            <a>position</a> and the <a>object store position</a> is used when finding the next appropriate record.
           </p>
           <p>
             <a title="cursor">Cursor</a> objects implement the <a><code>IDBCursor</code></a> 
-            or the <a><code>IDBCursorSync</code></a> interfaces.
+            or the <a><code>IDBCursorSync</code></a> interfaces. There is only ever one
+            <a><code>IDBCursor</code></a> or <a><code>IDBCursorSync</code></a> instance representing
+            a given <a>cursor</a>. However there is no limit on how many cursors can be used at the
+            same time.
           </p>
         </section> <!-- IDBCursor -->
 
@@ -1370,105 +1415,142 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBRequest put()</dt>
             <dd>
-              This method returns immediately and stores the given value in this 
-              <a>object store</a> by following the 
-              <a>steps for storing a record into an object store</a>. If the 
-              <a>record</a> can be successfully stored in the <a>object store</a>, then 
-              a <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the key for the stored <a>record</a> and 
-              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened.
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                throws a DATA_ERR exception:
+              </p>
+              <ul>
+                <li>
+                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and
+                  the <var>key</var> parameter was provided.
+                </li>
+                <li>
+                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                  and the <var>key</var> parameter was not provided.
+                </li>
+                <li>
+                  The object store uses <a>in-line keys</a> but no <a>key generator</a>
+                  and the result of <a title="evaluate key path">evaluating</a> the 
+                  <a title="object store key path">object store's key path</a> does not yield a
+                  <a>valid key</a>.
+                </li>
+                <li>
+                  The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store and <a title="evaluate key path">evaluating</a> their key path on the
+                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
+                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to false.
+              </p>
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the <a>record</a></dd>
                 <dt>optional any key</dt>
-                <dd>The key used to identify the <a>record</a>, which defaults 
-                to <code>null</code></dd>
+                <dd>The key used to identify the <a>record</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
-                no <a>key generator</a> but the <var>key</var> parameter was not
-                passed, or the <a>object store</a> uses <a>in-line keys</a> and
-                no <a>key generator</a> but the <var>value</var> object does not
-                have a property identified by the store's 
-                <a title="object store key path">key path</a>.</dd>
-                <dt>SERIAL_ERR</dt>
-                <dd>The data being stored could not be serialized by the internal
+                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
+                calculated key for any of the indexes which belong to this object store had a calculated
+                key which was not a <a>valid key</a></dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
             </dd>
             <dt>IDBRequest add()</dt>
             <dd>
-              This method returns immediately and stores the given value in this 
-              <a>object store</a> by following the 
-              <a>steps for storing a record into an object store</a> with the 
-              no-overwrite flag set. If the <a>record</a> can be successfully 
-              stored in the <a>object store</a>, then a 
-              <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the key for the stored record and 
-              <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened. If a <a>record</a> exists in this <a>object store</a> for 
-              the key <var>key</var> parameter, then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                throws a DATA_ERR exception:
+              </p>
+              <ul>
+                <li>
+                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and
+                  the <var>key</var> parameter was provided.
+                </li>
+                <li>
+                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                  and the <var>key</var> parameter was not provided.
+                </li>
+                <li>
+                  The object store uses <a>in-line keys</a> but no <a>key generator</a>
+                  and the result of <a title="evaluate key path">evaluating</a> the 
+                  <a title="object store key path">object store's key path</a> does not yield a
+                  <a>valid key</a>.
+                </li>
+                <li>
+                  The <var>key parameter was provided but does not contain a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store and <a title="evaluate key path">evaluating</a> their key path on the
+                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
+                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to true.
+              </p>
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the <a>record</a></dd>
                 <dt>optional any key</dt>
-                <dd>The key used to identify the <a>record</a>, which defaults 
-                to <code>null</code></dd>
+                <dd>The key used to identify the <a>record</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>This <a>object store</a> uses <a>out-of-line keys</a> and
-                no <a>key generator</a> but the <var>key</var> parameter was not
-                passed, or the <a>object store</a> uses <a>in-line keys</a> and
-                no <a>key generator</a> but the <var>value</var> object does not
-                have a property identified by the store's
-                <a title="object store key path">key path</a>.</dd>
-                <dt>SERIAL_ERR</dt>
-                <dd>The data being stored could not be serialized by the internal
+                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
+                calculated key for any of the indexes which belong to this object store had a calculated
+                key which was not a <a>valid key</a></dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
             </dd>
             <dt>IDBRequest delete()</dt>
             <dd>
-              This method returns immediately and deletes the <a>record</a> from 
-              this <a>object store</a> by following the 
-              <a>steps for deleting a record from an object store</a> 
-              corresponding to the given key. If a <a>record</a> did not exist 
-              in this <a>object store</a> for the <var>key</var> parameter, 
-              then an <a title="event-error">error event</a> is fired on this 
-              method's returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>. If the <a>record</a> can be successfully 
-              deleted from the <a>object store</a>, then a 
-              <a title="event-success">success event</a> is fired on this 
-              method's returned object using the 
-              <a><code>IDBTransactionEvent</code></a> interface with its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to
-              the value of the deleted <a>record</a> and <a class="idlType" href="#widl-IDBTransactionEvent-transaction"><code>transaction</code></a> 
-              set to the <a>transaction</a> in which this <a>object store</a> is 
-              opened. 
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</var>
+                this method throws a DATA_ERR exception.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for deleting
+                a record from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                as <var>store</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the <a>record</a> to be deleted</dd>
@@ -1484,7 +1566,7 @@ prepareDatabase(function(evt) {
               If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
               throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for asynchronously executing
               a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a record from an
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
               object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and the
               <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
@@ -1502,27 +1584,24 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a <a>cursor</a> over the 
-                <a>records</a> of this <a>object store</a>.
+                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBObjectStore</a> this function was called on.
               </p>
               <p>
-                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
-                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
-                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
-                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
-                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
               </p>
               <p>
-                If there is even a single record that matches the <a>key range</a>, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-                records match the <a>key range</a>, then an 
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-                set to <code>null</code>.
+                This method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a>
+                created by these steps. The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the
+                <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>.
               </p>
               <dl class="parameters">
                 <dt>optional any            range</dt>
@@ -1640,28 +1719,24 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a <a>cursor</a> over the 
-                <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
-                as arranged by this <a>index</a>.
+                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBIndex</a> this function was called on.
               </p>
               <p>
-                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
-                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
-                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
-                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
-                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
               </p>
               <p>
-                If there is even a single record that matches the <a>key range</a>, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-                records match the <a>key range</a>, then an 
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-                set to <code>null</code>.
+                This method runs the <a>steps for asynchronously executing
+                a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
               </p>
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
@@ -1679,27 +1754,24 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
               <p>
-                This method returns immediately and creates a <a>cursor</a> over the 
-                <a>records</a> of this <a>index</a>.
+                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBIndex</a> this function was called on.
               </p>
               <p>
-                If the <var>range</var> parameter passed to the funciton is a <a><code>IDBKeyRange</code></a>,
-                the <a>range</a> of this <a>cursor</a> matches that <a>key range</a>. If the <var>range</var>
-                is a <a>key value</a> then the range matches a <a>key range</a> which includes only that
-                value. If the <var>range</var> parameter is not specified, or is <code>null</code> then the
-                range includes all the <a>records</a>. Otherwise, throw a DATA_ERR exception.
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
               </p>
               <p>
-                If there is even a single record that matches the <a>key range</a>, then a
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to the
-                <a><code>IDBCursor</code></a> object for that <a>cursor</a>. If no
-                records match the <a>key range</a>, then an 
-                <a title="event-success">success event</a> is fired on this method's
-                returned object with its
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-                set to <code>null</code>.
+                This method runs the <a>steps for asynchronously executing
+                a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
               </p>
               <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
@@ -1719,7 +1791,7 @@ prepareDatabase(function(evt) {
               If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
               throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
               and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a record from an
+              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
               index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
               <var>key</var> parameter as <var>key</var>.
               <dl class="parameters">
@@ -1798,65 +1870,107 @@ prepareDatabase(function(evt) {
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute any value</dt>
             <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.</dd>
-            <dt>readonly attribute unsigned long long count</dt>
-            <dd>             
-              On getting, provide the approximate number of objects in the cursor.
-            </dd>
+
             <dt>IDBRequest update(in any value)</dt>
             <dd>
-              This method returns immediately and sets the value for the record at the
-              <a>cursor</a>'s <a>position</a>.
+              <p>
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBCursor belongs to
+                has its <a>mode</a> set to READ_ONLY, or if this cursor's <a>got value</a> flag is false. If the
+                <a>effective object store</a> of this cursor uses <a>in-line</a>
+                keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
+                of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
+                this method throws DATA_ERR.
+              </p>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                The steps are run with this IDBCursor as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> as <var>store</var>, the created clone as <var>value</var>,
+                this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
+                flag set to false.
+              </p>
+              <p class="issue">
+                Should this fire an error if the record had been deleted since we iterated to it? I.e. should
+                this never be able to create a new record?
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
+                and the <a>steps for deleting a record from an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
+              </p>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
                 the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>. Also
                 thrown if cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property at the 
-                <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
+                <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
+                at the object store's <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
                 <a>position</a>.</dd>
-                <dt>SERIAL_ERR</dt>
-                <dd>The data being stored could not be serialized by the internal structured cloning
-                algorithm.</dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
+                structured cloning algorithm.</dd>
               </dl>
             </dd>
             <dt>void    continue()</dt>
             <dd>
-              This method returns immediately and advances the <a>cursor</a> to the next
-              position along its <a>direction</a> to the item whose key matches the
-              optional parameter. If no such parameter is provided, advance to the
-              immediate next position. If the <a>cursor</a> has reached the end of its
-              <a>range</a>, then a
-              <a title="event-success">success event</a> is fired on the
-              <a><code>IDBRequest</code></a> object that was returned when the cursor
-              was opened, with its
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-              set to <code>null</code>. Otherwise, a
-              <a title="event-success">success event</a> is fired on the
-              <a><code>IDBRequest</code></a> object that was returned when the cursor
-              was opened, with its
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a>
-              set to the corresponding <a><code>IDBCursor</code></a> object.
+              <p>
+                If the <var>key</var> parameter is specified but is not a <a>valid key</a>,
+                this method throws a DATA_ERR exception. If this cursor's <a>got value</a> flag is false, this method
+                throws a NOT_ALLOWED_ERR. Otherwise this method runs the <a>steps for asynchronously executing a request</a>.
+                However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
+                <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
+                on the request is set to false before the request is returned.  The steps are run with the cursor's
+                <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p>
+                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag fn the cursor to false.
+              </p>
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This <a>got value</a> on the cursor is set to false.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was specified but did not contain a <a>valid key</a>.</dd>
               </dl>
             </dd>
             
             <dt>IDBRequest    delete()</dt>
             <dd>          
               <p>
-                This method returns immediately and deletes the object at the 
-                <a>cursor</a>'s <a>position</a>. The cursor's
-                position is not changed. Any attempts to retrieve the cursor's
-                current value will return <code>null</code>.
+                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBCursor belongs to
+                has its <a>mode</a> set to READ_ONLY, or if this cursor's <a>got value</a> flag is false.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
+                and the <a>steps for deleting a record from an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
+              </p>
+              <p class="issue">
+                This method used to set this cursor's <a title="cursor value">value</a> to <code>null</code>. Do we want to
+                keep that?
               </p>
               <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>. Also
-                thrown if cursor was created using
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>
+                is <code>READ_ONLY</code>. Also thrown if cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.</dd>
               </dl>
             </dd>
@@ -2326,7 +2440,7 @@ cursor.continue();</codeblock>
             <dd>
               Retrieve the value from this <a>object store</a> for the record 
               corresponding to the given key by following the
-              <a>steps for retrieving a record from an object store</a>. The
+              <a>steps for retrieving a value from an object store</a>. The
               value returned from this method is the retrieved value.
               <dl class="parameters">
                 <dt>any key</dt>
@@ -2538,7 +2652,7 @@ cursor.continue();</codeblock>
             <dd>
               Retrieve the value from this <a>index</a>'s <a>referenced</a>
               <a>object store</a> for the record corresponding to the given key
-              by following the <a>steps for retrieving a record from an index</a>.
+              by following the <a>steps for retrieving a referenced value from an index</a>.
               The value returned from this method is the retrieved value.
               <dl class="parameters">
                 <dt>any key</dt>
@@ -2687,10 +2801,6 @@ cursor.continue();
                 <a>index</a> is <a>auto-populated</a>.</dd>
               </dl>
             </dd>
-            <dt>readonly attribute unsigned long long count</dt>
-            <dd>             
-              On getting, provide the approximate number of objects in the cursor.
-            </dd>
 
             <dt>boolean  continue()</dt>
             <dd>
@@ -2818,7 +2928,8 @@ cursor.continue();
             </li>
             <li>
               If no database with the given name from the origin <var>origin</var>
-              exists, then create the database <var>db</var> with name <var>name</var>.
+              exists, then create the database <var>db</var> with name <var>name</var>, with the empty
+              string as <a>version</a>, and with no <a>object store</a>s.
             </li>
             <li>
               Wait until no already existing <a>connection</a>s to <var>db</var>, have
@@ -2833,217 +2944,9 @@ cursor.continue();
             <li>
               Create a <a>connection</a> to <var>db</var> and return it.
             </li>
-          </ol>        
-        </section>
-        
-        <section class="section">
-          <h4>Object Store Storage steps</h4>
-          <p>
-            The <dfn>steps for storing a record into an object store</dfn> are as follows. 
-            These steps MUST be run with four parameters: the <a>object store</a>,
-            a value, an optional key, and an optional no-overwrite flag.
-          </p>
-          <ol>
-            <li>
-              Let <var>store</var> be the <a>object store</a>, <var>key</var> be
-              the key and <var>value</var> be the value passed to these steps.
-            </li>
-            <li>
-              If <var>store</var> uses <a>out-of-line keys</a> but no <a>key 
-              generator</a>, then a key MUST be passed to these steps. If not, 
-              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>.
-            </li>
-            <li>
-              If <var>store</var> uses <a>in-line keys</a>, then 
-              let <var>key</var> be the property of <var>object</var> at  
-              <var>store</var>'s <a title="object store key path">key path</a>.
-            </li>
-           <li>
-              Produce a <a>structured clone</a> of <var>value</var> and call it
-              <var>object</var>.
-            </li>
-            <li>
-              If <var>key</var> is not defined or null, then perform the 
-              following steps.
-              <ol>
-                <li>
-                  If <var>store</var> does not have a <a>key generator</a>, then 
-                  terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
-                </li>
-                <li>
-                  Using <var>store</var>'s <a>key generator</a>, produce the 
-                  next key and store it as <var>key</var>.
-                </li>
-                <li>
-                  If <var>store</var> uses <a>in-line keys</a>, then store 
-                  <var>key</var> as the property value for <var>object</var> at  
-                  <var>store</var>'s <a title="object store key path">key path</a>.
-                </li>
-              </ol>
-            </li>
-            <li>
-              If the no-overwrite flag was passed to these steps and is set, and 
-              a record already exists with its key being <var>key</var>, then 
-              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
-            </li>
-            <li>
-              <p>
-                Store a record in <var>store</var> containing <var>key</var> as its key  
-                and <var>object</var> as its value. If any <a title="index">indexes</a>  
-                are <a>auto-populated</a> for <var>store</var>, then store a record
-                in that index according to <a>index maintenance conditions</a>.
-              </p>
-              <div class="note">
-                Storing would mean inserting if no record exists for that key
-                or updating an existing record, otherwise. <a title="auto-populated">
-                Auto populated</a> <a>index</a> record will also be respectively
-                inserted or updated depending on what storing results in.
-              </div>
-            </li>
-            
-            <li>
-              Return the <var>key</var>.
-            </li>
           </ol>
         </section>
         
-        <section class="section">
-          <h4>Object Store Retrieval steps</h4>
-          <p>
-            The <dfn>steps for retrieving a record from an object store</dfn> are
-            as follows. These steps MUST be run with two parameters - the record 
-            key and the <a>object store</a>.
-          </p>
-            
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>store</var> be the <a>object
-              store</a> passed to these steps.
-            </li>
-            <li>
-              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
-              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
-              retreive the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
-            </li>
-            <li>
-              If no record was found in the previous step,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
-            </li>
-            <li>
-              Return the a new <a>structured clone</a> of the value in the found record.
-            </li>
-          </ol>
-        </section>
-        
-        <section class="section">
-          <h4>Index Referenced Value Retrieval steps</h4>
-          <p>
-            The <dfn>steps for retrieving a record from an index</dfn> are
-            as follows. These steps MUST be run with two parameters - the record 
-            key and the <a>index</a>.
-          </p>
-            
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
-            </li>
-            <li>
-              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
-              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
-              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
-            </li>
-            <li>
-              If no record was found in the previous step, then the algorithm failed with a
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
-            </li>
-            <li>
-              If a record was found, let <var>value</var> be the value of the found record. The result of
-              this algorithm is a new <a>structured clone</a> of the value for the record with key
-              <var>value</val> in <var>index</var>'s <a>referenced</a> <a>object store</a>
-            </li>
-          </ol>
-        </section>
-        
-        <Section class="section">
-          <h4>Index Value Retrieval steps</h4>
-          <p>
-            The <dfn>steps for retrieving a value from an index</dfn> are
-            as follows. These steps MUST be run with two parameters - the record 
-            key and the <a>index</a>.
-          </p>
-            
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
-            </li>
-            <li>
-              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
-              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
-              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
-            </li>
-            <li>
-              If no record was found in the previous step, then the algorithm failed with a
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
-            </li>
-            <li>
-              If a record was found, the result of this algorithm is the value of the found <a>record</a>.
-            </li>
-          </ol>
-        </section>
-        
-        <section class="section">
-          <h4>Object Store Deletion steps</h4>
-          <p>
-            The <dfn>steps for deleting a record from an object store</dfn> 
-            are as follows. These steps MUST be run with two parameters: the key
-            of the record to be deleted and the <a>object store</a>.
-          </p>
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>store</var> be the <a>object
-              store</a> passed to these steps.
-            </li>
-            <li>
-              If no record exists with key <var>key</var> in <var>store</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
-            </li>            
-            <li>
-               If any <a title="index">indexes</a> are <a>auto-populated</a> for
-               <var>store</var>, then remove the record in that index according 
-               to <a>index maintenance conditions</a>.
-            </li>
-            
-            <li>
-              Remove the record from <var>store</var> with key <var>key</var>. 
-            </li>
-          </ol>
-        </section>
-        <section class="section">
-          <h4>Index Deletion steps</h4>
-          <p>
-            The <dfn>steps for deleting a record from an index</dfn> 
-            are as follows. These steps MUST be run with two parameters: the key
-            of the record to be deleted and the <a>index</a>.
-          </p>
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
-            </li>
-            <li>
-              If no record exists with key <var>key</var> in <var>index</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
-            </li>            
-            <li>
-              Remove the records from <var>index</var> with key <var>key</var>. 
-            </li>
-          </ol>
-        </section>
         <section class="section">
           <h4>Transaction Creation steps</h4>
           <p>
@@ -3153,9 +3056,12 @@ cursor.continue();
               the result of the operation.
             </li>
             <li>
-              If performing <var>operation</var> failed then set the <a title="request done">done</a> flag
-              on the <var>request</var> to true and <a>fire a error event</a> at <var>request</var> with
-              the code of the error from <var>operation</var>.
+              If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
+              set the <a title="request done">done</a> flag on the <var>request</var> to true and
+              <a>fire a error event</a> at <var>request</var> with the code of the error from <var>operation</var>.
+              <div class="note">
+                This only reverts the changes done by this request, not any other changes made by the transaction.
+              </div>
             </li>
           </ol>
         </section>
@@ -3221,7 +3127,7 @@ cursor.continue();
                 This event MUST NOT bubble or be cancelable.
               </p>
             </li>
-            <li>
+            <li id="VERSION_CHANGE-close-block">
               Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
               <p class="issue">Should we allow <code>blocked</code> to be fired here too, if waiting takes "too long"?</p>.
@@ -3262,6 +3168,11 @@ cursor.continue();
             <a title="transaction create">created</a> using <var>connection</var>. All functions that
             <a title="transaction create">create</a> transactions first check the the <a>closePending</a> flag first and
             throw an exception if it is true.
+          </p>
+          <p class="note">
+            Once the <a>connection</a> is closed, this can unblock the <a>steps for running a <code>VERSION_CHANGE</code>
+            transaction</a>, which <a href="#VERSION_CHANGE-close-block">wait</a> for <a>connection</a>s to a given
+            <a>database</a> to be closed before continuing.
           </p>
         </section>
         <section class="section">
@@ -3317,6 +3228,330 @@ cursor.continue();
           <p class="issue">
             TODO: need to define more error handling here.
           </p>
+        </section>
+      </section>
+      <section class="section" id="database operations">
+        <h3>Database operations</h3>
+        <p>
+          This section describes various operations done on the data in <a>object store</a>s and <a>index</a>es
+          in a <a>database</a>. These operations are run by the <a>steps for asynchronously executing a request</a> and
+          the <a>steps for synchronously executing a request</a>.
+        </p>
+        <section class="section">
+          <h4>Object Store Storage Operation</h4>
+          <p>
+            The <dfn>steps for storing a record into an object store</dfn> are as follows. 
+            The algorithm run by these steps takes four parameters: a object store <var>store</var>,
+            a <var>value</var>, an optional <var>key</var>, and a <var>no-overwrite flag</var>.
+          </p>
+          <ol>
+            <li>
+              If <var>store</var> uses a <a>key generator</a> set and <var>key</var> is undefined, set
+              <var>key</var> to the next generated key. If <var>store</var> also uses <a>in-line keys</a>,
+              then set the property in <var>value</var> pointed to by <var>store</var>'s
+              <a title="object store key path">key path</a> to the new value for <var>key</var>
+            </li>
+            <li>
+              If <var>store</var> does not use a <a>key generator</a> but does use <a>in-line keys</a>, then set
+              <var>key</var> to the the result of <a title="evaluate key path">evaluting</a>
+              <a title="object store key path"><var>store</var>'s key path</a> on <var>value</var>.
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and 
+              a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
+              terminate these steps and set error code to
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              and abort this algorithm without taking any further steps.
+            </li>
+            <li>
+              If a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
+              remove the <a>record</a> from <a>store</a> using the <a>steps for deleting a record from an object store</a>.
+            </li>
+            <li>
+              Store a record in <var>store</var> containing <var>key</var> as its key and <var>object</var> as its
+              value. The record is stored in the the object store's <a title="objec store record list">list</a> such
+              that the list is sorted according key of the records in ascending order.
+            </li>
+            <li>
+              If there are any <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, perform the
+              following sub steps on each such index.
+              <ol>
+                <li>
+                  Set <var>index</var> to the index.
+                </li>
+                <li>
+                  <a title="evaluate key path">Evaluate</a> <var>index</var>'s <a title="index key path">key path</a> on
+                  <var>value</var>. If this does not yield a value don't take any further actions for this index.
+                  Otherwise set the result to <var>index key</var>.
+                  <div class="note">
+                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> at this
+                    point.
+                </li>
+                <li>
+                  If <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
+                  and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
+                  abort this algorithm without taking any further steps.
+                </li>
+                <li>
+                  Store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
+                  value. The record is stored in <var>index</var>'s <a title="index record list">list of records</a> such
+                  that the list is sorted primarily on the records keys, and secondarily on the records values, in ascending
+                  order.
+                </li>
+              </ol>
+            </li>
+            <li>
+              The result of this algorithm is <var>key</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an object store</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>object store</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              The result of this algorithm is a new <a>structured clone</a> of the value in the found record.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Referenced Value Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving a referenced value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              find the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
+            </li>
+            <li>
+              Otherwise, the result of the operation is the <a>referenced value</a> of the found record.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Value Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              find the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
+            </li>
+            <li>
+              If a record was found, the result of this algorithm is the <a>value</a> of the found <a>record</a>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Deletion Operation</h4>
+          <p>
+            The <dfn>steps for deleting a record from an object store</dfn> are as follows. 
+            The algorithm run by these steps takes two parameters: a object store <var>store</var> and
+            a <var>key</var>.
+          </p>
+          <ol>
+            <li>
+              If no <a>record</a> exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <p class="issue">
+                Should we instead return a boolean indicating if a record was found or not?
+              </p>
+            </li>            
+            <li>
+               Remove the record from <var>store</var> with key <var>key</var>.
+            </li>
+            <li>
+              In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
+              <a>records</a> with value <var>key</var>.
+            </li>
+            <li>
+              The result of this algorithm is <code>undefined</code>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Cursor Iteration Operation</h4>
+          <p>
+            The <dfn>steps for iterating a cursor</dfn> are as follows. 
+            The algorithm run by these steps takes two parameters: a <var>cursor</var> and optional
+            <var>key</var> to iterate to.
+          </p>
+          <ol>
+            <li>
+              Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>, let
+              <var>records</var> be list of <a>records</a> in <var>source</var>, let <var>direction</var>
+              be <var>cursor</var>'s <a>direction</a>, let <var>position</var> be <var>cursor</var>'s
+              <a>position</a>, let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>
+              and let <var>range</var> be <var>cursor</var>'s <a>range</a>.
+              <p class="note">
+                <var>source</var> is always a <a>object store</a> or a <a>index</a>.
+              </p>
+              <p class="note">
+                <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
+                <var>source</var> being an <a>index</a>, <var>records</var> is secondarily sorted in ascending
+                <a>value</a> order.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                If <var>direction</var> is NEXT, let <var>found record</var> be the first record in <var>records</var> which
+                satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is a <a>object store</a>, the record's
+                  key is <a>greater than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
+                  key is <a>equal to</a> <var>position</var> and the record's value is <a>greater than</a>
+                  <var>object store position</var> or the record's key is <a>greater than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>direction</var> is NEXT_NO_DUPLICATE, let <var>found record</var> be the first record in <var>records</var> which
+                satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>direction</var> is PREV, let <var>found record</var> be the last record in <var>records</var> which
+                satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is a <a>object store</a>, the record's
+                  key is <a>less than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
+                  key is <a>equal to</a> <var>position</var> and the record's value is <a>less than</a>
+                  <var>object store position</var> or the record's key is <a>less than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>direction</var> is PREV_NO_DUPLICATE, let <var>temp record</var> be the last record in
+                <var>records</var> which satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
+                whose key is <a>equal to</a> <var>temp record</var>'s key.
+              </p>
+            </li>
+            <li>
+              If <var>found record</var> is not defined, the result of this algorithm is <code>undefined</code>. Abort these steps.
+            </li>
+            <li>
+              <p>
+                Set <var>cursor</var>'s <a>position</a> to <var>found record</var>'s key. If <var>source</var> is a <a>index</a>,
+                set <var>cursor</var>'s <a>object store position</a> to <var>found record</var>'s value.
+              </p>
+            </li>
+            <li>
+              <p>
+                Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.
+              </p>
+              <p>
+                If <var>cursor</var> was created using <a href="#widl-IDBIndex-openCursor"><code>IDBIndex.openCursor</code></a> or
+                <a href="#widl-IDBIndexSync-openCursor"><code>IDBIndexSync.openCursor</code></a>, then set
+                <var>cursor</var>'s <a title="cursor value">value</a> to <var>found record</var> <a>referenced value</a>. Otherwise, set
+                <var>cursor</var>'s <a title="cursor value">value</a> to the value of <var>found record</var>.
+              </p>
+            </li>
+            <li>
+              Set <var>cursor</var>'s <a>got value</a> flag to true.
+              <p class="issue">
+                This should only be done right before firing the success event. Not asynchronously before. Not sure
+                how/where to express that.
+              </p>
+            </li>
+            <li>
+              The result of the algorithm is <var>cursor</var>.
+            </li>
+          </ol>
         </section>
       </section>
 

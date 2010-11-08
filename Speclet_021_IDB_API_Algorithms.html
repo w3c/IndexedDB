@@ -154,7 +154,8 @@
             </li>
             <li>
               If no database with the given name from the origin <var>origin</var>
-              exists, then create the database <var>db</var> with name <var>name</var>.
+              exists, then create the database <var>db</var> with name <var>name</var>, with the empty
+              string as <a>version</a>, and with no <a>object store</a>s.
             </li>
             <li>
               Wait until no already existing <a>connection</a>s to <var>db</var>, have
@@ -169,217 +170,9 @@
             <li>
               Create a <a>connection</a> to <var>db</var> and return it.
             </li>
-          </ol>        
-        </section>
-        
-        <section class="section">
-          <h4>Object Store Storage steps</h4>
-          <p>
-            The <dfn>steps for storing a record into an object store</dfn> are as follows. 
-            These steps MUST be run with four parameters: the <a>object store</a>,
-            a value, an optional key, and an optional no-overwrite flag.
-          </p>
-          <ol>
-            <li>
-              Let <var>store</var> be the <a>object store</a>, <var>key</var> be
-              the key and <var>value</var> be the value passed to these steps.
-            </li>
-            <li>
-              If <var>store</var> uses <a>out-of-line keys</a> but no <a>key 
-              generator</a>, then a key MUST be passed to these steps. If not, 
-              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-DATA_ERR"><code>DATA_ERR</code></a>.
-            </li>
-            <li>
-              If <var>store</var> uses <a>in-line keys</a>, then 
-              let <var>key</var> be the property of <var>object</var> at  
-              <var>store</var>'s <a title="object store key path">key path</a>.
-            </li>
-           <li>
-              Produce a <a>structured clone</a> of <var>value</var> and call it
-              <var>object</var>.
-            </li>
-            <li>
-              If <var>key</var> is not defined or null, then perform the 
-              following steps.
-              <ol>
-                <li>
-                  If <var>store</var> does not have a <a>key generator</a>, then 
-                  terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a>.
-                </li>
-                <li>
-                  Using <var>store</var>'s <a>key generator</a>, produce the 
-                  next key and store it as <var>key</var>.
-                </li>
-                <li>
-                  If <var>store</var> uses <a>in-line keys</a>, then store 
-                  <var>key</var> as the property value for <var>object</var> at  
-                  <var>store</var>'s <a title="object store key path">key path</a>.
-                </li>
-              </ol>
-            </li>
-            <li>
-              If the no-overwrite flag was passed to these steps and is set, and 
-              a record already exists with its key being <var>key</var>, then 
-              terminate these steps and set error code <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>.
-            </li>
-            <li>
-              <p>
-                Store a record in <var>store</var> containing <var>key</var> as its key  
-                and <var>object</var> as its value. If any <a title="index">indexes</a>  
-                are <a>auto-populated</a> for <var>store</var>, then store a record
-                in that index according to <a>index maintenance conditions</a>.
-              </p>
-              <div class="note">
-                Storing would mean inserting if no record exists for that key
-                or updating an existing record, otherwise. <a title="auto-populated">
-                Auto populated</a> <a>index</a> record will also be respectively
-                inserted or updated depending on what storing results in.
-              </div>
-            </li>
-            
-            <li>
-              Return the <var>key</var>.
-            </li>
           </ol>
         </section>
         
-        <section class="section">
-          <h4>Object Store Retrieval steps</h4>
-          <p>
-            The <dfn>steps for retrieving a record from an object store</dfn> are
-            as follows. These steps MUST be run with two parameters - the record 
-            key and the <a>object store</a>.
-          </p>
-            
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>store</var> be the <a>object
-              store</a> passed to these steps.
-            </li>
-            <li>
-              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
-              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
-              retreive the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
-            </li>
-            <li>
-              If no record was found in the previous step,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
-            </li>
-            <li>
-              Return the a new <a>structured clone</a> of the value in the found record.
-            </li>
-          </ol>
-        </section>
-        
-        <section class="section">
-          <h4>Index Referenced Value Retrieval steps</h4>
-          <p>
-            The <dfn>steps for retrieving a record from an index</dfn> are
-            as follows. These steps MUST be run with two parameters - the record 
-            key and the <a>index</a>.
-          </p>
-            
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
-            </li>
-            <li>
-              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
-              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
-              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
-            </li>
-            <li>
-              If no record was found in the previous step, then the algorithm failed with a
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
-            </li>
-            <li>
-              If a record was found, let <var>value</var> be the value of the found record. The result of
-              this algorithm is a new <a>structured clone</a> of the value for the record with key
-              <var>value</val> in <var>index</var>'s <a>referenced</a> <a>object store</a>
-            </li>
-          </ol>
-        </section>
-        
-        <Section class="section">
-          <h4>Index Value Retrieval steps</h4>
-          <p>
-            The <dfn>steps for retrieving a value from an index</dfn> are
-            as follows. These steps MUST be run with two parameters - the record 
-            key and the <a>index</a>.
-          </p>
-            
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
-            </li>
-            <li>
-              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
-              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
-              retreive the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
-            </li>
-            <li>
-              If no record was found in the previous step, then the algorithm failed with a
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
-            </li>
-            <li>
-              If a record was found, the result of this algorithm is the value of the found <a>record</a>.
-            </li>
-          </ol>
-        </section>
-        
-        <section class="section">
-          <h4>Object Store Deletion steps</h4>
-          <p>
-            The <dfn>steps for deleting a record from an object store</dfn> 
-            are as follows. These steps MUST be run with two parameters: the key
-            of the record to be deleted and the <a>object store</a>.
-          </p>
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>store</var> be the <a>object
-              store</a> passed to these steps.
-            </li>
-            <li>
-              If no record exists with key <var>key</var> in <var>store</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
-            </li>            
-            <li>
-               If any <a title="index">indexes</a> are <a>auto-populated</a> for
-               <var>store</var>, then remove the record in that index according 
-               to <a>index maintenance conditions</a>.
-            </li>
-            
-            <li>
-              Remove the record from <var>store</var> with key <var>key</var>. 
-            </li>
-          </ol>
-        </section>
-        <section class="section">
-          <h4>Index Deletion steps</h4>
-          <p>
-            The <dfn>steps for deleting a record from an index</dfn> 
-            are as follows. These steps MUST be run with two parameters: the key
-            of the record to be deleted and the <a>index</a>.
-          </p>
-          <ol>
-            <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
-            </li>
-            <li>
-              If no record exists with key <var>key</var> in <var>index</var>,
-              then terminate these steps and set error code
-              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
-            </li>            
-            <li>
-              Remove the records from <var>index</var> with key <var>key</var>. 
-            </li>
-          </ol>
-        </section>
         <section class="section">
           <h4>Transaction Creation steps</h4>
           <p>
@@ -489,9 +282,12 @@
               the result of the operation.
             </li>
             <li>
-              If performing <var>operation</var> failed then set the <a title="request done">done</a> flag
-              on the <var>request</var> to true and <a>fire a error event</a> at <var>request</var> with
-              the code of the error from <var>operation</var>.
+              If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
+              set the <a title="request done">done</a> flag on the <var>request</var> to true and
+              <a>fire a error event</a> at <var>request</var> with the code of the error from <var>operation</var>.
+              <div class="note">
+                This only reverts the changes done by this request, not any other changes made by the transaction.
+              </div>
             </li>
           </ol>
         </section>
@@ -557,7 +353,7 @@
                 This event MUST NOT bubble or be cancelable.
               </p>
             </li>
-            <li>
+            <li id="VERSION_CHANGE-close-block">
               Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
               <p class="issue">Should we allow <code>blocked</code> to be fired here too, if waiting takes "too long"?</p>.
@@ -598,6 +394,11 @@
             <a title="transaction create">created</a> using <var>connection</var>. All functions that
             <a title="transaction create">create</a> transactions first check the the <a>closePending</a> flag first and
             throw an exception if it is true.
+          </p>
+          <p class="note">
+            Once the <a>connection</a> is closed, this can unblock the <a>steps for running a <code>VERSION_CHANGE</code>
+            transaction</a>, which <a href="#VERSION_CHANGE-close-block">wait</a> for <a>connection</a>s to a given
+            <a>database</a> to be closed before continuing.
           </p>
         </section>
         <section class="section">
@@ -653,6 +454,330 @@
           <p class="issue">
             TODO: need to define more error handling here.
           </p>
+        </section>
+      </section>
+      <section class="section" id="database operations">
+        <h3>Database operations</h3>
+        <p>
+          This section describes various operations done on the data in <a>object store</a>s and <a>index</a>es
+          in a <a>database</a>. These operations are run by the <a>steps for asynchronously executing a request</a> and
+          the <a>steps for synchronously executing a request</a>.
+        </p>
+        <section class="section">
+          <h4>Object Store Storage Operation</h4>
+          <p>
+            The <dfn>steps for storing a record into an object store</dfn> are as follows. 
+            The algorithm run by these steps takes four parameters: a object store <var>store</var>,
+            a <var>value</var>, an optional <var>key</var>, and a <var>no-overwrite flag</var>.
+          </p>
+          <ol>
+            <li>
+              If <var>store</var> uses a <a>key generator</a> set and <var>key</var> is undefined, set
+              <var>key</var> to the next generated key. If <var>store</var> also uses <a>in-line keys</a>,
+              then set the property in <var>value</var> pointed to by <var>store</var>'s
+              <a title="object store key path">key path</a> to the new value for <var>key</var>
+            </li>
+            <li>
+              If <var>store</var> does not use a <a>key generator</a> but does use <a>in-line keys</a>, then set
+              <var>key</var> to the the result of <a title="evaluate key path">evaluting</a>
+              <a title="object store key path"><var>store</var>'s key path</a> on <var>value</var>.
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and 
+              a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
+              terminate these steps and set error code to
+              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              and abort this algorithm without taking any further steps.
+            </li>
+            <li>
+              If a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
+              remove the <a>record</a> from <a>store</a> using the <a>steps for deleting a record from an object store</a>.
+            </li>
+            <li>
+              Store a record in <var>store</var> containing <var>key</var> as its key and <var>object</var> as its
+              value. The record is stored in the the object store's <a title="objec store record list">list</a> such
+              that the list is sorted according key of the records in ascending order.
+            </li>
+            <li>
+              If there are any <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, perform the
+              following sub steps on each such index.
+              <ol>
+                <li>
+                  Set <var>index</var> to the index.
+                </li>
+                <li>
+                  <a title="evaluate key path">Evaluate</a> <var>index</var>'s <a title="index key path">key path</a> on
+                  <var>value</var>. If this does not yield a value don't take any further actions for this index.
+                  Otherwise set the result to <var>index key</var>.
+                  <div class="note">
+                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> at this
+                    point.
+                </li>
+                <li>
+                  If <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
+                  and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
+                  abort this algorithm without taking any further steps.
+                </li>
+                <li>
+                  Store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
+                  value. The record is stored in <var>index</var>'s <a title="index record list">list of records</a> such
+                  that the list is sorted primarily on the records keys, and secondarily on the records values, in ascending
+                  order.
+                </li>
+              </ol>
+            </li>
+            <li>
+              The result of this algorithm is <var>key</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an object store</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>object store</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
+              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
+              retreive the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              The result of this algorithm is a new <a>structured clone</a> of the value in the found record.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Referenced Value Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving a referenced value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              find the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
+            </li>
+            <li>
+              Otherwise, the result of the operation is the <a>referenced value</a> of the found record.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Index Value Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
+              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
+              find the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+            </li>
+            <li>
+              If no record was found in the previous step, then the algorithm failed with a
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code> error</a>.
+            </li>
+            <li>
+              If a record was found, the result of this algorithm is the <a>value</a> of the found <a>record</a>.
+            </li>
+          </ol>
+        </section>
+        
+        <section class="section">
+          <h4>Object Store Deletion Operation</h4>
+          <p>
+            The <dfn>steps for deleting a record from an object store</dfn> are as follows. 
+            The algorithm run by these steps takes two parameters: a object store <var>store</var> and
+            a <var>key</var>.
+          </p>
+          <ol>
+            <li>
+              If no <a>record</a> exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a>.
+              <p class="issue">
+                Should we instead return a boolean indicating if a record was found or not?
+              </p>
+            </li>            
+            <li>
+               Remove the record from <var>store</var> with key <var>key</var>.
+            </li>
+            <li>
+              In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
+              <a>records</a> with value <var>key</var>.
+            </li>
+            <li>
+              The result of this algorithm is <code>undefined</code>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
+          <h4>Cursor Iteration Operation</h4>
+          <p>
+            The <dfn>steps for iterating a cursor</dfn> are as follows. 
+            The algorithm run by these steps takes two parameters: a <var>cursor</var> and optional
+            <var>key</var> to iterate to.
+          </p>
+          <ol>
+            <li>
+              Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>, let
+              <var>records</var> be list of <a>records</a> in <var>source</var>, let <var>direction</var>
+              be <var>cursor</var>'s <a>direction</a>, let <var>position</var> be <var>cursor</var>'s
+              <a>position</a>, let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>
+              and let <var>range</var> be <var>cursor</var>'s <a>range</a>.
+              <p class="note">
+                <var>source</var> is always a <a>object store</a> or a <a>index</a>.
+              </p>
+              <p class="note">
+                <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
+                <var>source</var> being an <a>index</a>, <var>records</var> is secondarily sorted in ascending
+                <a>value</a> order.
+              </p>
+            </li>
+
+            <li>
+              <p>
+                If <var>direction</var> is NEXT, let <var>found record</var> be the first record in <var>records</var> which
+                satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is a <a>object store</a>, the record's
+                  key is <a>greater than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
+                  key is <a>equal to</a> <var>position</var> and the record's value is <a>greater than</a>
+                  <var>object store position</var> or the record's key is <a>greater than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>direction</var> is NEXT_NO_DUPLICATE, let <var>found record</var> be the first record in <var>records</var> which
+                satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>direction</var> is PREV, let <var>found record</var> be the last record in <var>records</var> which
+                satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is a <a>object store</a>, the record's
+                  key is <a>less than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
+                  key is <a>equal to</a> <var>position</var> and the record's value is <a>less than</a>
+                  <var>object store position</var> or the record's key is <a>less than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>direction</var> is PREV_NO_DUPLICATE, let <var>temp record</var> be the last record in
+                <var>records</var> which satisfy all of the following requirements:
+              </p>
+              <ul>
+                <li>
+                  If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                </li>
+                <li>
+                  If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
+                </li>
+                <li>
+                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ul>
+              <p>
+                If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
+                whose key is <a>equal to</a> <var>temp record</var>'s key.
+              </p>
+            </li>
+            <li>
+              If <var>found record</var> is not defined, the result of this algorithm is <code>undefined</code>. Abort these steps.
+            </li>
+            <li>
+              <p>
+                Set <var>cursor</var>'s <a>position</a> to <var>found record</var>'s key. If <var>source</var> is a <a>index</a>,
+                set <var>cursor</var>'s <a>object store position</a> to <var>found record</var>'s value.
+              </p>
+            </li>
+            <li>
+              <p>
+                Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.
+              </p>
+              <p>
+                If <var>cursor</var> was created using <a href="#widl-IDBIndex-openCursor"><code>IDBIndex.openCursor</code></a> or
+                <a href="#widl-IDBIndexSync-openCursor"><code>IDBIndexSync.openCursor</code></a>, then set
+                <var>cursor</var>'s <a title="cursor value">value</a> to <var>found record</var> <a>referenced value</a>. Otherwise, set
+                <var>cursor</var>'s <a title="cursor value">value</a> to the value of <var>found record</var>.
+              </p>
+            </li>
+            <li>
+              Set <var>cursor</var>'s <a>got value</a> flag to true.
+              <p class="issue">
+                This should only be done right before firing the success event. Not asynchronously before. Not sure
+                how/where to express that.
+              </p>
+            </li>
+            <li>
+              The result of the algorithm is <var>cursor</var>.
+            </li>
+          </ol>
         </section>
       </section>
       <!-- end-content -->
