@@ -294,11 +294,18 @@
         <section class="section">
           <h4>Steps for synchronously executing a <a>request</a></h4>
           <p>
-            When taking the <dfn>steps to a synchronously execute a request</dfn> the implementation MUST run the
-            following algorithm. The algorithm takes a <var>transaction</var> object and a <var>operation</var> to
+            When taking the <dfn>steps for synchronously executing a request</dfn> the implementation MUST run the
+            following algorithm. The algorithm takes a <var>source</var> object and a <var>operation</var> to
             perform on a database.
           </p>
           <ol>
+            <li>
+              Set <var>transaction</var> .
+            </li>
+            <li>
+              If the <a>transaction</a> associated with <var>source</var> is not <a>active</a> throw a
+              TRANSACTION_INACTIVE_ERR exception.
+            </li>
             <li>
               Perform <var>operation</var>.
             </li>
@@ -638,6 +645,27 @@
             </li>
           </ol>
         </section>
+
+        <section class="section">
+          <h4>Object Store Clear Operation</h4>
+          <p>
+            The <dfn>steps for clearing an object store</dfn> are as follows. 
+            The algorithm run by these steps takes one parameter: a object store <var>store</var>.
+          </p>
+          <ol>
+            <li>
+               Remove all records from <var>store</var>.
+            </li>
+            <li>
+              In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
+              <a>records</a>.
+            </li>
+            <li>
+              The result of this algorithm is <code>undefined</code>.
+            </li>
+          </ol>
+        </section>
+
         <section class="section">
           <h4>Cursor Iteration Operation</h4>
           <p>

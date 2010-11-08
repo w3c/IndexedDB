@@ -1564,12 +1564,20 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBRequest get()</dt>
             <dd>
-              If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
-              throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for asynchronously executing
-              a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
-              object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and the
-              <var>key</var> parameter as <var>key</var>.
+              <p>
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
+                throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for asynchronously executing
+                a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
+                object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and the
+                <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                This function produces the same result if a record with the given key doesn't exist as when a record
+                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
+                <a href="#widl-IDBObjectStore-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
+              </p>
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the <a>record</a> to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
@@ -1582,10 +1590,29 @@ prepareDatabase(function(evt) {
                 <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
+            <dt>IDBRequest clear()</dt>
+            <dd>
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBObjectStore</a> as
+                <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
+                this <a>IDBObjectStore</a> as <var>store</var>.
+              </p>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
+              </dl>
+            </dd>
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
                 <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
                 <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
@@ -1720,7 +1747,7 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
                 <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
                 <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
@@ -1755,7 +1782,7 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a valid <a>key value</a> or a <a>key range</a>,
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
                 <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
                 <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
@@ -1789,12 +1816,20 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBRequest get()</dt>
             <dd>
-              If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
-              throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
-              and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
-              index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
-              <var>key</var> parameter as <var>key</var>.
+              <p>
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
+                throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
+                and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
+                index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
+                <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                This function produces the same result if a record with the given key doesn't exist as when a record
+                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
+                <a href="#widl-IDBIndex-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
+              </p>
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
@@ -1809,12 +1844,20 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBRequest getKey()</dt>
             <dd>
-              If the <var>key</var> parameter is not a valid <a>key value</a> or a <a>key range</a>, this method
-              throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
-              and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
-              <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
-              index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
-              <var>key</var> parameter as <var>key</var>.
+              <p>
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
+                throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
+                and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
+                index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
+                <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                This function produces the same result if a record with the given key doesn't exist as when a record
+                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
+                <a href="#widl-IDBIndex-openKeyCursor">openKeyCursor</a> with the same key. This will return a cursor with
+                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
+              </p>
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
@@ -2471,6 +2514,25 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
+            <dt>void clear()</dt>
+            <dd>
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
+                has its <a>mode</a> set to READ_ONLY.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for synchronously executing a request</a>. The steps
+                are run with this <a>IDBObjectStore</a> as <var>source</var> and the
+                <a>steps for clearing an object store</a> as <var>operation</var>, using
+                this <a>IDBObjectStore</a> as <var>store</var>.
+              </p>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
+              </dl>
+            </dd>
             <dt>IDBIndexSync createIndex()</dt>
             <dd>
               <p>
@@ -3068,11 +3130,18 @@ cursor.continue();
         <section class="section">
           <h4>Steps for synchronously executing a <a>request</a></h4>
           <p>
-            When taking the <dfn>steps to a synchronously execute a request</dfn> the implementation MUST run the
-            following algorithm. The algorithm takes a <var>transaction</var> object and a <var>operation</var> to
+            When taking the <dfn>steps for synchronously executing a request</dfn> the implementation MUST run the
+            following algorithm. The algorithm takes a <var>source</var> object and a <var>operation</var> to
             perform on a database.
           </p>
           <ol>
+            <li>
+              Set <var>transaction</var> .
+            </li>
+            <li>
+              If the <a>transaction</a> associated with <var>source</var> is not <a>active</a> throw a
+              TRANSACTION_INACTIVE_ERR exception.
+            </li>
             <li>
               Perform <var>operation</var>.
             </li>
@@ -3412,6 +3481,27 @@ cursor.continue();
             </li>
           </ol>
         </section>
+
+        <section class="section">
+          <h4>Object Store Clear Operation</h4>
+          <p>
+            The <dfn>steps for clearing an object store</dfn> are as follows. 
+            The algorithm run by these steps takes one parameter: a object store <var>store</var>.
+          </p>
+          <ol>
+            <li>
+               Remove all records from <var>store</var>.
+            </li>
+            <li>
+              In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
+              <a>records</a>.
+            </li>
+            <li>
+              The result of this algorithm is <code>undefined</code>.
+            </li>
+          </ol>
+        </section>
+
         <section class="section">
           <h4>Cursor Iteration Operation</h4>
           <p>
