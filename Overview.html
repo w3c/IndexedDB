@@ -966,7 +966,9 @@ prepareDatabase(function(evt) {
             <dt>const unsigned short DATA_ERR = 4</dt>
             <dd>Data provided to an operation does not meet requirements.</dd>
             <dt>const unsigned short NOT_ALLOWED_ERR = 5</dt>
-            <dd>A mutation operation was attempted on a database that
+            <dd>A operation called on an object on which it is not allowed or at a time when
+            it is not allowed. The TRANSACTION_INACTIVE_ERR and READ_ONLY_ERR errors are more
+            specific variants of this error.</dd>
             <dt>const unsigned short TRANSACTION_INACTIVE_ERR = 6</dt>
             <dd>A <a>request</a> was placed against a transaction which is
             currently not <a>active</a>, or which is
@@ -974,10 +976,8 @@ prepareDatabase(function(evt) {
             <dt>const unsigned short ABORT_ERR = 7</dt>
             <dd>A <a>request</a> was aborted, for example through a call
             to <a href="#widl-IDBTransaction-abort"><code>IDBTransaction.abort</code></a>.</dd>
-            <dt>const unsigned short SERIAL_ERR = 11</dt>
-            <dd>The operation failed because of the size of the data set 
-            being returned or because there was a problem in serializing or 
-            deserializing the object being processed.</dd>
+            <dt>const unsigned short READ_ONLY_ERR = 11</dt>
+            <dd>The mutating operation was attempted in a READ_ONLY transaction.</dd>
             <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
             <dd>The operation failed because the database was prevented
             from taking an action. The operation might be able to succeed
@@ -1416,7 +1416,7 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest put()</dt>
             <dd>
               <p>
-                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
                 throws a DATA_ERR exception:
               </p>
@@ -1462,7 +1462,7 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>READ_ONLY_ERR</dt>
                 <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
@@ -1478,7 +1478,7 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest add()</dt>
             <dd>
               <p>
-                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
                 throws a DATA_ERR exception:
               </p>
@@ -1524,7 +1524,7 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>READ_ONLY_ERR</dt>
                 <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
@@ -1540,7 +1540,7 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest delete()</dt>
             <dd>
               <p>
-                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</var>
                 this method throws a DATA_ERR exception.
               </p>
@@ -1556,9 +1556,10 @@ prepareDatabase(function(evt) {
                 <dd>Key identifying the <a>record</a> to be deleted</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>object store</a> is not in the <a>scope</a> of any existing <a>transaction</a> or
-                the associated <a>transaction</a> <a><code>mode</code></a> is <code>READ_ONLY</code>.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
@@ -1878,11 +1879,11 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest update(in any value)</dt>
             <dd>
               <p>
-                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBCursor belongs to
-                has its <a>mode</a> set to READ_ONLY, if this cursor's <a>got value</a> flag is false or if this
+                This method throws a READ_ONLY_ERR if the transaction which this IDBCursor belongs to
+                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false or if this
                 cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>. If the
-                <a>effective object store</a> of this cursor uses <a>in-line</a>
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>. This method
+                throws a NOT_ALLOWED_ERR. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
                 this method throws DATA_ERR.
@@ -1910,9 +1911,11 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>READ_ONLY_ERR</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code>. Also thrown if cursor was created using
+                is <code>READ_ONLY</code></dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>Thrown if cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DATA_ERR</dt>
@@ -1949,7 +1952,7 @@ prepareDatabase(function(evt) {
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This <a>got value</a> on the cursor is set to false.</dd>
+                <dd>The cursor is currently being iterated, or has iterated past its end.</dd>
                 <dt>DATA_ERR</dt>
                 <dd>The <var>key</var> parameter was specified but did not contain a <a>valid key</a>.</dd>
               </dl>
@@ -1958,10 +1961,11 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest    delete()</dt>
             <dd>          
               <p>
-                This method throws a NOT_ALLOWED_ERR if the transaction which this IDBCursor belongs to
-                has its <a>mode</a> set to READ_ONLY, if this cursor's <a>got value</a> flag is false,
+                This method throws a READ_ONLY_ERR if the transaction which this IDBCursor belongs to
+                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>.
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
+                NOT_ALLOWED_ERR is thrown.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
@@ -1976,10 +1980,12 @@ prepareDatabase(function(evt) {
               <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>READ_ONLY_ERR</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code>. Also thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
+                is <code>READ_ONLY</code>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The cursor was created using
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
