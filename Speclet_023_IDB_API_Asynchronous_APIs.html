@@ -158,7 +158,11 @@
           <dl class="idl" title="interface IDBSuccessEvent : IDBEvent"> 
             <dt>readonly attribute any result</dt>
             <dd>Returns the result of the successful completion of an asynchronous request
-            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.</dd>
+            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.
+            Note that if this property returns an object representing data from an objectStore, it returns the same
+            object instance every time it is inspected. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting this property. However modifying such an object
+            does not modify the contents of the objectStore.</dd>
           </dl>
           <dl class="idl" title="interface IDBTransactionEvent : IDBSuccessEvent"> 
             <dt>readonly attribute IDBTransaction transaction</dt>
@@ -1059,7 +1063,10 @@
             <dt>readonly attribute any value</dt>
             <dd>Returns the cursor's current <a title="cursor value">value</a>. However if the cursor's <a>got value</a>
             flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range.</dd>
+            iterated past the end of its range. Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
 
             <dt>IDBRequest update(in any value)</dt>
             <dd>

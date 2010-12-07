@@ -34,7 +34,7 @@
                 company: "Invited Expert" },
               { name: "Jonas Sicking", url: "mailto:jonas@sicking.cc",
                 company: "Mozilla" },
-              { name: "Eliot Graff", url: "mailto:eliotgra@microsoft.com",
+              { name: "Eliot Graf", url: "mailto:eliotgra@microsoft.com",
                 company: "Microsoft" },
               { name: "Andrei Popescu", url: "mailto:andreip@google.com",
                 company: "Google" },
@@ -554,7 +554,7 @@ prepareDatabase(function(evt) {
             constant for the lifetime of the transaction. The transaction also has a <dfn>scope</dfn> which
             determines which <a>object store</a>s the transaction can interact with. Finally, transactions
             have a <dfn>active</dfn> flag, which determines if new <a>request</a>s can currently be placed
-            against the transaction. Finally, transactions also contain a <dfn>request list<dfn> of
+            against the transaction. Finally, transactions also contain a <dfn>request list</dfn> of
             <a>request</a>s which have been placed against the transaction.
           </p>
           <p>
@@ -763,7 +763,7 @@ prepareDatabase(function(evt) {
             initially is false, and a <dfn title="request source">source</dfn> object.
           </p>
           <p>
-            When a request is created, it is always <dfn title="place request">placed</a> against a
+            When a request is created, it is always <dfn title="place request">placed</dfn> against a
             <a>transaction</a> using either the <a>steps to a asynchronously execute a request</a> or
             the <a>steps to a synchronously execute a request</a>.
         </section>
@@ -1045,7 +1045,11 @@ prepareDatabase(function(evt) {
           <dl class="idl" title="interface IDBSuccessEvent : IDBEvent"> 
             <dt>readonly attribute any result</dt>
             <dd>Returns the result of the successful completion of an asynchronous request
-            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.</dd>
+            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.
+            Note that if this property returns an object representing data from an objectStore, it returns the same
+            object instance every time it is inspected. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting this property. However modifying such an object
+            does not modify the contents of the objectStore.</dd>
           </dl>
           <dl class="idl" title="interface IDBTransactionEvent : IDBSuccessEvent"> 
             <dt>readonly attribute IDBTransaction transaction</dt>
@@ -1946,7 +1950,10 @@ prepareDatabase(function(evt) {
             <dt>readonly attribute any value</dt>
             <dd>Returns the cursor's current <a title="cursor value">value</a>. However if the cursor's <a>got value</a>
             flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range.</dd>
+            iterated past the end of its range. Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
 
             <dt>IDBRequest update(in any value)</dt>
             <dd>
@@ -3534,7 +3541,7 @@ cursor.continue();
               If no record was found, the result of this algorithm is <code>undefined</code>.
             </li>
             <li>
-              Otherwise, the result of the operation is the <a>referenced value</a> of the found record.
+              Otherwise, the result of the operation is a <a>structured clone</a> of the <a>referenced value</a> of the found record.
             </li>
           </ol>
         </section>
@@ -3730,8 +3737,8 @@ cursor.continue();
               <p>
                 If <var>cursor</var> was created using <a href="#widl-IDBIndex-openCursor"><code>IDBIndex.openCursor</code></a> or
                 <a href="#widl-IDBIndexSync-openCursor"><code>IDBIndexSync.openCursor</code></a>, then set
-                <var>cursor</var>'s <a title="cursor value">value</a> to <var>found record</var> <a>referenced value</a>. Otherwise, set
-                <var>cursor</var>'s <a title="cursor value">value</a> to the value of <var>found record</var>.
+                <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>
+                <a>referenced value</a>. Otherwise, set <var>cursor</var>'s <a title="cursor value">value</a> to the value of <var>found record</var>.
               </p>
             </li>
             <li>
