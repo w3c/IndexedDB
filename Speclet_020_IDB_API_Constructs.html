@@ -404,23 +404,6 @@
               by the <a>mode</a> in which the transaction is opened, and which <a>object store</a>s are
               included in <a>scope</a> of the transaction.
             </li>
-            <li class="issue">
-              <p>
-                Should we also define that if an implementation can't run two transactions at the same time,
-                it MUST <a title="transaction start">start</a> them in the order they were
-                <a title="transaction create">created</a>. Maybe only specify this if they have any overlapping
-                <a>scope</a>. If we don't do this then starting two write transactions at the same time could
-                result in the second one that's created running before the first one that is created.
-              </p>
-              <p>
-                At least we need to ensure that a READ_ONLY transaction which is created after a READ_WRITE
-                transaction has started sees the data that the READ_WRITE transaction wrote, and not a snapshot
-                of what the object store looked like before the READ_WRITE transaction was started.
-              </p>
-              <p>
-                Might be best to define this as part of the <a>mode</a> restrictions.
-              </p>
-            </li>
             <li>
               Once the transaction has been <a title="transaction start">started</a> the implementation can
               start executing the <a>request</a>s placed against the transaction. Unless otherwise defined requests
@@ -500,7 +483,7 @@
             There are a number of ways that an implementation ensure this. It can prevent
             READ_WRITE transactions whose scope overlap the scope of the READ_ONLY transaction from
             starting until the READ_ONLY transaction is finished. Or it can allow the READ_ONLY
-            transaction to see a snapshot of contents of the <a>object store</a>s which is taken when
+            transaction to see a snapshot of the contents of the <a>object store</a>s which is taken when
             the READ_ONLY transaction is started.
           </p>
           <p>
@@ -514,15 +497,9 @@
             due to merge conflicts.
           </p>
           <p>
-            A result of these requirements is that an implementation MUST NOT allow two READ_WRITE
-            transactions access the same <a>object store</a> at the same time. Even to perform just
-            read operations. One implementation strategy is to never start a READ_WRITE transaction
-            until all other READ_WRITE transactions with overlapping <a>scope</a>s have finished.
-          </p>
-          <p class="issue">
-            TODO: This requirement could be tightened further. Currently two READ_WRITE transactions
-            with <b>partially</b> overlapping scopes can run in paralell, until both (or "the second") of
-            them touch object stores in the overlapping scope.
+            An implementation MUST NOT start any transaction until all other READ_WRITE transactions
+            with overlapping <a>scope</a> have completed. When multiple transactions are
+            eligible to be started, older transactions should be started first.
           </p>
           <p>
             User agents MUST ensure a reasonable level of fairness across transactions to prevent
