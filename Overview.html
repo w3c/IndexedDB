@@ -559,14 +559,8 @@ prepareDatabase(function(evt) {
             <a>request</a>s which have been placed against the transaction.
           </p>
           <p>
-            Transactions are either static or dynamic which determines if the <a>scope</a> of the transaction
-            can change during the lifetime of the transaction. <dfn>Static</dfn> transactions have a constant
-            scope which is determined when the transaction is created and remains contant for the lifetime of
-            the transaction. <dfn>Dynamic</dfn> transactions scope can change during the lifetime of the
-            transaction.
-          </p>
-          <p class="issue">TODO: decide what happens when dynamic transactions need to lock a database
-            object that is already exclusively locked by another transaction.
+            Transactions have a constant scope which is determined when the transaction is created and remains
+            contant for the lifetime of the transaction.
           </p>
           <p>
             <a title="transaction">Transactions</a> offer some protection from 
@@ -586,11 +580,9 @@ prepareDatabase(function(evt) {
           </p>
           <ol>
             <li>
-              A transaction is <dfn title="transaction create">created</dfn> using of one of the available explicit
-              APIs, for example <a class="idlType" href="#widl-IDBDatabase-transaction">IDBDatabase.transaction</a>.
-              Which constructor is used, and the arguments passed to that constructor, determines if the transaction
-              is <a>static</a> or <a>dynamic</a>, as well as which <a>mode</a> the transaction uses. If the transaction
-              is <a>static</a>, the constructor arguments also determine what the <a>scope</a> of the transaction is.
+              A transaction is <dfn title="transaction create">created</dfn> using 
+              <a class="idlType" href="#widl-IDBDatabase-transaction">IDBDatabase.transaction</a>.
+              The arguments passed determine what the <a>scope</a> of the transaction is and whether it's read only or not.
               When a transaction is created its <a>active</a> flag is initially set to true.
             </li>
             <li>
@@ -740,18 +732,10 @@ prepareDatabase(function(evt) {
             the end of the scope in which it was created, if an exception is propagated to that scope.
           </p>
           <p>
-            Static <a>transaction</a> objects implement the 
+            <a>Transaction</a> objects implement the 
             <a><code>IDBTransaction</code></a> or the
             <a><code>IDBTransactionSync</code></a> interfaces.
           </p>
-          <p>
-             Dynamic <a>transaction</a> objects implement the 
-            <a><code>IDBDynamicTransaction</code></a> or the
-            <a><code>IDBDynamicTransactionSync</code></a> interfaces.
-          </p>
-          <div class="issue">
-            <p>Define dynamic transactions if we agree they should be part of this specification.</p>
-          </div>
         </section> <!-- IDBTransaction -->
 
         <section class="section" id="request-concept">
@@ -1386,7 +1370,7 @@ prepareDatabase(function(evt) {
             <dd>
               <p>
                 This method, when called MUST execute the
-                <a title="create a static transaction">steps for creating a transaction</a> in a asychronous
+                <a title="create a transaction">steps for creating a transaction</a> in a asychronous
                 fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
                 list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
                 names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
@@ -2075,7 +2059,7 @@ prepareDatabase(function(evt) {
         <h4>Transaction</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
-            <a title="transaction">Static transaction</a> objects implement the following interface:
+            <a title="transaction">Transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBTransaction : EventTarget">
             <dt>const     unsigned short READ_ONLY    = 0</dt>
@@ -2132,45 +2116,6 @@ prepareDatabase(function(evt) {
             <dd>The event handler for the <a>ontimeout</a> event.</dd>
           </dl>
 
-          <p>
-            <a title="dynamic transaction">Dynamic transaction</a> objects implement the following interface:
-          </p>
-          <dl class="idl" title="interface IDBDynamicTransaction : EventTarget">
-            <dt>readonly attribute IDBDatabase db</dt>
-            <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a> is a part.</dd>
-            <dt>IDBRequest openObjectStore()</dt>
-            <dd>
-              Returns immediately and then attempts to lock the requesed <a>object store</a> in the given <a>mode</a>. 
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The requested <a>object store</a>.</dd>
-                <dt>optional unsigned short mode</dt>
-                <dd>The <a>mode</a> for isolating access to the <a>object store</a>, which defaults to 
-                <code>READ_ONLY</code>.</dd>
-              </dl>
-            </dd>
-            <dt>void abort()</dt>
-            <dd>
-              This method returns immediately and undoes all the changes performed to 
-              the <a>objects</a> of this <a>database</a> in this <a>transaction</a>. If this <a>transaction</a> 
-              has already been committed or aborted,  then an
-              <a title="event-error">error event</a> is fired on this method's
-              returned object with its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to
-              <a class="idlType" href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR"><code>NON_TRANSIENT_ERR</code></a>
-              and a suitable 
-              <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a>.
-            </dd>
-            <dt>attribute Function onabort</dt>
-            <dd>The event handler for the <a>onabort</a> event.</dd>
-            <dt>attribute Function oncomplete</dt>
-            <dd>The event handler for the <a>oncomplete</a> event.</dd>
-            <dt>attribute Function ontimeout</dt>
-            <dd>The event handler for the <a>ontimeout</a> event.</dd>
-          </dl>
-          <div class="issue">
-            <p>Finish the dynamic transaction IDL and define the behavior of dynamic transactions.</p>
-          </div>
         </section>
       </section>
       <section id="sync-database" class="section">
@@ -2372,7 +2317,7 @@ prepareDatabase(function(evt) {
             <dd>
               <p>
                 This method, when called MUST execute the
-                <a title="create a static transaction">steps for creating a transaction</a> in a asychronous
+                <a title="create a transaction">steps for creating a transaction</a> in a asychronous
                 fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
                 list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
                 names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
@@ -2973,9 +2918,6 @@ cursor.continue();
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
           <dl class="idl" title="interface IDBTransactionSync">
-            <dt>attribute boolean static</dt>
-            <dd>If <code>true</code>, then this <a>transaction</a> is <a>static</a>
-              and <code>false</code> otherwise.
             <dt>attribute IDBDatabaseSync db</dt>
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part</dd>
@@ -3074,7 +3016,7 @@ cursor.continue();
         <section class="section">
           <h4>Transaction Creation steps</h4>
           <p>
-            When the user agent is to <dfn>create a static <a>transaction</a></dfn>
+            When the user agent is to <dfn>create a <a>transaction</a></dfn>
             it MUST run the following steps. This algorithm takes four parameters:
             A <a><var>connection</var></a>, a <a><var>mode</var></a>, a list of <var>names</var> of
             <a>object store</a>s to be included in the <a>scope</a> of the transaction, and a
@@ -3114,9 +3056,6 @@ cursor.continue();
               If these steps are running synchronously, return the created <a>transaction</a>.
             </li>
           </ol>
-          <div class="issue">
-            <p>Add steps for creating dynamic transactions.</p>
-          </div>     
         </section>
         <section class="section">
           <h4>Steps for aborting a transaction</h4>
