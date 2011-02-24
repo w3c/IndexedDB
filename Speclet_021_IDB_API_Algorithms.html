@@ -338,9 +338,6 @@
           </p>
           <ol>
             <li>
-              Set <var>transaction</var> .
-            </li>
-            <li>
               If the <a>transaction</a> associated with <var>source</var> is not <a>active</a> throw a
               TRANSACTION_INACTIVE_ERR exception.
             </li>
@@ -348,7 +345,7 @@
               Perform <var>operation</var>.
             </li>
             <li>
-              If performing <var>operation</var> succeeded then set return the result of the operation.
+              If performing <var>operation</var> succeeded then return the result of the operation.
             </li>
             <li>
               If performing <var>operation</var> failed then throw a IDBDatabaseException with the code
@@ -518,13 +515,18 @@
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>. The
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>.
+              The event does not bubble or be cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
               <a>propagation path</a> is simply <var>request</var>.
-            <li>
+            </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
+            </li>
+            <li>
+              If an exception was propagated out from any event handler while dispatching the event in step 3,
+              abort the transaction by following the <a>steps for aborting a transaction</a>.
             </li>
           </ol>
         </section>
@@ -543,7 +545,8 @@
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>. The
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
+              The event does bubble and is cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
               <var>transaction</var> by running <a>steps for aborting a transaction</a>. However if <var>transaction</var>
@@ -551,6 +554,10 @@
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
+            </li>
+            <li>
+              If an exception was propagated out from any event handler while dispatching the event in step 3,
+              abort the transaction by following the <a>steps for aborting a transaction</a>.
             </li>
           </ol>
           <p class="issue">
