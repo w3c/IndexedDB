@@ -549,7 +549,8 @@ prepareDatabase(function(evt) {
             Whenever data is read or written to the database this is done using a <a>transaction</a>.
           </p>
           <p>
-            All transactions are created using a <a>connection</a>.
+            All transactions are created using a <a>connection</a>, which is the transactions
+            <dfn title="transaction connection">connection</dfn>.
             The transaction has a <a>mode</a> which determines which types of interactions can be performed
             using the transaction. The <a>mode</a> is set when the transaction is created and remains
             constant for the lifetime of the transaction. The transaction also has a <dfn>scope</dfn> which
@@ -623,13 +624,14 @@ prepareDatabase(function(evt) {
             <li>
               Once a transaction no longer can become <a>active</a>, and if the transaction
               hasn't been <a>abort</a>ed, the implementation MUST automatically attempt to
-              <dfn title="commit">commit</dfn> it. This usually happens after all requests placed against the
+              <dfn>commit</dfn> it. This usually happens after all requests placed against the
               transaction has been executed and their returned results handled, but no new requests has been placed
               against the transaction. When a transaction is committed implementation MUST atomically write
               any changes to the <a>database</a> made by requests placed against the transaction. That is, either all
               of the changes MUST be written, or if an error occurs, such as a disk write error, the implementation
               MUST NOT write any of the changes to the database. If such an error occurs the implementation MUST
-              <a>abort</a> the transaction.
+              <a>abort</a> the transaction by following the <a>steps for aborting a transaction</a>, otherwise it
+              MUST <a>commit</a> the transaction by following the <a>steps for committing a transaction</a>.
             </li>
             <li>
               When a transaction is <a>commit</a>ted or <a>abort</a>ed, it is said to be
@@ -1026,7 +1028,7 @@ prepareDatabase(function(evt) {
               exception.
               <dl class="getraises" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>Thrown when this attribute was requested when the <a title="request done">done</a> flag was set to false.</dd>
+                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
               </dl>
             </dd>
             <dt>readonly attribute unsigned short errorCode</dt>
@@ -1039,7 +1041,7 @@ prepareDatabase(function(evt) {
               <!-- XXX The js-library doesn't do the exception correctly here -->
               <dl class="getraises" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>Thrown when this attribute was requested when the <a title="request done">done</a> flag was set to false.</dd>
+                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
               </dl>
             </dd>
             <dt>readonly attribute Object source</dt>
@@ -2896,6 +2898,24 @@ var cursor = objects.<a>openCursor</a>(range);
           </ol>
         </section>
         <section class="section">
+          <h4>Steps for committing a transaction</h4>
+          <p>
+            When taking the <dfn>steps for committing a <a>transaction</a></dfn> the implementation MUST
+            execute the following algorithm. This algorithm takes one parameter, the <var>transaction</var> to commit.
+          </p>
+          <ol>
+            <li>
+              All the changes made to the <a>database</a> the transaction uses are written to the <a>database</a>.
+            </li>
+            <li>
+              Asynchronously dispatch an event at <var>transaction</var>. The event must use
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"commit"</code>. The
+              <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
+              then <var>transaction</var>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
           <h4>Steps for aborting a transaction</h4>
           <p>
             When taking the <dfn>steps for aborting a <a>transaction</a></dfn> the implementation MUST
@@ -2913,6 +2933,12 @@ var cursor = objects.<a>openCursor</a>(range);
               is still false, <a>fire a error event</a> with code <var>code</code> against each such <a>request</a>
               and set its <a title="request done">done</a> flag to true. Also abort the <a>steps for asynchronously
               executing a request</a> for each such transaction.
+            </li>
+            <li>
+              Asynchronously dispatch an event at <var>transaction</var>. The event must use
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>. The
+              <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
+              then <var>transaction</var>.
             </li>
           </ol>
         </section>
@@ -3023,7 +3049,8 @@ var cursor = objects.<a>openCursor</a>(range);
                 be fired on objects which has the <code>closePending</code> flag set. The event MUST use the
                 <a><code>IDBVersionChangeEvent</code></a> interface and have the
                 <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
-                This event MUST NOT bubble or be cancelable.
+                This event MUST NOT bubble or be cancelable. The propagation path for the event is just the <a><code>IDBDatabase</code></a>
+                object itself.
               </p>
               <p class="note">
                 Firing this event might cause one or more of the other objects in <var>openDatabases</var> to be closed, in which case
@@ -3032,10 +3059,10 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               <p>
-                If running asynchronously and any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, fire a <code>blocked</code> event at
-                <var>request</var>. The event MUST use the <a><code>IDBVersionChangeEvent</code></a> interface and have the
-                <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
-                This event MUST NOT bubble or be cancelable.
+                If running asynchronously and any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, fire a
+                <code>blocked</code> event at <var>request</var>. The event MUST use the <a><code>IDBVersionChangeEvent</code></a> interface
+                and have the <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
+                This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>request</var>.
               </p>
             </li>
             <li id="VERSION_CHANGE-close-block">
@@ -3157,7 +3184,10 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>.
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>. The
+              <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
+              then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
+              <a>propagation path</a> is simply <var>request</var>.
             <li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
@@ -3179,7 +3209,11 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>. The
+              <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
+              then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
+              <a>propagation path</a> is simply <var>request</var>.
+            </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
             </li>

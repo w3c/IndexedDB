@@ -352,7 +352,8 @@
             Whenever data is read or written to the database this is done using a <a>transaction</a>.
           </p>
           <p>
-            All transactions are created using a <a>connection</a>.
+            All transactions are created using a <a>connection</a>, which is the transactions
+            <dfn title="transaction connection">connection</dfn>.
             The transaction has a <a>mode</a> which determines which types of interactions can be performed
             using the transaction. The <a>mode</a> is set when the transaction is created and remains
             constant for the lifetime of the transaction. The transaction also has a <dfn>scope</dfn> which
@@ -426,13 +427,14 @@
             <li>
               Once a transaction no longer can become <a>active</a>, and if the transaction
               hasn't been <a>abort</a>ed, the implementation MUST automatically attempt to
-              <dfn title="commit">commit</dfn> it. This usually happens after all requests placed against the
+              <dfn>commit</dfn> it. This usually happens after all requests placed against the
               transaction has been executed and their returned results handled, but no new requests has been placed
               against the transaction. When a transaction is committed implementation MUST atomically write
               any changes to the <a>database</a> made by requests placed against the transaction. That is, either all
               of the changes MUST be written, or if an error occurs, such as a disk write error, the implementation
               MUST NOT write any of the changes to the database. If such an error occurs the implementation MUST
-              <a>abort</a> the transaction.
+              <a>abort</a> the transaction by following the <a>steps for aborting a transaction</a>, otherwise it
+              MUST <a>commit</a> the transaction by following the <a>steps for committing a transaction</a>.
             </li>
             <li>
               When a transaction is <a>commit</a>ted or <a>abort</a>ed, it is said to be
