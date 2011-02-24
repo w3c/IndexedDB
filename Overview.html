@@ -1219,7 +1219,7 @@ prepareDatabase(function(evt) {
             <a>objects</a> of that <a>database</a>. That is also the only way to 
             obtaining a <a>transaction</a> for that <a>database</a>.
           </p>
-          <dl class="idl" title="interface IDBDatabase">
+          <dl class="idl" title="interface IDBDatabase : EventTarget">
             <dt>readonly attribute DOMString name</dt>
             <dd>
               On getting, this attribute MUST return the <a title="database name">name</a>
@@ -1349,6 +1349,12 @@ prepareDatabase(function(evt) {
             <dd>
               This method returns immediately and performs the <a>steps for closing a database connection</a>.
             </dd>
+            <dt>attribute Function onabort</dt>
+            <dd>The event handler for the <a title="abort-error">abort event</a>.</dd>
+            <dt>attribute Function onerror</dt>
+            <dd>The event handler for the <a title="event-error">error event</a>.</dd>
+            <dt>attribute Function onversionchange</dt>
+            <dd>The event handler for the <a title="event-versionchange">versionchange event</a>.</dd>
           </dl>
         </section>
         <section class="section" id="object-store">
@@ -2025,7 +2031,7 @@ prepareDatabase(function(evt) {
               Returns a <a>IDBObjectStore</a> representing a <a>object store</a> that is part of the
               to the <a>scope</a> of this <a>transaction</a>. Every call to this function on the same
               <a>IDBTransaction</a> instance and with the same <var>name</var> returns the same <a>IDBObjectStore</a> instance.
-              However the retured <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
+              However the returned <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
               function is called on a different <a>IDBTransaction</a>, a different <a>IDBObjectStore</a> instance is returned.
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -2050,11 +2056,13 @@ prepareDatabase(function(evt) {
               </dl>
             </dd>
             <dt>attribute Function onabort</dt>
-            <dd>The event handler for the <a>onabort</a> event.</dd>
+            <dd>The event handler for the <a title="abort-error">abort event</a>.</dd>
             <dt>attribute Function oncomplete</dt>
-            <dd>The event handler for the <a>oncomplete</a> event.</dd>
+            <dd>The event handler for the <a title="complete-error">complete event</a>.</dd>
+            <dt>attribute Function onerror</dt>
+            <dd>The event handler for the <a title="event-error">error event</a>.</dd>
             <dt>attribute Function ontimeout</dt>
-            <dd>The event handler for the <a>ontimeout</a> event.</dd>
+            <dd>The event handler for the <a title="timeout-error">timeout event</a>.</dd>
           </dl>
 
         </section>
@@ -3008,9 +3016,6 @@ var cursor = objects.<a>openCursor</a>(range);
           </p>
           <ol>
             <li>
-              Set <var>transaction</var> .
-            </li>
-            <li>
               If the <a>transaction</a> associated with <var>source</var> is not <a>active</a> throw a
               TRANSACTION_INACTIVE_ERR exception.
             </li>
@@ -3018,7 +3023,7 @@ var cursor = objects.<a>openCursor</a>(range);
               Perform <var>operation</var>.
             </li>
             <li>
-              If performing <var>operation</var> succeeded then set return the result of the operation.
+              If performing <var>operation</var> succeeded then return the result of the operation.
             </li>
             <li>
               If performing <var>operation</var> failed then throw a IDBDatabaseException with the code
@@ -3188,13 +3193,18 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>. The
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>.
+              The event does not bubble or be cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
               <a>propagation path</a> is simply <var>request</var>.
-            <li>
+            </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
+            </li>
+            <li>
+              If an exception was propagated out from any event handler while dispatching the event in step 3,
+              abort the transaction by following the <a>steps for aborting a transaction</a>.
             </li>
           </ol>
         </section>
@@ -3213,7 +3223,8 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>. The
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
+              The event does bubble and is cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
               <var>transaction</var> by running <a>steps for aborting a transaction</a>. However if <var>transaction</var>
@@ -3221,6 +3232,10 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
+            </li>
+            <li>
+              If an exception was propagated out from any event handler while dispatching the event in step 3,
+              abort the transaction by following the <a>steps for aborting a transaction</a>.
             </li>
           </ol>
           <p class="issue">
