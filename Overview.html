@@ -317,6 +317,10 @@ prepareDatabase(function(evt) {
           This specification relies on several other underlying specifications. 
         </p>
         <dl>
+          <dt>DOM-LEVEL-3-EVENTS</dt>
+          <dd>The terms <dfn>default action</dfn> and <dfn>propagation path</dfn> are defined by the
+            Document Object Model (DOM) Level 3 Events Specification [[!DOM-LEVEL-3-EVENTS]].
+          </dd>
           <dt>HTML5</dt>
           <dd>The terms and algorithms <dfn id="document-base-url">document base URL</dfn>,
             <dfn id="event-handler-attributes">event handler attributes</dfn>, 
@@ -2039,7 +2043,7 @@ prepareDatabase(function(evt) {
             <dd>
               If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a NOT_ALLOWED_ERR
               exception. Otherwise this method <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps to abort a transaction</a> with <var>code</var> set to ABORT_ERR.
+              <a>steps for aborting a transaction</a> with <var>code</var> set to ABORT_ERR.
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
@@ -2784,7 +2788,7 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>
               If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a NOT_ALLOWED_ERR
               exception. Otherwise this method <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps to abort a transaction</a> with <var>code</var> set to ABORT_ERR.
+              <a>steps for aborting a transaction</a> with <var>code</var> set to ABORT_ERR.
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
@@ -3211,8 +3215,9 @@ var cursor = objects.<a>openCursor</a>(range);
               Dispatch an event at <a>request</a>. The event must use
               the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
-              then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
-              <a>propagation path</a> is simply <var>request</var>.
+              then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
+              <var>transaction</var> by running <a>steps for aborting a transaction</a>. However if <var>transaction</var>
+              is null, then the <a>propagation path</a> is simply <var>request</var> and there is no <a>default action</a>. 
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
