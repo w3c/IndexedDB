@@ -289,13 +289,16 @@
             </li>
             <li>
               If performing <var>operation</var> succeeded then set the <a title="request done">done</a> flag
-              on the <var>request</var> to true and <a>fire a success event</a> at <var>request</var> with
-              the result of the operation.
+              on the <var>request</var> to true, set <a title="request result">result</a> of the <var>request</var>
+              to the result of the request and set <a title="request errorCode">errorCode</a> of the <var>request</var>
+              to <var>NO_ERR</var>. Finally <a>fire a success event</a> at <var>request</var>.
             </li>
             <li>
               If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
-              set the <a title="request done">done</a> flag on the <var>request</var> to true and
-              <a>fire a error event</a> at <var>request</var> with the code of the error from <var>operation</var>.
+              set the <a title="request done">done</a> flag on the <var>request</var> to true,
+              set <a title="request result">result</a> of the <var>request</var>
+              to <code>undefined</code> and set <a title="request errorCode">errorCode</a> of the <var>request</var>
+              to the code of the error from <var>operation</var>. Finally <a>fire an error event</a> at <var>request</var>.
               <div class="note">
                 This only reverts the changes done by this request, not any other changes made by the transaction.
               </div>
@@ -478,7 +481,7 @@
         <section class="section">
           <h4>Fire a success event</h4>
           <p>
-            To <dfn title="fire a success event">fire a success event with result <var>result</var></dfn> at a <a>request</a>,
+            To <dfn>fire a success event</dfn> at a <a>request</a>,
             the implementation MUST run the following steps:
           </p>
           <ol>
@@ -489,13 +492,9 @@
               Set the <a>active</a> flag of <var>transaction</var> to true.
             </li>
             <li>
-              Dispatch a <a title="event-success">success event</a>, which does not bubble and is not
-              cancelable, at <a>request</a>. The event must use the <a><code>IDBSuccessEvent</code></a> interface and have its 
-              <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> set to <var>result</var>. The
-              <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a> is set to <var>request</var>s
-              <a title="request source">source</a>. And <a class="idlType" href="#widl-IDBTransactionEvent-result"><code>transaction</code></a>
-              is set to <var>transaction</var>.
-            </li>
+              Dispatch an event at <a>request</a>. The event must use
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>.
+            <li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
             </li>
@@ -504,7 +503,7 @@
         <section class="section">
           <h4>Fire an error event</h4>
           <p>
-            To <dfn title="fire a error event">fire a error event with code <var>code</var></dfn> at a <a>request</a>,
+            To <dfn title="fire a error event">fire a error event at a <a>request</a>,
             the implementation MUST run the following steps:
           </p>
           <ol>
@@ -515,12 +514,8 @@
               Set the <a>active</a> flag of <var>transaction</var> to true.
             </li>
             <li>
-              Dispatch a <a title="event-error">error event</a> at <a>request</a>. The event must use
-              the <a><code>IDBErrorEvent</code></a> interface and have its 
-              <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a> set to <var>code</var>. The
-              <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a> is set to <var>request</var>s internal
-              <a title="request source">source</a>. The <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a> is
-              set to a string appropriate for <var>code</var>.
+              Dispatch an event at <a>request</a>. The event must use
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
             </li>

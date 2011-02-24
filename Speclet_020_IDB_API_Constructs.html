@@ -522,15 +522,22 @@
           <h4>Requests</h4>
           <p>
             Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
-            Every request represents one read or write operation. <a>Request</a>s are always belong to
-            a <a>transaction</a>. The only exception to this is the request created when a <a>connection</a>
-            is opened. <a>Request</a>s have a <dfn title="request done"><var>done</var></dfn> flag which
-            initially is false, and a <dfn title="request source">source</dfn> object.
+            Every request represents one read or write operation.
+            <a>Request</a>s have a <dfn title="request done"><var>done</var></dfn> flag which
+            initially is false, and a <dfn title="request source">source</dfn> object. Every request
+            also has a <dfn title="request result">result</dfn> and an <dfn title="request errorCode">errorCode</dfn>,
+            neither of which are accessible until the <a title="request done">done</a> flag is set to true.
           </p>
           <p>
-            When a request is created, it is always <dfn title="place request">placed</dfn> against a
-            <a>transaction</a> using either the <a>steps to a asynchronously execute a request</a> or
-            the <a>steps to a synchronously execute a request</a>.
+            Finally, requests have a <dfn>request transaction</dfn>. When a request is created, it is
+            always <dfn title="place request">placed</dfn> against a <a>transaction</a> using either the
+            <a>steps to a asynchronously execute a request</a> or the
+            <a>steps to a synchronously execute a request</a>. This sets the <a>request transaction</a> to
+            be that request. The only exceptions to this are the request returned from a
+            <a href="#widl-IDBFactory-open">IDBFactory.open</a> call and the request returned from a
+            <a href="#widl-IDBDatabase-setVersion">IDBDatabase.setVersion</a>
+            call, which create requests which have a null <a>request transaction</a>.
+          </p>
         </section>
 
         <section class="section" id="range-concept">

@@ -143,60 +143,12 @@
         <h3>Asynchronous APIs</h3>
         <p>
           The asynchronous API methods return without blocking the calling thread.
-          All asynchronous operations return an <a><code>IDBRequest</code></a> instance,
-          which can be used to access the results of the operation as they become available.
+          All asynchronous operations immediately return an <a><code>IDBRequest</code></a> instance.
+          This object does not initially contain any information about the result of the operation.
+          Once information becomes available, an event is fired on the request and the information becomes
+          available thorugh the properties of the <a><code>IDBRequest</code></a> instance.
         </p>
-        <section class="section" id="events">
-          <h4>Event interfaces</h4>
-          <p>
-            Events are fired during asynchronous access as <a>database</a> 
-            <a>objects</a> are created and data is consumed from these objects. 
-            As requests are made to <a>database</a> <a>objects</a>, the user 
-            agent loads information about them into memory and when the required
-            object handle is available, it alerts the application through the
-            firing of events. The events are as follows:
-          </p>
-          <p>The <a><code>IDBEvent</code></a> interface extends
-            the <code>Event</code> interface defined in [[!DOM-LEVEL-3-EVENTS]].
-          </p>
-          <dl class="idl" title="interface IDBEvent : Event"> 
-            <dt>readonly attribute any source</dt>
-            <dd>Returns the asynchronous request object that fired this event.</dd>
-          </dl>
-          <dl class="idl" title="interface IDBSuccessEvent : IDBEvent"> 
-            <dt>readonly attribute any result</dt>
-            <dd>Returns the result of the successful completion of an asynchronous request
-            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.
-            Note that if this property returns an object representing data from an objectStore, it returns the same
-            object instance every time it is inspected. This means that if the object is modified,
-            those modifications will be seen by anyone inspecting this property. However modifying such an object
-            does not modify the contents of the objectStore.</dd>
-          </dl>
-          <dl class="idl" title="interface IDBTransactionEvent : IDBSuccessEvent"> 
-            <dt>readonly attribute IDBTransaction transaction</dt>
-            <dd>Returns the transaction used for the request 
-            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>.</dd>
-          </dl>
 
-          <dl class="idl" title="interface IDBErrorEvent : IDBEvent"> 
-            <dt>readonly attribute unsigned short code</dt>
-            <dd>Returns the most appropriate error code from carrying out the asynchronous request
-            on the <a class="idlType" href="#widl-IDBEvent-source"><code>source</code></a>. The 
-            valid values of this error code are defined on the exception
-            <a class="idlType" href="#widl-IDBDatabaseException"><code>IDBDatabaseException</code></a>.</dd>
-            <dt>readonly attribute DOMString message</dt>
-            <dd>Returns the describing the reason for the error. The message should be localized 
-            to the user's language.</dd>
-          </dl>
-
-          <dl class="idl" title="interface IDBVersionChangeEvent : IDBEvent"> 
-            <dt>readonly attribute DOMString version</dt>
-            <dd>Returns the new version of the database during a VERSION_CHANGE transaction.
-            See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
-          </dl>
-
-        </section>
-        
         <section class="section" id="request-api">
           <h4>The <code>IDBRequest</code> Interface</h4>
           <p>
@@ -215,7 +167,45 @@
  request.<a>onerror</a> = function(evt) {...};
             </codeblock>
           </div>
-          <dl class="idl" title="interface IDBRequest : EventTarget"> 
+          <dl class="idl" title="interface IDBRequest : EventTarget">
+            <dt>readonly attribute any result</dt>
+            <dd>
+              When the <a title="request done">done</a> flag is true, getting this
+              property MUST return the <a title="request result">result</a> of
+              the request. This is <code>undefined</code> when the request resulted
+              in an error. When the <a title="request done">done</a> flag is
+              false, getting this property MUST throw a <code>NOT_ALLOWED_ERR</code>
+              exception.
+              <dl class="getraises" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
+              </dl>
+            </dd>
+            <dt>readonly attribute unsigned short errorCode</dt>
+            <dd>
+              When the <a title="request done">done</a> flag is true, getting this
+              property MUST return the <a title="request errorCode">errorCode</a> of
+              the request. This is <a>NO_ERR</a> when no error occurred. When the
+              <a title="request done">done</a> flag is false, getting this property
+              MUST throw a <code>NOT_ALLOWED_ERR</code> exception.
+              <!-- XXX The js-library doesn't do the exception correctly here -->
+              <dl class="getraises" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
+              </dl>
+            </dd>
+            <dt>readonly attribute Object source</dt>
+            <dd>
+              Getting this property MUST return the <a title="request source">source</a>
+              for the request.
+            </dd>
+            <dt>readonly attribute IDBTransaction transaction</dt>
+            <dd>
+              Getting this property MUST return the <a title="request transaction">transaction</a>
+              for the request. This property can be null for certain requests, such as for <a>request</a>
+              returned from <a href="#widl-IDBFactory-open">IDBFactory.open</a> and
+              <a href="#widl-IDBDatabase-setVersion">IDBDatabase.setVersion</a>.
+            </dd>
             <dt>const     unsigned short LOADING = 1</dt>
             <dd>This state indicates that a request has been started but its results is not
             yet available.</dd>
@@ -268,59 +258,20 @@
             The <span>task source</span> for these tasks is the 
             <dfn id="database-access-task-source">database access task source</dfn>.
           </p>    
-          <p>
-            The following are the <span>event handlers</span> (and their corresponding 
-            <span>event handler event types</span>) that MUST be supported, as IDL
-            attributes, by objects implementing the <a><code>IDBRequest</code></a> interface:
-          </p>
-          
-          <table>
-            <thead><tr>
-              <th><span>Event handler</span> </th>
-              <th><span>Event handler event type</span></th>
-              <th><span>Event interface(s)</span></th>
-            </tr></thead>
-            <tbody>
-              <tr>
-                <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
-                <td> <code><dfn title="event-success">success</dfn></code></td>
-                <td> <a class="idlType" href="#widl-IDBSuccessEvent"><code>IDBSuccessEvent</code></a>,
-                <a class="idlType" href="#widl-IDBTransactionEvent"><code>IDBTransactionEvent</code></a></td>
-              </tr>
-              <tr>
-                <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
-                <td> <code><dfn title="event-error">error</dfn></code></td>
-                <td> <a class="idlType" href="#widl-IDBErrorEvent"><code>IDBErrorEvent</code></a></td>
-              </tr>
-            </tbody>
-          </table>        
+        </section>
 
+        <section class="section" id="events">
+          <h4>Event interfaces</h4>
           <p>
-            The following are the <span>event handlers</span> (and their corresponding 
-            <span>event handler event types</span>) that MUST be supported, as IDL
-            attributes, by objects implementing the <a><code>IDBTransaction</code></a> interface:
+            This specification fires events with the following custom interfaces:
           </p>
-          
-          <table>
-            <thead><tr>
-              <th><span>Event handler</span> </th>
-              <th><span>Event handler event type</span></th>
-            </tr></thead>
-            <tbody>
-              <tr>
-                <td><dfn id="handler-request-oncomplete"><code>oncomplete</code></dfn> </td>
-                <td> <code><dfn title="event-complete">complete</dfn></code></td>
-              </tr>
-              <tr>
-                <td><dfn id="handler-request-onabort"><code>onabort</code></dfn> </td>
-                <td> <code><dfn title="event-abort">abort</dfn></code></td>
-              </tr>
-              <tr>
-                <td><dfn id="handler-request-ontimeout"><code>ontimeout</code></dfn> </td>
-                <td> <code><dfn title="event-timeout">timeout</dfn></code></td>
-              </tr>
-            </tbody>
-          </table>        
+
+          <dl class="idl" title="interface IDBVersionChangeEvent : Event"> 
+            <dt>readonly attribute DOMString version</dt>
+            <dd>Returns the new version of the database during a VERSION_CHANGE transaction.
+            See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
+          </dl>
+
         </section>
         
         <section class="section" id="requests">
