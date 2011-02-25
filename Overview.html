@@ -232,7 +232,7 @@ else
   }
    
         </codeblock>
-        p>
+        <p>
         Here is an example of a script using this API. First, a function
         <code>prepareDatabase()</code> is defined. This function tries to create 
         the database if necessary, giving it one object store called "docids" with
@@ -2888,7 +2888,7 @@ var cursor = objects.<a>openCursor</a>(range);
               a TIMEOUT_ERR exception error should be thrown.
               <p class="note">
                 Because the asynchronous API always passes in a <var>timeout</var> of infinite, only the synchronous
-                API will ever timeout.
+                API will ever time out.
               </p>
             </li>
             <li>
@@ -2930,9 +2930,18 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               If the transaction's <a>request list</a> contain any <a>request</a>s whose <a title="request done">done</a> flag
-              is still false, <a>fire a error event</a> with code <var>code</code> against each such <a>request</a>
-              and set its <a title="request done">done</a> flag to true. Also abort the <a>steps for asynchronously
-              executing a request</a> for each such transaction.
+              is still false, abort the <a>steps for asynchronously executing a request</a> for each such transaction and queue
+              a task to perform the following steps:
+              <ol>
+                <li>
+                  Set the <a title="request done">done</a> flag on the <a>request</a> to true, set
+                  <a title="request result">result</a> of the <a>request</a> to <code>undefined</code>
+                  and set <a title="request errorCode">errorCode</a> of the <a>request</a> to <code>ABORT_ERR</code>.
+                </li>
+                <li>
+                  <a>Fire an error event</a> at the <a>request</a>.
+                </li>
+              </ol>
             </li>
             <li>
               Asynchronously dispatch an event at <var>transaction</var>. The event must use
