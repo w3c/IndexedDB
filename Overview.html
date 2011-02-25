@@ -158,7 +158,12 @@
         efficient for insertion and deletion as well as in-order traversal of
         very large numbers of data records.
       </p>
-      
+
+      <p class="issue">
+        TODO: Add examples using the sync and the async APIs.
+      </p>
+
+<!-- We need and example, but until this one is updated, it's doing more harm than good.
       <div class="example">
         <p>
           A script can efficiently find records in an object store that come 
@@ -227,7 +232,7 @@ else
   }
    
         </codeblock>
-        <!--p>
+        p>
         Here is an example of a script using this API. First, a function
         <code>prepareDatabase()</code> is defined. This function tries to create 
         the database if necessary, giving it one object store called "docids" with
@@ -274,8 +279,8 @@ prepareDatabase(function(evt) {
   // error getting database
   var error = request.error;
   alert(error.message);
-});</codeblock-->
-      </div>
+});</codeblock>
+      </div>-->
     </section>
 
     <section id='conformance' class='section'>
@@ -1237,13 +1242,6 @@ prepareDatabase(function(evt) {
               <a title="object store">object stores</a> currently in the 
               <a title="connection">connected</a> <a>database</a>.
             </dd>
-            <!-- There is no currentTransaction any more.
-            <dt>readonly attribute IDBTransaction currentTransaction</dt>
-            <dd>
-              On getting, this attribute MUST return a <a><code>IDBTransaction</code></a> object
-              corresponding to the <a>transaction</a> that is <a>active</a> in this
-              <a>database</a> <a>connection</a>.
-            </dd> -->
             <dt>IDBObjectStore createObjectStore()</dt>
             <dd>
               <p>
@@ -1314,10 +1312,10 @@ prepareDatabase(function(evt) {
                 <a title="create a transaction">steps for creating a transaction</a> in a asychronous
                 fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
                 list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
-                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
-                <var>timeout</var> arguments are forwarded to the algorithm as-is. The <var>connection</var>
-                argument is set to the <a>IDBDatabase</a> that the <code>transaction()</code> method was
-                called on.
+                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode</var> argument is
+                forwarded to the algorithm as-is. The <var>timeout</var> argument is set to infinite.
+                The <var>connection</var> argument is set to the <a>IDBDatabase</a> that the
+                <code>transaction()</code> method was called on.
               </p>
               <p>
                 The method returns a <a>IDBTransaction</a> object representing the <a>transaction</a>
@@ -1332,11 +1330,6 @@ prepareDatabase(function(evt) {
                 <dd> The <a>mode</a> for isolating access to data inside the given
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
                 access <a>mode</a> is <code>READ_ONLY</code>.</dd>
-                <dt>optional unsigned long timeout</dt>
-                <dd>The interval, specified in milliseconds, which this operation is allowed to take to
-                reserve all the <a>database</a> objects identified in the new
-                <a title="transaction">transaction's</a> <a>scope</a>. The default
-                is user agent specific</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
@@ -1350,11 +1343,11 @@ prepareDatabase(function(evt) {
               This method returns immediately and performs the <a>steps for closing a database connection</a>.
             </dd>
             <dt>attribute Function onabort</dt>
-            <dd>The event handler for the <a title="abort-error">abort event</a>.</dd>
+            <dd>The event handler for the <a>abort event</a>.</dd>
             <dt>attribute Function onerror</dt>
-            <dd>The event handler for the <a title="event-error">error event</a>.</dd>
+            <dd>The event handler for the <a>error event</a>.</dd>
             <dt>attribute Function onversionchange</dt>
-            <dd>The event handler for the <a title="event-versionchange">versionchange event</a>.</dd>
+            <dd>The event handler for the <a>versionchange event</a>.</dd>
           </dl>
         </section>
         <section class="section" id="object-store">
@@ -2056,13 +2049,11 @@ prepareDatabase(function(evt) {
               </dl>
             </dd>
             <dt>attribute Function onabort</dt>
-            <dd>The event handler for the <a title="abort-error">abort event</a>.</dd>
+            <dd>The event handler for the <a>abort event</a>.</dd>
             <dt>attribute Function oncomplete</dt>
-            <dd>The event handler for the <a title="complete-error">complete event</a>.</dd>
+            <dd>The event handler for the <a>complete event</a>.</dd>
             <dt>attribute Function onerror</dt>
-            <dd>The event handler for the <a title="event-error">error event</a>.</dd>
-            <dt>attribute Function ontimeout</dt>
-            <dd>The event handler for the <a title="timeout-error">timeout event</a>.</dd>
+            <dd>The event handler for the <a>error event</a>.</dd>
           </dl>
 
         </section>
@@ -2893,16 +2884,12 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
-              <a>transaction lifetime</a> rules. If this takes longer than the specified <var>timeout</var> then:
-              <ul>
-                <li>
-                  If these steps are run asynchronously, run the <a>steps for aborting a transaction</a> using
-                  TIMEOUT_ERR as <var>code</var>.
-                </li>
-                <li>
-                  If steps are run synchronously, throw a TIMEOUT_ERR exception.
-                </li>
-              </ul>
+              <a>transaction lifetime</a> rules. If this takes longer than the specified <var>timeout</var> then
+              a TIMEOUT_ERR exception error should be thrown.
+              <p class="note">
+                Because the asynchronous API always passes in a <var>timeout</var> of infinite, only the synchronous
+                API will ever timeout.
+              </p>
             </li>
             <li>
               If these steps are running synchronously, return the created <a>transaction</a>.
@@ -2921,7 +2908,8 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Asynchronously dispatch an event at <var>transaction</var>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"commit"</code>. The
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"commit"</code>.
+              The event does not bubble and is not cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
               then <var>transaction</var>.
             </li>
@@ -2948,7 +2936,8 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Asynchronously dispatch an event at <var>transaction</var>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>. The
+              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>.
+              The event does bubble but is not cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
               then <var>transaction</var>.
             </li>
@@ -3228,7 +3217,8 @@ var cursor = objects.<a>openCursor</a>(range);
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
               <var>transaction</var> by running <a>steps for aborting a transaction</a>. However if <var>transaction</var>
-              is null, then the <a>propagation path</a> is simply <var>request</var> and there is no <a>default action</a>. 
+              is null, then the <a>propagation path</a> is simply <var>request</var>, there is no <a>default action</a> and
+              is not cancelable.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
