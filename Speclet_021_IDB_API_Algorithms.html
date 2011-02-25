@@ -265,9 +265,18 @@
             </li>
             <li>
               If the transaction's <a>request list</a> contain any <a>request</a>s whose <a title="request done">done</a> flag
-              is still false, <a>fire a error event</a> with code <var>code</code> against each such <a>request</a>
-              and set its <a title="request done">done</a> flag to true. Also abort the <a>steps for asynchronously
-              executing a request</a> for each such transaction.
+              is still false, abort the <a>steps for asynchronously executing a request</a> for each such transaction and queue
+              a task to perform the following steps:
+              <ol>
+                <li>
+                  Set the <a title="request done">done</a> flag on the <a>request</a> to true, set
+                  <a title="request result">result</a> of the <a>request</a> to <code>undefined</code>
+                  and set <a title="request errorCode">errorCode</a> of the <a>request</a> to <code>ABORT_ERR</code>.
+                </li>
+                <li>
+                  <a>Fire an error event</a> at the <a>request</a>.
+                </li>
+              </ol>
             </li>
             <li>
               Asynchronously dispatch an event at <var>transaction</var>. The event must use
