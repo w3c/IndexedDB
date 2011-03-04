@@ -387,8 +387,20 @@
             <dd>
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the 
-                <a title="connection">connected</a> <a>database</a>. Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                <a title="connection">connected</a> <a>database</a>. If this function is called from
+                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
+                MUST throw a NOT_ALLOWED_ERR exception. If an objectStore with the same name already
+                exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
+                MUST create a new <a>object store</a> and return a <a>IDBObjectStore</a> object representing it.
+              </p>
+              <p>
+                In some implementations it's possible for the implementation to asynchronously run into problems
+                creating the object store after the createObjectStore function has returned. For example in
+                implementations where metadata about the newly created objectStore is inserted into the database
+                asynchronously, or where the implementation might need to ask the user for permission for quota
+                reasons. Such implementations MUST still create and return a <a>IDBObjectStore</a> object. Instead,
+                once the implementation realizes that creating the objectStore has failed, it MUST abort the transaction
+                using the <a>steps for aborting a transaction</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -746,17 +758,34 @@
             <dt>IDBIndex createIndex()</dt>
             <dd>
               <p>
-                This creates and returns a new <a>index</a> with the given name and parameters in the 
-                <a title="connection">connected</a> <a>database</a>.  Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                This method creates and returns a new <a>index</a> with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>. If this function is called from
+                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
+                MUST throw a NOT_ALLOWED_ERR exception. If an index with the same name already
+                exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
+                MUST create a new <a>index</a> and return a <a>IDBIndex</a> object representing it.
+              </p>
+              <p>
+                The index that is requested to be created can contain constraints on the data allowed in the index's
+                <a>referenced</a> object store, such as requiring uniqueness of the values referenced by the
+                index's keyPath. If the <a>referenced</a> object store already contains data which violates these
+                constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
+                The implementation MUST still create and return a <a>IDBIndex</a> object.
+                Instead the implementation MUST asynchronously abort the <a><code>VERSION_CHANGE</code></a>
+                transaction which was used for the createIndex call.
+              </p>
+              <p>
+                In some implementations it's possible for the implementation to asynchronously run into problems
+                creating the index after the createIndex function has returned. For example in
+                implementations where metadata about the newly created index is inserted into the database
+                asynchronously, or where the implementation might need to ask the user for permission for quota
+                reasons. Such implementations MUST still create and return a <a>IDBIndex</a> object. Instead,
+                once the implementation realizes that creating the index has failed, it MUST abort the transaction
+                using the <a>steps for aborting a transaction</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
                 <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
-                <!-- this is removed because it is implicit on the store
-                <dt>DOMString      storeName</dt>
-                <dd>The <a title="object store name">name</a> of an existing
-                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>-->
                 <dt>DOMString      keyPath</dt>
                 <dd>The <a title="index key path">key path</a> used by the new
                 <a>index</a></dd>
