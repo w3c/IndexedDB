@@ -1113,9 +1113,23 @@
             <dt>void    continue()</dt>
             <dd>
               <p>
-                If the <var>key</var> parameter is specified but is not a <a>valid key</a>,
-                this method throws a DATA_ERR exception. If this cursor's <a>got value</a> flag is false, this method
-                throws a NOT_ALLOWED_ERR. Otherwise this method runs the <a>steps for asynchronously executing a request</a>.
+                If this cursor's <a>got value</a> flag is false, this method throws a <a>NOT_ALLOWED_ERR</a>.
+                If the <var>key</var> parameter is specified and fulfills any of these conditions this
+                method MUST throw a <a>DATA_ERR</a> exception:
+              </p>
+              <ul>
+                <li>The parameter is not a <a>valid key</a>.</li>
+                <li>
+                  The parameter is <a>less than</a> or <a>equal to</> this cursor's <a>position</a>
+                  and this cursor's <a>direction</a> is NEXT or NEXT_NO_DUPLICATE.
+                </li>
+                <li>
+                  The parameter is <a>greater than</a> or <a>equal to</> this cursor's <a>position</a>
+                  and this cursor's <a>direction</a> is PREV or PREV_NO_DUPLICATE.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method runs the <a>steps for asynchronously executing a request</a>.
                 However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
                 <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
                 on the request is set to false before the request is returned.  The steps are run with the cursor's
@@ -1123,7 +1137,7 @@
                 using the created cursor as <var>cursor</var> and the <var>key</var> parameter as <var>key</var>.
               </p>
               <p>
-                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag fn the cursor to false.
+                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag on the cursor to false.
               </p>
               <dl class="parameters">
                 <dt>optional any key</dt>
