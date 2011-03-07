@@ -351,7 +351,8 @@
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
-                <dt>optional unsigned short mode</dt>                <dd>
+                <dt>optional unsigned short mode</dt>
+                <dd>
                     The <a>mode</a> for isolating access to data inside the given
                     <a title="object store">object stores</a>. If this parameter is not provided, the default
                     access <a>mode</a> is <code>READ_ONLY</code>.
@@ -457,42 +458,161 @@ cursor.continue();</codeblock>
             </dd>
             <dt>any put()</dt>
             <dd>
-              <p>                This method throws a READ_ONLY_ERR if the transaction which this <a><code>IDBObjectStoreSync</code></a> belongs to                 has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method                throws a DATA_ERR exception:              </p>              <ul>                <li>                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and                  the <var>key</var> parameter was provided.                </li>                <li>                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>                  and the <var>key</var> parameter was not provided.                </li>                <li>                  The object store uses <a>in-line keys</a> but no <a>key generator</a>                  and the result of <a title="evaluate key path">evaluating</a> the                   <a title="object store key path">object store's key path</a> does not yield a                  <a>valid key</a>.                </li>                <li>                  The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.                </li>                <li>                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object                  store and <a title="evaluate key path">evaluating</a> their key path on the                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.                </li>              </ul>              <p>                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.                If this throws an exception that exception is rethrown. It then runs the <a>steps for                synchronously executing a request</a> and returns the result, in this case the <a>key</a> of the stored object.                The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a>                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to false.              </p>              <dl class="parameters">
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this <a><code>IDBObjectStoreSync</code></a> belongs to 
+                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                throws a DATA_ERR exception:
+              </p>
+              <ul>
+                <li>
+                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and
+                  the <var>key</var> parameter was provided.
+                </li>
+                <li>
+                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                  and the <var>key</var> parameter was not provided.
+                </li>
+                <li>
+                  The object store uses <a>in-line keys</a> but no <a>key generator</a>
+                  and the result of <a title="evaluate key path">evaluating</a> the 
+                  <a title="object store key path">object store's key path</a> does not yield a
+                  <a>valid key</a>.
+                </li>
+                <li>
+                  The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store and <a title="evaluate key path">evaluating</a> their key path on the
+                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                synchronously executing a request</a> and returns the result, in this case the <a>key</a> of the stored object.
+                The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a>
+                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
+                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to false.
+              </p>
+              <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the record</dd>
                 <dt>optional any key</dt>
                 <dd>The key used to identify the record</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>                <dt>READ_ONLY_ERR</dt>                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>                <dt>DATA_ERR</dt>                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the                calculated key for any of the indexes which belong to this object store had a calculated                key which was not a <a>valid key</a></dd>                <dt>CONSTRAINT_ERR</dt>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
+                calculated key for any of the indexes which belong to this object store had a calculated
+                key which was not a <a>valid key</a></dd>
+                <dt>CONSTRAINT_ERR</dt>
                 <dd>Another record in this <a>object store</a> has the same value for the <a>keyPath</a> of 
                 a unique <a>index</a>.
                 </dd>
               </dl>
-              <dl class="exception" title="DOMException">                <dt>DATA_CLONE_ERR</dt>                <dd>The data being stored could not be cloned by the internal                structured cloning algorithm.</dd>              </dl>            </dd>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
+                structured cloning algorithm.</dd>
+              </dl>
+            </dd>
             <dt>any add()</dt>
             <dd>
-              <p>                This method throws a READ_ONLY_ERR if the transaction which this <a>IDBObjectStoreSync</a> belongs to is                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method                throws a DATA_ERR exception:              </p>              <ul>                <li>                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and                  the <var>key</var> parameter was provided.                </li>                <li>                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>                  and the <var>key</var> parameter was not provided.                </li>                <li>                  The object store uses <a>in-line keys</a> but no <a>key generator</a>                  and the result of <a title="evaluate key path">evaluating</a> the                   <a title="object store key path">object store's key path</a> does not yield a                  <a>valid key</a>.                </li>                <li>                  The <var>key parameter was provided but does not contain a <a>valid key</a>.                </li>                <li>                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object                  store and <a title="evaluate key path">evaluating</a> their key path on the                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.                </li>              </ul>              <p>                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.                If this throws an exception that exception is rethrown. It then runs the <a>steps for                synchronously executing a request</a> and returns the <a>key</a> of the stored object.                The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a>                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to true.              </p>              <dl class="parameters">
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
+                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                throws a DATA_ERR exception:
+              </p>
+              <ul>
+                <li>
+                  The object store uses <a>in-line keys</a> or has a <a>key generator</a> and
+                  the <var>key</var> parameter was provided.
+                </li>
+                <li>
+                  The object store uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                  and the <var>key</var> parameter was not provided.
+                </li>
+                <li>
+                  The object store uses <a>in-line keys</a> but no <a>key generator</a>
+                  and the result of <a title="evaluate key path">evaluating</a> the 
+                  <a title="object store key path">object store's key path</a> does not yield a
+                  <a>valid key</a>.
+                </li>
+                <li>
+                  The <var>key parameter was provided but does not contain a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store and <a title="evaluate key path">evaluating</a> their key path on the
+                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                </li>
+              </ul>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                synchronously executing a request</a> and returns the <a>key</a> of the stored object.
+                The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a>
+                as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
+                <var>key</var>, and with the <var>no-overwrite flag</var> flag set to true.
+              </p>
+              <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the record</dd>
                 <dt>optional any key</dt>
                 <dd>The key used to identify the record</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>                <dt>READ_ONLY_ERR</dt>                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>                <dt>DATA_ERR</dt>                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the                calculated key for any of the indexes which belong to this object store had a calculated                key which was not a <a>valid key</a></dd>                <dt>CONSTRAINT_ERR</dt>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
+                calculated key for any of the indexes which belong to this object store had a calculated
+                key which was not a <a>valid key</a></dd>
+                <dt>CONSTRAINT_ERR</dt>
                 <dd>A record
                 exists in this <a>object store</a> for the key <var>key</var> parameter, or another record
                 in this <a>object store</a> has the same value for the <a>keyPath</a> of a unique <a>index</a>.
                 </dd>
-              </dl>              <dl class="exception" title="DOMException">                <dt>DATA_CLONE_ERR</dt>                <dd>The data being stored could not be cloned by the internal                structured cloning algorithm.</dd>              </dl>            </dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
+                structured cloning algorithm.</dd>
+              </dl>
+            </dd>
             <dt>void delete()</dt>
             <dd>
-              <p>                This method throws a READ_ONLY_ERR if the transaction which this <a>IDBObjectStoreSync</a> belongs to is                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</var>                this method throws a DATA_ERR exception.              </p>              <p>                Otherwise this method runs the <a>steps for                synchronously executing a request</a>.
-                The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for deleting                a record from an object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a>                as <var>store</var> and the <var>key</var> parameter as <var>key</var>.              </p>              <dl class="parameters">
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
+                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</var>
+                this method throws a DATA_ERR exception.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for
+                synchronously executing a request</a>.
+                The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for deleting
+                a record from an object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a>
+                as <var>store</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be deleted</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>                <dt>READ_ONLY_ERR</dt>                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is READ_ONLY.</dd>                <dt>NOT_FOUND_ERR</dt>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is READ_ONLY.</dd>
+                <dt>NOT_FOUND_ERR</dt>
                 <dd>A record did not exist in this <a>object store</a> 
                 for the key <var>key</var> parameter.
                 </dd>
@@ -500,13 +620,30 @@ cursor.continue();</codeblock>
             </dd>
             <dt>any get()</dt>
             <dd>
-              <p>                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method                throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for synchronously executing                a request</a> and returns the result of the operation. The steps are run with this                <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for retrieving a value from an                object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a> as <var>store</var> and the                <var>key</var> parameter as <var>key</var>.              </p>              <p class="note">                This function produces the same result if a record with the given key doesn't exist as when a record                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use                <a href="#widl-IDBObjectStoreSync-openCursor">openCursor</a> with the same key. This will return a cursor with                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.              </p>
+              <p>
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
+                throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for synchronously executing
+                a request</a> and returns the result of the operation. The steps are run with this
+                <a>IDBObjectStoreSync</a> as <var>source</var> and the <a>steps for retrieving a value from an
+                object store</a> as <var>operation</var>, using this <a>IDBObjectStoreSync</a> as <var>store</var> and the
+                <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                This function produces the same result if a record with the given key doesn't exist as when a record
+                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
+                <a href="#widl-IDBObjectStoreSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
+              </p>
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the <a>record</a> to be retrieved. This can also be a <a>IDBKeyRange</a> in which case                the function retrieves the first existing value in that range.</dd>
+                <dd>Key identifying the <a>record</a> to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
+                the function retrieves the first existing value in that range.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>void clear()</dt>
@@ -530,7 +667,12 @@ cursor.continue();</codeblock>
             </dd>
             <dt>IDBIndexSync createIndex()</dt>
             <dd>
-              <p>                This creates and returns a new <a>index</a> with the given name and parameters in the                 <a title="connection">connected</a> <a>database</a>.  Note that this method must only                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.              </p>              <dl class="parameters">
+              <p>
+                This creates and returns a new <a>index</a> with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>.  Note that this method must only
+                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+              </p>
+              <dl class="parameters">
                 <dt>DOMString      name</dt>
                 <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
                 <dt>DOMString      keyPath</dt>
@@ -540,7 +682,20 @@ cursor.continue();</codeblock>
                 <dd>The <a>unique</a> flag for the new <a>index</a>. The default
                 value of this parameter is false.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">                <dt>NOT_ALLOWED_ERR</dt>                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>                 <a>transaction</a>.</dd>                <dt>CONSTRAINT_ERR</dt>                <dd>An <a>index</a> with the same name, compared in a                 case-sensitive manner, already exists in the                 <a title="connection">connected</a> <a>database</a>.                 Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>                that already contains records that violate the unique constraint.                </dd>              </dl>            </dd>            <dt>IDBIndexSync index()</dt>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                <a>transaction</a>.</dd>
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>An <a>index</a> with the same name, compared in a 
+                case-sensitive manner, already exists in the 
+                <a title="connection">connected</a> <a>database</a>. 
+                Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>
+                that already contains records that violate the unique constraint.
+                </dd>
+              </dl>
+            </dd>
+            <dt>IDBIndexSync index()</dt>
             <dd>
               Returns a <a>IDBIndexSync</a> representing a <a>index</a> that is part of the
               to this <a>object store</a>. Every call to this function on the same
@@ -563,7 +718,13 @@ cursor.continue();</codeblock>
             </dd>
             <dt>void deleteIndex()</dt>
             <dd>
-              <p>                This method destroys the <a>index</a> with the given name in the                <a title="connection">connected</a> <a>database</a>. Note that this                method must only be called from a <a><code>VERSION_CHANGE</code></a>                <a>transaction</a>.              </p>              <dl class="parameters">
+              <p>
+                This method destroys the <a>index</a> with the given name in the
+                <a title="connection">connected</a> <a>database</a>. Note that this
+                method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                <a>transaction</a>.
+              </p>
+              <dl class="parameters">
                 <dt>DOMString indexName</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
@@ -573,18 +734,45 @@ cursor.continue();</codeblock>
                 If the <a>index</a> with the given name does not exist 
                 in the <a title="connection">connected</a> <a>database</a>.      
                 </dd>
-                <dt>NOT_ALLOWED_ERR</dt>                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>                <a>transaction</a>.</dd>              </dl>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                <a>transaction</a>.</dd>
+              </dl>
             </dd>
             <dt>IDBCursorSync openCursor()</dt>
             <dd>
-              <p>                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the                <a>IDBObjectStoreSync</a> this function was called on.              </p>              <p>                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that                range. Otherwise, if the <var>range</var> parameter is a <a>key</a> then the cursor's <a>range</a>                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,                the cursor's key range is left as undefined.              </p>              <p>                This method runs the <a>steps for synchronously executing a request</a> and returns the result of the operation, in                 this case an <a>IDBCursorSync</a> object. The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the                <a>steps for iterating a cursor</a> as <var>operation</var>,                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>.              </p>              <dl class="parameters">
+              <p>
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBObjectStoreSync</a> this function was called on.
+              </p>
+              <p>
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
+              </p>
+              <p>
+                This method runs the <a>steps for synchronously executing a request</a> and returns the result of the operation, in 
+                this case an <a>IDBCursorSync</a> object. The steps are run with this <a>IDBObjectStoreSync</a> as <var>source</var> and the
+                <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>.
+              </p>
+              <dl class="parameters">
                 <dt>optional any    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>range</var> parameter was not passed a valid value.</dd>              </dl>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+              </dl>
             </dd>
           </dl>                
         </section>
@@ -670,47 +858,128 @@ cursor.<a>continue</a>();</codeblock>
             <dt>IDBCursorSync openCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the                <a>IDBIndexSync</a> this function was called on.              </p>              <p>                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,                the cursor's key range is left as undefined.              </p>              <p>                This method runs the <a>steps for synchronously executing                a request</a> and returns the result, in this case a cursor object. The steps are run with this                <a>IDBIndexSync</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>              </p>              <dl class="parameters">
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBIndexSync</a> this function was called on.
+              </p>
+              <p>
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
+              </p>
+              <p>
+                This method runs the <a>steps for synchronously executing
+                a request</a> and returns the result, in this case a cursor object. The steps are run with this
+                <a>IDBIndexSync</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
+              </p>
+              <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
 
             <dt>IDBCursorSync openKeyCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the                <a>IDBIndexSync</a> this function was called on.              </p>              <p>                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,                the cursor's key range is left as undefined.              </p>              <p>                This method runs the <a>steps for synchronously executing                a request</a> and returns the result, in this case a cursor object. The steps are run with this                <a>IDBIndexSync</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>              </p>              <dl class="parameters">
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
+                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
+                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
+                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
+                <a>IDBIndexSync</a> this function was called on.
+              </p>
+              <p>
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
+              </p>
+              <p>
+                This method runs the <a>steps for synchronously executing
+                a request</a> and returns the result, in this case a cursor object. The steps are run with this
+                <a>IDBIndexSync</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
+              </p>
+              <dl class="parameters">
                 <dt>optional IDBKeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>range</var> parameter was not passed a valid value.</dd>              </dl>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+              </dl>
             </dd>
             <dt>any get()</dt>
             <dd>
-              <p>                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method                throws a DATA_ERR exception. This method runs the <a>steps for synchronously executing a request</a>                and returns the result from that, in this case an object from the underlying store. The steps are                 run with this <a>IDBIndexSync</a> as <var>source</var> and the <a>steps                 for retrieving a referenced value from an index</a> as <var>operation</var>, using this <a>IDBIndexSync</a>                 as <var>index</var> and the <var>key</var> parameter as <var>key</var>.              </p>              <p class="note">                This function produces the same result if a record with the given key doesn't exist as when a record                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use                <a href="#widl-IDBIndexSync-openCursor">openCursor</a> with the same key. This will return a cursor with                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.              </p>              <dl class="parameters">
+              <p>
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
+                throws a DATA_ERR exception. This method runs the <a>steps for synchronously executing a request</a>
+                and returns the result from that, in this case an object from the underlying store. The steps are 
+                run with this <a>IDBIndexSync</a> as <var>source</var> and the <a>steps 
+                for retrieving a referenced value from an index</a> as <var>operation</var>, using this <a>IDBIndexSync</a> 
+                as <var>index</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                This function produces the same result if a record with the given key doesn't exist as when a record
+                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
+                <a href="#widl-IDBIndexSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
+              </p>
+              <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case                the function retreives the first existing value in that range.</dd>
+                <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
+                the function retreives the first existing value in that range.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
             <dt>any getKey()</dt>
             <dd>
-              <p>                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method                throws a DATA_ERR exception. This method runs the <a>steps for synchronously executing a request</a>                and returns the result from that, in this case an index value (a <a>key</a>). The steps are                 run with the <a>IDBObjectStoreSync</a> associated with this index as <var>source</var> and the <a>steps                 for retrieving a value from an index</a> as <var>operation</var>, using this <a>IDBIndexSync</a>                 as <var>index</var> and the <var>key</var> parameter as <var>key</var>.              </p>              <p class="note">                This function produces the same result if a record with the given key doesn't exist as when a record                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use                <a href="#widl-IDBIndexSync-openCursor">openCursor</a> with the same key. This will return a cursor with                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.              </p>              <dl class="parameters">
+              <p>
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
+                throws a DATA_ERR exception. This method runs the <a>steps for synchronously executing a request</a>
+                and returns the result from that, in this case an index value (a <a>key</a>). The steps are 
+                run with the <a>IDBObjectStoreSync</a> associated with this index as <var>source</var> and the <a>steps 
+                for retrieving a value from an index</a> as <var>operation</var>, using this <a>IDBIndexSync</a> 
+                as <var>index</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                This function produces the same result if a record with the given key doesn't exist as when a record
+                exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
+                <a href="#widl-IDBIndexSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
+              </p>
+              <dl class="parameters">
                 <dt>any key</dt>
-                <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case                the function retreives the first existing value in that range.</dd>
+                <dd>Key identifying the record to be retrieved. This can also be a <a>IDBKeyRange</a> in which case
+                the function retreives the first existing value in that range.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was not passed a valid value.</dd>
               </dl>
             </dd>
           </dl>
@@ -810,20 +1079,36 @@ var cursor = objects.<a>openCursor</a>(range);
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
             <dt>readonly attribute any key</dt>
-            <dd>The key for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has            iterated past the end of its range.</dd>
+            <dd>The key for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
+            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
+            iterated past the end of its range.</dd>
             <dt>attribute any value</dt>
-            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has            iterated past the end of its range. Note that if this property returns an object, it returns the same            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object            does not modify the contents of the database.
+            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
+            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
+            iterated past the end of its range. Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.
               <dl class="setraises" title="IDBDatabaseException">
                 <dt>DATA_ERR</dt>
                 <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
                 and the property at the <a title="object store key path">key path</a>
                 does not match the key in this <a>cursor</a>'s <a>position</a>. Also if the cursor was iterated past its end, or
                 if the cursor was opened using <a>openkeyCursor</a></dd>
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>                <dt>READ_ONLY_ERR</dt>                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>                <dt>CONSTRAINT_ERR</dt>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dt>CONSTRAINT_ERR</dt>
                 <dd>Another record in this <a>object store</a> has the same value for the <a>keyPath</a> of 
                 a unique <a>index</a>.
               </dl>
-              <dl class="setraises" title="DOMException">                <dt>DATA_CLONE_ERR</dt>                <dd>The data being stored could not be cloned by the internal                structured cloning algorithm.</dd>              </dl>            </dd>
+              <dl class="setraises" title="DOMException">
+                <dt>DATA_CLONE_ERR</dt>
+                <dd>The data being stored could not be cloned by the internal
+                structured cloning algorithm.</dd>
+              </dl>
+            </dd>
 
             <dt>boolean  continue()</dt>
             <dd>
@@ -843,17 +1128,59 @@ var cursor = objects.<a>openCursor</a>(range);
                   and this cursor's <a>direction</a> is PREV or PREV_NO_DUPLICATE.
                 </li>
               </ul>
-              <p>                Otherwise this method runs the <a>steps for synchronously executing a request</a>.                The steps are run with the cursor's <a title="cursor source">source</a> as <var>source</var> and the <a>steps                 for iterating a cursor</a> as <var>operation</var>, using the cursor this is called on as <var>cursor</var> and                 the <var>key</var> parameter as <var>key</var>.              </p>              <p>                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag in the cursor to false.              </p>              <dl class="parameters">
+              <p>
+                Otherwise this method runs the <a>steps for synchronously executing a request</a>.
+                The steps are run with the cursor's <a title="cursor source">source</a> as <var>source</var> and the <a>steps 
+                for iterating a cursor</a> as <var>operation</var>, using the cursor this is called on as <var>cursor</var> and 
+                the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p>
+                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag in the cursor to false.
+              </p>
+              <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>                <dt>NOT_ALLOWED_ERR</dt>                <dd>The cursor has iterated past its end.</dd>                <dt>DATA_ERR</dt>                <dd>The <var>key</var> parameter was specified but did not contain a <a>valid key</a>.</dd>              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The cursor has iterated past its end.</dd>
+                <dt>DATA_ERR</dt>
+                <dd>The <var>key</var> parameter was specified but did not contain a <a>valid key</a>.</dd>
+              </dl>
             </dd>
             
             <dt>void    delete()</dt>
             <dd>          
-              <p>                This method throws a READ_ONLY_ERR if the transaction which this <a>IDBCursorSync</a> belongs to                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,                or if this cursor was created using                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a                NOT_ALLOWED_ERR is thrown.              </p>              <p>                Otherwise this method runs the <a>steps for synchronously executing a request</a>. The steps are run                 with this <a>IDBCursorSync</a> as <var>source</var> and the <a>steps for deleting a record from an                 object store</a> as <var>operation</var>, using this cursor's <a>effective object store</a> and                 <a>effective key</a> as <var>store</var> and <var>key</var> respectively.              </p>              <p class="issue">                This method used to set this cursor's <a title="cursor value">value</a> to <code>null</code>. Do we want to                keep that?              </p>              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>                <dt>READ_ONLY_ERR</dt>                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursorSync</a> belongs to                is <code>READ_ONLY</code>.</dd>                <dt>NOT_ALLOWED_ERR</dt>                <dd>The cursor was created using                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor"><code>openKeyCursor</code></a> or the cursor                is currently being iterated or has iterated past the end.</dd>              </dl>
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this <a>IDBCursorSync</a> belongs to
+                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
+                or if this cursor was created using
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
+                NOT_ALLOWED_ERR is thrown.
+              </p>
+              <p>
+                Otherwise this method runs the <a>steps for synchronously executing a request</a>. The steps are run 
+                with this <a>IDBCursorSync</a> as <var>source</var> and the <a>steps for deleting a record from an 
+                object store</a> as <var>operation</var>, using this cursor's <a>effective object store</a> and 
+                <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
+              </p>
+              <p class="issue">
+                This method used to set this cursor's <a title="cursor value">value</a> to <code>null</code>. Do we want to
+                keep that?
+              </p>
+              <dl class="exception" title="IDBDatabaseException">
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>READ_ONLY_ERR</dt>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursorSync</a> belongs to
+                is <code>READ_ONLY</code>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The cursor was created using
+                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
+                is currently being iterated or has iterated past the end.</dd>
+              </dl>
             </dd>
           </dl>
         </section>
@@ -866,7 +1193,20 @@ var cursor = objects.<a>openCursor</a>(range);
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
           <dl class="idl" title="interface IDBTransactionSync">
-            <dt>const     unsigned short READ_ONLY    = 0</dt>            <dd>Modification operations are not allowed in the <a>transaction</a>            in this mode.</dd>            <dt>const     unsigned short READ_WRITE    = 1</dt>            <dd>Modification operations are allowed in the <a>transactions</a>            in this mode.</dd>            <dt>const     unsigned short VERSION_CHANGE = 2</dt>            <dd>This mode is used solely for updating the version number of            transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabaseSync</code></a>.</dd>            <dt>readonly attribute unsigned short mode</dt>            <dd>On getting, provide the <a>mode</a> for isolating access to data inside            the <a title="object store">object stores</a> that are in the            <a>scope</a> of the <a>transaction</a>.</dd>            <dt>attribute IDBDatabaseSync db</dt>
+            <dt>const     unsigned short READ_ONLY    = 0</dt>
+            <dd>Modification operations are not allowed in the <a>transaction</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_WRITE    = 1</dt>
+            <dd>Modification operations are allowed in the <a>transactions</a>
+            in this mode.</dd>
+            <dt>const     unsigned short VERSION_CHANGE = 2</dt>
+            <dd>This mode is used solely for updating the version number of
+            transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabaseSync</code></a>.</dd>
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            the <a title="object store">object stores</a> that are in the
+            <a>scope</a> of the <a>transaction</a>.</dd>
+            <dt>attribute IDBDatabaseSync db</dt>
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part</dd>
             <dt>IDBObjectStoreSync objectStore()</dt>
