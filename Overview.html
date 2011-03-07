@@ -991,6 +991,31 @@ prepareDatabase(function(evt) {
           </dl>
         </section>
       </section>  
+      <section id="options-object-concept" class="section">
+        <h4>Options Object</h4>
+        <p>
+          <dfn>Options object</dfn>s are simply JavaScript objects [[!ECMA-262]]
+            which are used to supply optional parameters to some indexedDB functions like
+            <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> and
+            <a href="#widl-IDBObjectStore-createIndex">createIndex</a>. The attributes on the object
+            correspond to optional parameters on the function called. The domain of valid
+            attributes/parameters depends on the function called. If an attribute is present in the
+            object which is not part of that domain, a <a href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR">
+            <code>NON_TRANSIENT_ERR</code></a> exception
+            MUST be thrown. Similarly, if any attribute has a getter function or its value is an object, a
+            <a href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR">
+            <code>NOT_TRANSIENT_ERR</code></a> exception MUST be thrown.
+        </p>
+        <p class="note">
+          We disallow getters and objects because the getter function and the toString function can
+          execute arbitrary JavaScript which exposes many obscure corner cases which aren't worth speccing
+          out. For example, navigating the page or adding an <a title="object store">objectStore</a> while
+          inside a <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> call.
+        </p>
+        <p class="issue">
+          This should probably be moved into the WebIDL spec.
+        </p>
+      </section> <!-- Options Object -->
       <section class="section" id="async-api"> 
         <h3>Asynchronous APIs</h3>
         <p>
@@ -1256,23 +1281,29 @@ prepareDatabase(function(evt) {
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
-                <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
-                <dt>[TreatNullAs=EmptyString] optional DOMString keyPath</dt>
-                <dd>The <a title="object store key path">key path</a> of a new 
-                <a>object store</a>. If <a>empty</a> path is specified, then the 
-                <a>object store</a> created will not have a <a>key path</a> and will
-                use <a>out-of-line keys</a>.</dd>
-                <dt>optional boolean autoIncrement</dt>
-                <dd>Whether the <a>object store</a> created should have a 
-                <a>key generator</a>. This defaults to <code>false</code>.</dd>
+                  <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
+                <dt>optional Object optionalParameters</dt>
+                  <dd>The <a>options object</a> whose attributes are optional parameters to this function.
+                    Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
+                    <code>keyPath</code> specifies the <a title="object store key path">key path</a> of the new 
+                    <a>object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
+                    the empty string, or not present, no <a title="object store key path">key path</a> is
+                    specified and thus keys are <a>out-of-line</a>.
+                    <code>autoIncrement</code> specifies
+                    whether the <a>object store</a> created should have a <a>key generator</a>.
+                    It defaults to <code>false</code>.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.</dd>
+                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                  <a>transaction</a> callback.</dd>
                 <dt>CONSTRAINT_ERR</dt>
-                <dd>An <a>object store</a> with the same name, compared in a 
-                case-sensitive manner, already exists in the 
-                <a title="connection">connected</a> <a>database</a>. </dd>
+                  <dd>An <a>object store</a> with the same name, compared in a 
+                  case-sensitive manner, already exists in the 
+                  <a title="connection">connected</a> <a>database</a>. </dd>
+                <dt>NON_TRANSIENT_ERR</dt>
+                  <dd><code>optionalParameters</code> has attributes other
+                  than <code>keyPath</code> and <code>autoIncrement</code>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest deleteObjectStore()</dt>
@@ -1637,21 +1668,27 @@ prepareDatabase(function(evt) {
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
-                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                  <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
                 <dt>DOMString      keyPath</dt>
-                <dd>The <a title="index key path">key path</a> used by the new
-                <a>index</a></dd>
-                <dt>optional boolean unique</dt>
-                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
+                  <dd>The <a title="index key path">key path</a> used by the new
+                  <a>index</a></dd>
+                <dt>optional Object optionalParameters</dt>
+                  <dd>The <a>options object</a> whose attributes are optional parameters to this function.
+                    The only valid option is <code>unique</code>.
+                    <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
+                    set. It defaults to <code>false</code>.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
                 <a>transaction</a> callback.</dd>
                 <dt>CONSTRAINT_ERR</dt>
-                <dd>An <a>index</a> with the same name, compared in a 
-                case-sensitive manner, already exists in the 
-                <a title="connection">connected</a> <a>database</a>. </dd>
+                  <dd>An <a>index</a> with the same name, compared in a 
+                  case-sensitive manner, already exists in the 
+                  <a title="connection">connected</a> <a>database</a>. </dd>
+                <dt>NON_TRANSIENT_ERR</dt>
+                  <dd><code>optionalParameters</code> has attributes other
+                  than <code>unique</code>.</dd>
               </dl>
             </dd>
             <dt>IDBIndex index()</dt>
@@ -2210,40 +2247,28 @@ prepareDatabase(function(evt) {
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
-                <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
-                <dt>[TreatNullAs=EmptyString] DOMString keyPath</dt>
-                <dd>The <a title="object store key path">key path</a> of a new 
-                <a>object store</a>. If <a>null</a> path is specified, then the 
-                <a>object store</a> created will not have a <a>key path</a> and will
-                use <a>out-of-line keys</a>.</dd>
-                <dt>optional boolean autoIncrement</dt>
-                <dd>Whether the <a>object store</a> created should have a 
-                <a>key generator</a>. This defaults to <code>false</code>.</dd>
+                  <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
+                <dt>optional Object optionalParameters</dt>
+                  <dd>The <a>options object</a> whose attributes are optional parameters to this function.
+                    Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
+                    <code>keyPath</code> specifies the <a title="object store key path">key path</a> of the new 
+                    <a>object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
+                    the empty string, or not present, no <a title="object store key path">key path</a> is
+                    specified and thus keys are <a>out-of-line</a>.
+                    <code>autoIncrement</code> specifies
+                    whether the <a>object store</a> created should have a <a>key generator</a>.
+                    It defaults to <code>false</code>.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
-                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_ALLOWED_ERR"><code>NOT_ALLOWED_ERR</code></a></dt>
+                <dt>NOT_ALLOWED_ERR</dt>
                 <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.</dd>
-                <dt><a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a></dt>
-                <dd>
-                If an <a>object store</a> with the same name, compared in a case-sensitive
-                manner, already exists in the <a title="connection">connected</a> 
-                <a>database</a>.
-                </dd>
-              </dl>
-            </dd>
-            <dd>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt><a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a></dt>
-                <dd>
-                If an <a>index</a> with the same name, compared in a case-sensitive
-                manner, already exists in the <a title="connection">connected</a> 
-                <a>database</a>.
-                </dd>
-                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
-                <dd>
-                If the <a>object store</a> with the given name does not exist 
-                in the <a title="connection">connected</a> <a>database</a>.      
-                </dd>
+                <dt>CONSTRAINT_ERR</dt>
+                  <dd>If an <a>object store</a> with the same name, compared in a case-sensitive
+                  manner, already exists in the <a title="connection">connected</a> 
+                  <a>database</a>.</dd>
+                <dt>NON_TRANSIENT_ERR</dt>
+                  <dd><code>optionalParameters</code> has attributes other
+                  than <code>keyPath</code> and <code>autoIncrement</code>.</dd>
               </dl>
             </dd>
             <dt>void deleteObjectStore()</dt>
@@ -2635,25 +2660,29 @@ cursor.continue();</codeblock>
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
-                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                  <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
                 <dt>DOMString      keyPath</dt>
-                <dd>The <a title="index key path">key path</a> used by the new
-                <a>index</a></dd>
-                <dt>optional boolean unique</dt>
-                <dd>The <a>unique</a> flag for the new <a>index</a>. The default
-                value of this parameter is false.</dd>
+                  <dd>The <a title="index key path">key path</a> used by the new
+                  <a>index</a></dd>
+                <dt>optional Object optionalParameters</dt>
+                  <dd>The <a>options object</a> whose attributes are optional parameters to this function.
+                    The only valid option is <code>unique</code>.
+                    <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
+                    set. It defaults to <code>false</code>.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
-                <a>transaction</a>.</dd>
+                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                  <a>transaction</a>.</dd>
                 <dt>CONSTRAINT_ERR</dt>
-                <dd>An <a>index</a> with the same name, compared in a 
-                case-sensitive manner, already exists in the 
-                <a title="connection">connected</a> <a>database</a>. 
-                Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>
-                that already contains records that violate the unique constraint.
-                </dd>
+                  <dd>An <a>index</a> with the same name, compared in a 
+                  case-sensitive manner, already exists in the 
+                  <a title="connection">connected</a> <a>database</a>. 
+                  Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>
+                  that already contains records that violate the unique constraint.</dd>
+                <dt>NON_TRANSIENT_ERR</dt>
+                  <dd><code>optionalParameters</code> has attributes other
+                  than <code>unique</code>.</dd>
               </dl>
             </dd>
             <dt>IDBIndexSync index()</dt>

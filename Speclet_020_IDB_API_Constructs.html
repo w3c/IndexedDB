@@ -785,6 +785,31 @@
           </dl>
         </section>
       </section>  
+      <section id="options-object-concept" class="section">
+        <h4>Options Object</h4>
+        <p>
+          <dfn>Options object</dfn>s are simply JavaScript objects [[!ECMA-262]]
+            which are used to supply optional parameters to some indexedDB functions like
+            <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> and
+            <a href="#widl-IDBObjectStore-createIndex">createIndex</a>. The attributes on the object
+            correspond to optional parameters on the function called. The domain of valid
+            attributes/parameters depends on the function called. If an attribute is present in the
+            object which is not part of that domain, a <a href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR">
+            <code>NON_TRANSIENT_ERR</code></a> exception
+            MUST be thrown. Similarly, if any attribute has a getter function or its value is an object, a
+            <a href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR">
+            <code>NOT_TRANSIENT_ERR</code></a> exception MUST be thrown.
+        </p>
+        <p class="note">
+          We disallow getters and objects because the getter function and the toString function can
+          execute arbitrary JavaScript which exposes many obscure corner cases which aren't worth speccing
+          out. For example, navigating the page or adding an <a title="object store">objectStore</a> while
+          inside a <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> call.
+        </p>
+        <p class="issue">
+          This should probably be moved into the WebIDL spec.
+        </p>
+      </section> <!-- Options Object -->
       <!-- end-content -->
     </section>
   </body>
