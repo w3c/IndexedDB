@@ -777,32 +777,7 @@ prepareDatabase(function(evt) {
             <dd>Returns false if the lower-bound value is included in the <a>key range</a>.</dd>
             <dt>readonly attribute boolean upperOpen</dt>
             <dd>Returns false if the upper-bound value is included in the <a>key range</a>.</dd>
-          </dl>
-          <p>
-            A <a><var>key value</var></a> is <dfn>in a <a>key range</a></dfn> if both the following conditions are
-            fulfilled:
-          </p>
-          <ul>
-            <li>
-              The <a>key range</a> <a href="#widl-IDBKeyRange-lower"><code>lower</code></a> value is <code>undefined</code> or
-              <a>less than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
-              <a href="#widl-IDBKeyRange-lowerOpen"><code>lowerOpen</code></a> is <code>false</code>.
-            </li>
-            <li>
-              The <a>key range</a> <a href="#widl-IDBKeyRange-upper"><code>upper</code></a> value is <code>undefined</code> or
-              <a>greater than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
-              <a href="#widl-IDBKeyRange-upperOpen"><code>upperOpen</code></a> is <code>false</code>.
-            </li>
-          </ul>
-
-          <p>
-            To construct a <a>key range</a> a set of constructors are available. In languages with
-            interface objects [[!WEBIDL]], these constructors are available on the <code>IDBKeyRange</code>
-            interface object. In other languages these constructors are available through language specific
-            means, for example as static functions.
-          </p>
-          <dl class="idl" title="[NoInterfaceObject] interface IDBKeyRangeConstructors"> 
-            <dt>IDBKeyRange only()</dt>
+            <dt>static IDBKeyRange only()</dt>
             <dd>
               Creates and returns a new <a>key range</a> with both <a href="#widl-IDBKeyRange-lower">lower</a> and
               <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and both
@@ -817,7 +792,7 @@ prepareDatabase(function(evt) {
                 <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBKeyRange lowerBound()</dt>
+            <dt>static IDBKeyRange lowerBound()</dt>
             <dd>
               Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
               <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>open</var>,
@@ -834,7 +809,7 @@ prepareDatabase(function(evt) {
                 <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBKeyRange upperBound()</dt>
+            <dt>static IDBKeyRange upperBound()</dt>
             <dd>
               Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
               <code>undefined</code>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to true,
@@ -851,7 +826,7 @@ prepareDatabase(function(evt) {
                 <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBKeyRange bound()</dt>
+            <dt>static IDBKeyRange bound()</dt>
             <dd>
               Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
               <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>lowerOpen</var>,
@@ -875,6 +850,22 @@ prepareDatabase(function(evt) {
               </dl>
             </dd>
           </dl>
+          <p>
+            A <a><var>key value</var></a> is <dfn>in a <a>key range</a></dfn> if both the following conditions are
+            fulfilled:
+          </p>
+          <ul>
+            <li>
+              The <a>key range</a> <a href="#widl-IDBKeyRange-lower"><code>lower</code></a> value is <code>undefined</code> or
+              <a>less than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a href="#widl-IDBKeyRange-lowerOpen"><code>lowerOpen</code></a> is <code>false</code>.
+            </li>
+            <li>
+              The <a>key range</a> <a href="#widl-IDBKeyRange-upper"><code>upper</code></a> value is <code>undefined</code> or
+              <a>greater than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a href="#widl-IDBKeyRange-upperOpen"><code>upperOpen</code></a> is <code>false</code>.
+            </li>
+          </ul>
         </section> <!-- Key Range -->
         
         <section id="cursor-concept" class="section">
@@ -1248,8 +1239,20 @@ prepareDatabase(function(evt) {
             <dd>
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the 
-                <a title="connection">connected</a> <a>database</a>. Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                <a title="connection">connected</a> <a>database</a>. If this function is called from
+                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
+                MUST throw a NOT_ALLOWED_ERR exception. If an objectStore with the same name already
+                exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
+                MUST create a new <a>object store</a> and return a <a>IDBObjectStore</a> object representing it.
+              </p>
+              <p>
+                In some implementations it's possible for the implementation to asynchronously run into problems
+                creating the object store after the createObjectStore function has returned. For example in
+                implementations where metadata about the newly created objectStore is inserted into the database
+                asynchronously, or where the implementation might need to ask the user for permission for quota
+                reasons. Such implementations MUST still create and return a <a>IDBObjectStore</a> object. Instead,
+                once the implementation realizes that creating the objectStore has failed, it MUST abort the transaction
+                using the <a>steps for aborting a transaction</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -1607,17 +1610,34 @@ prepareDatabase(function(evt) {
             <dt>IDBIndex createIndex()</dt>
             <dd>
               <p>
-                This creates and returns a new <a>index</a> with the given name and parameters in the 
-                <a title="connection">connected</a> <a>database</a>.  Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                This method creates and returns a new <a>index</a> with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>. If this function is called from
+                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
+                MUST throw a NOT_ALLOWED_ERR exception. If an index with the same name already
+                exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
+                MUST create a new <a>index</a> and return a <a>IDBIndex</a> object representing it.
+              </p>
+              <p>
+                The index that is requested to be created can contain constraints on the data allowed in the index's
+                <a>referenced</a> object store, such as requiring uniqueness of the values referenced by the
+                index's keyPath. If the <a>referenced</a> object store already contains data which violates these
+                constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
+                The implementation MUST still create and return a <a>IDBIndex</a> object.
+                Instead the implementation MUST asynchronously abort the <a><code>VERSION_CHANGE</code></a>
+                transaction which was used for the createIndex call.
+              </p>
+              <p>
+                In some implementations it's possible for the implementation to asynchronously run into problems
+                creating the index after the createIndex function has returned. For example in
+                implementations where metadata about the newly created index is inserted into the database
+                asynchronously, or where the implementation might need to ask the user for permission for quota
+                reasons. Such implementations MUST still create and return a <a>IDBIndex</a> object. Instead,
+                once the implementation realizes that creating the index has failed, it MUST abort the transaction
+                using the <a>steps for aborting a transaction</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
                 <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
-                <!-- this is removed because it is implicit on the store
-                <dt>DOMString      storeName</dt>
-                <dd>The <a title="object store name">name</a> of an existing
-                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>-->
                 <dt>DOMString      keyPath</dt>
                 <dd>The <a title="index key path">key path</a> used by the new
                 <a>index</a></dd>
@@ -1687,12 +1707,13 @@ prepareDatabase(function(evt) {
             <dd>
               On getting, provide the <a title="index name">name</a> of this <a>index</a>.        
             </dd>
-            <dt>readonly attribute DOMString      storeName</dt>
+            <dt>readonly attribute IDBObjectStore objectStore</dt>
             <dd>
-              On getting, provide the <a title="object store name">name</a> of this
-              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+              On getting, returns a reference to the <a>IDBObjectStore</a> instance for the
+              <a>referenced</a> object store in this <a>IDBIndex</a>'s transaction. This MUST
+              return the same <a>IDBObjectStore</a> instance as was used to get a reference
+              to this <a>IDBIndex</a>.
             </dd>
-        
             <dt>readonly attribute DOMString      keyPath</dt>
             <dd>
               On getting, provide the <a title="index key path">key path</a> of this
@@ -1866,8 +1887,14 @@ prepareDatabase(function(evt) {
               record is yielded.
             </dd>
 
+            <dt>readonly attribute Object             source</dt>
+            <dd>
+            On getting, returns the <a>IDBObjectStore</a> or <a>IDBIndex</a> which this cursor is iterating. This function
+            never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
+            or its transaction is not <a>active</a>.
+            </dd>
             <dt>readonly attribute unsigned short     direction</dt>
-            <dd>            
+            <dd>
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
             <dt>readonly attribute any key</dt>
@@ -2567,10 +2594,12 @@ cursor.<a>continue</a>();</codeblock>
             <dd>
               On getting, provide the <a title="index name">name</a> of this <a>index</a>.        
             </dd>
-            <dt>readonly attribute DOMString      storeName</dt>
+            <dt>readonly attribute IDBObjectStoreSync objectStore</dt>
             <dd>
-              On getting, provide the <a title="object store name">name</a> of this
-              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+              On getting, returns a reference to the <a>IDBObjectStoreSync</a> instance for the
+              <a>referenced</a> object store in this <a>IDBIndexSync</a>'s transaction. This MUST
+              return the same <a>IDBObjectStoreSync</a> instance as was used to get a reference
+              to this <a>IDBIndexSync</a>.
             </dd>
         
             <dt>readonly attribute DOMString      keyPath</dt>
@@ -2717,7 +2746,12 @@ var cursor = objects.<a>openCursor</a>(range);
               order of keys. For every key with duplicate values, only the first
               record is yielded.
             </dd>
-
+            <dt>readonly attribute Object             source</dt>
+            <dd>
+            On getting, returns the <a>IDBObjectStoreSync</a> or <a>IDBIndexSync</a> which this cursor is iterating. This function
+            never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
+            or its transaction is not <a>active</a>.
+            </dd>
             <dt>readonly attribute unsigned short     direction</dt>
             <dd>            
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
