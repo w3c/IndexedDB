@@ -404,9 +404,16 @@
               </p>
             </li>
             <li id="VERSION_CHANGE-close-block">
-              Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
-              their transactions are <a title="transaction finish">finished</a>.
-              <p class="issue">Should we allow <code>blocked</code> to be fired here too, if waiting takes "too long"?</p>
+              Wait until either all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
+              their transactions are <a title="transaction finish">finished</a> or <var>connection</var> has its
+              <a><code>closePending</code></a> flag set to <code>true</code>.
+              <p class="issue">If .close() is called immediately but a <a>transaction</a> associated with the <var>connection</var>
+              keeps running for a "long time", should we also fire a <code>blocked</code> event?</p>
+            </li>
+            <li>
+              If <var>connection</var> has its <a><code>closePending</code></a> flag set to <code>true</code>, 
+              abort the transaction by following the <a>steps for aborting a transaction</a> and abort this algorithm without taking
+              any further steps.
             </li>
             <li>
               Start the <a>transaction</a> that will be used during the version change. Note that until this <a>transaction</a> is finished, no other <a>connection</a>s
