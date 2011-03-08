@@ -368,19 +368,42 @@
             <dt>readonly attribute DOMString name</dt>
             <dd>
               On getting, this attribute MUST return the <a title="database name">name</a>
-              of the <a title="connection">connected</a> <a>database</a>.
+              of the <a title="connection">connected</a> <a>database</a>. The function MUST
+              return this name even if the <a>closePending</a> flag is set on the <a>connection</a>.
+              In other words, the return value from this function
+              stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
             <dt>readonly attribute DOMString version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has the empty string value when the
               <a title="connection">connected</a> <a>database</a> is first created.
+              Once the <a>closePending</a> flag is set on the <a>connection</a>, this
+              function MUST return a snapshot of the <a>version</a> taken when the
+              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              other <a>connection</a>s are later used to change the <a>version</a> of the
+              <a>database</a>. In other words, the return value from this function
+              stays constant for the lifetime of the <a>IDBDatabase</a> instance,
+              unless <a href="#widl-IDBDatabase-setVersion">setVersion</a> is called
+              on this <a>IDBDatabase</a> instance itself.
             </dd>
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
               On getting, this attribute MUST return a list of names of the 
               <a title="object store">object stores</a> currently in the 
               <a title="connection">connected</a> <a>database</a>.
+              Once the <a>closePending</a> flag is set on the <a>connection</a>, this
+              function MUST return a snapshot of the list of names of the <a>object
+              store</a>s taken at the time when the
+              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              other <a>connection</a>s are later used to change the set of <a>object
+              store</a>s that exist in the <a>database</a>. In other words, the return
+              value from this function stays constant for the lifetime of the
+              <a>IDBDatabase</a> instance, unless
+              <a href="#widl-IDBDatabase-setVersion">setVersion</a> and
+              <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> or
+              <a href="#widl-IDBDatabase-deleteObjectStore">deleteObjectStore</a>
+              is called on this <a>IDBDatabase</a> instance itself.
             </dd>
             <dt>IDBObjectStore createObjectStore()</dt>
             <dd>
