@@ -1607,15 +1607,18 @@ prepareDatabase(function(evt) {
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
-                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
-                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
-                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
-                <a>IDBObjectStore</a> this function was called on.
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursorWithValue</a> interface.
               </p>
               <p>
-                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
-                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>iterable</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBObjectStore</a> this function was called on.
+              </p>
+              <p>
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> MUST be set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
                 is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
                 the cursor's key range is left as undefined.
               </p>
@@ -1635,7 +1638,7 @@ prepareDatabase(function(evt) {
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+                <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>IDBIndex createIndex()</dt>
@@ -1766,15 +1769,18 @@ prepareDatabase(function(evt) {
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
-                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
-                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
-                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
-                <a>IDBIndex</a> this function was called on.
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursorWithValue</a> interface.
+              </p>
+              <p>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>iterable</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBIndex</a> this function was called on.
               </p>
               <p>
                 If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
-                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
                 is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
                 the cursor's key range is left as undefined.
               </p>
@@ -1794,22 +1800,25 @@ prepareDatabase(function(evt) {
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+                <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
-                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
-                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
-                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
-                <a>IDBIndex</a> this function was called on.
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursor</a> interface, but MUST NOT implement the <a>IDBCursorWithValue</a> interface.
+              </p>
+              <p>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>iterable</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBIndex</a> this function was called on.
               </p>
               <p>
                 If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
-                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
                 is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
                 the cursor's key range is left as undefined.
               </p>
@@ -1829,7 +1838,7 @@ prepareDatabase(function(evt) {
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+                <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
@@ -1897,7 +1906,7 @@ prepareDatabase(function(evt) {
             <a title="cursor">Cursor</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBCursor">
-  <dt>const     unsigned short     NEXT = 0</dt>
+            <dt>const     unsigned short     NEXT = 0</dt>
             <dd>
               indicates that this <a>cursor</a> should yield all records, including  
               duplicates and its <a>direction</a> is monotonically increasing 
@@ -1938,13 +1947,10 @@ prepareDatabase(function(evt) {
             <dd>Returns the cursor's current <a title="cursor key">key</a>. However if the cursor's <a>got value</a>
             flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
             iterated past the end of its range.</dd>
-            <dt>readonly attribute any value</dt>
-            <dd>Returns the cursor's current <a title="cursor value">value</a>. However if the cursor's <a>got value</a>
+            <dt>readonly attribute any primaryKey</dt>
+            <dd>Returns the cursor's current <a>effective key</a>. However if the cursor's <a>got value</a>
             flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range. Note that if this property returns an object, it returns the same
-            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
-            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</dd>
+            iterated past the end of its range.</dd>
 
             <dt>IDBRequest update(in any value)</dt>
             <dd>
@@ -1971,12 +1977,6 @@ prepareDatabase(function(evt) {
               <p class="issue">
                 Should this fire an error if the record had been deleted since we iterated to it? I.e. should
                 this never be able to create a new record?
-              </p>
-              <p>
-                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
-                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
-                and the <a>steps for deleting a record from an object store</a> as <var>operation</var>, using this cursor's
-                <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
               </p>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
@@ -2073,6 +2073,15 @@ prepareDatabase(function(evt) {
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
+          </dl>
+          <dl class="idl" title="interface IDBCursorWithValue : IDBCursor">
+            <dt>readonly attribute any value</dt>
+            <dd>Returns the cursor's current <a title="cursor value">value</a>. However if the cursor's <a>got value</a>
+            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
+            iterated past the end of its range. Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
           </dl>
         </section>
         <section class="section" id="transaction">
@@ -2729,19 +2738,22 @@ cursor.continue();</codeblock>
                 <a>transaction</a>.</dd>
               </dl>
             </dd>
-            <dt>IDBCursorSync openCursor()</dt>
+            <dt>IDBCursorWithValueSync openCursor()</dt>
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
-                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
-                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
-                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
-                <a>IDBObjectStoreSync</a> this function was called on.
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursorWithValueSync</a> interface.
+              </p>
+              <p>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>iterable</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBObjectStoreSync</a> this function was called on.
               </p>
               <p>
                 If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
-                range. Otherwise, if the <var>range</var> parameter is a <a>key</a> then the cursor's <a>range</a>
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
                 is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
                 the cursor's key range is left as undefined.
               </p>
@@ -2761,7 +2773,7 @@ cursor.continue();</codeblock>
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+                <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
               </dl>
             </dd>
           </dl>                
@@ -2845,19 +2857,22 @@ cursor.<a>continue</a>();</codeblock>
               On getting, provide the <a>unique</a> flag of this <a>index</a>.
             </dd>
 
-            <dt>IDBCursorSync openCursor()</dt>
+            <dt>IDBCursorWithValueSync openCursor()</dt>
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
-                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
-                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
-                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
-                <a>IDBIndexSync</a> this function was called on.
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursorWithValueSync</a> interface.
+              </p>
+              <p>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>iterable</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBIndexSync</a> this function was called on.
               </p>
               <p>
                 If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
-                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
                 is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
                 the cursor's key range is left as undefined.
               </p>
@@ -2885,15 +2900,19 @@ cursor.<a>continue</a>();</codeblock>
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a> with an undefined
-                <a>position</a>, a <a>direction</a> set to the value of the <var>direction</var> parameter, false as
-                <a>iterable</a> flag value, and undefined <a title="cursor key">key</a> and
-                <a title="cursor value">value</a>. The <a title="cursor source">source</a> of the cursor is the
-                <a>IDBIndexSync</a> this function was called on.
+                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursorSync</a> interface and MUST NOT implement the <a>IDBCursorWithValueSync</a>
+                interface.
+              </p>
+              <p>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>iterable</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBIndexSync</a> this function was called on.
               </p>
               <p>
                 If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
-                range. Otherwise, if the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a>
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
                 is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
                 the cursor's key range is left as undefined.
               </p>
@@ -2913,7 +2932,7 @@ cursor.<a>continue</a>();</codeblock>
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>DATA_ERR</dt>
-                <dd>The <var>range</var> parameter was not passed a valid value.</dd>
+                <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>any get()</dt>
@@ -3072,28 +3091,45 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
             flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
             iterated past the end of its range.</dd>
-            <dt>attribute any value</dt>
-            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
-            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range. Note that if this property returns an object, it returns the same
-            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
-            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.
-              <dl class="setraises" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
-                <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
-                and the property at the <a title="object store key path">key path</a>
-                does not match the key in this <a>cursor</a>'s <a>position</a>. Also if the cursor was iterated past its end, or
-                if the cursor was opened using <a>openkeyCursor</a></dd>
+
+            <dt>IDBRequest update(in any value)</dt>
+            <dd>
+              <p>
+                This method throws a READ_ONLY_ERR if the transaction which this IDBCursorSync belongs to
+                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false or if this
+                cursor was created using
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>. This method
+                throws a NOT_ALLOWED_ERR. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
+                keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
+                of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
+                this method throws DATA_ERR.
+              </p>
+              <p>
+                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                If this throws an exception that exception is rethrown. It then runs the <a>steps for
+                synchronously executing a request</a> and returns the result returned by these steps.
+                The steps are run with this IDBCursorSync as <var>source</var> and the <a>steps for
+                storing a record into an object store</a> as <var>operation</var>, using this cursor's
+                <a>effective object store</a> as <var>store</var>, the created clone as <var>value</var>,
+                this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
+                flag set to false.
+              </p>
+              <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
-                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>READ_ONLY_ERR</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
-                <dt>CONSTRAINT_ERR</dt>
-                <dd>Another record in this <a>object store</a> has the same value for the <a>keyPath</a> of 
-                a unique <a>index</a>.
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
+                is <code>READ_ONLY</code></dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>Thrown if cursor was created using
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
+                is currently being iterated or has iterated past the end.</dd>
+                <dt>DATA_ERR</dt>
+                <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
+                at the object store's <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
+                <a>position</a>.</dd>
               </dl>
-              <dl class="setraises" title="DOMException">
+              <dl class="exception" title="DOMException">
                 <dt>DATA_CLONE_ERR</dt>
                 <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
@@ -3171,6 +3207,16 @@ var cursor = objects.<a>openCursor</a>(range);
                 <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
+            </dd>
+          </dl>
+          <dl title="interface IDBCursorWithValueSync : IDBCursorSync" class="idl">
+            <dt>attribute any value</dt>
+            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
+            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
+            iterated past the end of its range. Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.
             </dd>
           </dl>
         </section>
@@ -4003,10 +4049,9 @@ var cursor = objects.<a>openCursor</a>(range);
                 Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.
               </p>
               <p>
-                If <var>cursor</var> was created using <a href="#widl-IDBIndex-openCursor"><code>IDBIndex.openCursor</code></a> or
-                <a href="#widl-IDBIndexSync-openCursor"><code>IDBIndexSync.openCursor</code></a>, then set
+                If <var>cursor</var> implements <a>IDBCursorWithValue</a> or <a>IDBCursorWithValueSync</a>, then set
                 <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>
-                <a>referenced value</a>. Otherwise, set <var>cursor</var>'s <a title="cursor value">value</a> to the value of <var>found record</var>.
+                <a>referenced value</a>.
               </p>
             </li>
             <li>
