@@ -318,14 +318,12 @@
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
-            <dt>IDBTransactionSync transaction()</dt>
+            <dt>void transaction()</dt>
             <dd>
               <p>
                 This method, when called MUST execute the
                 <a title="create a transaction">steps for creating a transaction</a> in a sychronous
-                fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
-                list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
-                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
+                fashion. The <var>storeNames</var>, <var>callback</var>, <var>mode<var>, and
                 <var>timeout</var> arguments are forwarded to the algorithm as-is. The <var>connection</var>
                 argument is set to the <a>IDBDatabaseSync</a> that the <code>transaction()</code> method was
                 called on.
@@ -335,10 +333,13 @@
                 returned by the steps above</a>.
               </p>
               <dl class="parameters">
-                <dt>optional DOMStringList storeNames</dt>
+                <dt>any storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
-                <a title="index">indexes</a> in the <a>scope</a> of the new
-                <a>transaction</a></dd>
+                  <a title="index">indexes</a> in the <a>scope</a> of the new
+                  <a>transaction</a></dd>
+                <dt>IDBTransactionCallback callback</dt>
+                <dd>A callback which will be called with the newly created transaction. When the callback returns,
+                  the transaction is committed.</dd>
                 <dt>optional unsigned short mode</dt>
                 <dd>
                     The <a>mode</a> for isolating access to data inside the given
@@ -369,7 +370,16 @@
             </dd>
           </dl>  
         </section>
-          
+        <section class="section" id="transaction-callback">
+          <dl title='[NoInterfaceObject, Callback=FunctionOnly] interface IDBTransactionCallback' class='idl'> 
+            <dt>void handleEvent (IDBTransactionSync transaction)</dt> 
+            <dd> 
+              <p> 
+              The <a><code>transaction</code></a> that was just started.
+              </p> 
+            </dd> 
+          </dl> 
+        </section>
         <section class="section" id="object-store-sync">  
           <h4>Object Store</h4>
           <div class="example">       

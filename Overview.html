@@ -336,6 +336,8 @@ prepareDatabase(function(evt) {
             and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
             specification [[!HTML5]].
           </dd>
+          <dt>WebIDL</dt>
+          <dd>Many of the interface definitions and all of the IDL in this spec depends on [[!!WEBIDL]].</dd>
           <dt>WebWorkers</dt>
           <dd>The term <dfn title="Worker"><a class="externalDFN"><code>Worker</code></a></dfn> is defined by
           the WebWorkers specification [[!WEBWORKERS]].</dd>
@@ -1235,6 +1237,8 @@ prepareDatabase(function(evt) {
               </dl>
             </dd>
           </dl>
+          <p class="issue>These codes are in flux and may change entirely as exception/error handling may be changing in
+          the WebIDL spec.</p>
         </section>
         <section id="database-interface" class="section">
           <h4>Database</h4>
@@ -1348,10 +1352,9 @@ prepareDatabase(function(evt) {
               <p>
                 This method, when called MUST execute the
                 <a title="create a transaction">steps for creating a transaction</a> in a asychronous
-                fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
-                list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
-                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode</var> argument is
-                forwarded to the algorithm as-is. The <var>timeout</var> argument is set to infinite.
+                fashion. The <var>storeNames</var> and <var>mode</var> arguments are
+                forwarded to the algorithm as-is. The <var>callback</var> argument is set to null.
+                The <var>timeout</var> argument is set to infinite.
                 The <var>connection</var> argument is set to the <a>IDBDatabase</a> that the
                 <code>transaction()</code> method was called on.
               </p>
@@ -1360,7 +1363,7 @@ prepareDatabase(function(evt) {
                 returned by the steps above</a>.
               </p>
               <dl class="parameters">
-                <dt>optional DOMStringList storeNames</dt>
+                <dt>any storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
@@ -2337,14 +2340,12 @@ prepareDatabase(function(evt) {
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
-            <dt>IDBTransactionSync transaction()</dt>
+            <dt>void transaction()</dt>
             <dd>
               <p>
                 This method, when called MUST execute the
                 <a title="create a transaction">steps for creating a transaction</a> in a sychronous
-                fashion. If the <var>storeNames</var> argument is provided and non-empty then then use that
-                list as the <var>names</var> argument. Otherwise use the full set of <a>object store</a>
-                names for the <a>IDBDatabase</a> as <var>names</var> argument. The <var>mode<var> and
+                fashion. The <var>storeNames</var>, <var>callback</var>, <var>mode<var>, and
                 <var>timeout</var> arguments are forwarded to the algorithm as-is. The <var>connection</var>
                 argument is set to the <a>IDBDatabaseSync</a> that the <code>transaction()</code> method was
                 called on.
@@ -2354,10 +2355,13 @@ prepareDatabase(function(evt) {
                 returned by the steps above</a>.
               </p>
               <dl class="parameters">
-                <dt>optional DOMStringList storeNames</dt>
+                <dt>any storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
-                <a title="index">indexes</a> in the <a>scope</a> of the new
-                <a>transaction</a></dd>
+                  <a title="index">indexes</a> in the <a>scope</a> of the new
+                  <a>transaction</a></dd>
+                <dt>IDBTransactionCallback callback</dt>
+                <dd>A callback which will be called with the newly created transaction. When the callback returns,
+                  the transaction is committed.</dd>
                 <dt>optional unsigned short mode</dt>
                 <dd>
                     The <a>mode</a> for isolating access to data inside the given
@@ -2388,7 +2392,16 @@ prepareDatabase(function(evt) {
             </dd>
           </dl>  
         </section>
-          
+        <section class="section" id="transaction-callback">
+          <dl title='[NoInterfaceObject, Callback=FunctionOnly] interface IDBTransactionCallback' class='idl'> 
+            <dt>void handleEvent (IDBTransactionSync transaction)</dt> 
+            <dd> 
+              <p> 
+              The <a><code>transaction</code></a> that was just started.
+              </p> 
+            </dd> 
+          </dl> 
+        </section>
         <section class="section" id="object-store-sync">  
           <h4>Object Store</h4>
           <div class="example">       
@@ -3363,22 +3376,31 @@ var cursor = objects.<a>openCursor</a>(range);
           <h4>Transaction Creation steps</h4>
           <p>
             When the user agent is to <dfn>create a <a>transaction</a></dfn>
-            it MUST run the following steps. This algorithm takes four parameters:
-            A <a><var>connection</var></a>, a <a><var>mode</var></a>, a list of <var>names</var> of
-            <a>object store</a>s to be included in the <a>scope</a> of the transaction, and a
-            <var>timeout</var> for the transaction <a title="transaction start">starting</a>.
+            it MUST run the following steps. This algorithm takes five parameters:
+            A <a><var>connection</var></a>, a <a><var>mode</var></a>, a list of <var>storeNames</var> of
+            <a>object store</a>s to be included in the <a>scope</a> of the transaction, a
+            <var>timeout</var> for the transaction <a title="transaction start">starting</a>,
+            and a <var>callbacks</var> parameter for synchronously created transactions.
           </p>
-          
           <ol>
             <li>
-              If any of the strings in <var>names</var> identifies an <a>object store</a> which doesn't
-              exist, throw a NOT_FOUND_ERR exception. If the <a>closePending</a>
-              flag is set on <var>connection</var> the throw a NOT_ALLOWED_ERR.
+              If these steps are already running synchronously (a <a>transaction</a> was created within a
+              <a title="transaction-callback">transaction callback</a>), throw a NOT_ALLOWED_ERR.
+              <p class="issue">This should be specified more precisely. Maybe with some sort of global variable <var>locked</var>?</p>
+            </li>
+            <li>
+              If <var>storeNames</var> is of type <code>DOMStringList</code> or <code>Array</code> leave it as is. Otherwise,
+              interpret it as an <code>Array</code> with one value, and that value is the <a>stringified</a> version of
+              <var>storeNames</var>. If any of the strings in <var>storeNames</var> identifies an <a>object store</a> which doesn't
+              exist, throw a NOT_FOUND_ERR exception.
+            </li>
+            <li>
+              If the <a>closePending</a> flag is set on <var>connection</var> the throw a NOT_ALLOWED_ERR.
             </li>
             <li>
               <a title="transaction create">Create</a> a <a>transaction</a> using <var>connection</var> as
               <a>connection</a>, <var>mode</var> as <a>mode</a>, and the <a>object store</a>s identified in
-              <var>names</var> as <a>scope</a>.
+              <var>storeNames</var> as <a>scope</a>.
             </li>
             <li>
               If these steps are running asynchronously, return the created <a>transaction</a> and run the
@@ -3395,7 +3417,13 @@ var cursor = objects.<a>openCursor</a>(range);
               </p>
             </li>
             <li>
-              If these steps are running synchronously, return the created <a>transaction</a>.
+              If these steps are running synchronously, the implementation MUST synchronously call <var>callback</var>
+              with a single parameter which is the <a>transaction</a>. If an exception is thrown and not caught within the
+              scope of the callback, the implementation MUST abort the <a>transaction</a> by following the <a>steps for
+              aborting a transaction</a>, abort this algorithm without taking any further steps, and re-throw the exception.
+            </li>
+            <li>
+              If these steps are running synchronously, the implementation MUST commit the transaction synchrnously.
             </li>
           </ol>
         </section>
