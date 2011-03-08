@@ -596,15 +596,22 @@
           </p>
           <ol>
             <li>
-              If <var>store</var> uses a <a>key generator</a> set and <var>key</var> is undefined, set
-              <var>key</var> to the next generated key. If <var>store</var> also uses <a>in-line keys</a>,
-              then set the property in <var>value</var> pointed to by <var>store</var>'s
-              <a title="object store key path">key path</a> to the new value for <var>key</var>
+              If <var>store</var> does use <a>in-line keys</a> and <a title="evaluate key path">evaluting</a>
+              <a title="object store key path"><var>store</var>'s key path</a> on <var>value</var> does yield
+              a value, then set <var>key</var> to that result.
             </li>
             <li>
-              If <var>store</var> does not use a <a>key generator</a> but does use <a>in-line keys</a>, then set
-              <var>key</var> to the the result of <a title="evaluate key path">evaluting</a>
-              <a title="object store key path"><var>store</var>'s key path</a> on <var>value</var>.
+              If <var>store</var> uses a <a>key generator</a> and <var>key</var> is undefined, set
+              <var>key</var> to the next generated key. If <var>store</var> also uses <a>in-line keys</a>,
+              then set the property in <var>value</var> pointed to by <var>store</var>'s
+              <a title="object store key path">key path</a> to the new value for <var>key</var>.
+            </li>
+            <li>
+              If <var>store</var> uses a <a>key generator</a>, this <a>key generator</a> was not used to generate a value
+              for <var>key</var> in the previous step, <var>key</var> is defined to a <code>long</code>
+              or a <code>float</code> and this number is larger than, or equal to, the next key that <var>store</var>'s
+              <a>key generator</a> would generate, change <var>store</var>'s <a>key generator</a> such that the next
+              key it generates is the lowest integer larger than <var>key</var>.
             </li>
             <li>
               If the no-overwrite flag was passed to these steps and is set, and 
