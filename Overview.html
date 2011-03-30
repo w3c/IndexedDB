@@ -1088,27 +1088,23 @@ prepareDatabase(function(evt) {
             <dd>The event handler for the <a title="event-error">error event</a></dd>
           </dl>
           <p>
-            When a request is made, the 
-            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> changes to 
+            When a request is made, a new <a>request</a> is returned with its
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> set to 
             <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. 
             If a request completes successfully, the
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
-            the result of the request is included as the 
-            <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> of
-            a new <a class="idlType" href="#widl-IDBSuccessEvent"><code>IDBSuccessEvent</code></a> 
-            event, and <a>queue a task</a> to fire that event with the name <code>success</code>, 
-            with no namespace, which does not bubble, is not cancelable at each 
-            <a class="externalDFN"><code>Window</code></a> object.
+            is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
+            <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
+            is set to the result of the request, and a event with type <code>success</code> is fired
+            at the <a>request</a>.
           </p>
           <p>
             If an error occurs while performing the operation, the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
-            the error code and message are included in a new <a><code>IDBDatabaseError</code></a>
-            event, and <a>queue a task</a> to fire that event with the name 
-            <code>error</code>, with no namespace, which does not bubble, is 
-            not cancelable at each <a class="externalDFN"><code>Window</code></a> object.
+            is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
+            <a class="idlType" href="#widl-IDBRequest-result"><code>errorCode</code></a>
+            is set to the code of the error, and a event with type <code>error</code> is fired
+            at the <a>request</a>.
           </p>
           <p>
             The <a href="#widl-IDBDatabase-setVersion">setVersion</a> function on <a>IDBDatabase</a>
@@ -1166,25 +1162,23 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest open()</dt>
             <dd>
               <p>
-                When invoked, this method creates an <a>IDBRequest</a> and returns it.
-                It then asynchronously runs the <a>steps for opening a database</a>.
+                When invoked, this method MUST create a <a>request</a> and return it. The created
+                <a>request</a> has no <a title="request source">source</a>.
+                The method then asynchronously runs the <a>steps for opening a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
                 to this function.
               </p>
               <p>
-                If an error is returned from the steps above, then the implementation MUST
-                fire an <a title="event-error">error event</a> on the <a>IDBRequest</a> returned from
-                this method, with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
-                and <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a> set to
-                appropriate values for the error.
+                If an error is returned from the steps above, the implementation MUST set the
+                <a title="request errorCode">errorCode</a> of the <var>request</var>
+                to the code of the error returned and <a>fire a error event</a> at the <a>request</a>.
               </p>
               <p>
-                If the steps above are successful, the implementation MUST fire a <a title="event-success">success event</a>
-                on the <a>IDBRequest</a> returned above. The event MUST use the <a><code>IDBSuccessEvent</code></a> interface with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> 
-                set to the <a>connection</a> returned from the steps.
+                If the steps above are successful, the implementation MUST set the
+                <a title="request result">result</a> of the <var>request</var>
+                to the <a>connection</a> created by the steps above and <a>fire a success event</a> at
+                the <a>request</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -1194,25 +1188,23 @@ prepareDatabase(function(evt) {
             <dt>IDBRequest deleteDatabase()</dt>
             <dd>
               <p>
-                When invoked, this method creates an <a>IDBRequest</a> and returns it.
-                It then asynchronously runs the <a>steps for deleting a database</a>.
+                When invoked, this method MUST create a <a>request</a> and return it. The created
+                <a>request</a> has no <a title="request source">source</a>.
+                The method then asynchronously runs the <a>steps for deleting a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
                 to this function.
               </p>
               <p>
-                If an error is returned from the steps above, then the implementation MUST
-                fire an <a title="event-error">error event</a> on the <a>IDBRequest</a> returned from
-                this method, with its 
-                <a class="idlType" href="#widl-IDBErrorEvent-code"><code>code</code></a>
-                and <a class="idlType" href="#widl-IDBErrorEvent-message"><code>message</code></a> set to
-                appropriate values for the error.
+                If an error is returned from the steps above, the implementation MUST set the
+                <a title="request errorCode">errorCode</a> of the <var>request</var>
+                to the code of the error returned and <a>fire a error event</a> at the <a>request</a>.
               </p>
               <p>
-                If the steps above are successful, the implementation MUST fire a <a title="event-success">success event</a>
-                on the <a>IDBRequest</a> returned above. The event MUST use the <a><code>IDBSuccessEvent</code></a> interface with its 
-                <a class="idlType" href="#widl-IDBSuccessEvent-result"><code>result</code></a> 
-                set to <code>null</code>.
+                If the steps above are successful, the implementation MUST set the
+                <a title="request result">result</a> of the <var>request</var>
+                to <code>null</code> and <a>fire a success event</a> at
+                the <a>request</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
