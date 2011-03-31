@@ -211,7 +211,7 @@
           <p>
             Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
             The name is unique within the <a>database</a> to which it belongs. Every object store also optionally has a
-            <a>key generator</a> and a optional <dfn title="object store key path">key path</dfn>.
+            <a>key generator</a> and an optional <dfn title="object store key path">key path</dfn>.
             If the object store has a key path it is said to use <dfn>in-line keys</dfn>. Otherwise it is said to
             use <dfn>out-of-line</dfn> keys.
           </p>
@@ -228,22 +228,12 @@
               </p>
             </li>
             <li>
-              A <dfn>key path</dfn>. A key path points to a property in a given <a>value</a>. When a object store uses a
-              <a>key path</a> to generate keys, the key is the property in the stored <a>value</a> pointed to by the
-              <a>key path</a>.
-              <p class="issue">
-                Need to specify how a key path is parsed and how a "evaluated" against a value. Including the requirement
-                that the value needs to be a object and that the property must be enumerated.
-              </p>
+              Keys can be derived via a <a title="object store key path">key path</a>.
             </li>
             <li>
               Keys can also be explicitly specified when a <a>value</a> is stored in the object store.
             </li>
           </ol>
-          <!--div class="ednote">
-            The detached reading behavior MAY need more explanation.
-            What is detached reading?
-          </div-->
           <p>
             The <a><code>IDBObjectStore</code></a> and <a><code>IDBObjectStoreSync</code></a>
             interfaces represent a <a>object store</a>. Note however that multiple instances of those
@@ -266,7 +256,7 @@
             <a>Conforming user agents</a> MUST support all <a>valid key</a>s as keys.
           </p>
           <p class="note">
-            Inifinite <code>float</code> values are <a>valid key</a>s. As are empty <code>Array</code>s.
+            Infinite <code>float</code> values are <a>valid key</a>s. As are empty <code>Array</code>s.
           </p>
           <p>
             For purposes of comparison, all <code>Array</code>s are greater than all <code>DOMString</code>,
@@ -334,10 +324,22 @@
           </p>
         </section>
         
+        <section id="key-path-construct" class="section">
+          <h4>Key Path</h4>
+          <p>
+            A <dfn>key path</dfn> is a <code>DOMString</code> that defines how to extract a <a>key</a> from a <a>value</a>.
+            A <dfn>valid key path</dfn> is
+            either the empty string, a JavaScript identifier, or multiple Javascript identifiers separated by
+            periods (ASCII character code 46) [[!ECMA-262]]. (Note that spaces are not allowed
+            within a key path.) To <dfn title="evaluate key path">evaluate a key path</dnf>, run the
+            <a>steps for extracting a key from a value using a key path</a>.
+          </p>
+        </section>
+        
         <section id="index-concept" class="section">
           <h4>Index</h4>
           <p>
-            It is sometimes useful to retreive <a>records</a> in a <a>object store</a> through other means
+            It is sometimes useful to retrieve <a>records</a> in a <a>object store</a> through other means
             than their <a>key</a>. A <dfn>index</dfn> allows looking up <a>record</a>s in a <a>object store</a>
             using properties of the <a>value</a>s in the <a>object store</a>s <a>record</a>s.
           </p>
@@ -353,7 +355,7 @@
             The values in the index's <a>record</a>s are always values of <a>keys</a> in the index's <a>referenced</a>
             object store. The keys are derived from the referenced object store's <a>value</a>s using a <dfn title="index key path"><a>key path</a></dfn>.
             If a given <a>record</a> with key <var>X</var> in the object store referenced by the index has the value <var>A</var>, and
-            <a title="evaluate key path">evaluting</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
+            <a title="evaluate key path">evaluating</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
             <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
           </p>
           <p>
@@ -406,7 +408,7 @@
           </p>
           <p>
             Transactions have a constant scope which is determined when the transaction is created and remains
-            contant for the lifetime of the transaction.
+            constant for the lifetime of the transaction.
           </p>
           <p>
             <a title="transaction">Transactions</a> offer some protection from 
@@ -452,7 +454,7 @@
               start executing the <a>request</a>s placed against the transaction. Unless otherwise defined requests
               MUST be executed in the order they are placed against the transaction. Likewise, their result MUST
               be returned in the order the request was placed against a specific transaction.
-              There is no guarentee about the order that results from requests in different transactions are returned.
+              There is no guarantee about the order that results from requests in different transactions are returned.
               Similarly, the isolation <a>mode</a> ensure that it doesn't matter which order requests placed against
               different transactions are executed.
             </li>
@@ -536,7 +538,7 @@
             implementation MUST ensure that another transaction does not modify the contents of
             <a>object store</a>s in the READ_WRITE transactions <a>scope</a>. The implementation
             MUST also ensure that if the READ_WRITE transaction completes successfully, that the
-            changes written to <a>object store</a>s using the transaction can be comitted to the
+            changes written to <a>object store</a>s using the transaction can be committed to the
             <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
             due to merge conflicts.
           </p>
@@ -587,7 +589,7 @@
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
           <p>
-            Records can be retrived from <a>object store</a>s and <a>index</a>es
+            Records can be retrieved from <a>object store</a>s and <a>index</a>es
             using either <a>key</a>s or <dfn>key range</dfn>s. A 
             key range is a continuous interval over some data type 
             used for keys.

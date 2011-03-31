@@ -376,6 +376,42 @@
           </ol>
         </section>
         <section class="section">
+          <h4>Steps for extracting a key from a value using a <a>key path</a></h4>
+          <p>
+            When taking the <dfn>steps for extracting a key from a value using a key path</dfn>, the implementation
+            MUST run the following algorithm. The algorithm takes a <a>key path</a> named <var>keyPath</var> and a
+            <a>value</a> named <var>value</var> and in some cases returns a <a>key</a> which may or may not be a
+            <a>valid key</a>.
+          </p>
+          <ol>
+            <li>
+              If <var>keyPath</var> is the empty string, return <var>value</var> and skip the remaining steps.
+            </li>
+            <li>
+              Let <var>remainingKeypath</var> be <var>keyPath</var> and <var>object</var> be <var>value</var>.
+            </li>
+            <li>
+              If <var>remainingKeypath</var> has a period in it, assign <var>remainingKeypath</var> to be
+              everything after the first period and assign <var>attribute</var> to be everything before that
+              first period. Otherwise, assign<var>attribute</var>
+              to be <var>remainingKeypath</var> and assign <var>remainingKeypath</var> to be null.
+            </li>
+            <li>
+              If <var>object</var> does not have an attribute named <var>attribute</var>, then skip the rest of
+              these steps and no value is returned.
+            </li>
+            <li>
+              Assign <var>object</var> to be the value of the attribute named <var>attribute</var> on <var>object</var>.
+            </li>
+            <li>
+              If <var>remainingKeypath</var> is not null, go to step 3.
+            </li>
+            <li>
+              Return <var>object</var>.
+            </li>
+          </ol>
+        </section>
+        <section class="section">
           <h4>VERSION_CHANGE transaction steps</h4>
           <p>
             The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
