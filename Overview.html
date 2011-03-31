@@ -463,29 +463,71 @@ prepareDatabase(function(evt) {
           <h4>Keys</h4>
           <p>
             In order to efficiently retrieve <a>record</a>s stored in an indexed database,
-            each <a>record</a> is organized according to its key. A value is said to be a <dfn>valid key</dfn>
-            if it is one of the following types: IDL data types
-            <code>DOMString</code>, <code>long</code>, and <code>float</code> [[!WEBIDL]]; or the
-            <code>Date</code> JavaScript object [[!ECMA-262]].
-            Additionally, if the value os of type <code>float</code>, it is only a <a>valid key</a> if it is not NaN.
+            each <a>record</a> is organized according to its <dfn>key</dfn>. A value is said to be a <dfn>valid key</dfn>
+            if it is one of the following types: 
+            <code>Array</code> JavaScript objects [[!ECMA-262]], <code>DOMString</code> [[!WEBIDL]],
+            <code>Date</code> [[!ECMA-262]] or <code>float</code> [[!WEBIDL]].
+            However <code>Array</code>s are only <a>valid key</a>s if every item in the array is defined and is
+            a <a>valid key</a> (i.e. sparse arrays can not be <a>valid key</a>s).
+            Any non-numeric properties are ignored, and thus does not affect if the <code>Array</code> is a <a>valid key</a>.
+            Additionally, if the value is of type <code>float</code>, it is only a <a>valid key</a> if it is not NaN.
             <a>Conforming user agents</a> MUST support all <a>valid key</a>s as keys.
           </p>
           <p class="note">
-            Inifinite <code>float</code> values are <a>valid key</a>s.
+            Inifinite <code>float</code> values are <a>valid key</a>s. As are empty <code>Array</code>s.
           </p>
           <p>
-            For purposes of comparison, all <code>DOMString</code> values are evaluated as greater than 
-            <code>long</code>, <code>float</code>, and <code>Date</code> values; <code>Date</code> values are evaluated as greater than <code>long</code> 
-            and <code>float</code> values; and <code>long</code> and <code>float</code> values are evaluated by their numeric 
-            value with no need to separate them by type. 
+            For purposes of comparison, all <code>Array</code>s are greater than all <code>DOMString</code>,
+            <code>Date</code> and <code>float</code> values; all <code>DOMString</code> values are greater than all
+            <code>Date</code> and <code>float</code> values; and all <code>Date</code> values are greater than all
+            <code>float</code> values. Values of type <code>float</code> are compared to other <code>float</code> values
+            numerically. Values of type <code>Date</code> are compared to other <code>Date</code> values chronologically.
+            Values of type <code>DOMString</code> are compared to other values of type <code>DOMString</code> according
+            to the <a>collation</a> of the <a>object store</a> or <a>index</a> where the value is used as a key. Values
+            of type <code>Array</code> are compared to other values of type <code>Array</code> as follows:
+          </p>
+          <ol>
+            <li>
+              Let <var>A</var> be the first <code>Array</code> value and <var>B</var> be the second <code>Array</code>
+              value.
+            </li>
+            <li>
+              Let <var>length</var> be the lesser of <var>A</var>'s length and <var>B</var>'s length.
+            </li>
+            <li>
+              Let <var>i</var> be 0.
+            </li>
+            <li>
+              If the <var>i</var>th value of <var>A</var> is <a>less than</a> the <var>i</var>th value of
+              <var>B</var>, then <var>A</var> is less than <var>B</var>. Skip the remaining steps.
+            </li>
+            <li>
+              If the <var>i</var>th value of <var>A</var> is <a>greater than</a> the <var>i</var>th value of
+              <var>B</var>, then <var>A</var> is greater than <var>B</var>. Skip the remaining steps.
+            </li>
+            <li>
+              Increase <var>i</var> by 1.
+            </li>
+            <li>
+              If <var>i</var> is not equal to <var>length</var>, go back to step 4. Otherwise continue to next step.
+            </li>
+            <li>
+              If <var>A</var>'s length is less than <var>B</var>'s length, then <var>A</var> is less
+              than <var>B</var>. If <var>A</var>'s length is greater than <var>B</var>'s length, then
+              <var>A</var> is greater than <var>B</var>. Otherwise <var>A</var> and <var>B</var> are equal.
+            </li>
+          </ol>
+          <p class="note">
+            Note that <code>Array</code>s that contain other <code>Array</code>s are allowed as <a>valid key</a>s.
+            In this case the algorithm above runs recursively when comparing the individual values in the arrays.
+          </p>
+          <p class="note">
+            As a result of the above rules, an empty <code>Array</code> is the lowest possible key, while positive
+            infinity is the highest possible key.
           </p>
           <p>
             The terms <dfn>greater than</dfn>, <dfn>less than</dfn> and <dfn>equal to</dfn> is defined in the terms of
             the above comparisons.
-          </p>
-          <p class="note">
-            Only data types with natural ordering can be used as keys. 
-            The ECMAScript <code>undefined</code> MUST NOT be used as a key.
           </p>
         </section>
         
@@ -754,7 +796,7 @@ prepareDatabase(function(evt) {
           <h4>Key Range</h4>
           <p>
             Records can be retrived from <a>object store</a>s and <a>index</a>es
-            using either <a>key value</a>s or <dfn>key range</dfn>s. A 
+            using either <a>key</a>s or <dfn>key range</dfn>s. A 
             key range is a continuous interval over some data type 
             used for keys.
           </p>
@@ -791,7 +833,7 @@ prepareDatabase(function(evt) {
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>DATA_ERR</dt>
-                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
+                <dd>The <var>value</var> parameter was not passed a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>static IDBKeyRange lowerBound()</dt>
@@ -808,7 +850,7 @@ prepareDatabase(function(evt) {
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>DATA_ERR</dt>
-                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
+                <dd>The <var>value</var> parameter was not passed a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>static IDBKeyRange upperBound()</dt>
@@ -825,7 +867,7 @@ prepareDatabase(function(evt) {
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>DATA_ERR</dt>
-                <dd>The <var>value</var> parameter was not passed a valid <a>key value</a>.</dd>
+                <dd>The <var>value</var> parameter was not passed a <a>valid key</a>.</dd>
               </dl>
             </dd>
             <dt>static IDBKeyRange bound()</dt>
@@ -853,18 +895,18 @@ prepareDatabase(function(evt) {
             </dd>
           </dl>
           <p>
-            A <a><var>key value</var></a> is <dfn>in a <a>key range</a></dfn> if both the following conditions are
+            A <a><var>key</var></a> is <dfn>in a <a>key range</a></dfn> if both the following conditions are
             fulfilled:
           </p>
           <ul>
             <li>
               The <a>key range</a> <a href="#widl-IDBKeyRange-lower"><code>lower</code></a> value is <code>undefined</code> or
-              <a>less than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a>less than</a> <var>key</var>. It may also be <a>equal to</a> <var>key</var> if
               <a href="#widl-IDBKeyRange-lowerOpen"><code>lowerOpen</code></a> is <code>false</code>.
             </li>
             <li>
               The <a>key range</a> <a href="#widl-IDBKeyRange-upper"><code>upper</code></a> value is <code>undefined</code> or
-              <a>greater than</a> <var>key value</var>. It may also be <a>equal to</a> <var>key value</var> if
+              <a>greater than</a> <var>key</var>. It may also be <a>equal to</a> <var>key</var> if
               <a href="#widl-IDBKeyRange-upperOpen"><code>upperOpen</code></a> is <code>false</code>.
             </li>
           </ul>
