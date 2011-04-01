@@ -431,6 +431,19 @@
                 MUST create a new <a>object store</a> and return a <a>IDBObjectStore</a> object representing it.
               </p>
               <p>
+                If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
+                which is not <code>undefined</code> or <code>null</code>, then set <var>keyPath</var> to the value
+                of this property. If <var>keyPath</var> is an <code>Array</code>, then each item in the array is
+                converted to a string. If <var>keyPath</var> is not an <code>Array</code>, it is converted to a
+                string.
+              </p>
+              <p>
+                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
+                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+              </p>
+              <p>
                 In some implementations it's possible for the implementation to asynchronously run into problems
                 creating the object store after the createObjectStore function has returned. For example in
                 implementations where metadata about the newly created objectStore is inserted into the database
@@ -447,7 +460,7 @@
                     Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
                     <code>keyPath</code> specifies the <a title="object store key path">key path</a> of the new 
                     <a>object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
-                    the empty string, or not present, no <a title="object store key path">key path</a> is
+                    or not present, no <a title="object store key path">key path</a> is
                     specified and thus keys are <a>out-of-line</a>.
                     <code>autoIncrement</code> specifies
                     whether the <a>object store</a> created should have a <a>key generator</a>.
@@ -603,8 +616,15 @@
                 </li>
                 <li>
                   If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store and <a title="evaluate key path">evaluating</a> their key path on the
-                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                  store whose <a title="index key path">key path</a> is a string,
+                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
+                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -666,12 +686,19 @@
                   <a title="object store key path">object store's key path</a> does not yield a value.
                 </li>
                 <li>
-                  The <var>key parameter was provided but does not contain a <a>valid key</a>.
+                  The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
                 </li>
                 <li>
                   If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store and <a title="evaluate key path">evaluating</a> their key path on the
-                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                  store whose <a title="index key path">key path</a> is a string,
+                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
+                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -824,6 +851,17 @@
                 MUST throw a NOT_ALLOWED_ERR exception. If an index with the same name already
                 exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
                 MUST create a new <a>index</a> and return a <a>IDBIndex</a> object representing it.
+              </p>
+              <p>
+                If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
+                converted to a string. If <var>keyPath</var> is not an <code>Array</code>, it is converted to a
+                string.
+              </p>
+              <p>
+                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
+                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's

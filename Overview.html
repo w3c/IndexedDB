@@ -1340,6 +1340,19 @@ prepareDatabase(function(evt) {
                 MUST create a new <a>object store</a> and return a <a>IDBObjectStore</a> object representing it.
               </p>
               <p>
+                If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
+                which is not <code>undefined</code> or <code>null</code>, then set <var>keyPath</var> to the value
+                of this property. If <var>keyPath</var> is an <code>Array</code>, then each item in the array is
+                converted to a string. If <var>keyPath</var> is not an <code>Array</code>, it is converted to a
+                string.
+              </p>
+              <p>
+                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
+                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+              </p>
+              <p>
                 In some implementations it's possible for the implementation to asynchronously run into problems
                 creating the object store after the createObjectStore function has returned. For example in
                 implementations where metadata about the newly created objectStore is inserted into the database
@@ -1356,7 +1369,7 @@ prepareDatabase(function(evt) {
                     Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
                     <code>keyPath</code> specifies the <a title="object store key path">key path</a> of the new 
                     <a>object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
-                    the empty string, or not present, no <a title="object store key path">key path</a> is
+                    or not present, no <a title="object store key path">key path</a> is
                     specified and thus keys are <a>out-of-line</a>.
                     <code>autoIncrement</code> specifies
                     whether the <a>object store</a> created should have a <a>key generator</a>.
@@ -1512,8 +1525,15 @@ prepareDatabase(function(evt) {
                 </li>
                 <li>
                   If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store and <a title="evaluate key path">evaluating</a> their key path on the
-                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                  store whose <a title="index key path">key path</a> is a string,
+                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
+                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -1575,12 +1595,19 @@ prepareDatabase(function(evt) {
                   <a title="object store key path">object store's key path</a> does not yield a value.
                 </li>
                 <li>
-                  The <var>key parameter was provided but does not contain a <a>valid key</a>.
+                  The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
                 </li>
                 <li>
                   If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store and <a title="evaluate key path">evaluating</a> their key path on the
-                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                  store whose <a title="index key path">key path</a> is a string,
+                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
+                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -1733,6 +1760,17 @@ prepareDatabase(function(evt) {
                 MUST throw a NOT_ALLOWED_ERR exception. If an index with the same name already
                 exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
                 MUST create a new <a>index</a> and return a <a>IDBIndex</a> object representing it.
+              </p>
+              <p>
+                If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
+                converted to a string. If <var>keyPath</var> is not an <code>Array</code>, it is converted to a
+                string.
+              </p>
+              <p>
+                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
+                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's
@@ -2375,6 +2413,19 @@ prepareDatabase(function(evt) {
                 given name in the <a title="connection">connected</a> <a>database</a>. This method
                 should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
               </p>
+              <p>
+                If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
+                which is not <code>undefined</code> or <code>null</code>, then set <var>keyPath</var> to the value
+                of this property. If <var>keyPath</var> is an <code>Array</code>, then each item in the array is
+                converted to a string. If <var>keyPath</var> is not an <code>Array</code>, it is converted to a
+                string.
+              </p>
+              <p>
+                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
+                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                   <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
@@ -2618,8 +2669,15 @@ cursor.continue();</codeblock>
                 </li>
                 <li>
                   If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store and <a title="evaluate key path">evaluating</a> their key path on the
-                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                  store whose <a title="index key path">key path</a> is a string,
+                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
+                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -2689,8 +2747,15 @@ cursor.continue();</codeblock>
                 </li>
                 <li>
                   If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store and <a title="evaluate key path">evaluating</a> their key path on the
-                  <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
+                  store whose <a title="index key path">key path</a> is a string,
+                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
+                </li>
+                <li>
+                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
+                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
+                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
+                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -2811,6 +2876,17 @@ cursor.continue();</codeblock>
                 This creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>.  Note that this method must only
                 be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+              </p>
+              <p>
+                If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
+                converted to a string. If <var>keyPath</var> is not an <code>Array</code>, it is converted to a
+                string.
+              </p>
+              <p>
+                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
+                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
@@ -4005,17 +4081,26 @@ var cursor = objects.<a>openCursor</a>(range);
                   Set <var>index</var> to the index.
                 </li>
                 <li>
-                  <a title="evaluate key path">Evaluate</a> <var>index</var>'s <a title="index key path">key path</a> on
+                  If <var>index</var>'s <a title="index key path">key path</a> is a string, then
+                  <a title="evaluate key path">evaluate</a> it on
                   <var>value</var>. If this does not yield a value don't take any further actions for this index.
                   Otherwise set the result to <var>index key</var>.
-                  <div class="note">
-                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> at this
-                    point.
+                </li>
+                <li>
+                  If <var>index</var>'s <a title="index key path">key path</a> is an <code>Array</code>, then set
+                  <var>index key</var> to a newly created empty <code>Array</code>. For each item in
+                  <var>index</var>'s <a title="index key path">key path</a> <a title="evaluate key path">evaluate</a>
+                  the item on <var>value</var>. If this does not yield a value don't take any further actions for this index.
+                  Otherwise add the value to the end of the <var>index key</var> <code>Array</code>.
                 </li>
                 <li>
                   If <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
                   and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
                   abort this algorithm without taking any further steps.
+                  <div class="note">
+                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> before
+                    getting to this step.
+                  </div>
                 </li>
                 <li>
                   Store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its

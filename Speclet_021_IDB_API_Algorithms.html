@@ -688,17 +688,26 @@
                   Set <var>index</var> to the index.
                 </li>
                 <li>
-                  <a title="evaluate key path">Evaluate</a> <var>index</var>'s <a title="index key path">key path</a> on
+                  If <var>index</var>'s <a title="index key path">key path</a> is a string, then
+                  <a title="evaluate key path">evaluate</a> it on
                   <var>value</var>. If this does not yield a value don't take any further actions for this index.
                   Otherwise set the result to <var>index key</var>.
-                  <div class="note">
-                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> at this
-                    point.
+                </li>
+                <li>
+                  If <var>index</var>'s <a title="index key path">key path</a> is an <code>Array</code>, then set
+                  <var>index key</var> to a newly created empty <code>Array</code>. For each item in
+                  <var>index</var>'s <a title="index key path">key path</a> <a title="evaluate key path">evaluate</a>
+                  the item on <var>value</var>. If this does not yield a value don't take any further actions for this index.
+                  Otherwise add the value to the end of the <var>index key</var> <code>Array</code>.
                 </li>
                 <li>
                   If <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
                   and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
                   abort this algorithm without taking any further steps.
+                  <div class="note">
+                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> before
+                    getting to this step.
+                  </div>
                 </li>
                 <li>
                   Store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
