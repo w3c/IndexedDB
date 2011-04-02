@@ -576,19 +576,23 @@ prepareDatabase(function(evt) {
             multiple records in an index which reference the same record in the object store. And there can also be no records in an index
             which reference a given record in an object store.
           </p>
-          <p class="issue">
-            Some of the statements in the note are only true once we've implemented decisions made at TPAC.
-          </p>
           <p>
             The <a>record</a>s in an index are always sorted according to the <a>record</a>s key. However unlike object stores,
             a given index can contain multiple records with the same key. Such records are additionally sorted according to
             the records value.
           </p>
           <p>
-            A index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
+            An index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
+          </p>
+          <p>
+            An index also contains a <dfn>multirow</dfn> flag. This flag affects how the index behaves when the result of evaluating
+            the index's <a title="index key path">key path</a> yields an <code>Array</a>. If the <a>multirow</a> flag is false, then
+            a single <a>record</a> whose <a>key</a> is an <code>Array</code> is added to the index. If the <a>multirow</a> flag is
+            true, then the one <a>record</a> is added to the index for each item in the <code>Array</code>. The <a>key</a> for each
+            record is the value of respective item in the <code>Array</code>.
           </p>
           <p>
             The <a><code>IDBIndex</code></a> and <a><code>IDBIndexSync</code></a> interfaces
@@ -1759,7 +1763,9 @@ prepareDatabase(function(evt) {
                 outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
                 MUST throw a NOT_ALLOWED_ERR exception. If an index with the same name already
                 exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
-                MUST create a new <a>index</a> and return a <a>IDBIndex</a> object representing it.
+                MUST create a new <a>index</a> and return a <a>IDBIndex</a> object representing it. The created
+                index has its <a>unique</a> and <a>multirow</a> flags are set to the values of the
+                <var>unique</var> and <var>multirow</var> properties in the <var>optionalParameters</var> argument.
               </p>
               <p>
                 If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
@@ -1768,8 +1774,9 @@ prepareDatabase(function(evt) {
               </p>
               <p>
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
-                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, or if <var>keyPath</var> is
+                and <code>Array</code> and the <var>multirow</var> property in the <var>optionalParameters</var> is true,
+                then a <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
@@ -1798,9 +1805,12 @@ prepareDatabase(function(evt) {
                   <a>index</a></dd>
                 <dt>optional Object optionalParameters</dt>
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
-                    The only valid option is <code>unique</code>.
+                    The valid options are <code>unique</code> and <code>multirow</code>.
                     <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
-                    set. It defaults to <code>false</code>.</dd>
+                    set. It defaults to <code>false</code>.
+                    <code>multirow</code> specifies whether the <a>index</a>'s <a>multirow</a> flag is
+                    set. It defaults to <code>false</code>.
+                  </dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
@@ -2875,7 +2885,9 @@ cursor.continue();</codeblock>
               <p>
                 This creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>.  Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>. The created
+                index has its <a>unique</a> and <a>multirow</a> flags are set to the values of the
+                <var>unique</var> and <var>multirow</var> properties in the <var>optionalParameters</var> argument.
               </p>
               <p>
                 If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
@@ -2884,8 +2896,9 @@ cursor.continue();</codeblock>
               </p>
               <p>
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
-                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, or if <var>keyPath</var> is
+                and <code>Array</code> and the <var>multirow</var> property in the <var>optionalParameters</var> is true,
+                then a <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <dl class="parameters">
@@ -2896,9 +2909,12 @@ cursor.continue();</codeblock>
                   <a>index</a></dd>
                 <dt>optional Object optionalParameters</dt>
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
-                    The only valid option is <code>unique</code>.
+                    The valid options are <code>unique</code> and <code>multirow</code>.
                     <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
-                    set. It defaults to <code>false</code>.</dd>
+                    set. It defaults to <code>false</code>.
+                    <code>multirow</code> specifies whether the <a>index</a>'s <a>multirow</a> flag is
+                    set. It defaults to <code>false</code>.
+                  </dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
@@ -4094,19 +4110,45 @@ var cursor = objects.<a>openCursor</a>(range);
                   Otherwise add the value to the end of the <var>index key</var> <code>Array</code>.
                 </li>
                 <li>
-                  If <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
-                  and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
-                  abort this algorithm without taking any further steps.
                   <div class="note">
-                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> before
-                    getting to this step.
+                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> by the time
+                    we get to this step.
                   </div>
                 </li>
                 <li>
-                  Store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
+                  If <var>index</var>'s <a>multirow</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
+                  and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
+                  and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
+                  abort this algorithm without taking any further steps.
+                </li>
+                <li>
+                  If <var>index</var>'s <a>multirow</a> flag is true and <var>index key</var> is an <code>Array</code>,
+                  and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
+                  values in <var>index key</var>, and <var>index</var> has it's <a>unique</a> flag set to true, then set error
+                  code to CONSTRAINT_ERR and abort this algorithm without taking any further steps.
+                </li>
+                <li>
+                  If <var>index</var>'s <a>multirow</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
+                  then store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
                   value. The record is stored in <var>index</var>'s <a title="index record list">list of records</a> such
                   that the list is sorted primarily on the records keys, and secondarily on the records values, in ascending
                   order.
+                </li>
+                <li>
+                  If <var>index</var>'s <a>multirow</a> flag is true and <var>index key</var> is an <code>Array</code>,
+                  then for each item in <var>index key</var> store a record in <var>index</var> containig
+                  the items value as its key and <var>key</var> as its value. The records are stored in <var>index</var>'s
+                  <a title="index record list">list of records</a> such that the list is sorted primarily on the records keys,
+                  and secondarily on the records values, in ascending order.
+                  <div class="note">
+                    Note that it is legal for the <code>Array</code> to have length 0, in this case no records are added to
+                    the index.
+                  </div>
+                  <div class="note">
+                    If any of the items in the <code>Array</code> are themselves an <code>Array</code>, then the inner
+                    <code>Array</code> is used as a key for that entry. In other words, <code>Array</code>s are not recursively
+                    "unpacked" to produce multiple rows. Only the outer-most <code>Array</code> is.
+                  </div>
                 </li>
               </ol>
             </li>

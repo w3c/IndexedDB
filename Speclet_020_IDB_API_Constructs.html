@@ -368,19 +368,23 @@
             multiple records in an index which reference the same record in the object store. And there can also be no records in an index
             which reference a given record in an object store.
           </p>
-          <p class="issue">
-            Some of the statements in the note are only true once we've implemented decisions made at TPAC.
-          </p>
           <p>
             The <a>record</a>s in an index are always sorted according to the <a>record</a>s key. However unlike object stores,
             a given index can contain multiple records with the same key. Such records are additionally sorted according to
             the records value.
           </p>
           <p>
-            A index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
+            An index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
+          </p>
+          <p>
+            An index also contains a <dfn>multirow</dfn> flag. This flag affects how the index behaves when the result of evaluating
+            the index's <a title="index key path">key path</a> yields an <code>Array</a>. If the <a>multirow</a> flag is false, then
+            a single <a>record</a> whose <a>key</a> is an <code>Array</code> is added to the index. If the <a>multirow</a> flag is
+            true, then the one <a>record</a> is added to the index for each item in the <code>Array</code>. The <a>key</a> for each
+            record is the value of respective item in the <code>Array</code>.
           </p>
           <p>
             The <a><code>IDBIndex</code></a> and <a><code>IDBIndexSync</code></a> interfaces
