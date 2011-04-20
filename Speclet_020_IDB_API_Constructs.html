@@ -419,13 +419,13 @@
             application and system failures. A <a>transaction</a> may be used to
             store multiple data records or to conditionally modify certain data 
             records. A <a>transaction</a> represents an atomic and durable set 
-            of data access and mutation operations. 
+            of data access and data mutation operations. 
           </p>
           <p>
             <a title="transaction">Transactions</a> are expected to be short lived. This is encouraged
-            using the automatically committing functionality described below. Authors can still cause
-            transactions to run for a long time, however this is generally not a usage pattern which
-            is recommended and can lead to bad user experience in some implementations.
+            by the <a title="commit">automatic committing</a> functionality described below. Authors can still cause
+            transactions to run for a long time; however, this usage pattern 
+            is not generally recommended as it can lead to a bad user experience.
           </p>
           <p>
             The <dfn title="transaction lifetime">lifetime</dfn> of a <a>transaction</a> is as follows:
@@ -434,38 +434,41 @@
             <li>
               A transaction is <dfn title="transaction create">created</dfn> using 
               <a class="idlType" href="#widl-IDBDatabase-transaction">IDBDatabase.transaction</a>.
-              The arguments passed determine what the <a>scope</a> of the transaction is and whether it's read only or not.
+              The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
               When a transaction is created its <a>active</a> flag is initially set to true.
             </li>
             <li>
               The implementation MUST allow <a>request</a>s to be <a title="place request">placed</a> against the transaction
               whenever the <a>active</a> flag is true. This is the case even if the transaction has not yet been
               <a title="transaction start">started</a>. Until the transaction is <a title="transaction start">started</a>
-              the implementation MUST NOT execute these requests, but the implementation MUST still keep track of the
-              <a>request</a>s and their order. Requests may only be placed against the transaction while the transaction
-              is <a>active</a>. If a request is attempted to be placed against a transaction when it is not
-              <a>active</a>, the implementation MUST reject the attempt by throwing a TRANSACTION_INACTIVE_ERR exception.
+              the implementation MUST NOT execute these requests; however, the implementation MUST keep track of the
+              <a>request</a>s and their order. Requests may be placed against a transaction only while that transaction
+              is <a>active</a>. If an attempt is made to place a request against a transaction when that transaction is not
+              <a>active</a>, the implementation MUST reject the attempt by throwing a 
+              <a href="#widl-IDBDatabaseException-TRANSACTION_INACTIVE_ERR">TRANSACTION_INACTIVE_ERR</a> exception.
             </li>
             <li>
-              Once an implementation is able to enforce the constraints defined for the <a>mode</a> of
-              the transaction, defined below, the implementation MUST asynchronously
-              <dfn title="transaction start">start</dfn> the transaction. When this happens is affected
-              by the <a>mode</a> in which the transaction is opened, and which <a>object store</a>s are
-              included in <a>scope</a> of the transaction.
+              Once an implementation is able to enforce the constraints defined for the transaction <a>mode</a>, defined below, the implementation MUST asynchronously
+              <dfn title="transaction start">start</dfn> the transaction. 
+              The timing for when this happens is affected by:
+              	<ul>
+              		<li>The <a>mode</a> in which the transaction is opened.</li>
+              		<li>Which <a>object store</a>s are included in the <a>scope</a> of the transaction.</li>
+              	</ul>
             </li>
             <li>
               Once the transaction has been <a title="transaction start">started</a> the implementation can
-              start executing the <a>request</a>s placed against the transaction. Unless otherwise defined requests
-              MUST be executed in the order they are placed against the transaction. Likewise, their result MUST
-              be returned in the order the request was placed against a specific transaction.
+              start executing the <a>request</a>s placed against the transaction. Unless otherwise defined, requests
+              MUST be executed in the order in which they were made against the transaction. Likewise, their results MUST
+              be returned in the order the requests were placed against a specific transaction.
               There is no guarantee about the order that results from requests in different transactions are returned.
-              Similarly, the isolation <a>mode</a> ensure that it doesn't matter which order requests placed against
-              different transactions are executed.
+              Similarly, the transaction <a>mode</a> ensures that the order of requests placed against different transactions has no effect with
+              respect to execution order.
             </li>
             <li>
-              At any time a transaction can be <dfn>abort</dfn>ed, even if the transaction isn't currently
+              A transaction can be <dfn title="abort">aborted</dfn> at any time, even if the transaction isn't currently
               <a>active</a>. When a transaction is aborted the implementation MUST undo (roll back) any changes
-              made to the <a>database</a> using the transaction. This includes both changes to the contents of
+              that were made to the <a>database</a> during that transaction. This includes both changes to the contents of
               <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
               <p class="note">
                 A transaction can be aborted at any time before it is <a title="transaction finish">finished</a>.
@@ -779,7 +782,7 @@
             object could not be found. For example, an object store
             did not exist but was being opened.</dd>
             <dt>const unsigned short CONSTRAINT_ERR = 4</dt>
-            <dd>A mutation operation in the transaction failed due to a
+            <dd>A mutation operation in the transaction failed 
             because a constraint was not satisfied. For example, an
             object such as an object store or index already
             exists and a new one was being attempted to be created.</dd>
