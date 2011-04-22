@@ -336,8 +336,13 @@
               the <var>version</var> argument as <var>version</var> and the <a>IDBDatabaseSync</a>
               this function was called on as <var>connection</var>. It returns the <a>transaction</a> 
               object that should be used to perform the changes to the database required for the new version.
+              
+              <p>
+              	This method must throw an <a>IDBDatabaseException</a> with a <code>NOT_ALLOWED_ERR</code> description when it is called 
+              	within the <a>IDBTransactionCallback</a> of a transaction method. 
+              </p>
 
-              <p class="note">Processing a setVersion call may take a long time as it requires all other
+              <p class="note">Processing a <code>setVersion</code> call may take a long time as it requires all other
               connections to the database to be closed, which in turn may depend on user input or other
               long-running tasks. If blocking for a long period of time is not acceptable for a given
               scenario then the asynchronous API should be used for version changes.</p>
@@ -345,6 +350,18 @@
               <dl class="parameters">
                 <dt>[TreatNullAs=EmptyString] DOMString      version</dt>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
+                <dt>IDBTransactionCallback callback</dt>
+                <dd>Defines the method in which a <code>VERSION_CHANGE</code> transaction will be valid.</dd>
+                <dt>optional unsigned long timeout</dt>
+                <dd>Defines a transaction timeout value in milliseconds that will limit the 
+                	lifetime of the <code>VERSION_CHANGE</code> transaction.  If the parameter is not provided, 
+                	the value of <var>timeout</var> is infinite.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+              	<dt>NOT_ALLOWED_ERR</dt>
+              	<dd>
+              		The <code>setVersion</code> method was called within the <a>IDBTransactionCallback</a> of a transaction method.
+              	</dd>
               </dl>
             </dd>
             <dt>void transaction()</dt>
@@ -360,6 +377,10 @@
               <p>
                 The method returns a <a>IDBTransactionSync</a> object representing the <a>transaction</a>
                 returned by the steps above.
+              </p>
+              <p>
+              	This method MUST throw an <a>IDBDatabaseException</a> with a <code>NOT_ALLOWED_ERR</code> description 
+              	when it is called within the <a>IDBTransactionCallback</a> of a <code>setVersion</code> method.
               </p>
               <dl class="parameters">
                 <dt>any storeNames</dt>
@@ -387,7 +408,9 @@
                 If <a title="transaction start">starting</a> the transaction takes longer than the specified timeout.
                 </dd>
                 <dt>NOT_ALLOWED_ERR</dt>
-                <dd>The close() method has been called on this <a>IDBDatabase</a> instance.</dd>
+                <dd>
+                	The <code>close()</code> method has been called on this <a>IDBDatabase</a> instance. 
+                	Also thrown when The <code>transaction()</code> method was called within the <a>IDBTransactionCallback</a> of a <code>setVersion</code> method.</dd>
                 <dt>NOT_FOUND_ERR</dt>
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
               </dl>
