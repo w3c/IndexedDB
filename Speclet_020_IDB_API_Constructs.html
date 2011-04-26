@@ -466,24 +466,21 @@
               can execute in any order without affecting what resulting data is stored in the database.
             </li>
             <li>
-              A transaction can be <dfn title="abort">aborted</dfn> at any time, even if the transaction isn't currently
-              <a>active</a>. When a transaction is aborted the implementation MUST undo (roll back) any changes
+              A transaction can be <dfn title="abort">aborted</dfn> at any time before it is <a title="transaction finish">finished</a>, 
+              even if the transaction isn't currently <a>active</a> or hasn't yet <a title="transaction start">started</a>. 
+              When a transaction is aborted the implementation MUST undo (roll back) any changes
               that were made to the <a>database</a> during that transaction. This includes both changes to the contents of
               <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
-              <p class="note">
-                A transaction can be aborted at any time before it is <a title="transaction finish">finished</a>.
-                Including if it isn't <a>active</a> or hasn't yet
-                <a title="transaction start">started</a>.
             </li>
             <li>
-              Once a transaction no longer can become <a>active</a>, and if the transaction
-              hasn't been <a>abort</a>ed, the implementation MUST automatically attempt to
-              <dfn>commit</dfn> it. This usually happens after all requests placed against the
-              transaction has been executed and their returned results handled, but no new requests has been placed
-              against the transaction. When a transaction is committed implementation MUST atomically write
+              When a transaction can no longer become <a>active</a>, the implementation MUST attempt to
+              <dfn>commit</dfn> it, as long as the transaction has not been <a title="abort">aborted</a>. 
+              This usually happens after all requests placed against the
+              transaction have been executed and their returned results handled, and no new requests have been placed
+              against the transaction. When a transaction is committed, the implementation MUST atomically write
               any changes to the <a>database</a> made by requests placed against the transaction. That is, either all
               of the changes MUST be written, or if an error occurs, such as a disk write error, the implementation
-              MUST NOT write any of the changes to the database. If such an error occurs the implementation MUST
+              MUST NOT write any of the changes to the database. If such an error occurs, the implementation MUST
               <a>abort</a> the transaction by following the <a>steps for aborting a transaction</a>, otherwise it
               MUST <a>commit</a> the transaction by following the <a>steps for committing a transaction</a>.
             </li>
@@ -496,7 +493,7 @@
           </ol>
           <p>
             Transactions are opened in one of three <dfn title="mode">modes</dfn>. The mode
-            determine how concurrent access to <a>object store</a>s in the transaction is isolated.
+            determines how concurrent access to <a>object store</a>s in the transaction are isolated.
           </p>
           <ol>
             <li><code><dfn>READ_ONLY</dfn></code></li>
