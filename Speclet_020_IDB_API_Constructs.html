@@ -502,12 +502,12 @@
           </ol>
 
           <p>
-            The transaction <a>mode</a> determines both which operations are allowed to be performed
-            during the transaction, as well whether two transactions can run concurrently or not.
-            Which operations are allowed be be performed are defined in detail below, but in general
+            The transaction <a>mode</a> controls whether or not multiple transactions can run currently 
+            and which operations may be performed during the transaction.
+            The allowed operations are defined in detail below, but in general
             transactions opened in <code><a>READ_ONLY</a></code> mode are only allowed to perform
-            reading operations which does not change data. READ_WRITE transactions are allowed to
-            perform reading and writing transactions to existing <a>object store</a>s, where as
+            operations that do not change data. READ_WRITE transactions are allowed to
+            read from and write to transactions to existing <a>object store</a>s, whereas
             VERSION_CHANGE transactions are allowed to perform any operations, including ones that
             delete and create <a>object store</a>s and <a>index</a>es.
           </p>
@@ -516,8 +516,8 @@
             A VERSION_CHANGE transaction can never run concurrently with other transactions. When
             a VERSION_CHANGE transaction is created, the implementation MUST wait to
             <a title="transaction start">start</a> the VERSION_CHANGE transaction until no other transactions
-            against the same <a>database</a> are running. As long as the VERSION_CHANGE transaction, the implementation
-            MUST wait with <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
+            against the same <a>database</a> are running. As long as the VERSION_CHANGE transaction is pending, the implementation
+            MUST wait before <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
             until the VERSION_CHANGE transaction is finished.
           </p>
           <p>
@@ -530,18 +530,18 @@
             is not found and a lack of data is indicated.
           </p>
           <p>
-            There are a number of ways that an implementation ensure this. It can prevent
-            READ_WRITE transactions whose scope overlap the scope of the READ_ONLY transaction from
-            starting until the READ_ONLY transaction is finished. Or it can allow the READ_ONLY
+            There are a number of ways that an implementation ensures this. The implementation can prevent any
+            READ_WRITE transaction, whose scope overlaps the scope of the READ_ONLY transaction, from
+            starting until the READ_ONLY transaction finishes. Or the implementation can allow the READ_ONLY
             transaction to see a snapshot of the contents of the <a>object store</a>s which is taken when
-            the READ_ONLY transaction is started.
+            the READ_ONLY transaction started.
           </p>
           <p>
             Similarly, implementations MUST ensure that a READ_WRITE transaction is only affected by
-            changes to <a>object store</a>s that are made using the transaction itself. I.e. the
+            changes to <a>object store</a>s that are made using the transaction itself. For example, the
             implementation MUST ensure that another transaction does not modify the contents of
-            <a>object store</a>s in the READ_WRITE transactions <a>scope</a>. The implementation
-            MUST also ensure that if the READ_WRITE transaction completes successfully, that the
+            <a>object store</a>s in the READ_WRITE transaction's <a>scope</a>. The implementation
+            MUST also ensure that if the READ_WRITE transaction completes successfully, the
             changes written to <a>object store</a>s using the transaction can be committed to the
             <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
             due to merge conflicts.
