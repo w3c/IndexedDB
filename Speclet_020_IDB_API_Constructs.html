@@ -581,11 +581,13 @@
             Finally, requests have a <dfn>request transaction</dfn>. When a request is created, it is
             always <dfn title="place request">placed</dfn> against a <a>transaction</a> using either the
             <a href="#steps-for-asynchronously-executing-a-request">steps for asynchronously executing a request</a> or the
-            <a href="#steps-for-synchronously-executing-a-request">steps for synchronously executing a request</a>. This sets the <a>request transaction</a> to
-            be that request. The only exceptions to this are the request returned from a
-            <a href="#widl-IDBFactory-open">IDBFactory.open</a> call and the request returned from a
-            <a href="#widl-IDBDatabase-setVersion">IDBDatabase.setVersion</a>
-            call, which create requests which have a null <a>request transaction</a>.
+            <a href="#steps-for-synchronously-executing-a-request">steps for synchronously executing a request</a>. 
+            The steps set the <a>request transaction</a> to
+            be that request. 
+            The steps do not set the <a>request transaction</a> to be that request for the request returned from a 
+            <a href="#widl-IDBFactory-open">IDBFactory.open</a> call or the request returned from a 
+            <a href="#widl-IDBDatabase-setVersion">IDBDatabase.setVersion</a> call, however. 
+            Those calls create requests which have a null <a>request transaction</a>.
           </p>
         </section>
 
@@ -719,9 +721,10 @@
           </p>
           <p>
             A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an <a>index</a>
-            or an <a>object store</a>. The cursor has a <dfn title="cursor source">source</dfn> indicating
-            which index or object store whose records it is iterating. A <a>cursor</a> maintains a <dfn>position</dfn> over 
-            this series, which moves in a <dfn>direction</dfn> that is either 
+            or an <a>object store</a>. The cursor has a <dfn title="cursor source">source</dfn> that indicates
+            which index or object store is associated with the records over which the <a>cursor</a> is iterating. 
+            A <a>cursor</a> maintains a <dfn>position</dfn> over 
+            this series, which moves in a <dfn>direction</dfn> that is in either 
             monotonically increasing or decreasing order of the <a>record</a> keys. Cursors
             also have a <dfn title="cursor key">key</dfn> and a <dfn title="cursor value">value</dfn>
             which represent the <a>key</a> and the <a>value</a> of the last iterated <a>record</a>.
@@ -731,10 +734,10 @@
             to the next one.
           </p>
           <p>
-            If the <a title="cursor source">source</a> of a cursor is a <a>object store</a>, the <dfn>effective object store</dfn>
-            of the cursor is that object store and the <dfn>effective key</dfn> of the cursor is the cursors <a>position</a>.
-            If the <a title="cursor source">source</a> of a cursor is a <a>index</a>, the <a>effective object store</a>
-            of the cursor is that index's <a>referenced</a> object store and the <a>effective key</a> is the cursors
+            If the <a title="cursor source">source</a> of a cursor is an <a>object store</a>, the <dfn>effective object store</dfn>
+            of the cursor is that object store and the <dfn>effective key</dfn> of the cursor is the cursor's <a>position</a>.
+            If the <a title="cursor source">source</a> of a cursor is an <a>index</a>, the <a>effective object store</a>
+            of the cursor is that index's <a>referenced</a> object store and the <a>effective key</a> is the cursor's
             <a>object store position</a>.
           </p>
           <p>
@@ -749,10 +752,10 @@
           </p>
           <p>
             For cursors iterating indexes the situation is a little bit more complicated since
-            multiple records can have the same key and are therefor also sorted by <a>value</a>.
-            When iterating indexes the <a>cursor</a>'s also has a <dfn>object store position</dfn>, which indicates
+            multiple records can have the same key and are therefore also sorted by <a>value</a>.
+            When iterating indexes the <a>cursor</a> also has an <dfn>object store position</dfn>, which indicates
             the <a>value</a> of the previously found <a>record</a> in the index. Both
-            <a>position</a> and the <a>object store position</a> is used when finding the next appropriate record.
+            <a>position</a> and the <a>object store position</a> are used when finding the next appropriate record.
           </p>
           <p>
             <a title="cursor">Cursor</a> objects implement the <a><code>IDBCursor</code></a> 
@@ -781,7 +784,8 @@
             <dd>A mutation operation in the transaction failed 
             because a constraint was not satisfied. For example, an
             object such as an object store or index already
-            exists and a new one was being attempted to be created.</dd>
+            exists and a request attempted to create a new one.
+            </dd>
             <dt>const unsigned short DATA_ERR = 5</dt>
             <dd>Data provided to an operation does not meet requirements.</dd>
             <dt>const unsigned short NOT_ALLOWED_ERR = 6</dt>
