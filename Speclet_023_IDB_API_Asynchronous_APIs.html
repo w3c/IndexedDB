@@ -313,7 +313,7 @@
               <p>
                 When invoked, this method MUST create a <a>request</a> and return it. The created
                 <a>request</a> has <a title="request source">source</a> set to <code>null</code>.
-                The method then asynchronously runs the <a>steps for opening a database</a>.
+                The method then queues up an operation to run the <a>steps for deleting a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
                 to this function.
@@ -339,7 +339,7 @@
               <p>
                 When invoked, this method MUST create a <a>request</a> and return it. The created
                 <a>request</a> has no <a title="request source">source</a>.
-                The method then asynchronously runs the <a>steps for deleting a database</a>.
+                The method then queues up an operation to run the <a>steps for deleting a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
                 to this function.
@@ -463,12 +463,12 @@
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
-                In some implementations it's possible for the implementation to asynchronously run into problems
-                creating the object store after the createObjectStore function has returned. For example in
-                implementations where metadata about the newly created objectStore is inserted into the database
-                asynchronously, or where the implementation might need to ask the user for permission for quota
-                reasons. Such implementations MUST still create and return a <a>IDBObjectStore</a> object. Instead,
-                once the implementation realizes that creating the objectStore has failed, it MUST abort the transaction
+                In some implementations it's possible for the implementation to run into problems 
+                after queuing up an operation to create the <a title="object store">objectStore</a> after the <code>createObjectStore</code> function has returned. 
+                For example in implementations where metadata about the newly created <a title="object store">objectStore</a> is inserted into the database asynchronously, 
+                or where the implementation might need to ask the user for permission for quota reasons.
+				Such implementations MUST still create and return an <a>IDBObjectStore</a> object. Instead,
+                once the implementation realizes that creating the <a title="object store">objectStore</a> has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a>.
               </p>
               <dl class="parameters">
@@ -909,15 +909,16 @@
                 index's keyPath. If the <a>referenced</a> object store already contains data which violates these
                 constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
                 The implementation MUST still create and return a <a>IDBIndex</a> object.
-                Instead the implementation MUST asynchronously abort the <a><code>VERSION_CHANGE</code></a>
-                transaction which was used for the createIndex call.
+                Instead the implementation must queue up an operation to abort the <a><code>VERSION_CHANGE</code></a> transaction 
+                which was used for the createIndex call. 
               </p>
               <p>
                 In some implementations it's possible for the implementation to asynchronously run into problems
-                creating the index after the createIndex function has returned. For example in
-                implementations where metadata about the newly created index is inserted into the database
-                asynchronously, or where the implementation might need to ask the user for permission for quota
-                reasons. Such implementations MUST still create and return a <a>IDBIndex</a> object. Instead,
+                creating the index after the createIndex function has returned. 
+                For example in implementations where metadata about the newly created index is 
+                queued up to be inserted into the database asynchronously, 
+                or where the implementation might need to ask the user for permission for quota reasons. 
+                Such implementations MUST still create and return a <a>IDBIndex</a> object. Instead,
                 once the implementation realizes that creating the index has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a>.
               </p>

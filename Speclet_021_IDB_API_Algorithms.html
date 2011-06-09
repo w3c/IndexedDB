@@ -218,9 +218,8 @@
               <var>storeNames</var> as <a>scope</a>.
             </li>
             <li>
-              If these steps are running asynchronously, return the created <a>transaction</a> and run the
-              remaining steps asynchronously. When control is returned to the event loop, the implementation
-              MUST set the <a>active</a> flag to false.
+              If these steps are running asynchronously, return the created <a>transaction</a> and queue up the the remaining steps. 
+			  When control is returned to the event loop, the implementation MUST set the <a>active</a> flag to false.
             </li>
             <li>
               Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
@@ -253,8 +252,8 @@
               All the changes made to the <a>database</a> the transaction uses are written to the <a>database</a>.
             </li>
             <li>
-              Asynchronously dispatch an event at <var>transaction</var>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"commit"</code>.
+			  Queue up an operation to dispatch an event at <a>transaction</a>. 
+			  The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"commit"</code>.
               The event does not bubble and is not cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
               then <var>transaction</var>.
@@ -290,10 +289,10 @@
               </ol>
             </li>
             <li>
-              Asynchronously dispatch an event at <var>transaction</var>. The event must use
-              the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>.
-              The event does bubble but is not cancelable. The
-              <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
+              Queue up an operation to dispatch an event at <var>transaction</var>.  
+              The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>.
+              The event does bubble but is not cancelable. 
+              The <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
               then <var>transaction</var>.
             </li>
           </ol>
@@ -319,8 +318,8 @@
             <li>
               Create a <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
               <a title="request source">source</a> to <var>source</var> and add <var>request</var> to the end of the
-              <a title="request list">list</a> of <a>request</a>s in <var>transaction</var>. Return
-              this object and run the remaining steps in this algorithm asynchronously.
+              <a title="request list">list</a> of <a>request</a>s in <var>transaction</var>. 
+              Return this object and queue up the execution of the remaining steps in this algorithm. 
               <p class="note">
                 Cursors override this step to reuse an existing <a>IDBRequest</a>. However they still put the
                 <a>IDBRequest</a> at the end of the list of <a>request</a>s in <var>transaction</var>.
@@ -426,7 +425,7 @@
             </li>
             <li>
               If running asynchronously, create a new <a>request</a> which uses the <a>IDBVersionChangeRequest</a> interface, return it, and
-              run the remaining steps in this algorithm asynchronously.
+              and queue up the remaining steps in this algorithm. 
             </li>
             <li>
               Let <var>openDatabases</var> be the set of all <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
@@ -448,8 +447,9 @@
             </li>
             <li>
               <p>
-                If running asynchronously and any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, fire a
-                <code>blocked</code> event at <var>request</var>. The event MUST use the <a><code>IDBVersionChangeEvent</code></a> interface
+                If running asynchronously and any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, 
+                queue up a <code>blocked</code> event for the <var>request</var>.
+                The event MUST use the <a><code>IDBVersionChangeEvent</code></a> interface
                 and have the <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
                 This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>request</var>.
               </p>
@@ -475,7 +475,7 @@
               <a><code>transaction</code></a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
             </li>
             <li>
-              If running asynchronously, fire a <a><code>success</code></a> event targeted at the <var>request</var> object. The <a><code>result</code></a>
+              If running asynchronously, queue up a <a><code>success</code></a> event targeted at the <var>request</var> object. The <a><code>result</code></a>
               propety of the event should be set to a new <a><code>IDBTransaction</code></a> object representing the
               <a><code>VERSION_CHANGE</code></a> transaction created in step 4. If running synchronously, return the <a><code>IDBTransactionSync</code></a> 
               created in step 4 to the caller.
