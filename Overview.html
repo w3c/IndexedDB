@@ -39,27 +39,28 @@
 		<link rel="stylesheet" type="text/css" href="http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/SimpleDB.css"/>
 
   <body style="display: inherit;">
-  <div class="head">
-	   <p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"/></a></p>
-	<h1 class="title" id="title">Indexed Database API</h1>
-  	<h2 id="w3c-editor-s-draft-08-july-2011">W3C Editor's Draft 08 July 2011</h2>
-  		<dl>
-  			<dt>This version:</dt>
-  			<dd><a href="http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html">http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html</a></dd>
-  			
-  			<dt>Latest published version:</dt>
-  			<dd><a href="http://www.w3.org/TR/IndexedDB/">http://www.w3.org/TR/IndexedDB/</a></dd>
-  			
-  			<dt>Latest editor's draft:</dt>
-  			<dd><a href="http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html">http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html</a></dd>
-  			
+  	<div class="head">
+  	<p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"/></a></p>
+  	<h1 class="title" id="title">Indexed Database API</h1>
+  	<h2 id="w3c-editor-s-draft-11-july-2011">W3C Editor's Draft 11 July 2011</h2>
+  	<dl>
+  		<dt>This version:</dt>
+  		<dd><a href="http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html">http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html</a></dd>
+  		
+  		<dt>Latest published version:</dt>
+  		<dd><a href="http://www.w3.org/TR/IndexedDB/">http://www.w3.org/TR/IndexedDB/</a></dd>
+  		
+  		<dt>Latest editor's draft:</dt>
+  		<dd><a href="http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html">http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html</a></dd>
+  		
 		<dt>Previous versions:</dt>
 		<dd><a href="http://www.w3.org/TR/2010/WD-IndexedDB-20110419/">http://www.w3.org/TR/2010/WD-IndexedDB-20110419/</a></dd>
 		<dd><a href="http://www.w3.org/TR/2010/WD-IndexedDB-20100819/">http://www.w3.org/TR/2010/WD-IndexedDB-20100819/</a></dd>
 		<dd><a href="http://www.w3.org/TR/2010/WD-IndexedDB-20100105/">http://www.w3.org/TR/2010/WD-IndexedDB-20100105/</a></dd>
 		<dd><a href="http://www.w3.org/TR/2009/WD-WebSimpleDB-20090929/">http://www.w3.org/TR/2009/WD-WebSimpleDB-20090929/</a></dd>
-  			
-  			<dt>Editors:</dt><dd><a href="mailto:nikunj@o-micron.com">Nikunj Mehta</a>, Invited Expert</dd>
+  		
+  		
+  		<dt>Editors:</dt><dd><a href="mailto:nikunj@o-micron.com">Nikunj Mehta</a>, Invited Expert</dd>
 <dd><a href="mailto:jonas@sicking.cc">Jonas Sicking</a>, Mozilla</dd>
 <dd><a href="mailto:eliotgra@microsoft.com">Eliot Graff</a>, Microsoft</dd>
 <dd><a href="mailto:andreip@google.com">Andrei Popescu</a>, Google</dd>
@@ -944,27 +945,38 @@ fails.
         <div id="options-object-concept" class="section">
           <h4><span class="secno">3.1.12 </span>Options Object</h4>
           <p>
-            <dfn id="dfn-options-object">Options object</dfn>s are simply JavaScript objects [<cite><a href="#bib-ECMA-262" rel="biblioentry" class="bibref">ECMA-262</a></cite>]
-            which are used to supply optional parameters to some indexedDB functions like
-            <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> and
+          	<dfn id="dfn-options-object">Options object</dfn>s are dictionary objects [<cite><a href="#bib-WEBIDL" rel="biblioentry" class="bibref">WEBIDL</a></cite>] 
+          	which are used to supply optional parameters to some indexedDB functions like 
+          	<a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> and
             <a href="#widl-IDBObjectStore-createIndex">createIndex</a>. The attributes on the object
             correspond to optional parameters on the function called. The domain of valid
-            attributes/parameters depends on the function called. If an attribute is present in the
-            object which is not part of that domain, a <a href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR">
-            <code>NON_TRANSIENT_ERR</code></a> exception
-            <em title="must" class="rfc2119">must</em> be thrown. Similarly, if any attribute has a getter function or its value is an object, a
-            <a href="#widl-IDBDatabaseException-NON_TRANSIENT_ERR">
-            <code>NOT_TRANSIENT_ERR</code></a> exception <em title="must" class="rfc2119">must</em> be thrown.
-          </p>
-          <p class="note">
-            We disallow getters and objects because the getter function and the toString function can
-            execute arbitrary JavaScript which exposes many obscure corner cases which aren't worth speccing
-            out. For example, navigating the page or adding an <a class="internalDFN" href="#dfn-object-store" title="object store">objectStore</a> while
-            inside a <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> call.
-          </p>
-          <p class="issue">
-            This should probably be moved into the WebIDL spec.
-          </p>
+            attributes/parameters depends on the function called. 
+		</p>
+          <div class="example"><div class="exampleHeader">Example</div>
+          	<div class="block">
+            	<div class="blockTitleDiv"><span class="blockTitle">IDL</span></div>
+            	<div class="blockContent">
+            	<p>The following WebIDL defines <dfn id="dfn-idbdatabaseoptionalparameters">IDBDatabaseOptionalParameters</dfn> dictionary type.</p>
+            		<pre class="code">            			<code class="es-code">
+dictionary IDBDatabaseOptionalParameters {
+   DOMString? keyPath = null;
+   boolean autoIncrement = false;
+};
+            			</code>
+            		</pre>
+            		<p>The following WebIDL defines <dfn id="dfn-idbindexoptionalparameters">IDBIndexOptionalParameters</dfn> dictionary type.</p>
+            		<pre class="code">            			<code class="es-code">
+dictionary IDBIndexOptionalParameters {
+   boolean unique = false;
+   boolean multientry = false;
+};
+            			</code>
+            		</pre>
+            	</div>
+            </div>
+          </div>
+
+
         </div> <!-- Options Object -->
       </div>
       <div class="section" id="async-api"> 
@@ -1186,7 +1198,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
 <span class="idlAttribute">    readonly attribute <span class="idlAttrType"><a>DOMString</a></span>     <span class="idlAttrName"><a href="#widl-IDBDatabase-name">name</a></span>;</span>
 <span class="idlAttribute">    readonly attribute <span class="idlAttrType"><a>DOMString</a></span>     <span class="idlAttrName"><a href="#widl-IDBDatabase-version">version</a></span>;</span>
 <span class="idlAttribute">    readonly attribute <span class="idlAttrType"><a>DOMStringList</a></span> <span class="idlAttrName"><a href="#widl-IDBDatabase-objectStoreNames">objectStoreNames</a></span>;</span>
-<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a></span>          <span class="idlMethName"><a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-Object-optionalParameters">createObjectStore</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">optionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a></span>          <span class="idlMethName"><a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-Object-IDBDatabaseOptionalParameters">createObjectStore</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">IDBDatabaseOptionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>                    <span class="idlMethName"><a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name">deleteObjectStore</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBVersionChangeRequest"><code>IDBVersionChangeRequest</code></a></span> <span class="idlMethName"><a href="#widl-IDBDatabase-setVersion-IDBVersionChangeRequest-DOMString-version">setVersion</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">version</span></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBTransaction"><code>IDBTransaction</code></a></span>          <span class="idlMethName"><a href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-unsigned-short-mode">transaction</a></span> (<span class="idlParam">in <span class="idlParamType"><a>any</a></span> <span class="idlParamName">storeNames</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>unsigned short</a></span> <span class="idlParamName">mode</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
@@ -1231,7 +1243,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               on this <a class="idlType" href="#idl-def-IDBDatabase"><code>IDBDatabase</code></a> instance itself.
             <div><em>No exceptions.</em></div></dd></dl></div><div class="section"><h5 id="methods-3">Methods</h5><dl class="methods"><dt id="widl-IDBDatabase-close-void"><code>close</code></dt><dd>
               This method returns immediately and performs the <a class="internalDFN" href="#dfn-steps-for-closing-a-database-connection">steps for closing a database connection</a>.
-            <div><em>No parameters.</em></div><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-Object-optionalParameters"><code>createObjectStore</code></dt><dd>
+            <div><em>No parameters.</em></div><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-Object-IDBDatabaseOptionalParameters"><code>createObjectStore</code></dt><dd>
               <p>
                 This method creates and returns a new <a class="internalDFN" href="#dfn-object-store">object store</a> with the given name in the 
                 <a class="internalDFN" href="#dfn-connection" title="connection">connected</a> <a class="internalDFN" href="#dfn-database">database</a>. If this function is called from
@@ -1273,7 +1285,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               </p>
               
               
-            <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">name</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-object-store-name" title="object store name">name</a> of a new <a class="internalDFN" href="#dfn-object-store">object store</a></td></tr><tr><td class="prmName">optionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
+            <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">name</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-object-store-name" title="object store name">name</a> of a new <a class="internalDFN" href="#dfn-object-store">object store</a></td></tr><tr><td class="prmName">IDBDatabaseOptionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
                     Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
                     <code>keyPath</code> specifies the <a class="internalDFN" href="#dfn-object-store-key-path" title="object store key path">key path</a> of the new 
                     <a class="internalDFN" href="#dfn-object-store">object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
@@ -1365,7 +1377,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></span> <span class="idlMethName"><a href="#widl-IDBObjectStore-get-IDBRequest-any-key">get</a></span> (<span class="idlParam">in <span class="idlParamType"><a>any</a></span> <span class="idlParamName">key</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></span> <span class="idlMethName"><a href="#widl-IDBObjectStore-clear-IDBRequest">clear</a></span> () raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></span> <span class="idlMethName"><a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a></span> (<span class="idlParam">in optional <span class="idlParamType"><a>any</a>?</span> <span class="idlParamName">range</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>unsigned short</a></span> <span class="idlParamName">direction</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
-<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBIndex"><code>IDBIndex</code></a></span>   <span class="idlMethName"><a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-Object-optionalParameters">createIndex</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">keyPath</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">optionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBIndex"><code>IDBIndex</code></a></span>   <span class="idlMethName"><a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-Object-IDBIndexOptionalParameters">createIndex</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">keyPath</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">IDBIndexOptionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBIndex"><code>IDBIndex</code></a></span>   <span class="idlMethName"><a href="#widl-IDBObjectStore-index-IDBIndex-DOMString-name">index</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>       <span class="idlMethName"><a href="#widl-IDBObjectStore-deleteIndex-void-DOMString-indexName">deleteIndex</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">indexName</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 };</span>
@@ -1450,7 +1462,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
                 this <a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a> as <var>store</var>.
               </p>
               
-            <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TRANSACTION_INACTIVE_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>READ_ONLY_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a> belongs to is READ_ONLY.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></code></div></dd><dt id="widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-Object-optionalParameters"><code>createIndex</code></dt><dd>
+            <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TRANSACTION_INACTIVE_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>READ_ONLY_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStore"><code>IDBObjectStore</code></a> belongs to is READ_ONLY.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></code></div></dd><dt id="widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-Object-IDBIndexOptionalParameters"><code>createIndex</code></dt><dd>
               <p>
                 This method creates and returns a new <a class="internalDFN" href="#dfn-index">index</a> with the given name and parameters in the 
                 <a class="internalDFN" href="#dfn-connection" title="connection">connected</a> <a class="internalDFN" href="#dfn-database">database</a>. If this function is called from
@@ -1499,7 +1511,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               
               
             <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">name</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a title="index name">name</a> of a new <a class="internalDFN" href="#dfn-index">index</a></td></tr><tr><td class="prmName">keyPath</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-index-key-path" title="index key path">key path</a> used by the new
-                  <a class="internalDFN" href="#dfn-index">index</a></td></tr><tr><td class="prmName">optionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
+                  <a class="internalDFN" href="#dfn-index">index</a></td></tr><tr><td class="prmName">IDBIndexOptionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
                     The valid options are <code>unique</code> and <code>multientry</code>.
                     <code>unique</code> specifies whether the <a class="internalDFN" href="#dfn-index">index</a>'s <a class="internalDFN" href="#dfn-unique">unique</a> flag is
                     set. It defaults to <code>false</code>.
@@ -2052,7 +2064,7 @@ interface <span class="idlInterfaceID">IDBEnvironmentSync</span> {
 <span class="idlAttribute">    readonly attribute <span class="idlAttrType"><a>DOMString</a></span>     <span class="idlAttrName"><a href="#widl-IDBDatabaseSync-name">name</a></span>;</span>
 <span class="idlAttribute">    readonly attribute <span class="idlAttrType"><a>DOMString</a></span>     <span class="idlAttrName"><a href="#widl-IDBDatabaseSync-version">version</a></span>;</span>
 <span class="idlAttribute">    readonly attribute <span class="idlAttrType"><a>DOMStringList</a></span> <span class="idlAttrName"><a href="#widl-IDBDatabaseSync-objectStoreNames">objectStoreNames</a></span>;</span>
-<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a></span> <span class="idlMethName"><a href="#widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-Object-optionalParameters">createObjectStore</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">optionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a></span> <span class="idlMethName"><a href="#widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-Object-IDBDatabaseOptionalParameters">createObjectStore</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">IDBDatabaseOptionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>               <span class="idlMethName"><a href="#widl-IDBDatabaseSync-deleteObjectStore-void-DOMString-name">deleteObjectStore</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>               <span class="idlMethName"><a href="#widl-IDBDatabaseSync-setVersion-void-DOMString-version-IDBTransactionCallback-callback-unsigned-long-timeout">setVersion</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">version</span></span>, <span class="idlParam">in <span class="idlParamType"><a class="idlType" href="#idl-def-IDBTransactionCallback"><code>IDBTransactionCallback</code></a></span> <span class="idlParamName">callback</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>unsigned long</a></span> <span class="idlParamName">timeout</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>               <span class="idlMethName"><a href="#widl-IDBDatabaseSync-transaction-void-any-storeNames-IDBTransactionCallback-callback-unsigned-short-mode-unsigned-long-timeout">transaction</a></span> (<span class="idlParam">in <span class="idlParamType"><a>any</a></span> <span class="idlParamName">storeNames</span></span>, <span class="idlParam">in <span class="idlParamType"><a class="idlType" href="#idl-def-IDBTransactionCallback"><code>IDBTransactionCallback</code></a></span> <span class="idlParamName">callback</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>unsigned short</a></span> <span class="idlParamName">mode</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>unsigned long</a></span> <span class="idlParamName">timeout</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
@@ -2095,7 +2107,7 @@ interface <span class="idlInterfaceID">IDBEnvironmentSync</span> {
             <div><em>No exceptions.</em></div></dd></dl></div><div class="section"><h5 id="methods-9">Methods</h5><dl class="methods"><dt id="widl-IDBDatabaseSync-close-void"><code>close</code></dt><dd>
                 This method synchronously performs the <a class="internalDFN" href="#dfn-steps-for-closing-a-database-connection">steps for closing a database connection</a> and returns once 
                 the database has been closed.
-            <div><em>No parameters.</em></div><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-Object-optionalParameters"><code>createObjectStore</code></dt><dd>
+            <div><em>No parameters.</em></div><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-Object-IDBDatabaseOptionalParameters"><code>createObjectStore</code></dt><dd>
               <p>
                 This method creates a and returns a new <a class="internalDFN" href="#dfn-object-store">object store</a> with the
                 given name in the <a class="internalDFN" href="#dfn-connection" title="connection">connected</a> <a class="internalDFN" href="#dfn-database">database</a>. This method
@@ -2121,7 +2133,7 @@ interface <span class="idlInterfaceID">IDBEnvironmentSync</span> {
               </p>
               
               
-            <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">name</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-object-store-name" title="object store name">name</a> of a new <a class="internalDFN" href="#dfn-object-store">object store</a></td></tr><tr><td class="prmName">optionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
+            <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">name</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-object-store-name" title="object store name">name</a> of a new <a class="internalDFN" href="#dfn-object-store">object store</a></td></tr><tr><td class="prmName">IDBDatabaseOptionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
                     Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
                     <code>keyPath</code> specifies the <a class="internalDFN" href="#dfn-object-store-key-path" title="object store key path">key path</a> of the new 
                     <a class="internalDFN" href="#dfn-object-store">object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
@@ -2297,7 +2309,7 @@ cursor.continue();</code></pre></div></div>
 <span class="idlMethod">    <span class="idlMethType"><a>boolean</a></span>                <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-delete-boolean-any-key">delete</a></span> (<span class="idlParam">in <span class="idlParamType"><a>any</a></span> <span class="idlParamName">key</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>any</a></span>                    <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-get-any-any-key">get</a></span> (<span class="idlParam">in <span class="idlParamType"><a>any</a></span> <span class="idlParamName">key</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>                   <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-clear-void">clear</a></span> () raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
-<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBIndexSync"><code>IDBIndexSync</code></a></span>           <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-createIndex-IDBIndexSync-DOMString-name-DOMString-keyPath-Object-optionalParameters">createIndex</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">keyPath</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">optionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBIndexSync"><code>IDBIndexSync</code></a></span>           <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-createIndex-IDBIndexSync-DOMString-name-DOMString-keyPath-Object-IDBIndexOptionalParameters">createIndex</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">keyPath</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>Object</a></span> <span class="idlParamName">IDBIndexOptionalParameters</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBIndexSync"><code>IDBIndexSync</code></a></span>           <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-index-IDBIndexSync-DOMString-name">index</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span>                   <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-deleteIndex-void-DOMString-indexName">deleteIndex</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">indexName</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a class="idlType" href="#idl-def-IDBCursorWithValueSync"><code>IDBCursorWithValueSync</code></a></span> <span class="idlMethName"><a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a></span> (<span class="idlParam">in optional <span class="idlParamType"><a>any</a>?</span> <span class="idlParamName">range</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a>unsigned short</a></span> <span class="idlParamName">direction</span></span>) raises (<span class="idlRaises"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></span>);</span>
@@ -2386,7 +2398,7 @@ cursor.continue();</code></pre></div></div>
                 this <a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a> as <var>store</var>.
               </p>
               
-            <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TRANSACTION_INACTIVE_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>READ_ONLY_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a> belongs to is READ_ONLY.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-IDBObjectStoreSync-createIndex-IDBIndexSync-DOMString-name-DOMString-keyPath-Object-optionalParameters"><code>createIndex</code></dt><dd>
+            <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a class="idlType" href="#idl-def-IDBDatabaseException"><code>IDBDatabaseException</code></a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TRANSACTION_INACTIVE_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>READ_ONLY_ERR</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBObjectStoreSync"><code>IDBObjectStoreSync</code></a> belongs to is READ_ONLY.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-IDBObjectStoreSync-createIndex-IDBIndexSync-DOMString-name-DOMString-keyPath-Object-IDBIndexOptionalParameters"><code>createIndex</code></dt><dd>
               <p>
                 This creates and returns a new <a class="internalDFN" href="#dfn-index">index</a> with the given name and parameters in the 
                 <a class="internalDFN" href="#dfn-connection" title="connection">connected</a> <a class="internalDFN" href="#dfn-database">database</a>.  Note that this method must only
@@ -2409,7 +2421,7 @@ cursor.continue();</code></pre></div></div>
               
               
             <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">name</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a title="index name">name</a> of a new <a class="internalDFN" href="#dfn-index">index</a></td></tr><tr><td class="prmName">keyPath</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-index-key-path" title="index key path">key path</a> used by the new
-                  <a class="internalDFN" href="#dfn-index">index</a></td></tr><tr><td class="prmName">optionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
+                  <a class="internalDFN" href="#dfn-index">index</a></td></tr><tr><td class="prmName">IDBIndexOptionalParameters</td><td class="prmType"><code><a>Object</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">The <a class="internalDFN" href="#dfn-options-object">options object</a> whose attributes are optional parameters to this function.
                     The valid options are <code>unique</code> and <code>multientry</code>.
                     <code>unique</code> specifies whether the <a class="internalDFN" href="#dfn-index">index</a>'s <a class="internalDFN" href="#dfn-unique">unique</a> flag is
                     set. It defaults to <code>false</code>.
