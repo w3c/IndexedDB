@@ -1375,6 +1375,15 @@
                 runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
                 with null as <var>key</var> and this cursor as <var>cursor</var>.
               </p>
+              <p>
+                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag on the cursor to false.
+              </p>
+              <p>
+              	Calling this method more than once before new cursor data has been loaded is not allowed 
+              	and results in a <a>NOT_ALLOWED_ERR</a> exception being thrown. 
+              	For example, calling <code>continue()</code> twice from the same onsuccess handler 
+              	results in a <a>NOT_ALLOWED_ERR</a> being thrown on the second call.
+              </p>
               <dl class="parameters">
                 <dt>long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
@@ -1382,6 +1391,10 @@
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NON_TRANSIENT_ERR</dt>
                 <dd>The value passed into the <code>count</code> parameter was zero or a negative number.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The cursor is currently being iterated, or has iterated past its end.</dd>
               </dl>
             </dd>
 

@@ -1352,6 +1352,15 @@ var cursor = objects.<a>openCursor</a>(range);
                 executing a request</a> returns a cursor, then this function returns <code>true</code>. Otherwise
                 this function returns <code>false</code>.
               </p>
+              <p>
+                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag in the cursor to false.
+              </p>
+              <p>
+              	Calling this method more than once before new cursor data has been loaded is not allowed 
+              	and results in a <a>NOT_ALLOWED_ERR</a> exception being thrown. 
+              	For example, calling <code>continue()</code> twice from the same onsuccess handler 
+              	results in a <a>NOT_ALLOWED_ERR</a> being thrown on the second call.
+              </p>
               <dl class="parameters">
                 <dt>long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
@@ -1359,6 +1368,10 @@ var cursor = objects.<a>openCursor</a>(range);
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NON_TRANSIENT_ERR</dt>
                 <dd>The value passed into the <code>count</code> parameter was zero or a negative number.</dd>
+                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The cursor is currently being iterated, or has iterated past its end.</dd>
               </dl>
             </dd>
 
@@ -1402,7 +1415,7 @@ var cursor = objects.<a>openCursor</a>(range);
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>TRANSACTION_INACTIVE_ERR</dt>
-                <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
+                <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>The cursor is currently being iterated, or has iterated past its end.</dd>
                 <dt>DATA_ERR</dt>
