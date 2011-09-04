@@ -236,16 +236,14 @@
               If the <a>version</a> of <var>db</var> is lower than <var>version</var>, then run the
               <a>steps for running a <code>VERSION_CHANGE</code> transaction</a> using <var>connection</var>,
               <var>version</var>, <var>request</var> and <var>upgrade callback</var>.
-              <p class="issue">
-                What do we do if IDBDatabase.close() is called during this transaction? Returning a closed database
-                seems wrong.
-              </p>
             </li>
             <li>
               If the previous step resulted in an error, then return that error and abort these steps.
-              If the transaction in the previous step was aborted, return a ABORT_ERR error and abort these steps.
-              In either of these cases, <var>connection</var> is <a title="database close">closed</a> by running
-              the <a>steps for closing a database connection</a> before these steps are aborted.
+              If the <code>VERSION_CHANGE</code> transaction in the previous step was aborted, or if
+              <var>connection</var> is <a title="database close">closed</a>, return an
+              <code>ABORT_ERR</code> error and abort these steps.
+              In either of these cases, ensure that <var>connection</var> is <a title="database close">closed</a>
+              by running the <a>steps for closing a database connection</a> before these steps are aborted.
             </li>
             <li>
               Return <var>connection</var>.
