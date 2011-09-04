@@ -241,13 +241,15 @@
             at the <a>request</a>.
           </p>
           <p>
-            The <a href="#widl-IDBDatabase-setVersion">setVersion</a> function on <a>IDBDatabase</a>
+            The <a href="#widl-IDBDatabase-open">open</a> function on <a>IDBDatabase</a>
             uses a separate interface for its <a>request</a>s in order to make use of the
-            <code>blocked event</code> eaiser.
+            <code>blocked event</code> and <code>upgradeneeded event</code> eaiser.
           </p>
-          <dl class="idl" title="interface IDBVersionChangeRequest : IDBRequest"> 
+          <dl class="idl" title="interface IDBOpenRequest : IDBRequest"> 
             <dt>attribute Function onblocked</dt>
             <dd>The event handler for the <code>blocked event</code></dd>
+            <dt>attribute Function onupgradeneeded</dt>
+            <dd>The event handler for the <code>upgradeneeded event</code></dd>
           </dl>
           <p>
             The <span>task source</span> for these tasks is the 
@@ -262,8 +264,10 @@
           </p>
 
           <dl class="idl" title="interface IDBVersionChangeEvent : Event"> 
-            <dt>readonly attribute DOMString version</dt>
-            <dd>Returns the new version of the database during a VERSION_CHANGE transaction.
+            <dt>readonly attribute DOMString oldVersion</dt>
+            <dd>Returns the old version of the database.
+            <dt>readonly attribute DOMString newVersion</dt>
+            <dd>Returns the new version of the database.
             See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
             <dt>void initIDBVersionChangeEvent(in DOMString typeArg, in boolean canBubbleArg, in boolean cancelableArg, in DOMString version)</dt>
             <dd>
@@ -275,7 +279,9 @@
             		<dd>Boolean value that indicates whether the event can bubble.</dd>
             		<dt>boolean cancelableArg</dt>
             		<dd>Boolean value that indicates whether the event is cancelable.</dd>
-            		<dt>DOMString version</dt>
+            		<dt>DOMString oldVersion</dt>
+            		<dd>The old version of the database during a VERSION_CHANGE transaction.</dd>
+            		<dt>DOMString newVersion</dt>
             		<dd>The new version of the database during a VERSION_CHANGE transaction.</dd>
             	</dl>
             </dd>
@@ -307,30 +313,42 @@
           </p>
 
           <dl class="idl" title="interface IDBFactory">
-            <dt>IDBRequest open()</dt>
+            <dt>IDBOpenRequest open()</dt>
             <dd>
               <p>
                 When invoked, this method MUST create a <a>request</a> and return it. The created
-                <a>request</a> has <a title="request source">source</a> set to <code>null</code>.
-                The method then queues up an operation to run the <a>steps for deleting a database</a>.
+                <a>request</a> MUST implement the <a>IDBOpenRequest</a> interface and have its
+                <a title="request source">source</a> set to <code>null</code>.
+                The method then queues up an operation to run the <a>steps for opening a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
-                this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
-                to this function.
+                this <a>IDBFactory</a>, <var>name</var> and <var>version</var> be the <var>name</var>
+                and <var>version</var> parameters passed to this function, and <var>request</var> be
+                the newly created request.
               </p>
               <p>
                 If an error is returned from the steps above, the implementation MUST set the
                 <a title="request errorCode">errorCode</a> of the <var>request</var>
-                to the code of the error returned and <a>fire an error event</a> at the <a>request</a>.
+                to the code of the error returned, set the <a title="request result">result</a>
+                of the <var>request</var> to null, and <a>fire an error event</a> at the <a>request</a>.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
                 <a title="request result">result</a> of the <var>request</var>
                 to the <a>connection</a> created by the steps above and <a>fire a success event</a> at
-                the <a>request</a>.
+                the <a>request</a>. If the steps above resulted in a VERSION_CHANGE transaction being
+                run, then firing the <code>success</code> event MUST be done in the same task as was used
+                to fire the <code>complete</code> event.
+              </p>
+              <p class="note">
+                The last requirement is to ensure that in case another version upgrade is about to happen,
+                the success event is fired on the connection first so that the page gets a chance to register
+                a listener for the <code>versionchange</code> event.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
+                <dt>long long version</dt>
+                <dd>The <a>version</a> for the <a>database</a></dd>
               </dl>
             </dd>
             <dt>IDBVersionChangeRequest deleteDatabase()</dt>
@@ -402,19 +420,17 @@
               In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
-            <dt>readonly attribute DOMString version</dt>
+            <dt>readonly attribute long long version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
-              <a>database</a>. This attribute has the empty string value when the
+              <a>database</a>. This attribute has value 0 when the
               <a title="connection">connected</a> <a>database</a> is first created.
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the <a>version</a> taken when the
               <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
               other <a>connection</a>s are later used to change the <a>version</a> of the
               <a>database</a>. In other words, the return value from this function
-              stays constant for the lifetime of the <a>IDBDatabase</a> instance,
-              unless <a href="#widl-IDBDatabase-setVersion">setVersion</a> is called
-              on this <a>IDBDatabase</a> instance itself.
+              stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
@@ -428,10 +444,9 @@
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
-              <a>IDBDatabase</a> instance, unless
-              <a href="#widl-IDBDatabase-setVersion">setVersion</a> and
-              <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> or
-              <a href="#widl-IDBDatabase-deleteObjectStore">deleteObjectStore</a>
+              <a>IDBDatabase</a> instance, except during a <a><code>VERSION_CHANGE</code></a>
+              transaction if <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a>
+              or <a href="#widl-IDBDatabase-deleteObjectStore">deleteObjectStore</a>
               is called on this <a>IDBDatabase</a> instance itself.
             </dd>
             <dt>IDBObjectStore createObjectStore()</dt>
@@ -439,19 +454,21 @@
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
-                MUST throw a NOT_ALLOWED_ERR exception. If an objectStore with the same name already
+                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
+                function is called on a <a>IDBDatabase</a> object other than that transactions
+                <a title="transaction conection">connection</a>, the implementation MUST throw a
+                NOT_ALLOWED_ERR exception.
+              </p>
+              <p>
+                If an objectStore with the same name already
                 exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
                 MUST create a new <a>object store</a> and return an <a>IDBObjectStore</a> object representing it.
               </p>
               <p>
-              	The <code>createObjectStore</code> method is tied to the instance of the database that 
-              	<a href="#widl-IDBDatabase-setVersion-IDBVersionChangeRequest-DOMString-version">setVersion</a> was called on 
-              	and can make changes to that database instance only.
-              </p>
-              <p>
               	This method synchronously modifies the 
-              	<a href="#widl-IDBDatabase-objectStoreNames">IDBDatabase.objectStoreNames</a> property.
+              	<a href="#widl-IDBDatabase-objectStoreNames">IDBDatabase.objectStoreNames</a> property. However it
+                only changes the <a href="#widl-IDBDatabase-objectStoreNames">IDBDatabase.objectStoreNames</a>
+                property on the <a>IDBDatabase</a> instance on which it was called.
               </p>
               <p>
                 If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
@@ -506,20 +523,17 @@
             <dd>
               <p>
                 This method destroys the <a>object store</a> with the given name in the 
-                <a title="connection">connected</a> <a>database</a> as well as 
-                all <a title="index">indexes</a> that
-                <a title="referenced">reference</a> that <a>object store</a>.
-                Note that this method must only be called from a <a><code>VERSION_CHANGE</code></a>
-                <a>transaction</a> callback.
-              </p>
-              <p>
-              	The <code>deleteObjectStore</code> method is tied to the instance of the database that 
-              	<a href="#widl-IDBDatabase-setVersion-IDBVersionChangeRequest-DOMString-version">setVersion</a> was called on 
-              	and can make changes to that database instance only.
+                <a title="connection">connected</a> <a>database</a>. If this function is called from
+                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
+                function is called on a <a>IDBDatabase</a> object other than that transactions
+                <a title="transaction conection">connection</a>, the implementation MUST throw a
+                NOT_ALLOWED_ERR exception.
               </p>
               <p>
               	This method synchronously modifies the 
-              	<a href="#widl-IDBDatabase-objectStoreNames">IDBDatabase.objectStoreNames</a> property.
+              	<a href="#widl-IDBDatabase-objectStoreNames">IDBDatabase.objectStoreNames</a> property. However it
+                only changes the <a href="#widl-IDBDatabase-objectStoreNames">IDBDatabase.objectStoreNames</a>
+                property on the <a>IDBDatabase</a> instance on which it was called.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -535,23 +549,6 @@
                 <dt>NOT_FOUND_ERR</dt>
                 <dd>There is no <a>object store</a> with the given name, compared in a 
                 case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
-              </dl>
-            </dd>
-            <dt>IDBVersionChangeRequest setVersion()</dt>
-            <dd>
-              This method updates the <a>version</a> of the <a>database</a> by following the
-              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a> using
-              the <var>version</var> argument as <var>version</var> and the <a>IDBDatabase</a>
-              this function was called on as <var>connection</var>. Return the <a>IDBVersionChangeRequest</a>
-              returned by those steps. 
-              Within a given page, events fire in the order that the <a>IDBDatabase</a> objects were opened.
-              <dl class="parameters">
-                <dt>DOMString      version</dt>
-                <dd>The <a>version</a> to store in the <a>database</a></dd>
-              </dl>
-              <dl class="exception" title="IDBDatabaseException">
-              	<dt>NOT_ALLOWED_ERR</dt>
-              	<dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
             <dt>IDBTransaction transaction()</dt>
@@ -570,17 +567,10 @@
                 returned by the steps above.
               </p>
               <p>
-              	This method MUST throw an <a href="#the-idbdatabaseexception-interface">IDBDatabaseException</a> 
-              	of type <code>NOT_ALLOWED_ERR</code> 
-              	if the <code>transaction</code> method is called within the <a href="#widl-IDBRequest-onsuccess">onsuccess</a> handler of a 
-              	<a href="#widl-IDBDatabase-setVersion-IDBVersionChangeRequest-DOMString-version">setVersion</a> request. 
-              	This method also MUST throw an <a href="#the-idbdatabaseexception-interface">IDBDatabaseException</a> 
-              	of type <code>NOT_ALLOWED_ERR</code> 
-              	if the <code>transaction</code> method is called when there is a pending 
-              	<a href="#widl-IDBDatabase-setVersion-IDBVersionChangeRequest-DOMString-version">setVersion</a> call. 
-              	In short, the <code>transaction</code> method throws <code>NOT_ALLOWED_ERR</code> 
-              	from the time that <a href="#widl-IDBDatabase-setVersion-IDBVersionChangeRequest-DOMString-version">setVersion</a> 
-              	is called to the point when the <a href="#widl-IDBTransaction-oncomplete">complete</a> event is fired on the resulting transaction.
+              	This method MUST throw an <a>IDBDatabaseException</a> 
+              	of type <code>NOT_ALLOWED_ERR</code> if called before the <code>success</code> event for a
+                <a href="#widl-IDBFactor-open">open</a> call has been dispatched. I.e. if a VERSION_CHANGE
+                transaction for the database is still running, or if it failed to be successfully committed.
               </p>
               <dl class="parameters">
                 <dt>any storeNames</dt>
@@ -1504,7 +1494,7 @@
             in this mode.</dd>
             <dt>const     unsigned short VERSION_CHANGE = 2</dt>
             <dd>This mode is used solely for updating the version number of
-            transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabase</code></a>.</dd>
+            transactions started using the <code>open()</code> method on the <a><code>IDBFactory</code></a> interface.</dd>
             <dt>readonly attribute unsigned short mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the

@@ -165,10 +165,22 @@
             <dt>IDBDatabaseSync open()</dt>
             <dd>
               <p>
-                When invoked, this method synchronously runs the <a>steps for opening a database</a>.
-                Let <var>origin</var> be the origin of the <a>IDBEnvironmentSync</a> used to access
-                this <a>IDBFactorySync</a> and <var>name</var> be the <var>name</var> argument passed
-                to this function.
+              	When invoked, this method MUST throw an <a>IDBDatabaseException</a> with a <code>NOT_ALLOWED_ERR</code>
+                description when it is called within the <a>IDBTransactionCallback</a> of a <code>transaction</code>
+                method or the <a>IDBVersionChangeCallback</a> of a <code>open</code> method. Otherwise this method
+                synchronously runs the <a>steps for opening a database</a>. Let <var>origin</var> be the origin of the
+                <a>IDBEnvironmentSync</a> used to access this <a>IDBFactorySync</a>, <var>name</var>, <var>version</var>
+                and <var>upgrade callback</var> be the <var>name</var>, <var>version</var> and <var>upgradeCallback</var>
+                arguments passed to this function.
+              </p>
+              <p>
+                If a <var>timeout</var> parameter was supplied, then this limits the total waiting time allowed in
+                step 3 of <a>steps for opening a database</a> and step 4 of the <a>steps for running a
+                <code>VERSION_CHANGE</code> transaction</a>. If more waiting time would be needed in order to progress,
+                then abort those algorithms and throw a <code>TIMEOUT_ERR</code> error.
+              </p>
+              <p class="note">
+                The <var>timeout</var> parameter does not affect how long the <var>upgradeCallback</var> can run.
               </p>
               <p>
                 If an error is returned from the steps above, then the implementation MUST
@@ -181,9 +193,36 @@
                 If the steps above are successful, the implementation MUST create an <a>IDBDatabaseSync</a>
                 object representing the created <a>connection</a> and return it.
               </p>
+              <p class="note">
+                Processing a <code>open</code> call may take a long time as it could require running a
+                VERSION_CHANGE transaction which requires all other connections to the database to be closed, which
+                in turn may depend on user input or other long-running tasks. If blocking for a long period of time
+                is not acceptable for a given scenario then the asynchronous API should be used for version changes.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
+                <dt>long long version</dt>
+                <dd>The <a title="database version">version</a> for the <a>database</a></dd>
+                <dt>IDBVersionChangeCallback upgradeCallback</dt>
+                <dd>Callback used if the <a>database version</a> needs to be upgraded before the
+                database can be opened.</dd>
+                <dt>optional unsigned long timeout</dt>
+                <dd>Defines a transaction timeout value in milliseconds that will limit the 
+                    how long waiting for the <code>VERSION_CHANGE</code> transaction.  If the parameter is not provided, 
+                    the value of <var>timeout</var> is infinite.</dd>
+              </dl>
+              <dl class="exception" title="IDBDatabaseException">
+              	<dt>NOT_ALLOWED_ERR</dt>
+              	<dd>
+                  The <code>open</code> method was called within the <a>IDBTransactionCallback</a> of a
+                  <code>transaction</code> method or <a>IDBVersionChangeCallback</a> of a
+                  <code>open</code> method.
+              	</dd>
+              	<dt>TIMEOUT_ERR</dt>
+              	<dd>
+                  Was unable to open the database with the requested version within the given timeout period.
+              	</dd>
               </dl>
             </dd>
             <dt>void deleteDatabase()</dt>
@@ -224,7 +263,7 @@
               In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabaseSync</a> instance.
             </dd>
-            <dt>readonly attribute DOMString version</dt>
+            <dt>readonly attribute long long version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has the empty string value when the
@@ -234,9 +273,7 @@
               <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
               other <a>connection</a>s are later used to change the <a>version</a> of the
               <a>database</a>. In other words, the return value from this function
-              stays constant for the lifetime of the <a>IDBDatabaseSync</a> instance,
-              unless <a href="#widl-IDBDatabaseSync-setVersion">setVersion</a> is called
-              on this <a>IDBDatabaseSync</a> instance itself.
+              stays constant for the lifetime of the <a>IDBDatabaseSync</a> instance.
             </dd>
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
@@ -250,10 +287,9 @@
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
-              <a>IDBDatabaseSync</a> instance, unless
-              <a href="#widl-IDBDatabaseSync-setVersion">setVersion</a> and
-              <a href="#widl-IDBDatabaseSync-createObjectStore">createObjectStore</a> or
-              <a href="#widl-IDBDatabaseSync-deleteObjectStore">deleteObjectStore</a>
+              <a>IDBDatabaseSync</a> instance except during a <a><code>VERSION_CHANGE</code></a>
+              transaction if <a href="#widl-IDBDatabaseSync-createObjectStore">createObjectStore</a>
+              or <a href="#widl-IDBDatabaseSync-deleteObjectStore">deleteObjectStore</a>
               is called on this <a>IDBDatabaseSync</a> instance itself.
             </dd>
             <dt>IDBObjectStoreSync createObjectStore()</dt>
@@ -264,9 +300,10 @@
                 should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
               </p>
               <p>
-				The <code>createObjectStore</code> method is tied to the instance of the database that 
-				<a href="#widl-IDBDatabaseSync-setVersion-IDBTransactionSync-DOMString-version-IDBTransactionCallback-callback-unsigned-long-timeout">setVersion</a> 
-				was called on and can make changes to that database instance only.
+              	This method synchronously modifies the 
+              	<a href="#widl-IDBDatabaseSync-objectStoreNames">IDBDatabaseSync.objectStoreNames</a> property. However it
+                only modifies the <a href="#widl-IDBDatabaseSync-objectStoreNames">IDBDatabaseSync.objectStoreNames</a>
+                property on the <a>IDBDatabaseSync</a> instance on which it was called.
               </p>
               <p>
                 If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
@@ -319,9 +356,10 @@
                 should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
               </p>
               <p>
-              	The <code>deleteObjectStore</code> method is tied to the instance of the database that 
-              	<a href="#widl-IDBDatabaseSync-setVersion-IDBTransactionSync-DOMString-version-IDBTransactionCallback-callback-unsigned-long-timeout">setVersion</a> 
-              	was called on and can make changes to that database instance only.
+              	This method synchronously modifies the 
+              	<a href="#widl-IDBDatabaseSync-objectStoreNames">IDBDatabaseSync.objectStoreNames</a> property. However it
+                only modifies the <a href="#widl-IDBDatabaseSync-objectStoreNames">IDBDatabaseSync.objectStoreNames</a>
+                property on the <a>IDBDatabaseSync</a> instance on which it was called.
               </p>
               
               <dl class="parameters">
@@ -343,49 +381,6 @@
                 </dd>
               </dl>
             </dd>
-            <dt>void setVersion()</dt>
-            <dd>
-              This method updates the <a>version</a> of the <a>database</a> by following the
-              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a> using
-              the <var>version</var> argument as <var>version</var> and the <a>IDBDatabaseSync</a>
-              this function was called on as <var>connection</var>. 
-              
-              <p>
-              	This method must throw an <a>IDBDatabaseException</a> with a <code>NOT_ALLOWED_ERR</code> description when it is called 
-              	within the <a>IDBTransactionCallback</a> of a transaction method. 
-              </p>
-              
-              <p>
-              	Calling <code>setVersion</code>
-              	while a first <code>setVersion</code> transaction is already running queues up another <code>setVersion</code> transaction 
-              	to run after the first <code>setVersion</code> transaction is finished.
-              </p>
-
-              <p class="note">Processing a <code>setVersion</code> call may take a long time as it requires all other
-              connections to the database to be closed, which in turn may depend on user input or other
-              long-running tasks. If blocking for a long period of time is not acceptable for a given
-              scenario then the asynchronous API should be used for version changes.</p>
-
-              <dl class="parameters">
-                <dt>DOMString      version</dt>
-                <dd>The <a>version</a> to store in the <a>database</a></dd>
-                <dt>IDBTransactionCallback callback</dt>
-                <dd>
-                	A callback which will be called with the newly created <code>VERSION_CHANGE</code> transaction. When the callback returns, the transaction is committed.
-				</dd>
-                <dt>optional unsigned long timeout</dt>
-                <dd>Defines a transaction timeout value in milliseconds that will limit the 
-                	lifetime of the <code>VERSION_CHANGE</code> transaction.  If the parameter is not provided, 
-                	the value of <var>timeout</var> is infinite.</dd>
-              </dl>
-              <dl class="exception" title="IDBDatabaseException">
-              	<dt>NOT_ALLOWED_ERR</dt>
-              	<dd>
-              		The <code>setVersion</code> method was called within the <a>IDBTransactionCallback</a> of a transaction method.
-              		Also occurs if a request is made on a source object that has been deleted or removed.
-              	</dd>
-              </dl>
-            </dd>
             <dt>void transaction()</dt>
             <dd>
               <p>
@@ -402,7 +397,8 @@
               </p>
               <p>
               	This method MUST throw an <a>IDBDatabaseException</a> with a <code>NOT_ALLOWED_ERR</code> description 
-              	when it is called within the <a>IDBTransactionCallback</a> of a <code>setVersion</code> method.
+              	when it is called within the <a>IDBTransactionCallback</a> of a <code>transaction</code> method or the
+                <a>IDBVersionChangeCallback</a> of a <code>open</code> method.
               </p>
               <dl class="parameters">
                 <dt>any storeNames</dt>
@@ -431,9 +427,10 @@
                 </dd>
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>
-                	The <code>close()</code> method has been called on this <a>IDBDatabase</a> instance. 
-                	Also thrown when The <code>transaction()</code> method was called within the <a>IDBTransactionCallback</a> of a <code>setVersion</code> method.
-                	Also occurs if a request is made on a source object that has been deleted or removed.</dd>
+                  The <code>close()</code> method has been called on this <a>IDBDatabase</a> instance. 
+                  Also thrown when The <code>transaction()</code> method was called within the
+                  <a>IDBTransactionCallback</a> of a <code>transaction</code> method or the
+                  <a>IDBVersionChangeCallback</a> of a <code>open</code> method.</dd>
                 <dt>NOT_FOUND_ERR</dt>
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
                 <dt>NON_TRANSIENT_ERR</dt>
@@ -449,11 +446,29 @@
         </section>
         <section class="section" id="transaction-callback">
           <dl title='[NoInterfaceObject, Callback=FunctionOnly] interface IDBTransactionCallback' class='idl'> 
-            <dt>void handleEvent (IDBTransactionSync transaction)</dt> 
-            <dd> 
-              <p> 
-              The <a><code>transaction</code></a> that was just started.
-              </p> 
+            <dt>void handleEvent()</dt>
+            <dd>
+              Called once the transaction is allowed to run. The actions taken in this function make up
+              the body of the transaction.
+              <dl class="parameters">
+                <dt>IDBTransactionSync transaction</dt>
+                <dd>The newly started transaction</dd>
+              </dl>
+            </dd> 
+          </dl> 
+        </section>
+        <section class="section" id="transaction-callback">
+          <dl title='[NoInterfaceObject, Callback=FunctionOnly] interface IDBVersionChangeCallback' class='idl'> 
+            <dt>void handleEvent()</dt>
+            <dd>
+              Called if a database upgrade is needed once the transaction used to upgrade the database is allowed to run.
+              The actions taken in this function make up the body of the transaction.
+              <dl class="parameters">
+                <dt>IDBTransactionSync transaction</dt>
+                <dd>The newly started transaction</dd>
+                <dt>long long oldVersion</dt>
+                <dd>The version that the database had before the upgrade was needed.</dd>
+              </dl>
             </dd> 
           </dl> 
         </section>
@@ -465,17 +480,10 @@
               <a title="object store key path">key path</a> <em>id</em>. This
               <a>object store</a> is also designed to use a <a>key generator</a>.
             </p>
-            <codeblock>var db = indexedDBSync.open('AddressBook');
-if (db.version !== '1') {
-    var vtx = db.setVersion('1');
-    vtx.createObjectStore('Contact', 'id', true);
-}
+            <codeblock>var db = indexedDBSync.open('AddressBook', 1, function(trans, oldVersion) {
+  trans.db.createObjectStore('Contact', 'id', true);
+});
             </codeblock>
-            <p class="issue">The scenario above doesn't actually work well because you have to unwind to
-            the event loop to get the version transaction to commit before you can do something
-            else. Leaving it like this for now, as this will get sorted out when we add callbacks
-            for transactions in the sync API (we'll have to do it for the setVersion transaction 
-            as well).</p>
             <p>
               Using this <a>database</a>, we can store records in the <em>Contact</em>
               <a>object store</a>. 
@@ -952,17 +960,14 @@ cursor.continue();</codeblock>
               index could be maintained on the <em>name</em> property of objects
               in the <em>Contact</em> <a>object store</a>.
             </p>
-            <codeblock>var db = <a>indexedDBSync</a>.<a>open</a>('AddressBook');
-if (db.version === '1') {
-    var vtx = db.<a>setVersion('2')</a>;
-    var store = vtx.<a>objectStore</a>('Contact');
-    store.<a>createIndex</a>('ContactName', 'name', false);
-}</codeblock>
-            <p class="issue">The scenario above doesn't actually work well because you have to unwind to
-            the event loop to get the version transaction to commit before you can do something
-            else. Leaving it like this for now, as this will get sorted out when we add callbacks
-            for transactions in the sync API (we'll have to do it for the setVersion transaction 
-            as well).</p>
+            <codeblock>var db = indexedDBSync.open('AddressBook', 2, function(trans, oldVersion) {
+  if (oldVersion === 1) {
+    trans.db.createObjectStore('Contact', 'id', true);
+  }
+  var store = vtx.objectStore('Contact');
+  store.createIndex('ContactName', 'name', false);
+});
+</codeblock>
             <p>
               For example, the <em>id</em> of an object with the <em>name</em> 
               property value 'Lincoln' can be retrieved using the 
@@ -1484,7 +1489,7 @@ var cursor = objects.<a>openCursor</a>(range);
             in this mode.</dd>
             <dt>const     unsigned short VERSION_CHANGE = 2</dt>
             <dd>This mode is used solely for updating the version number of
-            transactions started using the <code>setVersion()</code> method of <a><code>IDBDatabaseSync</code></a>.</dd>
+            transactions started using the <code>open()</code> method of <a><code>IDBFactorySync</code></a>.</dd>
             <dt>readonly attribute unsigned short mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the

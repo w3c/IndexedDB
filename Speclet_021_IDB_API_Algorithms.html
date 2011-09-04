@@ -146,9 +146,11 @@
           <h4>Opening a database</h4>
           <p>
             The <dfn>steps for opening a database</dfn> are defined in the following steps. The algorithm in these steps
-            takes two arguments: an <var>origin</var>, which requested the <a>database</a> to be opened,
-            and a database, <var>name</var>. The algorithm also optionally takes a <var>request</var> which represents
-            a <a>request</a> used when opening the database is done by using an asynchronous API.
+            takes three required arguments: an <var>origin</var>, which requested the <a>database</a> to be opened,
+            a database <var>name</var>, and a database <var>version</var>. The algorithm also takes two optional
+            arguments, a <var>request</var> which represents a <a>request</a> used when opening the database is done by using
+            an asynchronous API or a <var>upgrade callback</var> which represents the callback used when opening the database
+            is done by using the synchronous API.
           </p>
           
           <ol>
@@ -160,29 +162,87 @@
               If there is already a database with the given name from the origin <var>origin</var>, then
               let <var>db</var> be that database.
             </li>
+            <!--<li>
+              If <var>db</var> was found in the previous step, and it has a <a>version</a> higher than
+              <var>version</var>, then abort these steps and return a <a><code>VERSION_ERR</code></a> error.
+              Likewise, if at any point while running these steps, these steps are also running with the same
+              <var>origin</var> and <var>name</var>, but with a higher <var>version</var>, abort these steps and
+              return a <a><code>VERSION_ERR</code></a> error.
+              <div class="note">
+                <p>This can happen in for example the following four situations:</p>
+                <ul>
+                  <li>
+                    The database already has a version higher than the version requested to be opened.
+                  </li>
+                  <li>
+                    Another call to <code>open</code> with a higher version is already in progress, but is
+                    waiting for other connections to be closed before being able to fire the
+                    <code>upgradeneeded</code> event.
+                  </li>
+                  <li>
+                    While this call is waiting for other connections to be closed before being able to firing
+                    the <code>upgradeneeded</code> event, another call to <code>open</code> is made with a
+                    higher version.
+                  </li>
+                  <li>
+                    Two calls to open happen at the same time with different version numbers.
+                  </li>
+                </ul>
+              </div>
+            </li>-->
             <li>
-              If <var>db</var> was found in the previous step, wait until no already existing
-              <a>connection</a>s to <var>db</var>, have non-<a title="transaction finish">finished</a>
-              VERSION_CHANGE <a>transaction</a>s. If <var>db</var> has its <a>delete pending</a> flag set, wait
-              until <var>db</var> has been deleted.
+              If <var>db</var> was found in previous step, wait until the following conditions are all fulfilled:
+              <ul>
+                <li>
+                  No already existing <a>connection</a>s to <var>db</var>, have
+                  non-<a title="transaction finish">finished</a> VERSION_CHANGE <a>transaction</a>.
+                </li>
+                <li>
+                  If <var>db</var> has its <a>delete pending</a> flag set, wait until <var>db</var> has
+                  been deleted.
+                </li>
+                <li>
+                  These steps are not run for any other <a>connection</a>s with the same <var>origin</var>
+                  and <var>name</var> but with a higher <var>version</var>.
+                </li>
+              </ul>
               <p class="note">
-                There can potentially be several <a>connection</a>s waiting for a VERSION_CHANGE transaction
-                to finish. Once that transaction <a title="transaction finish">finishes</a> another <a>connection</a>
-                could be created and a new VERSION_CHANGE transaction could be started before these steps has
-                a chance to continue. In that case the implementation MUST keep waiting at this step. Similarly,
-                at any point while waiting for VERSION_CHANGE transactions to finish, the <a>delete pending</a> flag
-                could be set. In that case the implementation MUST keep waiting at this step until <var>db</var> has
-                been deleted.
+                If several connections with the same origin, name and version are opened at the same time,
+                and that version is a higher version that the database's current version, then once any of
+                those connections can proceed to the next step in this algorithm it will immediately start
+                a VERSION_CHANGE transaction. This prevents the other connections from proceeding until that
+                VERSION_CHANGE transaction is finished.
+              </p>
+              <p class="note">
+                This means that if two databases with the same name and origin, but with different versions, are
+                being opened at the same time, the one with the highest version will attempt to be opened first.
+                If it is able to successfully open, then the one with the lower version will receive an error.
               </p>
             </li>
             <li>
               If no database with the given name from the origin <var>origin</var> was found, or if it was
               deleted during the previous step, then create a <a>database</a> with name <var>name</var>,
-              with the empty string as <a>version</a>, and with no <a>object store</a>s. Let <var>db</var>
+              with <code>0</code> as <a>version</a>, and with no <a>object store</a>s. Let <var>db</var>
               be the new database.
             </li>
             <li>
-              Create a <a>connection</a> to <var>db</var> and return it.
+              If the <a>version</a> of <var>db</var> is higher than <var>version</var>, abort these steps and return
+              a <code>VERSION_ERR</code> error.
+            </li>
+            <li>
+              Create a new <a>connection</a> to <var>db</var> and let <var>connection<var> represent it.
+            </li>
+            <li>
+              If the <a>version</a> of <var>db</var> is lower than <var>version</var>, then run the
+              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a> using <var>connection</var>,
+              <var>version</var>, <var>request</var> and <var>upgrade callback</var>.
+            </li>
+            <li>
+              If the previous step resulted in an error, then return that error and abort these steps.
+              If the transaction in the previous step was aborted, return a ABORT_ERR error and abort these steps.
+            </li>
+            <li>
+              Return <var>connection</var>.
             </li>
           </ol>
         </section>
@@ -195,7 +255,7 @@
             A <a><var>connection</var></a>, a <a><var>mode</var></a>, a list of <var>storeNames</var> of
             <a>object store</a>s to be included in the <a>scope</a> of the transaction, a
             <var>timeout</var> for the transaction <a title="transaction start">starting</a>,
-            and a <var>callbacks</var> parameter for synchronously created transactions.
+            and a <var>callback</var> parameter for synchronously created transactions.
           </p>
           <ol>
             <li>
@@ -421,19 +481,13 @@
           <h4>VERSION_CHANGE transaction steps</h4>
           <p>
             The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
-            as follows. This algorithm takes two parameters - a <var>connection</var> object which is used
-            to update the <a>database</a> and a new <var>version number</var> to be set for the <a>database</a>.
+            as follows. This algorithm takes two required parameters - a <var>connection</var> object which is used
+            to update the <a>database</a> a new <var>version</var> to be set for the <a>database</a>.
+            The algorithm also takes two optional arguments, a <var>request</var> which represents a <a>request</a>
+            used when the asynchronous API is used, or a <var>upgrade callback</var> which
+            represents the callback used when the synchronous API is used.
           </p>
           <ol>
-            <li>
-              Create a new <a>transaction</a> with <a>mode</a> set to VERSION_CHANGE and <var>connection</var> used as <a>connection</a>.
-              The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
-              <a>active</a> flag to false.
-            </li>
-            <li>
-              If running asynchronously, create a new <a>request</a> which uses the <a>IDBVersionChangeRequest</a> interface, return it, and
-              and queue up the remaining steps in this algorithm. 
-            </li>
             <li>
               Let <var>openDatabases</var> be the set of all <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
               objects, except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
@@ -443,7 +497,9 @@
                 Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
                 be fired on objects which has the <code>closePending</code> flag set. The event MUST use the
                 <a><code>IDBVersionChangeEvent</code></a> interface and have the
-                <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
+                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
+                <a>version</a> and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                property set to <var>version</var>.
                 This event MUST NOT bubble or be cancelable. The propagation path for the event is just the <a><code>IDBDatabase</code></a>
                 object itself.
               </p>
@@ -455,42 +511,68 @@
             <li>
               <p>
                 If running asynchronously and any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, 
-                queue up a <code>blocked</code> event for the <var>request</var>.
-                The event MUST use the <a><code>IDBVersionChangeEvent</code></a> interface
-                and have the <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <var>version number</var>.
+                queue up a <code>blocked</code> event for the <var>request</var>. The event MUST use the
+                <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
+                <a>version</a> and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                property set to <var>version</var>.
                 This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>request</var>.
               </p>
             </li>
             <li id="VERSION_CHANGE-close-block">
               Wait until either all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
-              their transactions are <a title="transaction finish">finished</a> or <var>connection</var> has its
-              <a><code>closePending</code></a> flag set to <code>true</code>.
+              their transactions are <a title="transaction finish">finished</a>.
               <p class="issue">If .close() is called immediately but a <a>transaction</a> associated with the <var>connection</var>
               keeps running for a "long time", should we also fire a <code>blocked</code> event?</p>
+              <p class="issue">If, while we're waiting here, someone calls open with a version number higher than <var>version</var>,
+              we should probably let that upgrade run first and bail here if it was successful</p>
             </li>
             <li>
-              If <var>connection</var> has its <a><code>closePending</code></a> flag set to <code>true</code>, 
-              abort the transaction by following the <a>steps for aborting a transaction</a> and abort this algorithm without taking
-              any further steps.
+              Create a new <a>transaction</a> with <a>mode</a> set to VERSION_CHANGE and <var>connection</var> used as <a>connection</a>.
+              The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
+              <a>active</a> flag to false. Let <var>transaction</var> represent this transaction.
             </li>
             <li>
-              Start the <a>transaction</a> that will be used during the version change. Note that until this <a>transaction</a> is finished, no other <a>connection</a>s
-              can be opened to the same <a>database</a>.
+              Start <var>transaction</var>. Note that until this <a>transaction</a> is finished,
+              no other <a>connection</a>s can be opened to the same <a>database</a>.
             </li>
             <li>
-              Set the version of <var>database</var> to the given <var>version number</var>. This change is considered part of the
+              Let <var>old version</var> be <var>database</var>'s <a>version</a>.
+            </li>
+            <li>
+              Set the version of <var>database</var> to <var>version</var>. This change is considered part of the
               <a><code>transaction</code></a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
             </li>
             <li>
-              If running asynchronously, queue up a <a><code>success</code></a> event targeted at the <var>request</var> object. The <a><code>result</code></a>
-              propety of the event should be set to a new <a><code>IDBTransaction</code></a> object representing the
-              <a><code>VERSION_CHANGE</code></a> transaction created in step 4. 
-              Also, the <var>transaction</var> property on the target event should be set to the new <a><code>IDBTransaction</code></a> object.
-              If running synchronously, return the <a><code>IDBTransactionSync</code></a> created in step 4 to the caller.
+              If running asynchronously, schedule a task to run the following steps:
+              <ol>
+                <li>
+                  Set the <a><code>result</code></a> property of <var>request</var> to <var>connection</var>.
+                </li>
+                <li>
+                  Set the <code>transaction</code> property of <var>request</var> to <var>transaction</var>.
+                </li>
+                <li>
+                  Fire a <a><code>upgradeneeded</code></a> event targeted at <var>request</var>. The event MUST use the
+                <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
+                and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                property set to <var>version</var>.
+                </li>
+              </ol>
+            </li>
+            <li>
+              If running synchronously, call <var>upgrade callback</var> and pass it <var>transaction</var> as the first argument
+              and <var>old version</var> the second argument.
             </li>
             <li>
               Follow the normal steps for executing a <a><code>transaction</code></a> and let the <a><code>transaction</code></a>
               finish normally.
+            </li>
+            <li>
+              When the transaction is finished, if these steps are run asynchronously, immediately set <var>request</var>'s
+              <code>transaction</code> property to <code>null</code>. This MUST be done in the same task as the task firing the
+              <code>complete</code> or <code>abort</code> event, but after those events has been fired.
             </li>
           </ol>
         </section>
@@ -547,7 +629,9 @@
                 Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
                 be fired on objects which has the <code>closePending</code> flag set. The event MUST use the
                 <a><code>IDBVersionChangeEvent</code></a> interface and have the
-                <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <code>null</code>.
+                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
+                <a>version</a> and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                property set to <code>null</code>.
                 This event MUST NOT bubble or be cancelable.
               </p>
               <p class="note">
@@ -558,8 +642,11 @@
             <li>
               <p>
                 If any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, and <var>request</var> was provided,
-                fire a <code>blocked</code> event at <var>request</var>. The event MUST use the <a><code>IDBVersionChangeEvent</code></a>
-                interface and have the <a href="#widl-IDBVersionChangeEvent-version"><code>version</code></a> property set to <code>null</code>.
+                fire a <code>blocked</code> event at <var>request</var>. The event MUST use the
+                <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
+                <a>version</a> and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                property set to <code>null</code>.
                 This event MUST NOT bubble or be cancelable.
               </p>
             </li>
