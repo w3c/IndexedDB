@@ -520,7 +520,7 @@
               <a>request</a>s and their order. Requests may be placed against a transaction only while that transaction
               is <a>active</a>. If an attempt is made to place a request against a transaction when that transaction is not
               <a>active</a>, the implementation MUST reject the attempt by throwing a 
-              <a href="#widl-IDBDatabaseException-TRANSACTION_INACTIVE_ERR">TRANSACTION_INACTIVE_ERR</a> exception.
+              <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
             </li>
             <li>
               Once an implementation is able to enforce the constraints defined for the transaction <a>mode</a>, defined below, 
@@ -704,8 +704,8 @@
                 <dt>any value</dt>
                 <dd>The only value</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>The <var>value</var> parameter was not passed a <a>valid key</a>.</dd>
               </dl>
             </dd>
@@ -721,8 +721,8 @@
                 <dt>optional boolean open</dt>
                 <dd>Is the lower-bound value included in the <a>key range</a>. Defaults to false.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>The <var>value</var> parameter was not passed a <a>valid key</a>.</dd>
               </dl>
             </dd>
@@ -738,8 +738,8 @@
                 <dt>optional boolean open</dt>
                 <dd>Is the upper-bound value included in the <a>key range</a>. Defaults to false.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>The <var>value</var> parameter was not passed a <a>valid key</a>.</dd>
               </dl>
             </dd>
@@ -759,8 +759,8 @@
                 <dt>optional boolean upperOpen</dt>
                 <dd>Is the upper-bound value included in the <a>key range</a>. Defaults to false.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>Either the <var>lower</var> or <var>upper</var> parameters were not passed a <a>valid key</a>
                   or the lower key is greater than the upper key or the lower key and upper key match and either
                   of the bounds are open.</dd>
@@ -839,66 +839,103 @@
             same time.
           </p>
         </section> <!-- IDBCursor -->
-
         <section class="section">
-          <h3>The <code>IDBDatabaseException</code> Interface</h3>
-          <dl class="idl" title="exception IDBDatabaseException">
-            <dt>const unsigned short UNKNOWN_ERR = 1</dt>
-            <dd>The operation failed for reasons unrelated to the database
-              itself and not covered by any other error code.</dd>
-            <dt>const unsigned short NON_TRANSIENT_ERR = 2</dt>
-            <dd>This error occurred because an operation was not allowed on 
-            an object. A retry of the same operation would fail unless the
-            cause of the error is corrected.</dd>
-            <dt>const unsigned short NOT_FOUND_ERR = 3</dt>
-            <dd>The operation failed because the requested database
-            object could not be found. For example, an object store
-            did not exist but was being opened.</dd>
-            <dt>const unsigned short CONSTRAINT_ERR = 4</dt>
-            <dd>A mutation operation in the transaction failed 
-            because a constraint was not satisfied. For example, an
-            object such as an object store or index already
-            exists and a request attempted to create a new one.
-            </dd>
-            <dt>const unsigned short DATA_ERR = 5</dt>
-            <dd>Data provided to an operation does not meet requirements.</dd>
-            <dt>const unsigned short NOT_ALLOWED_ERR = 6</dt>
-            <dd>An operation was called on an object on which it is not allowed or at a time when
-            it is not allowed. 
-            Also occurs if a request is made on a source object that has been deleted or removed.
-            The TRANSACTION_INACTIVE_ERR and READ_ONLY_ERR errors are more
-            specific variants of this error and should be dispatched instead of this error when possible.</dd>
-            <dt>const unsigned short TRANSACTION_INACTIVE_ERR = 7</dt>
-            <dd>A <a>request</a> was placed against a transaction which is
-            currently not <a>active</a>, or which is
-            <a title="transaction finish">finished</a>.</dd>
-            <dt>const unsigned short ABORT_ERR = 8</dt>
-            <dd>A <a>request</a> was aborted, for example through a call
-            to <a href="#widl-IDBTransaction-abort"><code>IDBTransaction.abort</code></a>.</dd>
-            <dt>const unsigned short READ_ONLY_ERR = 9</dt>
-            <dd>The mutating operation was attempted in a READ_ONLY transaction.</dd>
-            <dt>const unsigned short TIMEOUT_ERR = 10</dt>
-            <dd>A lock for the transaction could not be obtained in a
-            reasonable time.</dd>
-            <dt>const unsigned short QUOTA_ERR = 11</dt>
-            <dd>The operation failed because there was not enough remaining
-            storage space, or the storage quota was reached and the user
-            declined to give more space to the database.</dd>
-            <dt>const unsigned short VERSION_ERR = 12</dt>
-            <dd>An attempt was made to open a database using a lower version
-            than the existing version.</dd>
-            <dt>unsigned short code</dt>
-            <dd>
-              Return the most appropriate error code.
-            </dd>
-            <dt>DOMString message</dt>
-            <dd>
-              Return an error message describing the exception raised. 
-              The message should be localized to the user's language.
-            </dd>
-          </dl>
-          <p class="issue">These codes are in flux and may change entirely as exception/error handling may be changing in
-          the WebIDL spec.</p>
+          <h3>Exceptions</h3>
+          <p>
+          	Each of the exceptions defined in the IndexedDB spec is a <code><dfn>DOMException</dfn></code> with a specific type. [[!DOM4]] 
+          	Existing DOM Level 4 exceptions will set their code to a legacy value; however, the new indexedDB type exceptions will have a code value of 0.
+          	The message value is optional.
+          </p>
+          <p>
+          	IndexedDB uses the following new <code>DOMException</code> types with their various messages.  
+          	All of these new types will have a code value of <code>0</code> zero.
+          </p>
+          <table>
+          		<tr>
+          			<th>Type</th>
+          			<th>Message (Optional)</th>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>UnknownError</dfn></code></td>
+          			<td>The operation failed for reasons unrelated to the database itself and not covered by any other error code.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>ConstraintError</dfn></code></td>
+	          		<td>
+	          			A mutation operation in the transaction failed because a constraint was not satisfied. 
+	          			For example, an object such as an <a>object store</a> or <a>index</a> already exists and a request attempted to create a new one.
+	          		</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>DataError</dfn></code></td>
+	          		<td>Data provided to an operation does not meet requirements.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>TransactionInactiveError</dfn></code></td>
+	          		<td>A request was placed against a transaction which is currently not active, or which is finished.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>ReadOnlyError</dfn></code></td>
+	          		<td>The mutating operation was attempted in a READ_ONLY transaction.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>VersionError</dfn></code></td>
+	          		<td>An attempt was made to open a database using a lower version than the existing version.</td>
+          		</tr>
+          	</table>
+			<p>
+				IndexedDB reuses the following existing <a>DOMException</a> types from [[!DOM4]].  
+				These types will continue to return the codes and names as specified in DOM4; 
+				however, they will have the following messages when thrown from an IndexedDB API:
+			</p>
+			<table>
+				<tr>
+					<th>Type</th>
+					<th>Message (Optional)</th>
+				</tr>
+				<tr>
+					<td><code><dfn>NotFoundError</dfn></code></td>
+					<td>
+						The operation failed because the requested database object could not be found. 
+						For example, an <a>object store</a> did not exist but was being opened.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>InvalidStateError</dfn></code></td>
+					<td>
+						An operation was called on an object on which it is not allowed or at a time when it is not allowed. 
+						Also occurs if a request is made on a source object that has been deleted or removed. 
+						The <a>TransactionInactiveError</a> and <a>ReadOnlyError</a> errors are more specific variants of this error 
+						and should be dispatched instead of this error when possible.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>AbortError</dfn></code></td>
+					<td>
+						A <a>request</a> was aborted, for example through a call to <code>IDBTransaction.abort</code>.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>TimeoutError</dfn></code></td>
+					<td>A lock for the <a>transaction</a> could not be obtained in a reasonable time.</td>
+				</tr>
+				<tr>
+					<td><code><dfn>QuotaExceededError</dfn></code></td>
+					<td>
+						The operation failed because there was not enough remaining storage space, 
+						or the storage quota was reached and the user declined to give more space to the database.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>SyntaxError</dfn></code></td>
+					<td>The <code>keypath</code> argument contains an invalid <a>key path</a>.</td>
+				</tr>
+          		<tr>
+          			<td><code><dfn>DataCloneError</dfn></code></td>
+	          		<td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
+          		</tr>
+			</table>
+
         </section>
         <section id="options-object-concept" class="section">
           <h4>Options Object</h4>

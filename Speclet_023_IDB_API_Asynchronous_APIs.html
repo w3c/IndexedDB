@@ -180,23 +180,22 @@
               property MUST return the <a title="request result">result</a> of
               the request. This is <code>undefined</code> when the request resulted
               in an error. When the <a title="request done">done</a> flag is
-              false, getting this property MUST throw a <code>NOT_ALLOWED_ERR</code>
-              exception.
-              <dl class="getraises" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              false, getting this property MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+              <dl class="getraises" title="DOMException">
+                <dt><a>InvalidStateError</a></dt>
                 <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
               </dl>
             </dd>
-            <dt>readonly attribute unsigned short errorCode</dt>
+            <dt>readonly attribute DOMError error errorCode</dt>
             <dd>
               When the <a title="request done">done</a> flag is true, getting this
-              property MUST return the <a title="request errorCode">errorCode</a> of
-              the request. This is <a>NO_ERR</a> when no error occurred. When the
+              property MUST return the error of
+              the request. This is null when no error occurred. When the
               <a title="request done">done</a> flag is false, getting this property
-              MUST throw a <code>NOT_ALLOWED_ERR</code> exception.
+              MUST throw a <code>DOMException</code> of type <a>InvalidStateError</a>.
               <!-- XXX The js-library doesn't do the exception correctly here -->
-              <dl class="getraises" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <dl class="getraises" title="DOMException">
+                <dt><a>InvalidStateError</a></dt>
                 <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
               </dl>
             </dd>
@@ -362,9 +361,8 @@
                 to this function.
               </p>
               <p>
-                If an error is returned from the steps above, the implementation MUST set the
-                <a title="request errorCode">errorCode</a> of the <var>request</var>
-                to the code of the error returned and <a>fire an error event</a> at the <a>request</a>.
+                If an error is returned from the steps above, the implementation MUST 
+                throw a <code>DOMException</code> with its name and message set to appropriate values for the error.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
@@ -396,8 +394,8 @@
                 <dt>any second</dt>
                 <dd>The second <a>key</a> to compare.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NON_TRANSIENT_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>One of the supplied keys was not a <a>valid key</a>.</dd>
               </dl>
             </dd>
@@ -455,14 +453,14 @@
                 This method creates and returns a new <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
                 outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
-                function is called on a <a>IDBDatabase</a> object other than that transactions
+                function is called on a <a>IDBDatabase</a> object other than that transaction's
                 <a title="transaction conection">connection</a>, the implementation MUST throw a
-                NOT_ALLOWED_ERR exception.
+                <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
                 If an objectStore with the same name already
-                exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
-                MUST create a new <a>object store</a> and return an <a>IDBObjectStore</a> object representing it.
+                exists, the implementation MUST throw a <code>DOMException</code> of type <a><code>ConstraintError</code></a>. 
+                Otherwise, the implementation MUST create a new <a>object store</a> and return an <a>IDBObjectStore</a> object representing it.
               </p>
               <p>
                 This method synchronously modifies the 
@@ -480,7 +478,7 @@
               <p>
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
-                <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <code>DOMException</code> of type <a>TypeError</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
@@ -506,15 +504,15 @@
                     whether the <a>object store</a> created should have a <a>key generator</a>.
                     It defaults to <code>false</code>.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>InvalidStateError</dt>
                   <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
                   <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
-                <dt>CONSTRAINT_ERR</dt>
+                <dt>ConstraintError</dt>
                   <dd>An <a>object store</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
                   <a title="connection">connected</a> <a>database</a>. </dd>
-                <dt>NON_TRANSIENT_ERR</dt>
+                <dt>TypeError</dt>
                   <dd><code>optionalParameters</code> has attributes other
                   than <code>keyPath</code> and <code>autoIncrement</code>.</dd>
               </dl>
@@ -527,7 +525,7 @@
                 outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transactions
                 <a title="transaction conection">connection</a>, the implementation MUST throw a
-                NOT_ALLOWED_ERR exception.
+               <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
                 This method synchronously modifies the 
@@ -540,13 +538,13 @@
                 <dd>The <a title="object store name">name</a> of an existing
                 <a>object store</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>InvalidStateError</dt>
                 <dd>
                   This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
                   Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
-                <dt>NOT_FOUND_ERR</dt>
+                <dt>NotFoundError</dt>
                 <dd>There is no <a>object store</a> with the given name, compared in a 
                 case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
@@ -567,10 +565,8 @@
                 returned by the steps above.
               </p>
               <p>
-                This method MUST throw an <a>IDBDatabaseException</a> 
-                of type <code>NOT_ALLOWED_ERR</code> if called before the <code>success</code> event for a
-                <a href="#widl-IDBFactor-open">open</a> call has been dispatched. I.e. if a VERSION_CHANGE
-                transaction for the database is still running, or if it failed to be successfully committed.
+                This method MUST throw a <code>DOMException</code> of type <a>InvalidStateError</a> if called before the 
+                <code>success</code> event for a <a href="#widl-IDBFactor-open">open</a> call has been dispatched.
               </p>
               <dl class="parameters">
                 <dt>any storeNames</dt>
@@ -582,15 +578,15 @@
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
                 access <a>mode</a> is <code>READ_ONLY</code>.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>InvalidStateError</dt>
                 <dd>
                   The close() method has been called on this <a>IDBDatabase</a> instance.
                   Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
-                <dt>NOT_FOUND_ERR</dt>
+                <dt>NotFoundError</dt>
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
-                <dt>NON_TRANSIENT_ERR</dt>
+                <dt>TypeError</dt>
                 <dd>The value for the <a>mode</a> parameter is invalid.</dd>
               </dl>
             </dd>
@@ -635,9 +631,9 @@
             <dt>IDBRequest put()</dt>
             <dd>
               <p>
-                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
-                throws a DATA_ERR exception:
+                throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
                 <li>
@@ -690,20 +686,18 @@
                 <dt>optional any key</dt>
                 <dd>The key used to identify the <a>record</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>READ_ONLY_ERR</dt>
+                <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
                 key which was not a <a>valid key</a></dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
-              </dl>
-              <dl class="exception" title="DOMException">
-                <dt>DATA_CLONE_ERR</dt>
+                <dt>DataCloneError</dt>
                 <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
@@ -711,9 +705,9 @@
             <dt>IDBRequest add()</dt>
             <dd>
               <p>
-                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
-                throws a DATA_ERR exception:
+                throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
                 <li>
@@ -766,20 +760,18 @@
                 <dt>optional any key</dt>
                 <dd>The key used to identify the <a>record</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>READ_ONLY_ERR</dt>
+                <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
                 key which was not a <a>valid key</a></dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
-              </dl>
-              <dl class="exception" title="DOMException">
-                <dt>DATA_CLONE_ERR</dt>
+                <dt>DataCloneError</dt>
                 <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
@@ -787,9 +779,9 @@
             <dt>IDBRequest delete()</dt>
             <dd>
               <p>
-                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a ReadOnlyError if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</a>
-                this method throws a DATA_ERR exception.
+                this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for
@@ -802,10 +794,10 @@
                 <dt>any key</dt>
                 <dd>Key identifying the <a>record</a> to be deleted</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>READ_ONLY_ERR</dt>
+                <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
               </dl>
             </dd>
@@ -813,7 +805,7 @@
             <dd>
               <p>
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
-                throws a DATA_ERR exception. Otherwise, this method runs the <a>steps for asynchronously executing
+                throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method runs the <a>steps for asynchronously executing
                 a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
                 <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
                 object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and the
@@ -830,19 +822,19 @@
                 <dd>Key identifying the <a>record</a> to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retreives the first existing value in that range.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>key</var> parameter was not passed a valid value.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
             <dt>IDBRequest clear()</dt>
             <dd>
               <p>
-                This method throws a READ_ONLY_ERR if the transaction which this IDBObjectStore belongs to is
+                This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY.
               </p>
               <p>
@@ -851,12 +843,12 @@
                 <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
                 this <a>IDBObjectStore</a> as <var>store</var>.
               </p>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>READ_ONLY_ERR</dt>
+                <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -864,7 +856,7 @@
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
                 MUST implement the <a>IDBCursorWithValue</a> interface.
               </p>
               <p>
@@ -891,12 +883,12 @@
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -906,9 +898,9 @@
                 This method creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
                 outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
-                MUST throw a NOT_ALLOWED_ERR exception. If an index with the same name already
-                exists, the implementation MUST throw a CONSTRAINT_ERR exception. Otherwise, the implementation
-                MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
+                MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> exception. 
+                If an index with the same name already exists, the implementation MUST throw a <code>DOMException</code> of type <a>ConstraintError</a>. 
+                Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
                 index has its <a>unique</a> and <a>multientry</a> flags are set to the values of the
                 <var>unique</var> and <var>multientry</var> properties in the <var>optionalParameters</var> argument.
               </p>
@@ -921,7 +913,7 @@
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, or if <var>keyPath</var> is
                 and <code>Array</code> and the <var>multientry</var> property in the <var>optionalParameters</var> is true,
-                then a <a>NON_TRANSIENT_ERR</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
+                then a <code>DOMException</code> of type <a>TypeError</a> error MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
@@ -962,15 +954,15 @@
                     set. It defaults to <code>false</code>.
                   </dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>InvalidStateError</dt>
                   <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
                 <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
-                <dt>CONSTRAINT_ERR</dt>
+                <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
                   <a title="connection">connected</a> <a>database</a>. </dd>
-                <dt>NON_TRANSIENT_ERR</dt>
+                <dt>TypeError</dt>
                   <dd><code>optionalParameters</code> has attributes other
                   than <code>unique</code>.</dd>
               </dl>
@@ -988,11 +980,11 @@
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>NotFoundError</dt>
                 <dd>There is no <a>index</a> with the given name, compared in a 
                 case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -1012,11 +1004,11 @@
                 <dt>DOMString indexName</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>InvalidStateError</dt>
                 <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
                 <a>transaction</a> callback.</dd>
-                <dt>NOT_FOUND_ERR</dt>
+                <dt>NotFoundError</dt>
                 <dd>There is no <a>index</a> with the given name, compared in a 
                 case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
               </dl>
@@ -1025,7 +1017,7 @@
             <dd>
               <p>
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, 
-                this method throws a DATA_ERR exception. 
+                this method throws a <code>DOMException</code> of type <a>DataError</a>. 
                 This method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps. 
                 The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>, 
                 using the created cursor as <var>cursor</var>.
@@ -1041,10 +1033,10 @@
                   This can also be an <a><code>IDBKeyRange</code></a>.
                 </dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>The <var>key</var> parameter is not a valid <a>key</a> or a <a>key range</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -1084,8 +1076,9 @@
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
-                MUST implement the <a>IDBCursorWithValue</a> interface.
+                this method throws a <code>DOMException</code> of type <a>DataError</a>. 
+                Otherwise, this method creates a <a>cursor</a>. 
+                The cursor MUST implement the <a>IDBCursorWithValue</a> interface.
               </p>
               <p>
                 The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
@@ -1111,12 +1104,12 @@
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
-                 <dt>NOT_ALLOWED_ERR</dt>
+                 <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
              </dl>
             </dd>
@@ -1124,7 +1117,7 @@
             <dd>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                this method throws a DATA_ERR exception. Otherwise, this method creates a <a>cursor</a>. The cursor
+                this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
                 MUST implement the <a>IDBCursor</a> interface, but MUST NOT implement the <a>IDBCursorWithValue</a> interface.
               </p>
               <p>
@@ -1151,12 +1144,12 @@
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -1164,7 +1157,7 @@
             <dd>
               <p>
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
-                throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
+                throws a <code>DOMException</code> of type <a>DataError</a>. This method runs the <a>steps for asynchronously executing a request</a>
                 and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
                 <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
                 index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
@@ -1181,12 +1174,12 @@
                 <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retreives the first existing value in that range.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>key</var> parameter was not passed a valid value.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -1194,7 +1187,7 @@
             <dd>
               <p>
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, this method
-                throws a DATA_ERR exception. This method runs the <a>steps for asynchronously executing a request</a>
+                throws a <code>DOMException</code> of type <a>DataError</a> exception. This method runs the <a>steps for asynchronously executing a request</a>
                 and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
                 <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
                 index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
@@ -1211,12 +1204,12 @@
                 <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retreives the first existing value in that range.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>key</var> parameter was not passed a valid value.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -1224,7 +1217,7 @@
             <dd>
               <p>
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, 
-                this method throws a DATA_ERR exception. 
+                this method throws a <code>DOMException</code> of type <a>DataError</a>. 
                 This method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps. 
                 The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>, 
                 using the created cursor as <var>cursor</var>.
@@ -1240,10 +1233,10 @@
                   This can also be an <a><code>IDBKeyRange</code></a>.
                 </dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>DATA_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>DataError</dt>
                 <dd>The <var>key</var> parameter is not a valid <a>key</a> or a <a>key range</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
@@ -1305,14 +1298,14 @@
             <dt>IDBRequest update()</dt>
             <dd>
               <p>
-                This method throws a READ_ONLY_ERR if the transaction which this IDBCursor belongs to
+                This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false or if this
                 cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>. This method
-                throws a NOT_ALLOWED_ERR. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
+                throws a <code>DOMException</code> of type <a>InvalidStateError</a>. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
-                this method throws DATA_ERR.
+                this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
                 Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
@@ -1332,23 +1325,21 @@
                 <dt>any value</dt>
                 <dd>The new value to store at the current position.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
-                <dt>READ_ONLY_ERR</dt>
+                <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
                 is <code>READ_ONLY</code></dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
                 at the object store's <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
                 <a>position</a>.</dd>
-              </dl>
-              <dl class="exception" title="DOMException">
-                <dt>DATA_CLONE_ERR</dt>
+                <dt>DataCloneError</dt>
                 <dd>The data being stored could not be cloned by the internal
                 structured cloning algorithm.</dd>
               </dl>
@@ -1370,20 +1361,20 @@
               </p>
               <p>
                 Calling this method more than once before new cursor data has been loaded is not allowed 
-                and results in a <a>NOT_ALLOWED_ERR</a> exception being thrown. 
+                and results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown. 
                 For example, calling <code>continue()</code> twice from the same onsuccess handler 
-                results in a <a>NOT_ALLOWED_ERR</a> being thrown on the second call.
+                results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown on the second call.
               </p>
               <dl class="parameters">
                 <dt>long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NON_TRANSIENT_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TypeError</dt>
                 <dd>The value passed into the <code>count</code> parameter was zero or a negative number.</dd>
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>The cursor is currently being iterated, or has iterated past its end.</dd>
               </dl>
             </dd>
@@ -1391,9 +1382,9 @@
             <dt>void    continue()</dt>
             <dd>
               <p>
-                If this cursor's <a>got value</a> flag is false, this method throws a <a>NOT_ALLOWED_ERR</a>.
+                If this cursor's <a>got value</a> flag is false, this method throws a <code>DOMException</code> of type <a>InvalidStateError</a>.
                 If the <var>key</var> parameter is specified and fulfills any of these conditions this
-                method MUST throw a <a>DATA_ERR</a> exception:
+                method MUST throw a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
                 <li>The parameter is not a <a>valid key</a>.</li>
@@ -1419,20 +1410,20 @@
               </p>
               <p>
                 Calling this method more than once before new cursor data has been loaded is not allowed 
-                and results in a <a>NOT_ALLOWED_ERR</a> exception being thrown. 
+                and results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown. 
                 For example, calling <code>continue()</code> twice from the same onsuccess handler 
-                results in a <a>NOT_ALLOWED_ERR</a> being thrown on the second call.
+                results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown on the second call.
               </p>
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>The cursor is currently being iterated, or has iterated past its end.</dd>
-                <dt>DATA_ERR</dt>
+                <dt>DataError</dt>
                 <dd>The <var>key</var> parameter was specified but did not contain a <a>valid key</a>.</dd>
               </dl>
             </dd>
@@ -1440,11 +1431,11 @@
             <dt>IDBRequest    delete()</dt>
             <dd>          
               <p>
-                This method throws a READ_ONLY_ERR if the transaction which this IDBCursor belongs to
+                This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
-                NOT_ALLOWED_ERR is thrown.
+                <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
@@ -1456,13 +1447,13 @@
                 This method used to set this cursor's <a title="cursor value">value</a> to <code>null</code>. Do we want to
                 keep that?
               </p>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>TRANSACTION_INACTIVE_ERR</dt>
+              <dl class="exception" title="DOMException">
+                <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
-                <dt>READ_ONLY_ERR</dt>
+                <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
                 is <code>READ_ONLY</code>.</dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
@@ -1514,24 +1505,24 @@
                 <dt>DOMString name</dt>
                 <dd>The requested <a>object store</a></dd>
               </dl>
-              <dl class="exception" title="IDBDatabaseException">
-                <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
+              <dl class="exception" title="DOMException">
+                <dt>NotFoundError</dt>
                 <dd>
                 If the requested <a>object store</a> is not in this 
                 <a>transaction</a>'s <a>scope</a>.
                 </dd>
-                <dt>NOT_ALLOWED_ERR</dt>
+                <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
             </dd>
             <dt>void abort()</dt>
             <dd>
-              If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a NOT_ALLOWED_ERR
-              exception. Otherwise this method sets the transactions's <a>active</a> flag to false and
+              If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a <code>DOMException</code> of type <a>InvalidStateError</a>. 
+              Otherwise this method sets the transactions's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps for aborting a transaction</a> with <var>code</var> set to ABORT_ERR.
-              <dl class="exception" title="IDBDatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
+              <a>steps for aborting a transaction</a> with <var>code</var> set to AbortError.
+              <dl class="exception" title="DOMException">
+                <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
               </dl>
             </dd>

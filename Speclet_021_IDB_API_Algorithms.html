@@ -227,10 +227,10 @@
             </li>
             <li>
               If the <a>version</a> of <var>db</var> is higher than <var>version</var>, abort these steps and return
-              a <code>VERSION_ERR</code> error.
+              a <code>DOMErrorxception</code> of type <a>VersionError</a>.
             </li>
             <li>
-              Create a new <a>connection</a> to <var>db</var> and let <var>connection<var> represent it.
+              Create a new <a>connection</a> to <var>db</var> and let <var>connection</var> represent it.
             </li>
             <li>
               If the <a>version</a> of <var>db</var> is lower than <var>version</var>, then run the
@@ -240,8 +240,8 @@
             <li>
               If the previous step resulted in an error, then return that error and abort these steps.
               If the <code>VERSION_CHANGE</code> transaction in the previous step was aborted, or if
-              <var>connection</var> is <a title="database close">closed</a>, return an
-              <code>ABORT_ERR</code> error and abort these steps.
+              <var>connection</var> is <a title="database close">closed</a>, return a
+              <code>DOMError</code> of type <a>AbortError</a> and abort these steps.
               In either of these cases, ensure that <var>connection</var> is <a title="database close">closed</a>
               by running the <a>steps for closing a database connection</a> before these steps are aborted.
             </li>
@@ -264,17 +264,17 @@
           <ol>
             <li>
               If these steps are already running synchronously (a <a>transaction</a> was created within a
-              <a title="transaction-callback">transaction callback</a>), throw a NOT_ALLOWED_ERR.
+              <a title="transaction-callback">transaction callback</a>), throw a <code>DOMException</code> of type <a>InvalidStateError</a>.
               <p class="issue">This should be specified more precisely. Maybe with some sort of global variable <var>locked</var>?</p>
             </li>
             <li>
               If <var>storeNames</var> is of type <code>DOMStringList</code> or <code>Array</code> leave it as is. Otherwise,
               interpret it as an <code>Array</code> with one value, and that value is the <a>stringified</a> version of
               <var>storeNames</var>. If any of the strings in <var>storeNames</var> identifies an <a>object store</a> which doesn't
-              exist, throw a NOT_FOUND_ERR exception.
+              exist, throw a <code>DOMException</code> of type <a>NotFoundError</a>.
             </li>
             <li>
-              If the <a>closePending</a> flag is set on <var>connection</var> the throw a NOT_ALLOWED_ERR.
+              If the <a>closePending</a> flag is set on <var>connection</var> the throw a <code>DOMException</code> of type <a>InvalidStateError</a>.
             </li>
             <li>
               <a title="transaction create">Create</a> a <a>transaction</a> using <var>connection</var> as
@@ -288,7 +288,7 @@
             <li>
               Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
               <a>transaction lifetime</a> rules. If this takes longer than the specified <var>timeout</var> then
-              a TIMEOUT_ERR exception error should be thrown.
+              a <code>DOMException</code> of type <a>TimeoutError</a> should be thrown.
               <p class="note">
                 Because the asynchronous API always passes in a <var>timeout</var> of infinite, only the synchronous
                 API will ever time out.
@@ -323,7 +323,7 @@
               then <var>transaction</var>.
             </li>
             <li>
-              If an error occurs while committing the transaction, <a>fire an error event</a> with type set to UNKNOWN_ERROR, 
+              If an error occurs while committing the transaction, <a>fire an error event</a> and set the error attribute to a <code>DOMError</code> of type <a>UnknownError</a>, 
               and then follow the <a>steps for aborting a transaction</a>.            
               <p class="note">
                 Even if the event is cancelled (by a call to <code>preventDefault</code>), follow the <a>steps for aborting a transaction</a>.
@@ -352,7 +352,7 @@
                 <li>
                   Set the <a title="request done">done</a> flag on the <a>request</a> to true, set
                   <a title="request result">result</a> of the <a>request</a> to <code>undefined</code>
-                  and set <a title="request errorCode">errorCode</a> of the <a>request</a> to <code>ABORT_ERR</code>.
+                  and set the request's <code>error</code> atttribute to a <code>DOMError</code> of type <a>AbortError</a>.
                 </li>
                 <li>
                   <a>Fire an error event</a> at the <a>request</a>.
@@ -384,7 +384,7 @@
               Set <var>transaction</var> to the <a>transaction</a> associated with <var>source</var>.
             </li>
             <li>
-              If <var>transaction</var> is not <a>active</a> throw a TRANSACTION_INACTIVE_ERR exception.
+              If <var>transaction</var> is not <a>active</a> throw a <code>DOMException</code> of type <a>TransactionInactiveError</a>.
             </li>
             <li>
               Create an <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
@@ -406,15 +406,16 @@
             <li>
               If performing <var>operation</var> succeeded then set the <a title="request done">done</a> flag
               on the <var>request</var> to true, set <a title="request result">result</a> of the <var>request</var>
-              to the result of the request and set <a title="request errorCode">errorCode</a> of the <var>request</var>
-              to <var>NO_ERR</var>. Finally <a>fire a success event</a> at <var>request</var>.
+              to the result of the request and set <a title="request errorCode">errorCode</a> of the <var>request</var> to null.
+			  Finally <a>fire a success event</a> at <var>request</var>.
             </li>
             <li>
               If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
               set the <a title="request done">done</a> flag on the <var>request</var> to true,
               set <a title="request result">result</a> of the <var>request</var>
-              to <code>undefined</code> and set <a title="request errorCode">errorCode</a> of the <var>request</var>
-              to the code of the error from <var>operation</var>. Finally <a>fire an error event</a> at <var>request</var>.
+              to <code>undefined</code> and set the <code>error</code> attribute on the <var>request</var>
+              to the type of error from the <var>operation</var>.
+              Finally <a>fire an error event</a> at <var>request</var>.
               <div class="note">
                 This only reverts the changes done by this request, not any other changes made by the transaction.
               </div>
@@ -431,7 +432,7 @@
           <ol>
             <li>
               If the <a>transaction</a> associated with <var>source</var> is not <a>active</a> throw a
-              TRANSACTION_INACTIVE_ERR exception.
+              <code>DOMException</code> of type <a>TransactionInactiveError</a>.
             </li>
             <li>
               Perform <var>operation</var>.
@@ -440,7 +441,7 @@
               If performing <var>operation</var> succeeded then return the result of the operation.
             </li>
             <li>
-              If performing <var>operation</var> failed then throw an IDBDatabaseException with the code
+              If performing <var>operation</var> failed then throw a <code>DOMException</code> with the code
               of the error from <var>operation</var>.
             </li>
           </ol>
@@ -766,8 +767,8 @@
             <li>
               If the no-overwrite flag was passed to these steps and is set, and 
               a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
-              terminate these steps and set error code to
-              <a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a>
+              terminate these steps and set the <code>error</code> attribute to
+              a <code>DOMError</code> of type <a>ConstraintError</a> 
               and abort this algorithm without taking any further steps.
             </li>
             <li>
@@ -808,14 +809,16 @@
                 <li>
                   If <var>index</var>'s <a>multientry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
-                  and <var>index</var> has it's <a>unique</a> flag set to true, then set error code to CONSTRAINT_ERR and
-                  abort this algorithm without taking any further steps.
+                  and <var>index</var> has it's <a>unique</a> flag set to true, then 
+                  set the <code>error</code> attribute to a <code>DOMError</code> of type <a>ConstraintError</a>
+                  and abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multientry</a> flag is true and <var>index key</var> is an <code>Array</code>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
-                  values in <var>index key</var>, and <var>index</var> has it's <a>unique</a> flag set to true, then set error
-                  code to CONSTRAINT_ERR and abort this algorithm without taking any further steps.
+                  values in <var>index key</var>, and <var>index</var> has it's <a>unique</a> flag set to true, then set 
+                  set the <code>error</code> attribute to a <code>DOMError</code> of type <a>ConstraintError</a>
+                  and abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multientry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
