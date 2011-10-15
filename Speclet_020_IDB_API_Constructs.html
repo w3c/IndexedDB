@@ -622,9 +622,16 @@
             due to merge conflicts.
           </p>
           <p>
-            An implementation MUST NOT start any transaction until all other READ_WRITE transactions
-            with overlapping <a>scope</a> have completed. When multiple transactions are
-            eligible to be started, older transactions SHOULD be started first.
+            If multiple READ_WRITE transactions are attempting to access the same object store (i.e.
+            if they have overlapping <a>scope</a>), the transaction that was <a title="transaction create">
+            created</a> first MUST be the transaction which gets access to the object store first. Due to
+            the requirements in the previous paragraph, this also means that it is the only transaction
+            which has access to the object store until the transaction is <a title="transaction finish">finished</a>.
+          </p>
+          <p class="note">
+            Generally speaking, the above requirements mean that READ_WRITE transactions which have overlapping
+            scopes always run in the order they were <a title="transaction create">created</a>, and never run
+            in parallel.
           </p>
           <p>
             User agents MUST ensure a reasonable level of fairness across transactions to prevent
