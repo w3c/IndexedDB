@@ -1343,20 +1343,30 @@ dictionary IDBIndexOptionalParameters {
                 If an error is returned from the steps above, the implementation MUST set the
                 <a title="request errorCode">errorCode</a> of the <var>request</var>
                 to the code of the error returned, set the <a title="request result">result</a>
-                of the <var>request</var> to null, and <a>fire an error event</a> at the <a>request</a>.
+                of the <var>request</var> to null, and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
+                path</a> of the event is just the request.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
                 <a title="request result">result</a> of the <var>request</var>
-                to the <a>connection</a> created by the steps above and <a>fire a success event</a> at
-                the <a>request</a>. If the steps above resulted in a VERSION_CHANGE transaction being
-                run, then firing the <code>success</code> event MUST be done in the same task as was used
+                to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
+                path</a> of the event is just the request. If the steps above resulted in a VERSION_CHANGE transaction being
+                run, then firing the <code>"success"</code> event MUST be done in the same task as was used
                 to fire the <code>complete</code> event.
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,
                 the success event is fired on the connection first so that the page gets a chance to register
                 a listener for the <code>versionchange</code> event.
+              </p>
+              <p class="note">
+                The firing of <code>"success"</code> or <code>"error"</code> events do not follow the normal
+                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no longer an active
+                transaction.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -4381,10 +4391,14 @@ var cursor = objects.<a>openCursor</a>(range);
                 </li>
                 <li>
                   Fire a <a><code>upgradeneeded</code></a> event targeted at <var>request</var>. The event MUST use the
-                <a><code>IDBVersionChangeEvent</code></a> interface and have the
-                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
-                and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
-                property set to <var>version</var>.
+                  <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                  <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
+                  and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                  property set to <var>version</var>.
+                </li>
+                <li>
+                  If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
+                  the transaction by following the <a>steps for aborting a transaction</a>.
                 </li>
               </ol>
             </li>
@@ -4505,8 +4519,7 @@ var cursor = objects.<a>openCursor</a>(range);
               the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>.
               The event does not bubble or be cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
-              then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
-              <a>propagation path</a> is simply <var>request</var>.
+              then <var>transaction</var> and finally <var>request</var>.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
@@ -4536,9 +4549,7 @@ var cursor = objects.<a>openCursor</a>(range);
               The event does bubble and is cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
-              <var>transaction</var> by running <a>steps for aborting a transaction</a>. However if <var>transaction</var>
-              is null, then the <a>propagation path</a> is simply <var>request</var>, there is no <a>default action</a> and
-              is not cancelable.
+              <var>transaction</var> by running <a>steps for aborting a transaction</a>.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.

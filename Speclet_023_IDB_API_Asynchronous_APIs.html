@@ -329,20 +329,30 @@
                 If an error is returned from the steps above, the implementation MUST set the
                 <a title="request errorCode">errorCode</a> of the <var>request</var>
                 to the code of the error returned, set the <a title="request result">result</a>
-                of the <var>request</var> to null, and <a>fire an error event</a> at the <a>request</a>.
+                of the <var>request</var> to null, and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
+                path</a> of the event is just the request.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
                 <a title="request result">result</a> of the <var>request</var>
-                to the <a>connection</a> created by the steps above and <a>fire a success event</a> at
-                the <a>request</a>. If the steps above resulted in a VERSION_CHANGE transaction being
-                run, then firing the <code>success</code> event MUST be done in the same task as was used
+                to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
+                path</a> of the event is just the request. If the steps above resulted in a VERSION_CHANGE transaction being
+                run, then firing the <code>"success"</code> event MUST be done in the same task as was used
                 to fire the <code>complete</code> event.
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,
                 the success event is fired on the connection first so that the page gets a chance to register
                 a listener for the <code>versionchange</code> event.
+              </p>
+              <p class="note">
+                The firing of <code>"success"</code> or <code>"error"</code> events do not follow the normal
+                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
+                transaction at the time when they fire.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
