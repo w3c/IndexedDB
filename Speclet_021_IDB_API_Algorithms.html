@@ -227,7 +227,7 @@
             </li>
             <li>
               If the <a>version</a> of <var>db</var> is higher than <var>version</var>, abort these steps and return
-              a <code>DOMErrorxception</code> of type <a>VersionError</a>.
+              a <code>DOMError</code> of type <a>VersionError</a>.
             </li>
             <li>
               Create a new <a>connection</a> to <var>db</var> and let <var>connection</var> represent it.
@@ -265,7 +265,6 @@
             <li>
               If these steps are already running synchronously (a <a>transaction</a> was created within a
               <a title="transaction-callback">transaction callback</a>), throw a <code>DOMException</code> of type <a>InvalidStateError</a>.
-              <p class="issue">This should be specified more precisely. Maybe with some sort of global variable <var>locked</var>?</p>
             </li>
             <li>
               If <var>storeNames</var> is of type <code>DOMStringList</code> or <code>Array</code> leave it as is. Otherwise,
@@ -728,9 +727,6 @@
               abort the transaction by following the <a>steps for aborting a transaction</a>.
             </li>
           </ol>
-          <p class="issue">
-            TODO: need to define more error handling here.
-          </p>
         </section>
       </section>
       <section class="section" id="database operations">
@@ -1103,9 +1099,9 @@
             </li>
             <li>
               Set <var>cursor</var>'s <a>got value</a> flag to true.
-              <p class="issue">
-                This should only be done right before firing the success event. Not asynchronously before. Not sure
-                how/where to express that.
+              <p class="note">
+                Once data has been successfully read, schedule a task which when run will 
+                set the <a title="cursor">cursor's</a> value and <a>fire a success event</a>.
               </p>
             </li>
             <li>
