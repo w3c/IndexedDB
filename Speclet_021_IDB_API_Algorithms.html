@@ -773,7 +773,7 @@
             </li>
             <li>
               If a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
-              remove the <a>record</a> from <a>store</a> using the <a>steps for deleting a record from an object store</a>.
+              remove the <a>record</a> from <a>store</a> using the <a>steps for deleting records from an object store</a>.
             </li>
             <li>
               Store a record in <var>store</var> containing <var>key</var> as its key and <var>object</var> as its
@@ -933,22 +933,26 @@
         <section class="section">
           <h4>Object Store Deletion Operation</h4>
           <p>
-            The <dfn>steps for deleting a record from an object store</dfn> are as follows. 
+            The <dfn>steps for deleting records from an object store</dfn> are as follows. 
             The algorithm run by these steps takes two parameters: an object store <var>store</var> and
             a <var>key</var>.
           </p>
           <ol>
             <li>
-              If no <a>record</a> exists with key <var>key</var> in <var>store</var>,
+              If the <var>key</var> parameter is a <a>key range</a> then let <var>range</var> be that <a>key range</a>.
+              Otherwise, let <var>range</var> be a <a>key range</a> which containing only <var>key</var>.
+            </li>
+            <li>
+              If no <a>record</a> exists in <var>store</var> with a key <a title="in a key range">in</a> <var>range</var>,
               then the result of this algorithm is <code>false</code> and no more steps in this
               algorithm are executed.
             </li>
             <li>
-               Remove the record from <var>store</var> with key <var>key</var>.
+               Remove all records from <var>store</var> with key <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>
               In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
-              <a>records</a> with value <var>key</var>.
+              <a>records</a> whose value is <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>
               The result of this algorithm is <code>true</code>.
