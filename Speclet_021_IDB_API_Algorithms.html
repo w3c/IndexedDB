@@ -155,7 +155,7 @@
           
           <ol>
             <li>
-              If these steps fail for any reason, return an error with the appropriate code and abort
+              If these steps fail for any reason, return an error with the appropriate type and abort
               this algorithm.
             </li>
             <li>
@@ -323,7 +323,8 @@
               then <var>transaction</var>.
             </li>
             <li>
-              If an error occurs while committing the transaction, <a>fire an error event</a> and set the error attribute to a <code>DOMError</code> of type <a>UnknownError</a>, 
+              If an error occurs while committing the transaction, <a>fire an error event</a>, 
+              set the error attribute to a <code>DOMError</code> of type <a>UnknownError</a>, 
               and then follow the <a>steps for aborting a transaction</a>.            
               <p class="note">
                 Even if the event is cancelled (by a call to <code>preventDefault</code>), follow the <a>steps for aborting a transaction</a>.
@@ -336,7 +337,7 @@
           <p>
             When taking the <dfn>steps for aborting a <a>transaction</a></dfn> the implementation MUST
             execute the following algorithm. This algorithm takes two parameter, the <var>transaction</var> to abort
-            and a <var>code</var>.
+            and an <var>error</var> object.
           </p>
           <ol>
             <li>
@@ -352,7 +353,7 @@
                 <li>
                   Set the <a title="request done">done</a> flag on the <a>request</a> to true, set
                   <a title="request result">result</a> of the <a>request</a> to <code>undefined</code>
-                  and set the request's <code>error</code> atttribute to a <code>DOMError</code> of type <a>AbortError</a>.
+                  and set the request's <code>error</code> atttribute to a <code>DOMError</code> with a type of <a>AbortError</a>.
                 </li>
                 <li>
                   <a>Fire an error event</a> at the <a>request</a>.
@@ -406,7 +407,7 @@
             <li>
               If performing <var>operation</var> succeeded then set the <a title="request done">done</a> flag
               on the <var>request</var> to true, set <a title="request result">result</a> of the <var>request</var>
-              to the result of the request and set <a title="request errorCode">errorCode</a> of the <var>request</var> to null.
+              to the result of the request and set the <code>error</code> attribute of the <var>request</var> to <code>undefined</code>.
 			  Finally <a>fire a success event</a> at <var>request</var>.
             </li>
             <li>
@@ -414,7 +415,7 @@
               set the <a title="request done">done</a> flag on the <var>request</var> to true,
               set <a title="request result">result</a> of the <var>request</var>
               to <code>undefined</code> and set the <code>error</code> attribute on the <var>request</var>
-              to the type of error from the <var>operation</var>.
+              to the a <code>DOMError</code> with the same error type of the <var>operation</var> that failed.
               Finally <a>fire an error event</a> at <var>request</var>.
               <div class="note">
                 This only reverts the changes done by this request, not any other changes made by the transaction.
@@ -441,8 +442,8 @@
               If performing <var>operation</var> succeeded then return the result of the operation.
             </li>
             <li>
-              If performing <var>operation</var> failed then throw a <code>DOMException</code> with the code
-              of the error from <var>operation</var>.
+              If performing <var>operation</var> failed, then throw a <code>DOMException</code> with the type 
+              of error from the <var>operation</var>.
             </li>
           </ol>
         </section>
@@ -546,7 +547,8 @@
             </li>
             <li>
               Set the version of <var>database</var> to <var>version</var>. This change is considered part of the
-              <a><code>transaction</code></a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
+              <a>transaction</a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
+              If the VERSION_CHANGE <a>transaction</a> fails to commit set the <var>version</var> attribute on the database to <code>undefined</code>.  
             </li>
             <li>
               If running asynchronously, schedule a task to run the following steps:

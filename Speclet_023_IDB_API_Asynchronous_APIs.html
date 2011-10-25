@@ -186,7 +186,7 @@
                 <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
               </dl>
             </dd>
-            <dt>readonly attribute DOMError error errorCode</dt>
+            <dt>readonly attribute DOMError error error</dt>
             <dd>
               When the <a title="request done">done</a> flag is true, getting this
               property MUST return the error of
@@ -235,9 +235,8 @@
             If an error occurs while performing the operation, the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
             is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
-            <a class="idlType" href="#widl-IDBRequest-result"><code>errorCode</code></a>
-            is set to the code of the error, and an event with type <code>error</code> is fired
-            at the <a>request</a>.
+            <code>error</code> attribute is set a <code>DOMError</code> type that matches the error, 
+            and an event with type <code>error</code> is fired at the request.
           </p>
           <p>
             The <a href="#widl-IDBDatabase-open">open</a> function on <a>IDBDatabase</a>
@@ -268,7 +267,7 @@
             <dt>readonly attribute DOMString newVersion</dt>
             <dd>Returns the new version of the database.
             See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
-            <dt>void initIDBVersionChangeEvent(in DOMString typeArg, in boolean canBubbleArg, in boolean cancelableArg, in DOMString version)</dt>
+            <dt>void initIDBVersionChangeEvent()</dt>
             <dd>
               <p>Intializes the value of an <a href="#idl-def-IDBVersionChangeEvent">IDBVersionChangeEvent</a> event once it's been created.</p>
               <dl class="parameters">
@@ -278,9 +277,9 @@
                 <dd>Boolean value that indicates whether the event can bubble.</dd>
                 <dt>boolean cancelableArg</dt>
                 <dd>Boolean value that indicates whether the event is cancelable.</dd>
-                <dt>DOMString oldVersion</dt>
+                <dt>long long oldVersion</dt>
                 <dd>The old version of the database during a VERSION_CHANGE transaction.</dd>
-                <dt>DOMString newVersion</dt>
+                <dt>long long newVersion</dt>
                 <dd>The new version of the database during a VERSION_CHANGE transaction.</dd>
               </dl>
             </dd>
@@ -325,29 +324,43 @@
                 the newly created request.
               </p>
               <p>
+              	If no version is specified and a database exists, 
+              	use the current database version and follow the <a>steps for opening a database</a>.  
+              	If no version is specified and no database exists, 
+              	set database version to 1, follow the <a>steps for opening a database</a>, 
+              	and return a database without <a title="object store">object stores</a>. 
+              </p>
+              <p>
                 If an error is returned from the steps above, the implementation MUST set the
-                <a title="request errorCode">errorCode</a> of the <var>request</var>
-                to the code of the error returned, set the <a title="request result">result</a>
+                <code>error</code> attribute of the <var>request</var>
+                to a <code>DOMError</code> whose type is the same as  the error returned, 
+                set the <a title="request result">result</a>
                 of the <var>request</var> to null, and <a>fire an error event</a> at the <a>request</a>.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
-                <a title="request result">result</a> of the <var>request</var>
-                to the <a>connection</a> created by the steps above and <a>fire a success event</a> at
-                the <a>request</a>. If the steps above resulted in a VERSION_CHANGE transaction being
-                run, then firing the <code>success</code> event MUST be done in the same task as was used
-                to fire the <code>complete</code> event.
+                <code>error</code> attribute of the request to a <code>DOMError</code> whose type is the same as the error returned, 
+                set the <a title="request result">result</a> of the request to null, 
+                and <a>fire an error event</a> at the<a>request</a>.
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,
                 the success event is fired on the connection first so that the page gets a chance to register
                 a listener for the <code>versionchange</code> event.
               </p>
+              <p>
+              	If the value for <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST 
+              	throw a <code>DOMException</code> of type <a>TypeError</a>.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>long long version</dt>
+                <dt>[EnforceRange] optional unsigned long long version</dt>
                 <dd>The <a>version</a> for the <a>database</a></dd>
+              </dl>
+              <dl class="exception" title="DOMException">
+              	<dt>TypeError</dt>
+              	<dd>The value of <code>version</code> is <code>0</code> (zero) or a negative number.</dd>		
               </dl>
             </dd>
             <dt>IDBOpenDBRequest deleteDatabase()</dt>
@@ -362,7 +375,8 @@
               </p>
               <p>
                 If an error is returned from the steps above, the implementation MUST 
-                throw a <code>DOMException</code> with its name and message set to appropriate values for the error.
+                set the <code>error</code> attribute to a <code>DOMError</code> with the same type of error returned 
+                and <a>fire an error event</a> at the <a>request</a>.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
@@ -1365,8 +1379,12 @@
                 For example, calling <code>continue()</code> twice from the same onsuccess handler 
                 results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown on the second call.
               </p>
+              <p>
+              	If the value for <code>count</code> is <code>0</code> (zero) or a negative number, this method MUST 
+              	throw a <code>DOMException</code> of type <a>TypeError</a>.
+              </p>
               <dl class="parameters">
-                <dt>long count</dt>
+                <dt>[EnforceRange] unsigned long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -1520,7 +1538,8 @@
               If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a <code>DOMException</code> of type <a>InvalidStateError</a>. 
               Otherwise this method sets the transactions's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps for aborting a transaction</a> with <var>code</var> set to AbortError.
+              <a>steps for aborting a transaction</a> with 
+              with the error attribute set to a <code>DOMError</code> of type <a>AbortError</a>.
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>

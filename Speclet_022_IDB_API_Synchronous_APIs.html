@@ -174,6 +174,12 @@
                 arguments passed to this function.
               </p>
               <p>
+              	If no version is specified and a database exists, 
+              	use the current database version and follow the <a>steps for opening a database</a>.  
+              	If no version is specified and no database exists, set database version to 1, 
+              	follow the <a>steps for opening a database</a>, and return a <a>database</a> without <a title="object store">object stores</a>. 
+              </p>
+              <p>
                 If a <var>timeout</var> parameter was supplied, then this limits the total waiting time allowed in
                 step 3 of <a>steps for opening a database</a> and step 4 of the <a>steps for running a
                 <code>VERSION_CHANGE</code> transaction</a>. If more waiting time would be needed in order to progress,
@@ -196,10 +202,14 @@
                 in turn may depend on user input or other long-running tasks. If blocking for a long period of time
                 is not acceptable for a given scenario then the asynchronous API should be used for version changes.
               </p>
+              <p>
+              	If the value for <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST 
+              	throw a <code>DOMException</code> of type <a>TypeError</a>.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>long long version</dt>
+                <dt>[EnforceRange] optional unsigned long long version</dt>
                 <dd>The <a title="database version">version</a> for the <a>database</a></dd>
                 <dt>IDBVersionChangeCallback upgradeCallback</dt>
                 <dd>Callback used if the <a>database version</a> needs to be upgraded before the
@@ -220,6 +230,8 @@
                 <dd>
                   Was unable to open the database with the requested version within the given timeout period.
                 </dd>
+              	<dt>TypeError</dt>
+              	<dd>The value of <code>version</code> is <code>0</code> (zero) or a negative number.</dd>		
               </dl>
             </dd>
             <dt>void deleteDatabase()</dt>
@@ -1355,8 +1367,12 @@ var cursor = objects.<a>openCursor</a>(range);
                 For example, calling <code>continue()</code> twice from the same onsuccess handler 
                 results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown on the second call.
               </p>
+              <p>
+              	If the value for <code>count</code> is <code>0</code> (zero) or a negative number, this method MUST 
+              	throw a <code>DOMException</code> of type <a>TypeError</a>.
+              </p>
               <dl class="parameters">
-                <dt>long count</dt>
+                <dt>[EnforceRange] unsigned long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -1511,7 +1527,7 @@ var cursor = objects.<a>openCursor</a>(range);
               If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a <code>DOMException</code> of type <a>InvalidStateError</a>. 
               Otherwise this method sets the transactions's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps for aborting a transaction</a> with <var>error</var> set to AbortError.
+              <a>steps for aborting a transaction</a> with <var>error</var> set to a <code>DOMError</code> of type <a>AbortError</a>.
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
