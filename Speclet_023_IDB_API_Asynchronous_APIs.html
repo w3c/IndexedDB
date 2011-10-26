@@ -334,23 +334,29 @@
                 If an error is returned from the steps above, the implementation MUST set the
                 <code>error</code> attribute of the <var>request</var>
                 to a <code>DOMError</code> whose type is the same as  the error returned, 
-                set the <a title="request result">result</a>
-                of the <var>request</var> to null, and <a>fire an error event</a> at the <a>request</a>.
+                of the <var>request</var> to null, and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
+                path</a> of the event is just the request.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
                 <code>error</code> attribute of the request to a <code>DOMError</code> whose type is the same as the error returned, 
-                set the <a title="request result">result</a> of the request to null, 
-                and <a>fire an error event</a> at the<a>request</a>.
+                to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
+                path</a> of the event is just the request. If the steps above resulted in a VERSION_CHANGE transaction being
+                run, then firing the <code>"success"</code> event MUST be done in the same task as was used
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,
                 the success event is fired on the connection first so that the page gets a chance to register
                 a listener for the <code>versionchange</code> event.
               </p>
-              <p>
-              	If the value for <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST 
-              	throw a <code>DOMException</code> of type <a>TypeError</a>.
+              <p class="note">
+                The firing of <code>"success"</code> or <code>"error"</code> events do not follow the normal
+                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
+                transaction at the time when they fire.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -790,14 +796,19 @@
               <p>
                 This method throws a ReadOnlyError if the transaction which this IDBObjectStore belongs to is
                 has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</a>
+                or a <a>key range</a> this method throws a DATA_ERR exception.
                 this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for
                 asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
                 The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for deleting
-                a record from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
+                records from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
                 as <var>store</var> and the <var>key</var> parameter as <var>key</var>.
+              </p>
+              <p class="note">
+                Unlike other methods which take keys or key ranges, this method does <strong>not</strong> allow null to
+                be passed as key. This is to reduce the risk that a small bug would clear a whole object store.
               </p>
               <dl class="parameters">
                 <dt>any key</dt>
@@ -1454,7 +1465,7 @@
               <p>
                 Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
                 <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
-                and the <a>steps for deleting a record from an object store</a> as <var>operation</var>, using this cursor's
+                and the <a>steps for deleting records from an object store</a> as <var>operation</var>, using this cursor's
                 <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
               </p>
               <dl class="exception" title="DOMException">

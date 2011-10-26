@@ -346,7 +346,7 @@
             </li>
             <li>
               If the transaction's <a>request list</a> contain any <a>request</a>s whose <a title="request done">done</a> flag
-              is still false, abort the <a>steps for asynchronously executing a request</a> for each such transaction and queue
+              is still false, abort the <a>steps for asynchronously executing a request</a> for each such request and queue
               a task to perform the following steps:
               <ol>
                 <li>
@@ -560,10 +560,14 @@
                 </li>
                 <li>
                   Fire a <a><code>upgradeneeded</code></a> event targeted at <var>request</var>. The event MUST use the
-                <a><code>IDBVersionChangeEvent</code></a> interface and have the
-                <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
-                and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
-                property set to <var>version</var>.
+                  <a><code>IDBVersionChangeEvent</code></a> interface and have the
+                  <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
+                  and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
+                  property set to <var>version</var>.
+                </li>
+                <li>
+                  If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
+                  the transaction by following the <a>steps for aborting a transaction</a>.
                 </li>
               </ol>
             </li>
@@ -684,8 +688,7 @@
               the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"success"</code>.
               The event does not bubble or be cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
-              then <var>transaction</var> and finally <var>request</var>. However if <var>transaction</var> is null, then the
-              <a>propagation path</a> is simply <var>request</var>.
+              then <var>transaction</var> and finally <var>request</var>.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
@@ -715,9 +718,7 @@
               The event does bubble and is cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
-              <var>transaction</var> by running <a>steps for aborting a transaction</a>. However if <var>transaction</var>
-              is null, then the <a>propagation path</a> is simply <var>request</var>, there is no <a>default action</a> and
-              is not cancelable.
+              <var>transaction</var> by running <a>steps for aborting a transaction</a>.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
@@ -771,7 +772,7 @@
             </li>
             <li>
               If a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
-              remove the <a>record</a> from <a>store</a> using the <a>steps for deleting a record from an object store</a>.
+              remove the <a>record</a> from <a>store</a> using the <a>steps for deleting records from an object store</a>.
             </li>
             <li>
               Store a record in <var>store</var> containing <var>key</var> as its key and <var>object</var> as its
@@ -933,22 +934,26 @@
         <section class="section">
           <h4>Object Store Deletion Operation</h4>
           <p>
-            The <dfn>steps for deleting a record from an object store</dfn> are as follows. 
+            The <dfn>steps for deleting records from an object store</dfn> are as follows. 
             The algorithm run by these steps takes two parameters: an object store <var>store</var> and
             a <var>key</var>.
           </p>
           <ol>
             <li>
-              If no <a>record</a> exists with key <var>key</var> in <var>store</var>,
+              If the <var>key</var> parameter is a <a>key range</a> then let <var>range</var> be that <a>key range</a>.
+              Otherwise, let <var>range</var> be a <a>key range</a> which containing only <var>key</var>.
+            </li>
+            <li>
+              If no <a>record</a> exists in <var>store</var> with a key <a title="in a key range">in</a> <var>range</var>,
               then the result of this algorithm is <code>false</code> and no more steps in this
               algorithm are executed.
             </li>
             <li>
-               Remove the record from <var>store</var> with key <var>key</var>.
+               Remove all records from <var>store</var> with key <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>
               In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
-              <a>records</a> with value <var>key</var>.
+              <a>records</a> whose value is <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>
               The result of this algorithm is <code>true</code>.
