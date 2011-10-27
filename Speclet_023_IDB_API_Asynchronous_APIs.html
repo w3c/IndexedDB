@@ -493,7 +493,7 @@
               <p>
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
-                <code>DOMException</code> of type <a>TypeError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
+                <code>DOMException</code> of type <a>SyntaxError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
@@ -508,16 +508,14 @@
               <dl class="parameters">
                 <dt>DOMString name</dt>
                   <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
-                <dt>optional Object IDBDatabaseOptionalParameters</dt>
+                <dt>optional IDBObjectStoreParameters optionalParameters</dt>
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
-                    Valid attributes are <code>keyPath</code> and <code>autoIncrement</code>.
                     <code>keyPath</code> specifies the <a title="object store key path">key path</a> of the new 
-                    <a>object store</a>. If the attribute is <code>null</code>, <code>undefined</code>,
-                    or not present, no <a title="object store key path">key path</a> is
+                    <a>object store</a>. If the attribute is <code>null</code>,
+                    no <a title="object store key path">key path</a> is
                     specified and thus keys are <a>out-of-line</a>.
-                    <code>autoIncrement</code> specifies
-                    whether the <a>object store</a> created should have a <a>key generator</a>.
-                    It defaults to <code>false</code>.</dd>
+                    <code>autoIncrement</code> specifies whether the <a>object store</a>
+                    created should have a <a>key generator</a>.</dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
@@ -527,9 +525,6 @@
                   <dd>An <a>object store</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
                   <a title="connection">connected</a> <a>database</a>. </dd>
-                <dt>TypeError</dt>
-                  <dd><code>optionalParameters</code> has attributes other
-                  than <code>keyPath</code> and <code>autoIncrement</code>.</dd>
               </dl>
             </dd>
             <dt>void deleteObjectStore()</dt>
@@ -603,6 +598,8 @@
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
                 <dt>TypeError</dt>
                 <dd>The value for the <a>mode</a> parameter is invalid.</dd>
+                <dt>InvalidAccessError</dt>
+                <dd>The function was called with an empty list of store names</dd>
               </dl>
             </dd>
             <dt>void close()</dt>
@@ -930,9 +927,10 @@
               </p>
               <p>
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, or if <var>keyPath</var> is
+                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a <code>DOMException</code>
+                of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
                 and <code>Array</code> and the <var>multientry</var> property in the <var>optionalParameters</var> is true,
-                then a <code>DOMException</code> of type <a>TypeError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
+                then a <code>DOMException</code> of type <a>NotSupportedError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
@@ -964,13 +962,12 @@
                 <dt>DOMString      keyPath</dt>
                   <dd>The <a title="index key path">key path</a> used by the new
                   <a>index</a></dd>
-                <dt>optional Object IDBIndexOptionalParameters</dt>
+                <dt>optional IDBIndexParameters optionalParameters</dt>
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
-                    The valid options are <code>unique</code> and <code>multientry</code>.
                     <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
-                    set. It defaults to <code>false</code>.
+                    set.
                     <code>multientry</code> specifies whether the <a>index</a>'s <a>multientry</a> flag is
-                    set. It defaults to <code>false</code>.
+                    set.
                   </dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -981,9 +978,6 @@
                   <dd>An <a>index</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
                   <a title="connection">connected</a> <a>database</a>. </dd>
-                <dt>TypeError</dt>
-                  <dd><code>optionalParameters</code> has attributes other
-                  than <code>unique</code>.</dd>
               </dl>
             </dd>
             <dt>IDBIndex index()</dt>
