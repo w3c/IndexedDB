@@ -1265,9 +1265,9 @@ dictionary IDBIndexParameters {
             <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
             otherwise returns
             <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.</dd>
-            <dt>attribute Function onsuccess</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
-            <dt>attribute Function onerror</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
             <dd>The event handler for the <a title="event-error">error event</a></dd>
           </dl>
           <p>
@@ -1294,9 +1294,9 @@ dictionary IDBIndexParameters {
             <code>blocked event</code> and <code>upgradeneeded event</code> eaiser.
           </p>
           <dl class="idl" title="interface IDBOpenDBRequest : IDBRequest"> 
-            <dt>attribute Function onblocked</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onblocked</dt>
             <dd>The event handler for the <code>blocked event</code></dd>
-            <dt>attribute Function onupgradeneeded</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onupgradeneeded</dt>
             <dd>The event handler for the <code>upgradeneeded event</code></dd>
           </dl>
           <p>
@@ -1449,8 +1449,8 @@ dictionary IDBIndexParameters {
             <dt>short cmp()</dt>
             <dd>
               <p>
-                When invoked, this method MUST compare two <a>key</a>s. The method returns -1 if the first key is
-                <a>greater than</a> the second, 1 if the first is <a>less than</a> the second, and 0 if
+                When invoked, this method MUST compare two <a>key</a>s. The method returns 1 if the first key is
+                <a>greater than</a> the second, -1 if the first is <a>less than</a> the second, and 0 if
                 the first is <a>equal to</a> the second.
               </p>
               <dl class="parameters">
@@ -1547,6 +1547,11 @@ dictionary IDBIndexParameters {
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
+                If the <var>optionalParameters</var> parameter is specified, and <code>autoIncrement</code> is set to true, and
+                the <code>keyPath</code> parameter is specified to the empty string, or specified to an <code>Array</code>
+                and one of the items is an empty string, this function MUST throw a <code>InvalidAccessError</code> exception.
+              </p>
+              <p>
                 In some implementations it's possible for the implementation to run into problems 
                 after queuing up an operation to create the <a title="object store">objectStore</a> after the <code>createObjectStore</code> function has returned. 
                 For example in implementations where metadata about the newly created <a title="object store">objectStore</a> is inserted into the database asynchronously, 
@@ -1575,6 +1580,8 @@ dictionary IDBIndexParameters {
                   <dd>An <a>object store</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
                   <a title="connection">connected</a> <a>database</a>. </dd>
+                <dt>InvalidAccessError</dt>
+                  <dd>If autoIncrement is set to true, and keyPath either is the empty string, or an <code>Array</code> containing the empty string.</dd>
               </dl>
             </dd>
             <dt>void deleteObjectStore()</dt>
@@ -1656,11 +1663,11 @@ dictionary IDBIndexParameters {
             <dd>
               This method returns immediately and performs the <a>steps for closing a database connection</a>.
             </dd>
-            <dt>attribute Function onabort</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onabort</dt>
             <dd>The event handler for the <a>abort event</a>.</dd>
-            <dt>attribute Function onerror</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
             <dd>The event handler for the <a>error event</a>.</dd>
-            <dt>attribute Function onversionchange</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onversionchange</dt>
             <dd>The event handler for the <a>versionchange event</a>.</dd>
           </dl>
         </section>
@@ -2347,13 +2354,19 @@ dictionary IDBIndexParameters {
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
             <dt>readonly attribute any key</dt>
-            <dd>Returns the cursor's current <a title="cursor key">key</a>. However if the cursor's <a>got value</a>
-            flag is false this returns <code>undefined</code>. This may happen, for example, if the <a>cursor</a> is currently being iterated or has
-            iterated past the end of its range.</dd>
+            <dd>Returns the cursor's current <a title="cursor key">key</a>.
+            Note that if this property returns an object (specifically an <code>Array</code>), it returns the same
+            object instance every time it is inspected, until the cursor's <a title="cursor key">key</a> is changed.
+            This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
             <dt>readonly attribute any primaryKey</dt>
-            <dd>Returns the cursor's current <a>effective key</a>. However if the cursor's <a>got value</a>
-            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range.</dd>
+            <dd>Returns the cursor's current <a>effective key</a>.
+            Note that if this property returns an object (specifically an <code>Array</code>), it returns the same
+            object instance every time it is inspected, until the cursor's <a>effective key</a> is changed.
+            This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
 
             <dt>IDBRequest update()</dt>
             <dd>
@@ -2523,10 +2536,10 @@ dictionary IDBIndexParameters {
           </dl>
           <dl class="idl" title="interface IDBCursorWithValue : IDBCursor">
             <dt>readonly attribute any value</dt>
-            <dd>Returns the cursor's current <a title="cursor value">value</a>. However if the cursor's <a>got value</a>
-            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range. Note that if this property returns an object, it returns the same
-            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            <dd>Returns the cursor's current <a title="cursor value">value</a>.
+            Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor's <a title="cursor value">value</a> is changed.
+            This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
             does not modify the contents of the database.</dd>
           </dl>
@@ -2588,11 +2601,11 @@ dictionary IDBIndexParameters {
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
               </dl>
             </dd>
-            <dt>attribute Function onabort</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onabort</dt>
             <dd>The event handler for the <a>abort event</a>.</dd>
-            <dt>attribute Function oncomplete</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? oncomplete</dt>
             <dd>The event handler for the <a>complete event</a>.</dd>
-            <dt>attribute Function onerror</dt>
+            <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
             <dd>The event handler for the <a>error event</a>.</dd>
           </dl>
 
@@ -2712,8 +2725,8 @@ dictionary IDBIndexParameters {
                         <dt>short cmp()</dt>
             <dd>
               <p>
-                When invoked, this method MUST compare two <a>key</a>s. The method returns -1 if the first key is
-                <a>greater than</a> the second, 1 if the first is <a>less than</a> the second, and 0 if
+                When invoked, this method MUST compare two <a>key</a>s. The method returns 1 if the first key is
+                <a>greater than</a> the second, -1 if the first is <a>less than</a> the second, and 0 if
                 the first is <a>equal to</a> the second.
               </p>
               <dl class="parameters">
@@ -2800,6 +2813,11 @@ dictionary IDBIndexParameters {
                 <code>DOMException</code> of type <a>SyntaxError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
+              <p>
+                If the <var>optionalParameters</var> parameter is specified, and <code>autoIncrement</code> is set to true, and
+                the <code>keyPath</code> parameter is specified to the empty string, or specified to an <code>Array</code>
+                and one of the items is an empty string, this function MUST throw a <code>InvalidAccessError</code> exception.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                   <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
@@ -2821,9 +2839,8 @@ dictionary IDBIndexParameters {
                   <dd>If an <a>object store</a> with the same name, compared in a case-sensitive
                   manner, already exists in the <a title="connection">connected</a> 
                   <a>database</a>.</dd>
-                <dt>TypeError</dt>
-                  <dd><code>optionalParameters</code> has attributes other
-                  than <code>keyPath</code> and <code>autoIncrement</code>.</dd>
+                <dt>InvalidAccessError</dt>
+                  <dd>If autoIncrement is set to true, and keyPath either is the empty string, or an <code>Array</code> containing the empty string.</dd>
               </dl>
             </dd>
             <dt>void deleteObjectStore()</dt>
@@ -3312,9 +3329,6 @@ cursor.continue();</codeblock>
                   <a title="connection">connected</a> <a>database</a>. 
                   Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>
                   that already contains records that violate the unique constraint.</dd>
-                <dt>TypeError</dt>
-                  <dd><code>optionalParameters</code> has attributes other
-                  than <code>unique</code>.</dd>
               </dl>
             </dd>
             <dt>IDBIndexSync index()</dt>
@@ -3772,10 +3786,19 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>            
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
-            <dt>readonly attribute any key</dt>
-            <dd>The key for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
-            flag is false it returns <code>undefined</code>. This may happen, for example, if the <a>cursor</a> is currently being iterated 
-            or has iterated past the end of its range.</dd>
+            <dd>Returns the cursor's current <a title="cursor key">key</a>.
+            Note that if this property returns an object (specifically an <code>Array</code>), it returns the same
+            object instance every time it is inspected, until the cursor is iterated.
+            This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
+            <dt>readonly attribute any primaryKey</dt>
+            <dd>Returns the cursor's current <a>effective key</a>.
+            Note that if this property returns an object (specifically an <code>Array</code>), it returns the same
+            object instance every time it is inspected, until the cursor is iterated.
+            This means that if the object is modified,
+            those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
+            does not modify the contents of the database.</dd>
             <dt>IDBRequest update()</dt>
             <dd>
               <p>
@@ -3943,13 +3966,12 @@ var cursor = objects.<a>openCursor</a>(range);
           </dl>
           <dl title="interface IDBCursorWithValueSync : IDBCursorSync" class="idl">
             <dt>attribute any value</dt>
-            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>. However if the cursor's <a>got value</a>
-            flag is false it returns <code>undefined</code>. I.e. if it's currently being iterated or has
-            iterated past the end of its range. Note that if this property returns an object, it returns the same
-            object instance every time it is inspected, until the cursor is iterated. This means that if the object is modified,
+            <dd>Returns the cursor's current <a title="cursor value">value</a>.
+            Note that if this property returns an object, it returns the same
+            object instance every time it is inspected, until the cursor is iterated.
+            This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.
-            </dd>
+            does not modify the contents of the database.</dd>
           </dl>
         </section>
         <section id="transaction-sync" class="section">
@@ -4967,7 +4989,11 @@ var cursor = objects.<a>openCursor</a>(range);
               </p>
             </li>
             <li>
-              If <var>found record</var> is not defined, the result of this algorithm is <code>null</code>. Abort these steps.
+              If <var>found record</var> is not defined, set <var>cursor</var>'s <a title="cursor key">key</a> and <a>primary key</a> to
+              <code>undefined</code>.
+              If <var>cursor</var> implements <a>IDBCursorWithValue</a> or <a>IDBCursorWithValueSync</a>, then set
+              <var>cursor</var>'s <a title="cursor value">value</a> to <code>undefined</code>.
+              The result of this algorithm is <code>null</code>. Abort these steps.
             </li>
             <li>
               <p>
