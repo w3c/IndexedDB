@@ -342,6 +342,11 @@
                 <code>DOMException</code> of type <a>SyntaxError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
+              <p>
+                If the <var>optionalParameters</var> parameter is specified, and <code>autoIncrement</code> is set to true, and
+                the <code>keyPath</code> parameter is specified to the empty string, or specified to an <code>Array</code>
+                and one of the items is an empty string, this function MUST throw a <code>InvalidAccessError</code> exception.
+              </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                   <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
@@ -363,9 +368,8 @@
                   <dd>If an <a>object store</a> with the same name, compared in a case-sensitive
                   manner, already exists in the <a title="connection">connected</a> 
                   <a>database</a>.</dd>
-                <dt>TypeError</dt>
-                  <dd><code>optionalParameters</code> has attributes other
-                  than <code>keyPath</code> and <code>autoIncrement</code>.</dd>
+                <dt>InvalidAccessError</dt>
+                  <dd>If autoIncrement is set to true, and keyPath either is the empty string, or an <code>Array</code> containing the empty string.</dd>
               </dl>
             </dd>
             <dt>void deleteObjectStore()</dt>
@@ -854,9 +858,6 @@ cursor.continue();</codeblock>
                   <a title="connection">connected</a> <a>database</a>. 
                   Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>
                   that already contains records that violate the unique constraint.</dd>
-                <dt>TypeError</dt>
-                  <dd><code>optionalParameters</code> has attributes other
-                  than <code>unique</code>.</dd>
               </dl>
             </dd>
             <dt>IDBIndexSync index()</dt>
