@@ -1581,7 +1581,7 @@ fails.
           <ol>
             <li>
               A transaction is <dfn id="dfn-transaction-create" title="transaction create">created</dfn> using 
-              <a class="idlType" href="#widl-IDBDatabase-transaction">IDBDatabase.transaction</a>.
+              <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-unsigned-short-mode">IDBDatabase.transaction</a>.
               The arguments passed determine the <a class="internalDFN" href="#dfn-scope">scope</a> of the transaction and whether the transaction is read-only.
               When a transaction is created its <a class="internalDFN" href="#dfn-active">active</a> flag is initially set to true.
             </li>
@@ -1735,7 +1735,7 @@ fails.
             <a href="#steps-for-synchronously-executing-a-request">steps for synchronously executing a request</a>. 
             The steps set the <a class="internalDFN" href="#dfn-request-transaction">request transaction</a> to be that <a class="internalDFN" href="#dfn-transaction">transaction</a>. 
             The steps do not set the <a class="internalDFN" href="#dfn-request-transaction">request transaction</a> to be that request for the request returned from an 
-            <a href="#widl-IDBFactory-open">IDBFactory.open</a> call however. 
+            <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a> call however. 
             That function create requests which have a null <a class="internalDFN" href="#dfn-request-transaction">request transaction</a>.
           </p>
         </div>
@@ -1986,8 +1986,8 @@ code value of 0.
           <p>
             <dfn id="dfn-options-object">Options object</dfn>s are dictionary objects [<cite><a href="#bib-WEBIDL" rel="biblioentry" class="bibref">WEBIDL</a></cite>] 
             which are used to supply optional parameters to some indexedDB functions like 
-            <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> and
-            <a href="#widl-IDBObjectStore-createIndex">createIndex</a>. The attributes on the object
+            <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a> and
+            <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-IDBIndexParameters-optionalParameters">createIndex</a>. The attributes on the object
             correspond to optional parameters on the function called.
           </p>
           <div class="block">
@@ -2080,7 +2080,7 @@ dictionary IDBIndexParameters {
             <div><em>No exceptions.</em></div></dd><dt id="widl-IDBRequest-transaction"><code>transaction</code> of type <span class="idlAttrType"><a class="idlType" href="#idl-def-IDBTransaction"><code>IDBTransaction</code></a></span>, readonly</dt><dd>
               Getting this property <em title="must" class="rfc2119">must</em> return the <a class="internalDFN" href="#dfn-request-transaction" title="request transaction">transaction</a>
               for the request. This property can be null for certain requests, such as for <a class="internalDFN" href="#dfn-request">request</a>
-              returned from <a href="#widl-IDBFactory-open">IDBFactory.open</a>.
+              returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a>.
             <div><em>No exceptions.</em></div></dd></dl></div><div class="section"><h5 id="constants">Constants</h5><dl class="constants"><dt id="widl-IDBRequest-DONE"><code>DONE</code> of type <span class="idlConstType"><a>unsigned short</a></span></dt><dd>This state indicates that a result to a previous request is available in
             the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd><dt id="widl-IDBRequest-LOADING"><code>LOADING</code> of type <span class="idlConstType"><a>unsigned short</a></span></dt><dd>This state indicates that a request has been started but its results is not
             yet available.</dd></dl></div>
@@ -2103,9 +2103,9 @@ dictionary IDBIndexParameters {
             and an event with type <code>error</code> is fired at the request.
           </p>
           <p>
-            The <a href="#widl-IDBDatabase-open">open</a> function on <a class="idlType" href="#idl-def-IDBDatabase"><code>IDBDatabase</code></a>
+            The <code>open</code> function on <a class="idlType" href="#idl-def-IDBDatabase"><code>IDBDatabase</code></a>
             uses a separate interface for its <a class="internalDFN" href="#dfn-request">request</a>s in order to make use of the
-            <code>blocked event</code> and <code>upgradeneeded event</code> eaiser.
+            <code>blocked event</code> and <code>upgradeneeded event</code> easier.
           </p>
           <pre class="idl"><span class="idlInterface" id="idl-def-IDBOpenDBRequest">interface <span class="idlInterfaceID">IDBOpenDBRequest</span> : <span class="idlSuperclass"><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></span> {
 <span class="idlAttribute">    [<span class="extAttr">TreatNonCallableAsNull</span>]
@@ -2285,13 +2285,13 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               Once the <a class="internalDFN" href="#dfn-closepending">closePending</a> flag is set on the <a class="internalDFN" href="#dfn-connection">connection</a>, this
               function <em title="must" class="rfc2119">must</em> return a snapshot of the list of names of the <a class="internalDFN" href="#dfn-object-store">object
               store</a>s taken at the time when the
-              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabase-close-void">close</a> method was called. Even if
               other <a class="internalDFN" href="#dfn-connection">connection</a>s are later used to change the set of <a class="internalDFN" href="#dfn-object-store">object
               store</a>s that exist in the <a class="internalDFN" href="#dfn-database">database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
               <a class="idlType" href="#idl-def-IDBDatabase"><code>IDBDatabase</code></a> instance, except during a <a class="internalDFN" href="#dfn-version_change"><code>VERSION_CHANGE</code></a>
-              transaction if <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a>
-              or <a href="#widl-IDBDatabase-deleteObjectStore">deleteObjectStore</a>
+              transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
+              or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
               is called on this <a class="idlType" href="#idl-def-IDBDatabase"><code>IDBDatabase</code></a> instance itself.
             <div><em>No exceptions.</em></div></dd><dt id="widl-IDBDatabase-onabort"><code>onabort</code> of type <span class="idlAttrType"><a>Function</a></span>, nullable</dt><dd>The event handler for the <a>abort event</a>.<div><em>No exceptions.</em></div></dd><dt id="widl-IDBDatabase-onerror"><code>onerror</code> of type <span class="idlAttrType"><a>Function</a></span>, nullable</dt><dd>The event handler for the <a>error event</a>.<div><em>No exceptions.</em></div></dd><dt id="widl-IDBDatabase-onversionchange"><code>onversionchange</code> of type <span class="idlAttrType"><a>Function</a></span>, nullable</dt><dd>The event handler for the <a>versionchange event</a>.<div><em>No exceptions.</em></div></dd><dt id="widl-IDBDatabase-version"><code>version</code> of type <span class="idlAttrType"><a>unsigned long long</a></span>, readonly</dt><dd>
               On getting, this attribute <em title="must" class="rfc2119">must</em> return the <a class="internalDFN" href="#dfn-version">version</a> of this
@@ -2299,7 +2299,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               <a class="internalDFN" href="#dfn-connection" title="connection">connected</a> <a class="internalDFN" href="#dfn-database">database</a> is first created.
               Once the <a class="internalDFN" href="#dfn-closepending">closePending</a> flag is set on the <a class="internalDFN" href="#dfn-connection">connection</a>, this
               function <em title="must" class="rfc2119">must</em> return a snapshot of the <a class="internalDFN" href="#dfn-version">version</a> taken when the
-              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabase-close-void">close</a> method was called. Even if
               other <a class="internalDFN" href="#dfn-connection">connection</a>s are later used to change the <a class="internalDFN" href="#dfn-version">version</a> of the
               <a class="internalDFN" href="#dfn-database">database</a>. In other words, the return value from this function
               stays constant for the lifetime of the <a class="idlType" href="#idl-def-IDBDatabase"><code>IDBDatabase</code></a> instance.
@@ -2401,7 +2401,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               </p>
               <p>
                 This method <em title="must" class="rfc2119">must</em> throw a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-invalidstateerror">InvalidStateError</a> if called before the 
-                <code>success</code> event for a <a href="#widl-IDBFactor-open">open</a> call has been dispatched.
+                <code>success</code> event for a <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">open</a> call has been dispatched.
               </p>
               
               
@@ -2635,7 +2635,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStore-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               
@@ -2798,7 +2798,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndex-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               
@@ -2975,7 +2975,7 @@ cursor is currently being iterated, has iterated past its end,
                 This method throws a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-readonlyerror">ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a class="internalDFN" href="#dfn-mode">mode</a> set to READ_ONLY. If this cursor's <a class="internalDFN" href="#dfn-got-value">got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a class="internalDFN" href="#dfn-invalidstateerror">InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -2987,13 +2987,13 @@ cursor is currently being iterated, has iterated past its end,
               
             <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a>DOMException</a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TransactionInactiveError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursor"><code>IDBCursor</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>ReadOnlyError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursor"><code>IDBCursor</code></a> belongs to
                 is <code>READ_ONLY</code>.</td></tr><tr><td class="excCodeName"><code>InvalidStateError</code></td><td class="excCodeDesc">The cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a class="idlType" href="#idl-def-IDBRequest"><code>IDBRequest</code></a></code></div></dd><dt id="widl-IDBCursor-update-IDBRequest-any-value"><code>update</code></dt><dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-readonlyerror">ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a class="internalDFN" href="#dfn-mode">mode</a> set to READ_ONLY. If this cursor's <a class="internalDFN" href="#dfn-got-value">got value</a> flag is false or if this
                 cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>. This method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>. This method
                 throws a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-invalidstateerror">InvalidStateError</a>. If the <a class="internalDFN" href="#dfn-effective-object-store">effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a class="internalDFN" href="#dfn-evaluate-key-path" title="evaluate key path">evaluating</a> the <a class="internalDFN" href="#dfn-object-store-key-path" title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a class="internalDFN" href="#dfn-effective-key">effective key</a>,
@@ -3018,7 +3018,7 @@ cursor is currently being iterated, has iterated past its end,
               
             <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">value</td><td class="prmType"><code><a>any</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The new value to store at the current position.</td></tr></table><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a>DOMException</a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TransactionInactiveError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursor"><code>IDBCursor</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>ReadOnlyError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursor"><code>IDBCursor</code></a> belongs to
                 is <code>READ_ONLY</code></td></tr><tr><td class="excCodeName"><code>InvalidStateError</code></td><td class="excCodeDesc">Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</td></tr><tr><td class="excCodeName"><code>DataError</code></td><td class="excCodeDesc"> The underlying <a class="internalDFN" href="#dfn-object-store">object store</a> uses <a class="internalDFN" href="#dfn-in-line-keys">in-line keys</a> and the property in <var>value</var>
                 at the object store's <a class="internalDFN" href="#dfn-object-store-key-path" title="object store key path">key path</a> does not match the key in this <a class="internalDFN" href="#dfn-cursor">cursor</a>'s
                 <a class="internalDFN" href="#dfn-position">position</a>.</td></tr><tr><td class="excCodeName"><code>DataCloneError</code></td><td class="excCodeDesc">The data being stored could not be cloned by the internal
@@ -3238,8 +3238,8 @@ interface <span class="idlInterfaceID">IDBEnvironmentSync</span> {
               store</a>s that exist in the <a class="internalDFN" href="#dfn-database">database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
               <a class="idlType" href="#idl-def-IDBDatabaseSync"><code>IDBDatabaseSync</code></a> instance except during a <a class="internalDFN" href="#dfn-version_change"><code>VERSION_CHANGE</code></a>
-              transaction if <a href="#widl-IDBDatabaseSync-createObjectStore">createObjectStore</a>
-              or <a href="#widl-IDBDatabaseSync-deleteObjectStore">deleteObjectStore</a>
+              transaction if <a href="#widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
+              or <a href="#widl-IDBDatabaseSync-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
               is called on this <a class="idlType" href="#idl-def-IDBDatabaseSync"><code>IDBDatabaseSync</code></a> instance itself.
             <div><em>No exceptions.</em></div></dd><dt id="widl-IDBDatabaseSync-version"><code>version</code> of type <span class="idlAttrType"><a>unsigned long long</a></span>, readonly</dt><dd>
               On getting, this attribute <em title="must" class="rfc2119">must</em> return the <a class="internalDFN" href="#dfn-version">version</a> of this
@@ -3247,7 +3247,7 @@ interface <span class="idlInterfaceID">IDBEnvironmentSync</span> {
               <a class="internalDFN" href="#dfn-connection" title="connection">connected</a> <a class="internalDFN" href="#dfn-database">database</a> is first created.
               Once the <a class="internalDFN" href="#dfn-closepending">closePending</a> flag is set on the <a class="internalDFN" href="#dfn-connection">connection</a>, this
               function <em title="must" class="rfc2119">must</em> return a snapshot of the <a class="internalDFN" href="#dfn-version">version</a> taken when the
-              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabase-close-void">close</a> method was called. Even if
               other <a class="internalDFN" href="#dfn-connection">connection</a>s are later used to change the <a class="internalDFN" href="#dfn-version">version</a> of the
               <a class="internalDFN" href="#dfn-database">database</a>. In other words, the return value from this function
               stays constant for the lifetime of the <a class="idlType" href="#idl-def-IDBDatabaseSync"><code>IDBDatabaseSync</code></a> instance.
@@ -3626,7 +3626,7 @@ cursor.continue();</code></pre></div></div>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStoreSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               
@@ -3839,7 +3839,7 @@ cursor.<a>continue</a>();</code></pre></div></div>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndexSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               
@@ -4059,7 +4059,7 @@ cursor is currently being iterated, has iterated past its end,
                 This method throws a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-readonlyerror">ReadOnlyError</a> if the transaction which this <a class="idlType" href="#idl-def-IDBCursorSync"><code>IDBCursorSync</code></a> belongs to
                 has its <a class="internalDFN" href="#dfn-mode">mode</a> set to READ_ONLY. If this cursor's <a class="internalDFN" href="#dfn-got-value">got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a class="internalDFN" href="#dfn-invalidstateerror">InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -4072,13 +4072,13 @@ cursor is currently being iterated, has iterated past its end,
               
             <div><em>No parameters.</em></div><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a>DOMException</a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TransactionInactiveError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursorSync"><code>IDBCursorSync</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>ReadOnlyError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursorSync"><code>IDBCursorSync</code></a> belongs to
                 is <code>READ_ONLY</code>.</td></tr><tr><td class="excCodeName"><code>InvalidStateError</code></td><td class="excCodeDesc">The cursor was created using
-                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</td></tr></table></td></tr></table><div><em>Return type: </em><code><a>boolean</a></code></div></dd><dt id="widl-IDBCursorSync-update-IDBRequest-any-value"><code>update</code></dt><dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-readonlyerror">ReadOnlyError</a> 
                 if the transaction which this IDBCursorSync belongs to has its <a class="internalDFN" href="#dfn-mode">mode</a> set to READ_ONLY. 
                 If this cursor's <a class="internalDFN" href="#dfn-got-value">got value</a> flag is false or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>, this method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>, this method
                 throws a <code>DOMException</code> of type <a class="internalDFN" href="#dfn-invalidstateerror">InvalidStateError</a>. 
                 If the <a class="internalDFN" href="#dfn-effective-object-store">effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a class="internalDFN" href="#dfn-evaluate-key-path" title="evaluate key path">evaluating</a> the <a class="internalDFN" href="#dfn-object-store-key-path" title="object store key path">key path</a>
@@ -4103,7 +4103,7 @@ cursor is currently being iterated, has iterated past its end,
               
             <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">value</td><td class="prmType"><code><a>any</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">The new value to store at the current position.</td></tr></table><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a>DOMException</a></td><td class="excDesc"><table class="exceptionCodes"><tr><td class="excCodeName"><code>TransactionInactiveError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursor"><code>IDBCursor</code></a> belongs to is not <a class="internalDFN" href="#dfn-active">active</a>.</td></tr><tr><td class="excCodeName"><code>ReadOnlyError</code></td><td class="excCodeDesc">The <a class="internalDFN" href="#dfn-mode">mode</a> of the <a class="internalDFN" href="#dfn-transaction">transaction</a> this <a class="idlType" href="#idl-def-IDBCursor"><code>IDBCursor</code></a> belongs to
                 is <code>READ_ONLY</code></td></tr><tr><td class="excCodeName"><code>InvalidStateError</code></td><td class="excCodeDesc">Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</td></tr><tr><td class="excCodeName"><code>DataError</code></td><td class="excCodeDesc"> The underlying <a class="internalDFN" href="#dfn-object-store">object store</a> uses <a class="internalDFN" href="#dfn-in-line-keys">in-line keys</a> and the property in <var>value</var>
                 at the object store's <a class="internalDFN" href="#dfn-object-store-key-path" title="object store key path">key path</a> does not match the key in this <a class="internalDFN" href="#dfn-cursor">cursor</a>'s
                 <a class="internalDFN" href="#dfn-position">position</a>.</td></tr><tr><td class="excCodeName"><code>DataCloneError</code></td><td class="excCodeDesc">The data being stored could not be cloned by the internal
