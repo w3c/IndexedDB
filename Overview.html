@@ -12,9 +12,9 @@
 
           shortName:            "IndexedDB",
 
-          //publishDate:          "2010-01-05",
+          publishDate:          "2011-12-27",
 
-          previousPublishDate:  "2010-01-05",
+          previousPublishDate:  "2011-12-06",
           previousMaturity:     "WD",
 
           edDraftURI:           "http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html",
@@ -617,6 +617,19 @@ prepareDatabase(function(evt) {
             within a key path.) To <dfn title="evaluate key path">evaluate a key path</dfn>, run the
             <a>steps for extracting a key from a value using a key path</a>.
           </p>
+          <p>
+          	<a>Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>, 
+          	as well as the following properties:
+          </p>
+          		<ul>
+          			<li><code>Blob.size</code></li>
+          			<li><code>Blob.type</code></li>
+          			<li><code>File.name</code></li>
+          			<li><code>File.lastModifiedDate</code></li>
+          			<li><code>Array.length</code></li>
+          			<li><code>String.length</code></li>
+          		</ul>
+          
         </section>
         
         <section id="index-concept" class="section">
@@ -663,9 +676,9 @@ prepareDatabase(function(evt) {
             index, then the attempted modification to the object store fails.
           </p>
           <p>
-            An index also contains a <dfn>multientry</dfn> flag. This flag affects how the index behaves when the result of evaluating
-            the index's <a title="index key path">key path</a> yields an <code>Array</code>. If the <a>multientry</a> flag is false, then
-            a single <a>record</a> whose <a>key</a> is an <code>Array</code> is added to the index. If the <a>multientry</a> flag is
+            An index also contains a <dfn>multiEntry</dfn> flag. This flag affects how the index behaves when the result of evaluating
+            the index's <a title="index key path">key path</a> yields an <code>Array</code>. If the <a>multiEntry</a> flag is false, then
+            a single <a>record</a> whose <a>key</a> is an <code>Array</code> is added to the index. If the <a>multiEntry</a> flag is
             true, then the one <a>record</a> is added to the index for each item in the <code>Array</code>. The <a>key</a> for each
             record is the value of respective item in the <code>Array</code>.
           </p>
@@ -716,7 +729,7 @@ prepareDatabase(function(evt) {
           <ol>
             <li>
               A transaction is <dfn title="transaction create">created</dfn> using 
-              <a class="idlType" href="#widl-IDBDatabase-transaction">IDBDatabase.transaction</a>.
+              <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-unsigned-short-mode">IDBDatabase.transaction</a>.
               The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
               When a transaction is created its <a>active</a> flag is initially set to true.
             </li>
@@ -769,7 +782,7 @@ prepareDatabase(function(evt) {
             </li>
             <li>
               When a transaction is <a>commit</a>ted or <a>abort</a>ed, it is said to be
-              <def title="transaction finish">finished</def>. If a transaction can't be finished, for example
+              <dfn title="transaction finish">finished</dfn>. If a transaction can't be finished, for example
               due to the implementation crashing or the user taking some explicit action to cancel it, the
               implementation MUST <a>abort</a> the transaction.
             </li>
@@ -802,6 +815,12 @@ prepareDatabase(function(evt) {
             against the same <a>database</a> are running. As long as the VERSION_CHANGE transaction is pending, the implementation
             MUST wait before <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
             until the VERSION_CHANGE transaction is finished.
+          </p>
+          <p class="note">
+          	During the open database API, a VERSION_CHANGE transaction is automatically created 
+          	when a database version number is provided that is greater than the current database version.  
+          	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler, 
+          	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
             Any number of transactions opened in <a>READ_ONLY</a> mode are allowed to run concurrently,
@@ -870,7 +889,7 @@ prepareDatabase(function(evt) {
             <a href="#steps-for-synchronously-executing-a-request">steps for synchronously executing a request</a>. 
             The steps set the <a>request transaction</a> to be that <a>transaction</a>. 
             The steps do not set the <a>request transaction</a> to be that request for the request returned from an 
-            <a href="#widl-IDBFactory-open">IDBFactory.open</a> call however. 
+            <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a> call however. 
             That function create requests which have a null <a>request transaction</a>.
           </p>
         </section>
@@ -1159,8 +1178,8 @@ prepareDatabase(function(evt) {
           <p>
             <dfn>Options object</dfn>s are dictionary objects [[!WEBIDL]] 
             which are used to supply optional parameters to some indexedDB functions like 
-            <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a> and
-            <a href="#widl-IDBObjectStore-createIndex">createIndex</a>. The attributes on the object
+            <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a> and
+            <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-IDBIndexParameters-optionalParameters">createIndex</a>. The attributes on the object
             correspond to optional parameters on the function called.
           </p>
           <div class="block">
@@ -1179,7 +1198,7 @@ dictionary IDBObjectStoreParameters {
                 <code class="es-code">
 dictionary IDBIndexParameters {
   boolean unique = false;
-  boolean multientry = false;
+  boolean multiEntry = false;
 };
                 </code>
               </pre>
@@ -1258,7 +1277,7 @@ dictionary IDBIndexParameters {
             <dd>
               Getting this property MUST return the <a title="request transaction">transaction</a>
               for the request. This property can be null for certain requests, such as for <a>request</a>
-              returned from <a href="#widl-IDBFactory-open">IDBFactory.open</a>.
+              returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a>.
             </dd>
             <dt>readonly attribute unsigned short readyState</dt>
             <dd>When the <a title="request done">done</a> flag is false, returns
@@ -1289,9 +1308,9 @@ dictionary IDBIndexParameters {
             and an event with type <code>error</code> is fired at the request.
           </p>
           <p>
-            The <a href="#widl-IDBDatabase-open">open</a> function on <a>IDBDatabase</a>
-            uses a separate interface for its <a>request</a>s in order to make use of the
-            <code>blocked event</code> and <code>upgradeneeded event</code> eaiser.
+            The <code>open</code> and <code>deleteDatabase</code> functions on <code><a>IDBFactory</a></code> 
+            uses a separate interface for its requests in order to make use of the 
+            <code>blocked event</code> and <code>upgradeneeded event</code> easier.
           </p>
           <dl class="idl" title="interface IDBOpenDBRequest : IDBRequest"> 
             <dt>[TreatNonCallableAsNull] attribute Function? onblocked</dt>
@@ -1312,9 +1331,9 @@ dictionary IDBIndexParameters {
           </p>
 
           <dl class="idl" title="interface IDBVersionChangeEvent : Event"> 
-            <dt>readonly attribute unsigned long long oldVersion</dt>
+            <dt>readonly attribute unsigned long long? oldVersion</dt>
             <dd>Returns the old version of the database.
-            <dt>readonly attribute unsigned long long newVersion</dt>
+            <dt>readonly attribute unsigned long long? newVersion</dt>
             <dd>Returns the new version of the database.
             See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
             <dt>void initIDBVersionChangeEvent()</dt>
@@ -1327,9 +1346,9 @@ dictionary IDBIndexParameters {
                 <dd>Boolean value that indicates whether the event can bubble.</dd>
                 <dt>boolean cancelableArg</dt>
                 <dd>Boolean value that indicates whether the event is cancelable.</dd>
-                <dt>unsigned long long oldVersion</dt>
+                <dt>unsigned long long? oldVersion</dt>
                 <dd>The old version of the database during a VERSION_CHANGE transaction.</dd>
-                <dt>unsigned long long newVersion</dt>
+                <dt>unsigned long long? newVersion</dt>
                 <dd>The new version of the database during a VERSION_CHANGE transaction.</dd>
               </dl>
             </dd>
@@ -1411,7 +1430,7 @@ dictionary IDBIndexParameters {
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>[EnforceRange] optional unsigned long long version</dt>
+                <dt>[EnforceRange] optional unsigned long long? version</dt>
                 <dd>The <a>version</a> for the <a>database</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -1483,14 +1502,14 @@ dictionary IDBIndexParameters {
               In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
-            <dt>readonly attribute unsigned long long version</dt>
+            <dt>readonly attribute unsigned long long? version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has value 0 when the
               <a title="connection">connected</a> <a>database</a> is first created.
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the <a>version</a> taken when the
-              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabase-close-void">close</a> method was called. Even if
               other <a>connection</a>s are later used to change the <a>version</a> of the
               <a>database</a>. In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
@@ -1503,13 +1522,13 @@ dictionary IDBIndexParameters {
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the list of names of the <a>object
               store</a>s taken at the time when the
-              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabase-close-void">close</a> method was called. Even if
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
               <a>IDBDatabase</a> instance, except during a <a><code>VERSION_CHANGE</code></a>
-              transaction if <a href="#widl-IDBDatabase-createObjectStore">createObjectStore</a>
-              or <a href="#widl-IDBDatabase-deleteObjectStore">deleteObjectStore</a>
+              transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
+              or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
               is called on this <a>IDBDatabase</a> instance itself.
             </dd>
             <dt>IDBObjectStore createObjectStore()</dt>
@@ -1696,6 +1715,8 @@ dictionary IDBIndexParameters {
             <dd>
               On getting, returns the <a>transaction</a> this <a>object store</a> belongs to.        
             </dd>
+            <dt>readonly attribute boolean	autoIncremenent;</dt>
+            <dd>On getting, provides the auto increment flag for this <a>object store</a>.</dd>
 
             <dt>IDBRequest put()</dt>
             <dd>
@@ -1887,7 +1908,7 @@ dictionary IDBIndexParameters {
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStore-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -1974,8 +1995,8 @@ dictionary IDBIndexParameters {
                 MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> exception. 
                 If an index with the same name already exists, the implementation MUST throw a <code>DOMException</code> of type <a>ConstraintError</a>. 
                 Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
-                index has its <a>unique</a> and <a>multientry</a> flags are set to the values of the
-                <var>unique</var> and <var>multientry</var> properties in the <var>optionalParameters</var> argument.
+                index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
+                <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
               </p>
               <p>
                 If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
@@ -1986,7 +2007,7 @@ dictionary IDBIndexParameters {
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a <code>DOMException</code>
                 of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
-                and <code>Array</code> and the <var>multientry</var> property in the <var>optionalParameters</var> is true,
+                and <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
                 then a <code>DOMException</code> of type <a>NotSupportedError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
@@ -2023,7 +2044,7 @@ dictionary IDBIndexParameters {
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
                     <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
                     set.
-                    <code>multientry</code> specifies whether the <a>index</a>'s <a>multientry</a> flag is
+                    <code>multiEntry</code> specifies whether the <a>index</a>'s <a>multiEntry</a> flag is
                     set.
                   </dd>
               </dl>
@@ -2137,9 +2158,9 @@ dictionary IDBIndexParameters {
               <a>index</a>. If this attribute is <code>null</code>,
               this <a>index</a> is not <a>auto-populated</a>.
             </dd>
-            <dt>readonly attribute boolean 		multientry</dt>
+            <dt>readonly attribute boolean 		multiEntry</dt>
             <dd>
-            	On getting, provide the <a>multientry</a> flag of this <a>index</a>.
+            	On getting, provide the <a>multiEntry</a> flag of this <a>index</a>.
             </dd>
             <dt>readonly attribute boolean unique</dt>
             <dd>
@@ -2239,7 +2260,7 @@ dictionary IDBIndexParameters {
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndex-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -2374,7 +2395,7 @@ dictionary IDBIndexParameters {
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false or if this
                 cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>. This method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>. This method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
@@ -2407,7 +2428,7 @@ dictionary IDBIndexParameters {
                 is <code>READ_ONLY</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -2512,7 +2533,7 @@ dictionary IDBIndexParameters {
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -2529,7 +2550,7 @@ dictionary IDBIndexParameters {
                 is <code>READ_ONLY</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -2568,6 +2589,20 @@ dictionary IDBIndexParameters {
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part
             </dd>
+			<dt>readonly attribute DOMError       error</dt>
+			<dd>
+              When the <a title="request done">done</a> flag is true, getting this
+              property MUST return the error of the request that caused the <a>transaction</a> to be aborted. 
+              If the error was generated when committing the <a>transaction</a> and not from an individual request, 
+              the error must contain the reasons for the transaction failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>). 
+              This is null when no error occurred or when the transaction is programmatically aborted. 
+              When the <a title="request done">done</a> flag is false, 
+              getting this property MUST throw a DOMException of type <code>InvalidStateError</code>.
+              <dl class="getraises" title="DOMException">
+                <dt><a>InvalidStateError</a></dt>
+                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
+              </dl>
+			</dd>
             <dt>IDBObjectStore objectStore()</dt>
             <dd>
               Returns an <a>IDBObjectStore</a> representing an <a>object store</a> that is part of the
@@ -2680,7 +2715,7 @@ dictionary IDBIndexParameters {
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>[EnforceRange] optional unsigned long long version</dt>
+                <dt>[EnforceRange] optional unsigned long long? version</dt>
                 <dd>The <a title="database version">version</a> for the <a>database</a></dd>
                 <dt>IDBVersionChangeCallback upgradeCallback</dt>
                 <dd>Callback used if the <a>database version</a> needs to be upgraded before the
@@ -2758,14 +2793,14 @@ dictionary IDBIndexParameters {
               In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabaseSync</a> instance.
             </dd>
-            <dt>readonly attribute unsigned long long version</dt>
+            <dt>readonly attribute unsigned long long? version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has the empty string value when the
               <a title="connection">connected</a> <a>database</a> is first created.
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the <a>version</a> taken when the
-              <a href="#widl-IDBDatabase-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabaseSync-close-void">close</a> method was called. Even if
               other <a>connection</a>s are later used to change the <a>version</a> of the
               <a>database</a>. In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabaseSync</a> instance.
@@ -2778,13 +2813,14 @@ dictionary IDBIndexParameters {
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the list of names of the <a>object
               store</a>s taken at the time when the
-              <a href="#widl-IDBDatabaseSync-close">close</a> method was called. Even if
+              <a href="#widl-IDBDatabaseSync-close-void">close</a> method was called. Even if
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
               <a>IDBDatabaseSync</a> instance except during a <a><code>VERSION_CHANGE</code></a>
-              transaction if <a href="#widl-IDBDatabaseSync-createObjectStore">createObjectStore</a>
-              or <a href="#widl-IDBDatabaseSync-deleteObjectStore">deleteObjectStore</a>
+              transaction if 
+              <a href="#widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
+              or <a href="#widl-IDBDatabaseSync-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
               is called on this <a>IDBDatabaseSync</a> instance itself.
             </dd>
             <dt>IDBObjectStoreSync createObjectStore()</dt>
@@ -2964,7 +3000,7 @@ dictionary IDBIndexParameters {
               <dl class="parameters">
                 <dt>IDBTransactionSync transaction</dt>
                 <dd>The newly started transaction</dd>
-                <dt>unsigned long long oldVersion</dt>
+                <dt>unsigned long long? oldVersion</dt>
                 <dd>The version that the database had before the upgrade was needed.</dd>
               </dl>
             </dd> 
@@ -3041,6 +3077,10 @@ cursor.continue();</codeblock>
             <dd>
               On getting, returns the <a>transaction</a> this <a>object store</a> belongs to.        
             </dd>
+            <dt>readonly attribute boolean	autoIncremenent;</dt>
+            <dd>On getting, provides the auto increment flag for this <a>object store</a>.</dd>
+            
+            
             <dt>any put()</dt>
             <dd>
               <p>
@@ -3245,7 +3285,7 @@ cursor.continue();</codeblock>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStoreSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -3289,8 +3329,8 @@ cursor.continue();</codeblock>
                 This creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>.  Note that this method must only
                 be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>. The created
-                index has its <a>unique</a> and <a>multientry</a> flags are set to the values of the
-                <var>unique</var> and <var>multientry</var> properties in the <var>optionalParameters</var> argument.
+                index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
+                <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
               </p>
               <p>
                 If the <var>keyPath</var> argument is an <code>Array</code>, then each item in the array is
@@ -3301,7 +3341,7 @@ cursor.continue();</codeblock>
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, then a <code>DOMException</code>
                 of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
-                and <code>Array</code> and the <var>multientry</var> property in the <var>optionalParameters</var> is true,
+                and <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
                 then a <code>DOMException</code> of type <a>NotSupportedError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
@@ -3315,7 +3355,7 @@ cursor.continue();</codeblock>
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
                     <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
                     set.
-                    <code>multientry</code> specifies whether the <a>index</a>'s <a>multientry</a> flag is
+                    <code>multiEntry</code> specifies whether the <a>index</a>'s <a>multiEntry</a> flag is
                     set.
                   </dd>
               </dl>
@@ -3517,9 +3557,9 @@ cursor.<a>continue</a>();</codeblock>
               this <a>index</a> is not <a>auto-populated</a>.
             </dd>
 
-            <dt>readonly attribute boolean 		multientry</dt>
+            <dt>readonly attribute boolean 		multiEntry</dt>
             <dd>
-            	On getting, provide the <a>multientry</a> flag of this <a>index</a>.
+            	On getting, provide the <a>multiEntry</a> flag of this <a>index</a>.
             </dd>
             
             <dt>readonly attribute boolean unique</dt>
@@ -3622,7 +3662,7 @@ cursor.<a>continue</a>();</codeblock>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndexSync-openCursor">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -3805,7 +3845,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> 
                 if the transaction which this IDBCursorSync belongs to has its <a>mode</a> set to READ_ONLY. 
                 If this cursor's <a>got value</a> flag is false or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a>, this method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>, this method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. 
                 If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
@@ -3838,7 +3878,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 is <code>READ_ONLY</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -3941,7 +3981,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBCursorSync</a> belongs to
                 has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -3959,7 +3999,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 is <code>READ_ONLY</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -3999,6 +4039,20 @@ var cursor = objects.<a>openCursor</a>(range);
             <dt>attribute IDBDatabaseSync db</dt>
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part</dd>
+			<dt>readonly attribute DOMError       error</dt>
+			<dd>
+              When the <a title="request done">done</a> flag is true, getting this
+              property MUST return the error of the request that caused the <a>transaction</a> to be aborted. 
+              If the error was generated when committing the <a>transaction</a> and not from an individual request, 
+              the error must contain the reasons for the transaction failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>). 
+              This is null when no error occurred or when the transaction is programmatically aborted. 
+              When the <a title="request done">done</a> flag is false, 
+              getting this property MUST throw a DOMException of type <code>InvalidStateError</code>.
+              <dl class="getraises" title="DOMException">
+                <dt><a>InvalidStateError</a></dt>
+                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
+              </dl>
+			</dd>
             <dt>IDBObjectStoreSync objectStore()</dt>
             <dd>
               Returns an <a>IDBObjectStoreSync</a> representing an <a>object store</a> that is within the <a>scope</a> of this <a>transaction</a>. 
@@ -4230,9 +4284,10 @@ var cursor = objects.<a>openCursor</a>(range);
               then <var>transaction</var>.
             </li>
             <li>
-              If an error occurs while committing the transaction, <a>fire an error event</a>, 
-              set the error attribute to a <code>DOMError</code> of type <a>UnknownError</a>, 
-              and then follow the <a>steps for aborting a transaction</a>.            
+              If an error occurs while committing the transaction, 
+              follow the <a>steps for aborting a transaction</a>, 
+              set the <code>error</code> attribute on the <a>transaction</a> object to a <code>DOMError</code> object with the reason for the abort 
+              (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>).
               <p class="note">
                 Even if the event is cancelled (by a call to <code>preventDefault</code>), follow the <a>steps for aborting a transaction</a>.
               </p>
@@ -4267,6 +4322,13 @@ var cursor = objects.<a>openCursor</a>(range);
                 </li>
               </ol>
             </li>
+			<li>
+				Create a <code>DOMError</code> object to capture the reason for the <a>transaction</a> failure 
+				and set it to the error of the <a>request</a> that caused the <a>transaction</a> to be aborted. 
+				If the error was generated when <a title="commit">committing</a> the <a>transaction</a> and not from an individual <a>request</a>, 
+				the error must contain the reasons for the <a>transaction</a> failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>).  
+				Set the transaction <code>error</code> property to the <code>DOMError</code> object.
+			</li>
             <li>
               Queue up an operation to dispatch an event at <var>transaction</var>.  
               The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>.
@@ -4479,6 +4541,30 @@ var cursor = objects.<a>openCursor</a>(range);
                   If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
                   the transaction by following the <a>steps for aborting a transaction</a>.
                 </li>
+                <li>
+                	If for any reason the VERSION_CHANGE transaction is aborted while in the <a href="#widl-IDBOpenDBRequest-onupgradeneeded"><code>onupgradeneeded</code></a> event handler 
+                	while the database is being created for the first time, the database will remain in the system with the default attributes.  
+                	If the transaction is aborted and there is an existing database, the values remain unchanged.
+               		The default attributes for the <a>IDBDatabase</a> are:
+                		<table>
+			          		<tr>
+			          			<th>Attribute</th>
+			          			<th>Value</th>
+			          		</tr>
+			          		<tr>
+			          			<td><a href="#widl-IDBDatabase-name"><code>name</code></a></td>
+			          			<td>the <var>name</var> provided to <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a></td>
+			          		</tr>
+			          		<tr>
+			          			<td><a href="#widl-IDBDatabase-version"><code>version</code></a></td>
+			          			<td> <code>0</code> (zero)</td>
+			          		</tr>
+			          		<tr>
+			          			<td><a href="#widl-IDBDatabase-objectStoreNames"><code>objectStoresNames</code></a></td>
+			          			<td>null</td>
+			          		</tr>
+                		</table>
+                </li>
               </ol>
             </li>
             <li>
@@ -4640,7 +4726,7 @@ var cursor = objects.<a>openCursor</a>(range);
           </ol>
         </section>
       </section>
-      <section class="section" id="database operations">
+      <section class="section" id="database-operations">
         <h3>Database operations</h3>
         <p>
           This section describes various operations done on the data in <a>object store</a>s and <a>index</a>es
@@ -4716,28 +4802,28 @@ var cursor = objects.<a>openCursor</a>(range);
                   </div>
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multientry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
+                  If <var>index</var>'s <a>multiEntry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
                   and <var>index</var> has it's <a>unique</a> flag set to true, then 
                   set the <code>error</code> attribute to a <code>DOMError</code> of type <a>ConstraintError</a>
                   and abort this algorithm without taking any further steps.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multientry</a> flag is true and <var>index key</var> is an <code>Array</code>,
+                  If <var>index</var>'s <a>multiEntry</a> flag is true and <var>index key</var> is an <code>Array</code>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
                   values in <var>index key</var>, and <var>index</var> has it's <a>unique</a> flag set to true, then set 
                   set the <code>error</code> attribute to a <code>DOMError</code> of type <a>ConstraintError</a>
                   and abort this algorithm without taking any further steps.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multientry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
+                  If <var>index</var>'s <a>multiEntry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
                   then store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
                   value. The record is stored in <var>index</var>'s <a title="index record list">list of records</a> such
                   that the list is sorted primarily on the records keys, and secondarily on the records values, in ascending
                   order.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multientry</a> flag is true and <var>index key</var> is an <code>Array</code>,
+                  If <var>index</var>'s <a>multiEntry</a> flag is true and <var>index key</var> is an <code>Array</code>,
                   then for each item in <var>index key</var> store a record in <var>index</var> containig
                   the items value as its key and <var>key</var> as its value. The records are stored in <var>index</var>'s
                   <a title="index record list">list of records</a> such that the list is sorted primarily on the records keys,
