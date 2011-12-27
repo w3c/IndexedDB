@@ -323,9 +323,10 @@
               then <var>transaction</var>.
             </li>
             <li>
-              If an error occurs while committing the transaction, <a>fire an error event</a>, 
-              set the error attribute to a <code>DOMError</code> of type <a>UnknownError</a>, 
-              and then follow the <a>steps for aborting a transaction</a>.            
+              If an error occurs while committing the transaction, 
+              follow the <a>steps for aborting a transaction</a>, 
+              set the <code>error</code> attribute on the <a>transaction</a> object to a <code>DOMError</code> object with the reason for the abort 
+              (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>).
               <p class="note">
                 Even if the event is cancelled (by a call to <code>preventDefault</code>), follow the <a>steps for aborting a transaction</a>.
               </p>
@@ -360,6 +361,13 @@
                 </li>
               </ol>
             </li>
+			<li>
+				Create a <code>DOMError</code> object to capture the reason for the <a>transaction</a> failure 
+				and set it to the error of the <a>request</a> that caused the <a>transaction</a> to be aborted. 
+				If the error was generated when <a title="commit">committing</a> the <a>transaction</a> and not from an individual <a>request</a>, 
+				the error must contain the reasons for the <a>transaction</a> failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>).  
+				Set the transaction <code>error</code> property to the <code>DOMError</code> object.
+			</li>
             <li>
               Queue up an operation to dispatch an event at <var>transaction</var>.  
               The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>.
