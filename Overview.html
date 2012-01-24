@@ -3,6 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
+    <meta name='revision' content='$Id: Overview.html,v 1.41 2010/03/24 17:58:17 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -11,7 +12,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2012-01-05",
+          //publishDate:          "2010-01-05",
 
           previousPublishDate:  "2011-12-06",
           previousMaturity:     "WD",
@@ -1201,6 +1202,15 @@ dictionary IDBIndexParameters {
 };
                 </code>
               </pre>
+              <p>The following WebIDL defines <dfn>IDBVersionChangeEventInit</dfn> dictionary type.</p>
+              <pre class="code">
+                <code class="es-code">
+dictionary IDBVersionChangeEventInit : EventInit {
+  unsigned long long oldVersion = 0;
+  unsigned long long? newVersion = null;
+};
+                </code>
+              </pre>
             </div>
           </div>
 
@@ -1329,28 +1339,12 @@ dictionary IDBIndexParameters {
             This specification fires events with the following custom interfaces:
           </p>
 
-          <dl class="idl" title="interface IDBVersionChangeEvent : Event"> 
-            <dt>readonly attribute unsigned long long? oldVersion</dt>
+          <dl class="idl" title="[Constructor(DOMString type, optional IDBVersionChangeEventInit eventInitDict)] interface IDBVersionChangeEvent : Event"> 
+            <dt>readonly attribute unsigned long long oldVersion</dt>
             <dd>Returns the old version of the database.
             <dt>readonly attribute unsigned long long? newVersion</dt>
             <dd>Returns the new version of the database.
             See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
-            <dt>void initIDBVersionChangeEvent()</dt>
-            <dd>
-              <p>Intializes the value of an <a href="#idl-def-IDBVersionChangeEvent">IDBVersionChangeEvent</a> event once it's been created.</p>
-              <dl class="parameters">
-                <dt>DOMString typeArg</dt>
-                <dd>Specifies the event type.</dd>
-                <dt>boolean canBubbleArg</dt>
-                <dd>Boolean value that indicates whether the event can bubble.</dd>
-                <dt>boolean cancelableArg</dt>
-                <dd>Boolean value that indicates whether the event is cancelable.</dd>
-                <dt>unsigned long long? oldVersion</dt>
-                <dd>The old version of the database during a VERSION_CHANGE transaction.</dd>
-                <dt>unsigned long long? newVersion</dt>
-                <dd>The new version of the database during a VERSION_CHANGE transaction.</dd>
-              </dl>
-            </dd>
           </dl>
 
         </section>
@@ -1429,7 +1423,7 @@ dictionary IDBIndexParameters {
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>[EnforceRange] optional unsigned long long? version</dt>
+                <dt>[EnforceRange] optional unsigned long long version</dt>
                 <dd>The <a>version</a> for the <a>database</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -1501,7 +1495,7 @@ dictionary IDBIndexParameters {
               In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
-            <dt>readonly attribute unsigned long long? version</dt>
+            <dt>readonly attribute unsigned long long version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has value 0 when the
@@ -2714,7 +2708,7 @@ dictionary IDBIndexParameters {
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
-                <dt>[EnforceRange] optional unsigned long long? version</dt>
+                <dt>[EnforceRange] optional unsigned long long version</dt>
                 <dd>The <a title="database version">version</a> for the <a>database</a></dd>
                 <dt>IDBVersionChangeCallback upgradeCallback</dt>
                 <dd>Callback used if the <a>database version</a> needs to be upgraded before the
@@ -2792,7 +2786,7 @@ dictionary IDBIndexParameters {
               In other words, the return value from this function
               stays constant for the lifetime of the <a>IDBDatabaseSync</a> instance.
             </dd>
-            <dt>readonly attribute unsigned long long? version</dt>
+            <dt>readonly attribute unsigned long long version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of this
               <a>database</a>. This attribute has the empty string value when the
@@ -2999,8 +2993,8 @@ dictionary IDBIndexParameters {
               <dl class="parameters">
                 <dt>IDBTransactionSync transaction</dt>
                 <dd>The newly started transaction</dd>
-                <dt>unsigned long long? oldVersion</dt>
-                <dd>The version that the database had before the upgrade was needed.</dd>
+                <dt>unsigned long long oldVersion</dt>
+                <dd>The version that the database had before the upgrade was needed. 0 if the database was newly created.</dd>
               </dl>
             </dd> 
           </dl> 
