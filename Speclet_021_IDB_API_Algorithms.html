@@ -764,6 +764,54 @@
             </li>
           </ol>
         </section>
+        <section class="section">
+        	<h4>Steps to assign a key to a value using a key path</h4>
+        	<p>
+        		The <dfn title="steps to assign a key to a value">steps to assign a key to a value using a key path</dfn> are as follows:
+        	</p>
+        	<ol>
+        		<li>
+        			Let <var>remainingKeypath</var> be <var>keyPath</var> and <var>object</var> be <var>value</var>.
+        		</li>
+        		<li>
+        			If <var>object</var> is not an <code>Object</code> object or an <code>Array</code> object (see <a>structured clone algorithm</a> 
+        			[[!HTML5]]), and then throw a <code>DOMException</code> of type <code>DataError</code>.
+
+        		</li>
+        		<li>
+        			If <var>remainingKeypath</var> has a period in it, assign <var>remainingKeypath</var> to be everything after the first period, 
+        			and assign <var>attribute</var> to be everything before that first period. Otherwise, go to step 7.
+        		</li>
+        		<li>
+        			If <var>object</var> does not have an attribute named <var>attribute</var>, then create the attribute and assign it an empty object.
+        		</li>
+        		<li>
+        			Assign <var>object</var> to be the value of the attribute named <var>attribute</var> on <var>object</var>.
+        		</li>
+        		<li>
+        			Go to step 2.
+        		</li>
+        		<li>
+        			<div class="note">The steps leading here ensure that <var>remainingKeyPath</var> is a single attribute name 
+        			(that is, a string without periods) by this step. The steps also ensure that <var>object</var> 
+        			is an <code>Object</code> or an <code>Array</code>, and not a <code>Date</code>, <code>RegExp</code>, <code>Blob</code>, 
+        			or other nonsupported type.
+					</div>
+        		</li>
+        		<li>
+        			Let <var>attribute</var> be <var>remainingKeyPath</var>.
+        		</li>
+        		<li>
+        			Set an attribute named <var>attribute</var> on <var>object</var> with the value <var>key</var>.
+        		</li>
+        	</ol>
+        	<p class="note">
+        		The intent is that these steps are only executed if evaluating the <a>key path</a> did not yield a value. 
+        		In other words, before you run these steps, first evaluate the <a>key path</a> against <var>value</var>, 
+        		and only if that does not yield a value (where 'undefined' does count as a value) do you generate a key and 
+        		use these steps to modify <var>value</var> to contain the generated key.
+        	</p>
+		</section>        
       </section>
       <section class="section" id="database-operations">
         <h3>Database operations</h3>
