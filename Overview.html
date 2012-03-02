@@ -459,8 +459,10 @@ prepareDatabase(function(evt) {
             <code>Date</code> [[!ECMA-262]] or <code>float</code> [[!WEBIDL]].
             However <code>Array</code>s are only <a>valid key</a>s if every item in the array is defined and is
             a <a>valid key</a> (i.e. sparse arrays can not be <a>valid key</a>s).
-            Any non-numeric properties are ignored, and thus does not affect if the <code>Array</code> is a <a>valid key</a>.
-            Additionally, if the value is of type <code>float</code>, it is only a <a>valid key</a> if it is not NaN.
+            Any non-numeric properties are ignored, and thus does not affect whether the <code>Array</code> is a <a>valid key</a>.
+            Additionally, if the value is of type <code>float</code>, it is only a <a>valid key</a> if it is not <code>NaN</code>,
+            and if the value is of type <code>Date</code> it is only a <a>valid key</a> if its <code>[[PrimitiveValue]]</code>
+            internal property, as defined by [[!ECMA-262]], is not <code>NaN</code>.
             <a>Conforming user agents</a> MUST support all <a>valid key</a>s as keys.
           </p>
           <p class="note">
@@ -1552,7 +1554,9 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               On getting, this attribute MUST return a list of names of the 
               <a title="object store">object stores</a> currently in the 
-              <a title="connection">connected</a> <a>database</a>.
+              <a title="connection">connected</a> <a>database</a>. The list MUST
+              be sorted in ascending order using the algorithm defined by step 4
+              of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>.
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the list of names of the <a>object
               store</a>s taken at the time when the
@@ -1744,7 +1748,9 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dt>readonly attribute DOMStringList  indexNames</dt>
             <dd>
             On getting, provide a list of the names of <a title="index">indexes</a> on 
-            objects in this <a>object store</a>.
+            objects in this <a>object store</a>. The list MUST
+              be sorted in ascending order using the algorithm defined by step 4
+              of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>.
             </dd>
             <dt>readonly attribute IDBTransaction transaction</dt>
             <dd>
@@ -2818,7 +2824,9 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               On getting, this attribute MUST return a list of names of the 
               <a title="object store">object stores</a> currently in the 
-              <a title="connection">connected</a> <a>database</a>.
+              <a title="connection">connected</a> <a>database</a>. The list MUST
+              be sorted in ascending order using the algorithm defined by step 4
+              of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>.
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
               function MUST return a snapshot of the list of names of the <a>object
               store</a>s taken at the time when the
@@ -3080,7 +3088,9 @@ cursor.continue();</codeblock>
             <dt>readonly attribute DOMStringList  indexNames</dt>
             <dd>
             On getting, provide a list of the names of <a title="index">indexes</a> on 
-            objects in this <a>object store</a>.
+            objects in this <a>object store</a>. The list MUST
+              be sorted in ascending order using the algorithm defined by step 4
+              of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>.
             </dd>
             <dt>readonly attribute IDBTransactionSync transaction</dt>
             <dd>
