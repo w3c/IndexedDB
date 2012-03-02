@@ -372,7 +372,7 @@ prepareDatabase(function(evt) {
           </p>
           <p class="note">
             Each <a>database</a> has one version at a time; a <a>database</a> 
-            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
+            can't exist in multiple versions at once. The only way to change the version is using a <code>"versionchange"</code>
             <a>transaction</a>.
           </p>
           <p>
@@ -407,7 +407,7 @@ prepareDatabase(function(evt) {
           </p>
           <p>
             Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
-            can be changed, but can only be changed using a VERSION_CHANGE transactions. When a new database is
+            can be changed, but can only be changed using a <code>"versionchange"</code> transactions. When a new database is
             created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
           </p>
           <p>
@@ -729,7 +729,7 @@ prepareDatabase(function(evt) {
           <ol>
             <li>
               A transaction is <dfn title="transaction create">created</dfn> using 
-              <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-unsigned-short-mode">IDBDatabase.transaction</a>.
+              <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-DOMString-mode">IDBDatabase.transaction</a>.
               The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
               When a transaction is created its <a>active</a> flag is initially set to true.
             </li>
@@ -769,6 +769,15 @@ prepareDatabase(function(evt) {
               <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
             </li>
             <li>
+              A transaction can fail for reasons not tied to a particular <a>DOMRequest</a>. For example due to IO errors
+              when committing the transaction, or due to running into a quota limit where the implementation can't tie
+              exceeding the quota to a partcular request. In this case the implementation MUST run the
+              <a>steps for aborting a transaction<a> using the transaction as <var>transaction</var> and the appropriate
+              error type as <var>error</var>. For example if quota was exceeded then <code>QuotaExceededError</code> should
+              be used as <var>error</var>, and if an IO error happened, <code>UnknownError</code> should be used as
+              <var>error</var>.
+            </li>
+            <li>
               When a transaction can no longer become <a>active</a>, the implementation MUST attempt to
               <dfn>commit</dfn> it, as long as the transaction has not been <a title="abort">aborted</a>. 
               This usually happens after all requests placed against the
@@ -792,41 +801,47 @@ prepareDatabase(function(evt) {
             determines how concurrent access to <a>object store</a>s in the transaction are isolated.
           </p>
           <ol>
-            <li><code><dfn>READ_ONLY</dfn></code></li>
-            <li><code><dfn>READ_WRITE</dfn></code></li>
-            <li><code><dfn>VERSION_CHANGE</dfn></code></li>
+            <li><code><dfn>"readonly"</dfn></code>. This mode means that the transaction is only allowed
+            to read data. No modifications can be done by this type of transaction. This has the advantage
+            that several <code>"readonly"</code> transactions can run at the same time even if their <a>scope</a>s
+            are overlapping, i.e. if they are using the same object stores. This type of transaction can
+            be created any time once a database has been opened using the <a>IDBDatabase.transaction()</a> or
+            <a>IDBDatabaseSync.transaction()</a> functions.</li>
+            <li><code><dfn>"readwrite"</dfn></code>. The type of transaction is allowed to read, modify and
+            delete data from existing object stores. However object stores and indexes can't be added or removed.
+            Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a>scope</a>s are overlapping
+            since that would mean that they can modify each other's data in the middle of the transaction.
+            This type of transaction can be created any time once a database has been opened using the
+            <a>IDBDatabase.transaction()</a> function.</li>
+            <li><code><dfn>"versionchange"</dfn></code>. This is similar to a <code>"readwrite"</code> transaction,
+            however it can additionally create and remove object stores and indexes. It's the only type of
+            transaction that can do so. This type of transaction can't be manually created, but instead is created
+            automatically when a <a><code>upgradeneeded</code></a> event is fired.</li>
           </ol>
-
-          <p>
-            The transaction <a>mode</a> controls whether or not multiple transactions can run currently 
-            and which operations may be performed during the transaction.
-            The allowed operations are defined in detail below, but in general
-            transactions opened in <code><a>READ_ONLY</a></code> mode are only allowed to perform
-            operations that do not change data. READ_WRITE transactions are allowed to
-            read from and write to transactions to existing <a>object store</a>s, whereas
-            VERSION_CHANGE transactions are allowed to perform any operations, including ones that
-            delete and create <a>object store</a>s and <a>index</a>es.
-          </p>
           
           <p>
-            A VERSION_CHANGE transaction can never run concurrently with other transactions. When
-            a VERSION_CHANGE transaction is created, the implementation MUST wait to
-            <a title="transaction start">start</a> the VERSION_CHANGE transaction until no other transactions
-            against the same <a>database</a> are running. As long as the VERSION_CHANGE transaction is pending, the implementation
+            The this is defined in more detail below.
+          </p>
+
+          <p>
+            A <code>"versionchange"</code> transaction can never run concurrently with other transactions. When
+            a <code>"versionchange"</code> transaction is created, the implementation MUST wait to
+            <a title="transaction start">start</a> the <code>"versionchange"</code> transaction until no other transactions
+            against the same <a>database</a> are running. As long as the <code>"versionchange"</code> transaction is pending, the implementation
             MUST wait before <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
-            until the VERSION_CHANGE transaction is finished. 
+            until the <code>"versionchange"</code> transaction is finished. 
             However, a new transaction MAY be started as soon as the <code>oncomplete</code> handler is invoked.
           </p>
           <p class="note">
-          	During the open database API, a VERSION_CHANGE transaction is automatically created 
+          	During the open database API, a <code>"versionchange"</code> transaction is automatically created 
           	when a database version number is provided that is greater than the current database version.  
           	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler, 
           	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
-            Any number of transactions opened in <a>READ_ONLY</a> mode are allowed to run concurrently,
+            Any number of transactions opened in <a><code>"readonly"</code></a> mode are allowed to run concurrently,
             even if the transaction's <a>scope</a> overlap and include the same <a>object store</a>s.
-            As long as a READ_ONLY transaction is running, the data that the implementation returns
+            As long as a <code>"readonly"</code> transaction is running, the data that the implementation returns
             through <a>request</a>s created with that transaction MUST remain
             constant. That is, two requests to read the same piece of data MUST yield the same result
             both for the case when data is found and the result is that data, and for the case when data
@@ -834,37 +849,37 @@ prepareDatabase(function(evt) {
           </p>
           <p>
             There are a number of ways that an implementation ensures this. The implementation can prevent any
-            READ_WRITE transaction, whose scope overlaps the scope of the READ_ONLY transaction, from
-            starting until the READ_ONLY transaction finishes. Or the implementation can allow the READ_ONLY
+            <code>"readwrite"</code> transaction, whose scope overlaps the scope of the <code>"readonly"</code> transaction, from
+            starting until the <code>"readonly"</code> transaction finishes. Or the implementation can allow the <code>"readonly"</code>
             transaction to see a snapshot of the contents of the <a>object store</a>s which is taken when
-            the READ_ONLY transaction started.
+            the <code>"readonly"</code> transaction started.
           </p>
           <p>
-            Similarly, implementations MUST ensure that a READ_WRITE transaction is only affected by
+            Similarly, implementations MUST ensure that a <code>"readwrite"</code> transaction is only affected by
             changes to <a>object store</a>s that are made using the transaction itself. For example, the
             implementation MUST ensure that another transaction does not modify the contents of
-            <a>object store</a>s in the READ_WRITE transaction's <a>scope</a>. The implementation
-            MUST also ensure that if the READ_WRITE transaction completes successfully, the
+            <a>object store</a>s in the <code>"readwrite"</code> transaction's <a>scope</a>. The implementation
+            MUST also ensure that if the <code>"readwrite"</code> transaction completes successfully, the
             changes written to <a>object store</a>s using the transaction can be committed to the
             <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
             due to merge conflicts.
           </p>
           <p>
-            If multiple READ_WRITE transactions are attempting to access the same object store (i.e.
+            If multiple <code>"readwrite"</code> transactions are attempting to access the same object store (i.e.
             if they have overlapping <a>scope</a>), the transaction that was <a title="transaction create">
             created</a> first MUST be the transaction which gets access to the object store first. Due to
             the requirements in the previous paragraph, this also means that it is the only transaction
             which has access to the object store until the transaction is <a title="transaction finish">finished</a>.
           </p>
           <p class="note">
-            Generally speaking, the above requirements mean that READ_WRITE transactions which have overlapping
+            Generally speaking, the above requirements mean that <code>"readwrite"</code> transactions which have overlapping
             scopes always run in the order they were <a title="transaction create">created</a>, and never run
             in parallel.
           </p>
           <p>
             User agents MUST ensure a reasonable level of fairness across transactions to prevent
-            starvation. For example, if multiple READ_ONLY transactions are started one after another
-            the implementation MUST NOT indefinitely prevent a pending READ_WRITE
+            starvation. For example, if multiple <code>"readonly"</code> transactions are started one after another
+            the implementation MUST NOT indefinitely prevent a pending <code>"readwrite"</code>
             transaction from <a title="transaction start">starting</a>.
           </p>
           <p>
@@ -1039,6 +1054,30 @@ prepareDatabase(function(evt) {
             to the next one.
           </p>
           <p>
+            There are four possible values for a cursor's <a>direction</a>. The direction of a cursor determines
+            if the cursor initial position is at the start of its <a title="cursor source">source</a> or at its end.
+            It also determines in which direction the cursor moves when iterated, and if it skips duplicated values
+            when iterating indexes. The allowed values for a cursor's <a>direction</a> is as follows:
+          </p>
+          <ul>
+            <li><dfn><code>"next"</code></dfn>. This direction causes the cursor to be opened at the start of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
+            duplicates, in monotonically increasing order of keys.</li>
+            <li><dfn><code>"nextunique"</code></dfn>. This direction causes the cursor to be opened at the start of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
+            the same key, but otherwise yield all records, in monotonically increasing order of keys. For every key
+            with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
+            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"next"</code>.
+            <li><dfn><code>"prev"</code></dfn>. This direction causes the cursor to be opened at the end of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
+            duplicates, in monotonically decreasing order of keys.</li>
+            <li><dfn><code>"prevunique"</code></dfn>. This direction causes the cursor to be opened at the end of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
+            the same key, but otherwise yield all records, in monotonically decreasing order of keys. For every key
+            with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
+            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"prev"</code>.
+          </p>
+          <p>
             If the <a title="cursor source">source</a> of a cursor is an <a>object store</a>, the <dfn>effective object store</dfn>
             of the cursor is that object store and the <dfn>effective key</dfn> of the cursor is the cursor's <a>position</a>.
             If the <a title="cursor source">source</a> of a cursor is an <a>index</a>, the <a>effective object store</a>
@@ -1107,7 +1146,7 @@ prepareDatabase(function(evt) {
           		</tr>
           		<tr>
           			<td><code><dfn>ReadOnlyError</dfn></code></td>
-	          		<td>The mutating operation was attempted in a READ_ONLY transaction.</td>
+	          		<td>The mutating operation was attempted in a <code>"readonly"</code> transaction.</td>
           		</tr>
           		<tr>
           			<td><code><dfn>VersionError</dfn></code></td>
@@ -1247,12 +1286,6 @@ dictionary IDBVersionChangeEventInit : EventInit {
             </codeblock>
           </div>
           <dl class="idl" title="interface IDBRequest : EventTarget">
-            <dt>const     unsigned short LOADING = 1</dt>
-            <dd>This state indicates that a request has been started but its results is not
-            yet available.</dd>
-            <dt>const     unsigned short DONE = 2</dt>
-            <dd>This state indicates that a result to a previous request is available in
-            the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
             <dt>readonly attribute any result</dt>
             <dd>
               When the <a title="request done">done</a> flag is true, getting this
@@ -1289,11 +1322,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
               for the request. This property can be null for certain requests, such as for <a>request</a>
               returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a>.
             </dd>
-            <dt>readonly attribute unsigned short readyState</dt>
+            <dt>readonly attribute DOMString readyState</dt>
             <dd>When the <a title="request done">done</a> flag is false, returns
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
-            otherwise returns
-            <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.</dd>
+            <code>"pending"</code>, otherwise returns
+            <code>"done"</code>.</dd>
             <dt>[TreatNonCallableAsNull] attribute Function? onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
             <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
@@ -1302,10 +1334,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
           <p>
             When a request is made, a new <a>request</a> is returned with its
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> set to 
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. 
+            <code>"pending"</code>. 
             If a request completes successfully, the
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
+            is changed to <code>"done"</code>, the
             <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
             is set to the result of the request, and an event with type <code>success</code> is fired
             at the <a>request</a>.
@@ -1313,7 +1345,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
           <p>
             If an error occurs while performing the operation, the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
+            is changed to <code>"done"</code>, the
             <code>error</code> attribute is set to a <code>DOMError</code> type that matches the error, 
             and an event with type <code>error</code> is fired at the request.
           </p>
@@ -1345,7 +1377,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>Returns the old version of the database.
             <dt>readonly attribute unsigned long long? newVersion</dt>
             <dd>Returns the new version of the database.
-            See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
+            See the <a>steps for running a <code>"versionchange"</code> transaction</a>.</dd>
           </dl>
 
         </section>
@@ -1396,7 +1428,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 If an error is returned from the steps above, the implementation MUST set the
                 <code>error</code> attribute of the <var>request</var>
-                to a <code>DOMError</code> whose type is the same as  the error returned, 
+                to a <code>DOMError</code> whose <code>name</code> is the same as the error returned, 
                 of the <var>request</var> to null, and dispatch an event at <var>request</var>.
                 The event must use the <code>Event</code> interface and have its <code>type</code> set
                 to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
@@ -1404,11 +1436,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
-                <code>error</code> attribute of the request to a <code>DOMError</code> whose type is the same as the error returned, 
-                to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
+                <code>result</code> to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
                 The event must use the <code>Event</code> interface and have its <code>type</code> set
                 to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
-                path</a> of the event is just the request. If the steps above resulted in a VERSION_CHANGE transaction being
+                path</a> of the event is just the request. If the steps above resulted in a <code>"versionchange"</code> transaction being
                 run, then firing the <code>"success"</code> event MUST be done in the same task as was used
               </p>
               <p class="note">
@@ -1443,9 +1474,13 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 to this function.
               </p>
               <p>
-                If an error is returned from the steps above, the implementation MUST 
-                set the <code>error</code> attribute to a <code>DOMError</code> with the same type of error returned 
-                and <a>fire an error event</a> at the <a>request</a>.
+                If an error is returned from the steps above, the implementation MUST set the
+                <code>error</code> attribute of the <var>request</var>
+                to a <code>DOMError</code> whose <code>name</code> is the same as the error returned, 
+                of the <var>request</var> to null, and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
+                path</a> of the event is just the request.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
@@ -1453,6 +1488,11 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 to <code>null</code> and <a>fire a success event</a> at
                 the <a>request</a>.
                 The request will be an <a>IDBVersionChangeRequest</a> returned by those steps.
+              </p>
+              <p class="note">
+                The firing of <code>"success"</code> or <code>"error"</code> events do not follow the normal
+                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
+                transaction at the time when they fire.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -1520,7 +1560,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
-              <a>IDBDatabase</a> instance, except during a <a><code>VERSION_CHANGE</code></a>
+              <a>IDBDatabase</a> instance, except during a <a><code>"versionchange"</code></a>
               transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
               or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
               is called on this <a>IDBDatabase</a> instance itself.
@@ -1530,7 +1570,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
+                outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transaction's
                 <a title="transaction conection">connection</a>, the implementation MUST throw a
                 <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -1566,12 +1606,13 @@ dictionary IDBVersionChangeEventInit : EventInit {
               </p>
               <p>
                 In some implementations it's possible for the implementation to run into problems 
-                after queuing up an operation to create the <a title="object store">objectStore</a> after the <code>createObjectStore</code> function has returned. 
+                after queuing up an operation to create the <a>object store</a> after the <code>createObjectStore</code> function has returned. 
                 For example in implementations where metadata about the newly created <a title="object store">objectStore</a> is inserted into the database asynchronously, 
                 or where the implementation might need to ask the user for permission for quota reasons.
                 Such implementations MUST still create and return an <a>IDBObjectStore</a> object. Instead,
                 once the implementation realizes that creating the <a title="object store">objectStore</a> has failed, it MUST abort the transaction
-                using the <a>steps for aborting a transaction</a>.
+                using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
+                creating the <a>object store</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -1587,7 +1628,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                  <dd>This method was not called from a <a><code>"versionchange"</code></a>
                   <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
                 <dt>ConstraintError</dt>
                   <dd>An <a>object store</a> with the same name, compared in a 
@@ -1602,7 +1643,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 This method destroys the <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
+                outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transactions
                 <a title="transaction conection">connection</a>, the implementation MUST throw a
                <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -1621,7 +1662,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
-                  This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                  This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a> callback.
                   Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
                 <dt>NotFoundError</dt>
@@ -1653,10 +1694,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
-                <dt>optional unsigned short mode</dt>
+                <dt>optional DOMString mode</dt>
                 <dd> The <a>mode</a> for isolating access to data inside the given
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
-                access <a>mode</a> is <code>READ_ONLY</code>.</dd>
+                access <a>mode</a> is <code>"readonly"</code>.</dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
@@ -1716,7 +1757,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -1774,7 +1815,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -1790,7 +1831,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -1848,7 +1889,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -1864,7 +1905,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               <p>
                 This method throws a ReadOnlyError if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</a>
+                has its <a>mode</a> set to <code>"readonly"</code>. If the <var>key</var> parameter is not a <a>valid key</a>
                 or a <a>key range</a> this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
@@ -1886,7 +1927,8 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is
+                <code>"readonly"</code>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
@@ -1902,7 +1944,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -1923,7 +1965,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY.
+                has its <a>mode</a> set to <code>"readonly"</code>.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
@@ -1935,7 +1977,8 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is
+                <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
@@ -1968,12 +2011,14 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <dl class="parameters">
                 <dt>optional any?            range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -1985,7 +2030,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 This method creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
+                outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, the implementation
                 MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> exception. 
                 If an index with the same name already exists, the implementation MUST throw a <code>DOMException</code> of type <a>ConstraintError</a>. 
                 Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
@@ -2011,7 +2056,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 index's keyPath. If the <a>referenced</a> object store already contains data which violates these
                 constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
                 The implementation MUST still create and return an <a>IDBIndex</a> object.
-                Instead the implementation must queue up an operation to abort the <a><code>VERSION_CHANGE</code></a> transaction 
+                Instead the implementation must queue up an operation to abort the <a><code>"versionchange"</code></a> transaction 
                 which was used for the createIndex call. 
               </p>
               <p>
@@ -2026,7 +2071,9 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 or where the implementation might need to ask the user for permission for quota reasons. 
                 Such implementations MUST still create and return an <a>IDBIndex</a> object. Instead,
                 once the implementation realizes that creating the index has failed, it MUST abort the transaction
-                using the <a>steps for aborting a transaction</a>.
+                using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
+                creating the <a>index</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error and if the index
+                can't be created due to <a>unique</a> constraints, <code>ConstraintError</code> MUST be used as error.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
@@ -2044,7 +2091,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                  <dd>This method was not called from a <a><code>"versionchange"</code></a> 
                 <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
                 <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
@@ -2078,7 +2125,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 This method destroys the <a>index</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>. Note that this
-                method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                method must only be called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a> callback.
               </p>
               <p>
@@ -2091,7 +2138,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                <dd>This method was not called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a> callback.</dd>
                 <dt>NotFoundError</dt>
                 <dd>There is no <a>index</a> with the given name, compared in a 
@@ -2189,12 +2236,14 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                  <dt>InvalidStateError</dt>
@@ -2229,12 +2278,14 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -2254,7 +2305,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -2331,40 +2382,13 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <a title="cursor">Cursor</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBCursor">
-            <dt>const     unsigned short     NEXT = 0</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
-            <dt>const     unsigned short     PREV = 2</dt>
-            <dd>
-              indicates that <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
-
             <dt>readonly attribute Object             source</dt>
             <dd>
             On getting, returns the <a>IDBObjectStore</a> or <a>IDBIndex</a> which this cursor is iterating. This function
             never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
             or its transaction is not <a>active</a>.
             </dd>
-            <dt>readonly attribute unsigned short     direction</dt>
+            <dt>readonly attribute DOMString     direction</dt>
             <dd>
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
@@ -2387,9 +2411,9 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
-                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false or if this
+                has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false or if this
                 cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>. This method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a>. This method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
@@ -2419,10 +2443,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code></dd>
+                is <code>"readonly"</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -2483,11 +2507,11 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <li>The parameter is not a <a>valid key</a>.</li>
                 <li>
                   The parameter is <a>less than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is NEXT or NEXT_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is "next" or "nextunique".
                 </li>
                 <li>
                   The parameter is <a>greater than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is PREV or PREV_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is "prev" or "prevunique".
                 </li>
               </ul>
               <p>
@@ -2525,9 +2549,9 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <dd>          
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
-                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
+                has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -2541,10 +2565,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code>.</dd>
+                is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -2566,16 +2590,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             <a title="transaction">Transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBTransaction : EventTarget">
-            <dt>const     unsigned short READ_ONLY    = 0</dt>
-            <dd>Modification operations are not allowed in the <a>transaction</a>
-            in this mode.</dd>
-            <dt>const     unsigned short READ_WRITE    = 1</dt>
-            <dd>Modification operations are allowed in the <a>transactions</a>
-            in this mode.</dd>
-            <dt>const     unsigned short VERSION_CHANGE = 2</dt>
-            <dd>This mode is used solely for updating the version number of
-            transactions started using the <code>open()</code> method on the <a><code>IDBFactory</code></a> interface.</dd>
-            <dt>readonly attribute unsigned short mode</dt>
+            <dt>readonly attribute DOMString mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
@@ -2624,7 +2639,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               Otherwise this method sets the transactions's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
               <a>steps for aborting a transaction</a> with 
-              with the error attribute set to a <code>DOMError</code> of type <a>AbortError</a>.
+              with the <var>error</var> parameter set to <code>null</code>.
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
@@ -2682,7 +2697,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 If a <var>timeout</var> parameter was supplied, then this limits the total waiting time allowed in
                 step 3 of <a>steps for opening a database</a> and step 4 of the <a>steps for running a
-                <code>VERSION_CHANGE</code> transaction</a>. If more waiting time would be needed in order to progress,
+                <code>"versionchange"</code> transaction</a>. If more waiting time would be needed in order to progress,
                 then abort those algorithms and throw a <code>DOMException</code> of type <a>TimeoutError</a>.
               </p>
               <p class="note">
@@ -2698,7 +2713,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               </p>
               <p class="note">
                 Processing a <code>open</code> call may take a long time as it could require running a
-                VERSION_CHANGE transaction which requires all other connections to the database to be closed, which
+                <code>"versionchange"</code> transaction which requires all other connections to the database to be closed, which
                 in turn may depend on user input or other long-running tasks. If blocking for a long period of time
                 is not acceptable for a given scenario then the asynchronous API should be used for version changes.
               </p>
@@ -2716,7 +2731,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 database can be opened.</dd>
                 <dt>optional unsigned long timeout</dt>
                 <dd>Defines a transaction timeout value in milliseconds that will limit the 
-                    how long waiting for the <code>VERSION_CHANGE</code> transaction.  If the parameter is not provided, 
+                    how long waiting for the <code>"versionchange"</code> transaction.  If the parameter is not provided, 
                     the value of <var>timeout</var> is infinite.</dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -2811,7 +2826,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
-              <a>IDBDatabaseSync</a> instance except during a <a><code>VERSION_CHANGE</code></a>
+              <a>IDBDatabaseSync</a> instance except during a <a><code>"versionchange"</code></a>
               transaction if 
               <a href="#widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
               or <a href="#widl-IDBDatabaseSync-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
@@ -2822,7 +2837,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <p>
                 This method creates and returns a new <a>object store</a> with the
                 given name in the <a title="connection">connected</a> <a>database</a>. This method
-                should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                should only be called from inside a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 This method synchronously modifies the 
@@ -2862,7 +2877,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
-                  This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                  This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a>.
                   Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
                 <dt>ConstraintError</dt>
@@ -2879,7 +2894,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 This method destroys an <a>object store</a> with the 
                 given name as well as all <a title="index">indexes</a> that are 
                 <a title="referenced">referencing</a> that <a>object store</a>. This method
-                should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                should only be called from inside a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 This method synchronously modifies the 
@@ -2896,7 +2911,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
-                    This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                    This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a> callback.
                     Also occurs if a request is made on a source object that has been deleted or removed.
                 </dd>
                 <dt>NotFoundError</dt>
@@ -2934,11 +2949,11 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <dt>IDBTransactionCallback callback</dt>
                 <dd>A callback which will be called with the newly created transaction. When the callback returns,
                   the transaction is committed.</dd>
-                <dt>optional unsigned short mode</dt>
+                <dt>optional DOMString mode</dt>
                 <dd>
                     The <a>mode</a> for isolating access to data inside the given
                     <a title="object store">object stores</a>. If this parameter is not provided, the default
-                    access <a>mode</a> is <code>READ_ONLY</code>.
+                    access <a>mode</a> is <code>"readonly"</code>.
                 </dd>
                 <dt>optional unsigned long timeout</dt>
                 <dd>The interval in milliseconds which this operation is allowed to 
@@ -3079,7 +3094,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a><code>IDBObjectStoreSync</code></a> belongs to 
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -3138,7 +3153,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -3158,7 +3173,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -3216,7 +3231,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -3237,7 +3252,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
-                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</a>
+                has its <a>mode</a> set to <code>"readonly"</code>. If the <var>key</var> parameter is not a <a>valid key</a>
                 or a <a>key range</a> this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
@@ -3259,7 +3274,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is <code>"readonly"</code>.</dd>
                 <dt>NotFoundError</dt>
                 <dd>A record did not exist in this <a>object store</a> 
                 for the key <var>key</var> parameter.
@@ -3279,7 +3294,7 @@ cursor.continue();</codeblock>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -3300,7 +3315,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
-                has its <a>mode</a> set to READ_ONLY.
+                has its <a>mode</a> set to <code>"readonly"</code>.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for synchronously executing a request</a>. The steps
@@ -3312,7 +3327,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
@@ -3322,7 +3337,7 @@ cursor.continue();</codeblock>
               <p>
                 This creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>.  Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>. The created
+                be called from a <a><code>"versionchange"</code></a> <a>transaction</a>. The created
                 index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
               </p>
@@ -3355,7 +3370,7 @@ cursor.continue();</codeblock>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                  <dd>This method was not called from a <a><code>"versionchange"</code></a> 
                   <a>transaction</a>. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
                 <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
@@ -3393,7 +3408,7 @@ cursor.continue();</codeblock>
               <p>
                 This method destroys the <a>index</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>. Note that this
-                method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                method must only be called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a>.
               </p>
               <dl class="parameters">
@@ -3407,7 +3422,7 @@ cursor.continue();</codeblock>
                 in the <a title="connection">connected</a> <a>database</a>.      
                 </dd>
                 <dt>InvalidStateError</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                <dd>This method was not called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a>.</dd>
               </dl>
             </dd>
@@ -3439,12 +3454,14 @@ cursor.continue();</codeblock>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -3589,12 +3606,14 @@ cursor.<a>continue</a>();</codeblock>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed a valid value.</dd>
                 <dt>InvalidStateError</dt>
@@ -3631,12 +3650,14 @@ cursor.<a>continue</a>();</codeblock>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -3656,7 +3677,7 @@ cursor.<a>continue</a>();</codeblock>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -3749,9 +3770,9 @@ while(cursor.<a>continue</a>()) {
             
             <p>
               To start at the last record and end in the first record, the cursor 
-              should be created with the direction parameter <a class="idlType" href="#widl-IDBCursor-PREV"><code>PREV</code></a>.
+              should be created with the direction parameter <code>"prev"</code>.
             </p>
-            <codeblock>var cursor = store.<a>openCursor</a>(<a>IDBCursorSync</a>.<a>PREV</a>);
+            <codeblock>var cursor = store.<a>openCursor</a>("prev");
 while(cursor.<a>continue()</a>) {
     // act on each object or key
 }
@@ -3784,39 +3805,13 @@ var cursor = objects.<a>openCursor</a>(range);
 </codeblock>
           </div>
           <dl title="interface IDBCursorSync" class="idl">
-            <dt>const     unsigned short     NEXT = 0</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
-            <dt>const     unsigned short     PREV = 2</dt>
-            <dd>
-              indicates that <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
             <dt>readonly attribute Object             source</dt>
             <dd>
             On getting, returns the <a>IDBObjectStoreSync</a> or <a>IDBIndexSync</a> which this cursor is iterating. This function
             never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
             or its transaction is not <a>active</a>.
             </dd>
-            <dt>readonly attribute unsigned short     direction</dt>
+            <dt>readonly attribute DOMString     direction</dt>
             <dd>            
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
@@ -3837,9 +3832,9 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> 
-                if the transaction which this IDBCursorSync belongs to has its <a>mode</a> set to READ_ONLY. 
+                if the transaction which this IDBCursorSync belongs to has its <a>mode</a> set to <code>"readonly"</code>. 
                 If this cursor's <a>got value</a> flag is false or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>, this method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a>, this method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. 
                 If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
@@ -3869,10 +3864,10 @@ var cursor = objects.<a>openCursor</a>(range);
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code></dd>
+                is <code>"readonly"</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -3932,11 +3927,11 @@ var cursor = objects.<a>openCursor</a>(range);
                 <li>The parameter is not a <a>valid key</a>.</li>
                 <li>
                   The parameter is <a>less than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is NEXT or NEXT_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is <code>"next"</code> or <code>"nextunique"</code>.
                 </li>
                 <li>
                   The parameter is <a>greater than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is PREV or PREV_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is <code>"prev"</code> or <code>"prevunique"</code>.
                 </li>
               </ul>
               <p>
@@ -3973,9 +3968,9 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBCursorSync</a> belongs to
-                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
+                has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -3990,10 +3985,10 @@ var cursor = objects.<a>openCursor</a>(range);
                 <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursorSync</a> belongs to
-                is <code>READ_ONLY</code>.</dd>
+                is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-DOMString-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -4017,16 +4012,7 @@ var cursor = objects.<a>openCursor</a>(range);
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
           <dl class="idl" title="interface IDBTransactionSync">
-            <dt>const     unsigned short READ_ONLY    = 0</dt>
-            <dd>Modification operations are not allowed in the <a>transaction</a>
-            in this mode.</dd>
-            <dt>const     unsigned short READ_WRITE    = 1</dt>
-            <dd>Modification operations are allowed in the <a>transactions</a>
-            in this mode.</dd>
-            <dt>const     unsigned short VERSION_CHANGE = 2</dt>
-            <dd>This mode is used solely for updating the version number of
-            transactions started using the <code>open()</code> method of <a><code>IDBFactorySync</code></a>.</dd>
-            <dt>readonly attribute unsigned short mode</dt>
+            <dt>readonly attribute DOMString mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
@@ -4150,7 +4136,7 @@ var cursor = objects.<a>openCursor</a>(range);
               <ul>
                 <li>
                   No already existing <a>connection</a>s to <var>db</var>, have
-                  non-<a title="transaction finish">finished</a> VERSION_CHANGE <a>transaction</a>.
+                  non-<a title="transaction finish">finished</a> <code>"versionchange"</code> <a>transaction</a>.
                 </li>
                 <li>
                   If <var>db</var> has its <a>delete pending</a> flag set, wait until <var>db</var> has
@@ -4165,8 +4151,8 @@ var cursor = objects.<a>openCursor</a>(range);
                 If several connections with the same origin, name and version are opened at the same time,
                 and that version is a higher version that the database's current version, then once any of
                 those connections can proceed to the next step in this algorithm it will immediately start
-                a VERSION_CHANGE transaction. This prevents the other connections from proceeding until that
-                VERSION_CHANGE transaction is finished.
+                a <code>"versionchange"</code> transaction. This prevents the other connections from proceeding until that
+                <code>"versionchange"</code> transaction is finished.
               </p>
               <p class="note">
                 This means that if two databases with the same name and origin, but with different versions, are
@@ -4189,12 +4175,12 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               If the <a>version</a> of <var>db</var> is lower than <var>version</var>, then run the
-              <a>steps for running a <code>VERSION_CHANGE</code> transaction</a> using <var>connection</var>,
+              <a>steps for running a <code>"versionchange"</code> transaction</a> using <var>connection</var>,
               <var>version</var>, <var>request</var> and <var>upgrade callback</var>.
             </li>
             <li>
               If the previous step resulted in an error, then return that error and abort these steps.
-              If the <code>VERSION_CHANGE</code> transaction in the previous step was aborted, or if
+              If the <code>"versionchange"</code> transaction in the previous step was aborted, or if
               <var>connection</var> is <a title="database close">closed</a>, return a
               <code>DOMError</code> of type <a>AbortError</a> and abort these steps.
               In either of these cases, ensure that <var>connection</var> is <a title="database close">closed</a>
@@ -4253,7 +4239,8 @@ var cursor = objects.<a>openCursor</a>(range);
               If these steps are running synchronously, the implementation MUST synchronously call <var>callback</var>
               with a single parameter which is the <a>transaction</a>. If an exception is thrown and not caught within the
               scope of the callback, the implementation MUST abort the <a>transaction</a> by following the <a>steps for
-              aborting a transaction</a>, abort this algorithm without taking any further steps, and re-throw the exception.
+              aborting a transaction</a> using the <code>name</code> of the exception that was thrown as the <var>error</var>
+              parameter, abort this algorithm without taking any further steps, and re-throw the exception.
             </li>
             <li>
               If these steps are running synchronously, the implementation MUST commit the transaction synchrnously.
@@ -4271,19 +4258,21 @@ var cursor = objects.<a>openCursor</a>(range);
               All the changes made to the <a>database</a> the transaction uses are written to the <a>database</a>.
             </li>
             <li>
+              If an error occurs while writing the changes to the <a>database</a>, abort the transaction by following
+              the <a>steps for aborting a transaction</a> with the the <var>transaction</var> parameter set to <var>transaction</var>
+              and the <var>error</var> parameter set to a value appropriate for the error, for example <code>QuotaExceededError</code>
+              or <code>UnknownError</code>.
+            </li>
+            <li>
               Queue up an operation to dispatch an event at <a>transaction</a>. 
               The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"complete"</code>.
               The event does not bubble and is not cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
               then <var>transaction</var>.
-            </li>
-            <li>
-              If an error occurs while committing the transaction, 
-              follow the <a>steps for aborting a transaction</a>, 
-              set the <code>error</code> attribute on the <a>transaction</a> object to a <code>DOMError</code> object with the reason for the abort 
-              (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>).
               <p class="note">
-                Even if the event is cancelled (by a call to <code>preventDefault</code>), follow the <a>steps for aborting a transaction</a>.
+                Note that even if an exception is thrown from one of the event handlers of this event, the transaction is still
+                committed since writing the database changes happens before the event takes places. Only after the transaction
+                has been successfully written is the <code>"complete"</code> event fired.
               </p>
             </li>
           </ol>
@@ -4293,13 +4282,17 @@ var cursor = objects.<a>openCursor</a>(range);
           <p>
             When taking the <dfn>steps for aborting a <a>transaction</a></dfn> the implementation MUST
             execute the following algorithm. This algorithm takes two parameter, the <var>transaction</var> to abort
-            and an <var>error</var> object.
+            and an <var>error</var> name.
           </p>
           <ol>
             <li>
-              All the changes made to the <a>database</a> the transaction uses are reverted. For VERSION_CHANGE
+              All the changes made to the <a>database</a> the transaction uses are reverted. For <code>"versionchange"</code>
               transactions this includes changes to the set of <a>object store</a>s and <a>index</a>es, as well
               as the change to the <a>version</a>.
+            </li>
+            <li>
+              Unless <var>error</var> was set to <code>null</code>, create a <code>DOMError</code> object and set its <code>name</code>
+              to <var>error</var>. Set <var>transaction</var>'s <code>error</code> property to this newly created <code>DOMError</code>.
             </li>
             <li>
               If the transaction's <a>request list</a> contain any <a>request</a>s whose <a title="request done">done</a> flag
@@ -4309,20 +4302,19 @@ var cursor = objects.<a>openCursor</a>(range);
                 <li>
                   Set the <a title="request done">done</a> flag on the <a>request</a> to true, set
                   <a title="request result">result</a> of the <a>request</a> to <code>undefined</code>
-                  and set the request's <code>error</code> atttribute to a <code>DOMError</code> with a type of <a>AbortError</a>.
+                  and set the request's <code>error</code> attribute to a <code>DOMError</code> with a type of <a>AbortError</a>.
                 </li>
                 <li>
-                  <a>Fire an error event</a> at the <a>request</a>.
+                  <a>Fire an error event</a> at the <a>request</a>. However when running these
+                  steps, ignore any request to run the <a>steps for aborting a transaction</a> as those steps are already running.
                 </li>
               </ol>
+              <p class="note">
+                This does not always result in any <code>error</code> events being fired. For example if a transaction is aborted
+                due to an error while <a title="commit">committing</a> the transaction, or if it was the last remaining request
+                that failed.
+              </p>
             </li>
-			<li>
-				Create a <code>DOMError</code> object to capture the reason for the <a>transaction</a> failure 
-				and set it to the error of the <a>request</a> that caused the <a>transaction</a> to be aborted. 
-				If the error was generated when <a title="commit">committing</a> the <a>transaction</a> and not from an individual <a>request</a>, 
-				the error must contain the reasons for the <a>transaction</a> failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>).  
-				Set the transaction <code>error</code> property to the <code>DOMError</code> object.
-			</li>
             <li>
               Queue up an operation to dispatch an event at <var>transaction</var>.  
               The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"abort"</code>.
@@ -4447,9 +4439,9 @@ var cursor = objects.<a>openCursor</a>(range);
           </ol>
         </section>
         <section class="section">
-          <h4>VERSION_CHANGE transaction steps</h4>
+          <h4><code>"versionchange"</code> transaction steps</h4>
           <p>
-            The <dfn>steps for running a <code>VERSION_CHANGE</code> transaction</dfn> are
+            The <dfn>steps for running a <code>"versionchange"</code> transaction</dfn> are
             as follows. This algorithm takes two required parameters - a <var>connection</var> object which is used
             to update the <a>database</a> a new <var>version</var> to be set for the <a>database</a>.
             The algorithm also takes two optional arguments, a <var>request</var> which represents a <a>request</a>
@@ -4488,7 +4480,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>request</var>.
               </p>
             </li>
-            <li id="VERSION_CHANGE-close-block">
+            <li id="version-change-close-block">
               Wait until either all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
               <p class="issue">If .close() is called immediately but a <a>transaction</a> associated with the <var>connection</var>
@@ -4497,7 +4489,7 @@ var cursor = objects.<a>openCursor</a>(range);
               we should probably let that upgrade run first and bail here if it was successful</p>
             </li>
             <li>
-              Create a new <a>transaction</a> with <a>mode</a> set to VERSION_CHANGE and <var>connection</var> used as <a>connection</a>.
+              Create a new <a>transaction</a> with <a>mode</a> set to <code>"versionchange"</code> and <var>connection</var> used as <a>connection</a>.
               The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
               <a>active</a> flag to false. Let <var>transaction</var> represent this transaction.
             </li>
@@ -4511,7 +4503,7 @@ var cursor = objects.<a>openCursor</a>(range);
             <li>
               Set the version of <var>database</var> to <var>version</var>. This change is considered part of the
               <a>transaction</a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
-              If the VERSION_CHANGE <a>transaction</a> fails to commit set the <var>version</var> attribute on the database to <code>undefined</code>.  
+              If the <code>"versionchange"</code> <a>transaction</a> fails to commit set the <var>version</var> attribute on the database to <code>undefined</code>.  
             </li>
             <li>
               If running asynchronously, schedule a task to run the following steps:
@@ -4529,14 +4521,16 @@ var cursor = objects.<a>openCursor</a>(range);
                   and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
                   property set to <var>version</var>. 
                   The <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> 
-                  on the <a>request</a> is set to <a><code>DONE</code></a>.
+                  on the <a>request</a> is set to <code>"done"</code>.
                 </li>
                 <li>
                   If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
-                  the transaction by following the <a>steps for aborting a transaction</a>.
+                  the transaction by following the <a>steps for aborting a transaction</a> with the <var>error</var> property set to
+                  <code>AbortError</code>.
                 </li>
                 <li>
-                	If for any reason the VERSION_CHANGE transaction is aborted while in the <a href="#widl-IDBOpenDBRequest-onupgradeneeded"><code>onupgradeneeded</code></a> event handler 
+                	If for any reason the <code>"versionchange"</code> transaction is aborted while in the
+                        <a href="#widl-IDBOpenDBRequest-onupgradeneeded"><code>onupgradeneeded</code></a> event handler 
                 	while the database is being created for the first time, the database will remain in the system with the default attributes.  
                 	If the transaction is aborted and there is an existing database, the values remain unchanged.
                		The default attributes for the <a>IDBDatabase</a> are:
@@ -4595,9 +4589,9 @@ var cursor = objects.<a>openCursor</a>(range);
             throw an exception if it is true.
           </p>
           <p class="note">
-            Once the <a>connection</a> is closed, this can unblock the <a>steps for running a <code>VERSION_CHANGE</code>
+            Once the <a>connection</a> is closed, this can unblock the <a>steps for running a <code>"versionchange"</code>
             transaction</a>, and the <a>steps for deleting a database</a>, which <a href="#delete-close-block">both</a>
-            <a href="#VERSION_CHANGE-close-block">wait</a> for <a>connection</a>s to a given <a>database</a> to be closed
+            <a href="#version-change-close-block">wait</a> for <a>connection</a>s to a given <a>database</a> to be closed
             before continuing.
           </p>
         </section>
@@ -4685,14 +4679,15 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
-              abort the transaction by following the <a>steps for aborting a transaction</a>.
+              abort the transaction by following the <a>steps for aborting a transaction</a> using <var>transaction</var> as
+              <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>.
             </li>
           </ol>
         </section>
         <section class="section">
           <h4>Fire an error event</h4>
           <p>
-            To <dfn title="fire an error event">fire an error event</dfn> at a <a>request</a>,
+            To <dfn title="fire an error event">fire an error event</dfn> at a <a><var>request</var></a>,
             the implementation MUST run the following steps:
           </p>
           <ol>
@@ -4703,19 +4698,21 @@ var cursor = objects.<a>openCursor</a>(range);
               Set the <a>active</a> flag of <var>transaction</var> to true.
             </li>
             <li>
-              Dispatch an event at <a>request</a>. The event must use
+              Dispatch an event at <var>request</var>. The event must use
               the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
               The event does bubble and is cancelable. The
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
-              <var>transaction</var> by running <a>steps for aborting a transaction</a>.
+              <var>transaction</var> by running <a>steps for aborting a transaction</a> using <var>transaction</var> as <var>transaction</var>
+              and the <code>name</code> of <a>request</a>'s <code>error</code> property as <var>error</var>.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
             </li>
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
-              abort the transaction by following the <a>steps for aborting a transaction</a>.
+              abort the transaction by following the <a>steps for aborting a transaction</a> using <var>transaction</var> as
+              <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>.
             </li>
           </ol>
         </section>
@@ -5041,7 +5038,7 @@ var cursor = objects.<a>openCursor</a>(range);
 
             <li>
               <p>
-                If <var>direction</var> is NEXT, let <var>found record</var> be the first record in <var>records</var> which
+                If <var>direction</var> is <code>"next"</code>, let <var>found record</var> be the first record in <var>records</var> which
                 satisfy all of the following requirements:
               </p>
               <ul>
@@ -5062,7 +5059,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 </li>
               </ul>
               <p>
-                If <var>direction</var> is NEXT_NO_DUPLICATE, let <var>found record</var> be the first record in <var>records</var> which
+                If <var>direction</var> is <code>"nextunique"</code>, let <var>found record</var> be the first record in <var>records</var> which
                 satisfy all of the following requirements:
               </p>
               <ul>
@@ -5077,7 +5074,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 </li>
               </ul>
               <p>
-                If <var>direction</var> is PREV, let <var>found record</var> be the last record in <var>records</var> which
+                If <var>direction</var> is <code>"prev"</code>, let <var>found record</var> be the last record in <var>records</var> which
                 satisfy all of the following requirements:
               </p>
               <ul>
@@ -5098,7 +5095,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 </li>
               </ul>
               <p>
-                If <var>direction</var> is PREV_NO_DUPLICATE, let <var>temp record</var> be the last record in
+                If <var>direction</var> is <code>"prevunique"</code>, let <var>temp record</var> be the last record in
                 <var>records</var> which satisfy all of the following requirements:
               </p>
               <ul>

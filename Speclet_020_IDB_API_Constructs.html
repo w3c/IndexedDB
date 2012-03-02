@@ -164,7 +164,7 @@
           </p>
           <p class="note">
             Each <a>database</a> has one version at a time; a <a>database</a> 
-            can't exist in multiple versions at once. The only way to change the version is using a VERSION_CHANGE
+            can't exist in multiple versions at once. The only way to change the version is using a <code>"versionchange"</code>
             <a>transaction</a>.
           </p>
           <p>
@@ -199,7 +199,7 @@
           </p>
           <p>
             Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
-            can be changed, but can only be changed using a VERSION_CHANGE transactions. When a new database is
+            can be changed, but can only be changed using a <code>"versionchange"</code> transactions. When a new database is
             created it doesn't contain any <a>object store</a>s and has the empty string as <a>version</a>.
           </p>
           <p>
@@ -521,7 +521,7 @@
           <ol>
             <li>
               A transaction is <dfn title="transaction create">created</dfn> using 
-              <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-unsigned-short-mode">IDBDatabase.transaction</a>.
+              <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-DOMString-mode">IDBDatabase.transaction</a>.
               The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
               When a transaction is created its <a>active</a> flag is initially set to true.
             </li>
@@ -561,6 +561,15 @@
               <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
             </li>
             <li>
+              A transaction can fail for reasons not tied to a particular <a>DOMRequest</a>. For example due to IO errors
+              when committing the transaction, or due to running into a quota limit where the implementation can't tie
+              exceeding the quota to a partcular request. In this case the implementation MUST run the
+              <a>steps for aborting a transaction<a> using the transaction as <var>transaction</var> and the appropriate
+              error type as <var>error</var>. For example if quota was exceeded then <code>QuotaExceededError</code> should
+              be used as <var>error</var>, and if an IO error happened, <code>UnknownError</code> should be used as
+              <var>error</var>.
+            </li>
+            <li>
               When a transaction can no longer become <a>active</a>, the implementation MUST attempt to
               <dfn>commit</dfn> it, as long as the transaction has not been <a title="abort">aborted</a>. 
               This usually happens after all requests placed against the
@@ -584,41 +593,47 @@
             determines how concurrent access to <a>object store</a>s in the transaction are isolated.
           </p>
           <ol>
-            <li><code><dfn>READ_ONLY</dfn></code></li>
-            <li><code><dfn>READ_WRITE</dfn></code></li>
-            <li><code><dfn>VERSION_CHANGE</dfn></code></li>
+            <li><code><dfn>"readonly"</dfn></code>. This mode means that the transaction is only allowed
+            to read data. No modifications can be done by this type of transaction. This has the advantage
+            that several <code>"readonly"</code> transactions can run at the same time even if their <a>scope</a>s
+            are overlapping, i.e. if they are using the same object stores. This type of transaction can
+            be created any time once a database has been opened using the <a>IDBDatabase.transaction()</a> or
+            <a>IDBDatabaseSync.transaction()</a> functions.</li>
+            <li><code><dfn>"readwrite"</dfn></code>. The type of transaction is allowed to read, modify and
+            delete data from existing object stores. However object stores and indexes can't be added or removed.
+            Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a>scope</a>s are overlapping
+            since that would mean that they can modify each other's data in the middle of the transaction.
+            This type of transaction can be created any time once a database has been opened using the
+            <a>IDBDatabase.transaction()</a> function.</li>
+            <li><code><dfn>"versionchange"</dfn></code>. This is similar to a <code>"readwrite"</code> transaction,
+            however it can additionally create and remove object stores and indexes. It's the only type of
+            transaction that can do so. This type of transaction can't be manually created, but instead is created
+            automatically when a <a><code>upgradeneeded</code></a> event is fired.</li>
           </ol>
-
-          <p>
-            The transaction <a>mode</a> controls whether or not multiple transactions can run currently 
-            and which operations may be performed during the transaction.
-            The allowed operations are defined in detail below, but in general
-            transactions opened in <code><a>READ_ONLY</a></code> mode are only allowed to perform
-            operations that do not change data. READ_WRITE transactions are allowed to
-            read from and write to transactions to existing <a>object store</a>s, whereas
-            VERSION_CHANGE transactions are allowed to perform any operations, including ones that
-            delete and create <a>object store</a>s and <a>index</a>es.
-          </p>
           
           <p>
-            A VERSION_CHANGE transaction can never run concurrently with other transactions. When
-            a VERSION_CHANGE transaction is created, the implementation MUST wait to
-            <a title="transaction start">start</a> the VERSION_CHANGE transaction until no other transactions
-            against the same <a>database</a> are running. As long as the VERSION_CHANGE transaction is pending, the implementation
+            The this is defined in more detail below.
+          </p>
+
+          <p>
+            A <code>"versionchange"</code> transaction can never run concurrently with other transactions. When
+            a <code>"versionchange"</code> transaction is created, the implementation MUST wait to
+            <a title="transaction start">start</a> the <code>"versionchange"</code> transaction until no other transactions
+            against the same <a>database</a> are running. As long as the <code>"versionchange"</code> transaction is pending, the implementation
             MUST wait before <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
-            until the VERSION_CHANGE transaction is finished. 
+            until the <code>"versionchange"</code> transaction is finished. 
             However, a new transaction MAY be started as soon as the <code>oncomplete</code> handler is invoked.
           </p>
           <p class="note">
-          	During the open database API, a VERSION_CHANGE transaction is automatically created 
+          	During the open database API, a <code>"versionchange"</code> transaction is automatically created 
           	when a database version number is provided that is greater than the current database version.  
           	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler, 
           	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
-            Any number of transactions opened in <a>READ_ONLY</a> mode are allowed to run concurrently,
+            Any number of transactions opened in <a><code>"readonly"</code></a> mode are allowed to run concurrently,
             even if the transaction's <a>scope</a> overlap and include the same <a>object store</a>s.
-            As long as a READ_ONLY transaction is running, the data that the implementation returns
+            As long as a <code>"readonly"</code> transaction is running, the data that the implementation returns
             through <a>request</a>s created with that transaction MUST remain
             constant. That is, two requests to read the same piece of data MUST yield the same result
             both for the case when data is found and the result is that data, and for the case when data
@@ -626,37 +641,37 @@
           </p>
           <p>
             There are a number of ways that an implementation ensures this. The implementation can prevent any
-            READ_WRITE transaction, whose scope overlaps the scope of the READ_ONLY transaction, from
-            starting until the READ_ONLY transaction finishes. Or the implementation can allow the READ_ONLY
+            <code>"readwrite"</code> transaction, whose scope overlaps the scope of the <code>"readonly"</code> transaction, from
+            starting until the <code>"readonly"</code> transaction finishes. Or the implementation can allow the <code>"readonly"</code>
             transaction to see a snapshot of the contents of the <a>object store</a>s which is taken when
-            the READ_ONLY transaction started.
+            the <code>"readonly"</code> transaction started.
           </p>
           <p>
-            Similarly, implementations MUST ensure that a READ_WRITE transaction is only affected by
+            Similarly, implementations MUST ensure that a <code>"readwrite"</code> transaction is only affected by
             changes to <a>object store</a>s that are made using the transaction itself. For example, the
             implementation MUST ensure that another transaction does not modify the contents of
-            <a>object store</a>s in the READ_WRITE transaction's <a>scope</a>. The implementation
-            MUST also ensure that if the READ_WRITE transaction completes successfully, the
+            <a>object store</a>s in the <code>"readwrite"</code> transaction's <a>scope</a>. The implementation
+            MUST also ensure that if the <code>"readwrite"</code> transaction completes successfully, the
             changes written to <a>object store</a>s using the transaction can be committed to the
             <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
             due to merge conflicts.
           </p>
           <p>
-            If multiple READ_WRITE transactions are attempting to access the same object store (i.e.
+            If multiple <code>"readwrite"</code> transactions are attempting to access the same object store (i.e.
             if they have overlapping <a>scope</a>), the transaction that was <a title="transaction create">
             created</a> first MUST be the transaction which gets access to the object store first. Due to
             the requirements in the previous paragraph, this also means that it is the only transaction
             which has access to the object store until the transaction is <a title="transaction finish">finished</a>.
           </p>
           <p class="note">
-            Generally speaking, the above requirements mean that READ_WRITE transactions which have overlapping
+            Generally speaking, the above requirements mean that <code>"readwrite"</code> transactions which have overlapping
             scopes always run in the order they were <a title="transaction create">created</a>, and never run
             in parallel.
           </p>
           <p>
             User agents MUST ensure a reasonable level of fairness across transactions to prevent
-            starvation. For example, if multiple READ_ONLY transactions are started one after another
-            the implementation MUST NOT indefinitely prevent a pending READ_WRITE
+            starvation. For example, if multiple <code>"readonly"</code> transactions are started one after another
+            the implementation MUST NOT indefinitely prevent a pending <code>"readwrite"</code>
             transaction from <a title="transaction start">starting</a>.
           </p>
           <p>
@@ -831,6 +846,30 @@
             to the next one.
           </p>
           <p>
+            There are four possible values for a cursor's <a>direction</a>. The direction of a cursor determines
+            if the cursor initial position is at the start of its <a title="cursor source">source</a> or at its end.
+            It also determines in which direction the cursor moves when iterated, and if it skips duplicated values
+            when iterating indexes. The allowed values for a cursor's <a>direction</a> is as follows:
+          </p>
+          <ul>
+            <li><dfn><code>"next"</code></dfn>. This direction causes the cursor to be opened at the start of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
+            duplicates, in monotonically increasing order of keys.</li>
+            <li><dfn><code>"nextunique"</code></dfn>. This direction causes the cursor to be opened at the start of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
+            the same key, but otherwise yield all records, in monotonically increasing order of keys. For every key
+            with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
+            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"next"</code>.
+            <li><dfn><code>"prev"</code></dfn>. This direction causes the cursor to be opened at the end of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
+            duplicates, in monotonically decreasing order of keys.</li>
+            <li><dfn><code>"prevunique"</code></dfn>. This direction causes the cursor to be opened at the end of the
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
+            the same key, but otherwise yield all records, in monotonically decreasing order of keys. For every key
+            with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
+            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"prev"</code>.
+          </p>
+          <p>
             If the <a title="cursor source">source</a> of a cursor is an <a>object store</a>, the <dfn>effective object store</dfn>
             of the cursor is that object store and the <dfn>effective key</dfn> of the cursor is the cursor's <a>position</a>.
             If the <a title="cursor source">source</a> of a cursor is an <a>index</a>, the <a>effective object store</a>
@@ -899,7 +938,7 @@
           		</tr>
           		<tr>
           			<td><code><dfn>ReadOnlyError</dfn></code></td>
-	          		<td>The mutating operation was attempted in a READ_ONLY transaction.</td>
+	          		<td>The mutating operation was attempted in a <code>"readonly"</code> transaction.</td>
           		</tr>
           		<tr>
           			<td><code><dfn>VersionError</dfn></code></td>

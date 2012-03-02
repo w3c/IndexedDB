@@ -168,12 +168,6 @@
             </codeblock>
           </div>
           <dl class="idl" title="interface IDBRequest : EventTarget">
-            <dt>const     unsigned short LOADING = 1</dt>
-            <dd>This state indicates that a request has been started but its results is not
-            yet available.</dd>
-            <dt>const     unsigned short DONE = 2</dt>
-            <dd>This state indicates that a result to a previous request is available in
-            the <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> attribute.</dd>
             <dt>readonly attribute any result</dt>
             <dd>
               When the <a title="request done">done</a> flag is true, getting this
@@ -210,11 +204,10 @@
               for the request. This property can be null for certain requests, such as for <a>request</a>
               returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a>.
             </dd>
-            <dt>readonly attribute unsigned short readyState</dt>
+            <dt>readonly attribute DOMString readyState</dt>
             <dd>When the <a title="request done">done</a> flag is false, returns
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
-            otherwise returns
-            <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.</dd>
+            <code>"pending"</code>, otherwise returns
+            <code>"done"</code>.</dd>
             <dt>[TreatNonCallableAsNull] attribute Function? onsuccess</dt>
             <dd>The event handler for the <a title="event-success">success event</a></dd>
             <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
@@ -223,10 +216,10 @@
           <p>
             When a request is made, a new <a>request</a> is returned with its
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a> set to 
-            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>. 
+            <code>"pending"</code>. 
             If a request completes successfully, the
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
+            is changed to <code>"done"</code>, the
             <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>
             is set to the result of the request, and an event with type <code>success</code> is fired
             at the <a>request</a>.
@@ -234,7 +227,7 @@
           <p>
             If an error occurs while performing the operation, the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            is changed to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, the
+            is changed to <code>"done"</code>, the
             <code>error</code> attribute is set to a <code>DOMError</code> type that matches the error, 
             and an event with type <code>error</code> is fired at the request.
           </p>
@@ -266,7 +259,7 @@
             <dd>Returns the old version of the database.
             <dt>readonly attribute unsigned long long? newVersion</dt>
             <dd>Returns the new version of the database.
-            See the <a>steps for running a <code>VERSION_CHANGE</code> transaction</a>.</dd>
+            See the <a>steps for running a <code>"versionchange"</code> transaction</a>.</dd>
           </dl>
 
         </section>
@@ -317,7 +310,7 @@
               <p>
                 If an error is returned from the steps above, the implementation MUST set the
                 <code>error</code> attribute of the <var>request</var>
-                to a <code>DOMError</code> whose type is the same as  the error returned, 
+                to a <code>DOMError</code> whose <code>name</code> is the same as the error returned, 
                 of the <var>request</var> to null, and dispatch an event at <var>request</var>.
                 The event must use the <code>Event</code> interface and have its <code>type</code> set
                 to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
@@ -325,11 +318,10 @@
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
-                <code>error</code> attribute of the request to a <code>DOMError</code> whose type is the same as the error returned, 
-                to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
+                <code>result</code> to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
                 The event must use the <code>Event</code> interface and have its <code>type</code> set
                 to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
-                path</a> of the event is just the request. If the steps above resulted in a VERSION_CHANGE transaction being
+                path</a> of the event is just the request. If the steps above resulted in a <code>"versionchange"</code> transaction being
                 run, then firing the <code>"success"</code> event MUST be done in the same task as was used
               </p>
               <p class="note">
@@ -364,9 +356,13 @@
                 to this function.
               </p>
               <p>
-                If an error is returned from the steps above, the implementation MUST 
-                set the <code>error</code> attribute to a <code>DOMError</code> with the same type of error returned 
-                and <a>fire an error event</a> at the <a>request</a>.
+                If an error is returned from the steps above, the implementation MUST set the
+                <code>error</code> attribute of the <var>request</var>
+                to a <code>DOMError</code> whose <code>name</code> is the same as the error returned, 
+                of the <var>request</var> to null, and dispatch an event at <var>request</var>.
+                The event must use the <code>Event</code> interface and have its <code>type</code> set
+                to <code>"error"</code>. The event does bubble but is not cancelable. The <a>propagation
+                path</a> of the event is just the request.
               </p>
               <p>
                 If the steps above are successful, the implementation MUST set the
@@ -374,6 +370,11 @@
                 to <code>null</code> and <a>fire a success event</a> at
                 the <a>request</a>.
                 The request will be an <a>IDBVersionChangeRequest</a> returned by those steps.
+              </p>
+              <p class="note">
+                The firing of <code>"success"</code> or <code>"error"</code> events do not follow the normal
+                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
+                transaction at the time when they fire.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -441,7 +442,7 @@
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
-              <a>IDBDatabase</a> instance, except during a <a><code>VERSION_CHANGE</code></a>
+              <a>IDBDatabase</a> instance, except during a <a><code>"versionchange"</code></a>
               transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
               or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
               is called on this <a>IDBDatabase</a> instance itself.
@@ -451,7 +452,7 @@
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
+                outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transaction's
                 <a title="transaction conection">connection</a>, the implementation MUST throw a
                 <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -487,12 +488,13 @@
               </p>
               <p>
                 In some implementations it's possible for the implementation to run into problems 
-                after queuing up an operation to create the <a title="object store">objectStore</a> after the <code>createObjectStore</code> function has returned. 
+                after queuing up an operation to create the <a>object store</a> after the <code>createObjectStore</code> function has returned. 
                 For example in implementations where metadata about the newly created <a title="object store">objectStore</a> is inserted into the database asynchronously, 
                 or where the implementation might need to ask the user for permission for quota reasons.
                 Such implementations MUST still create and return an <a>IDBObjectStore</a> object. Instead,
                 once the implementation realizes that creating the <a title="object store">objectStore</a> has failed, it MUST abort the transaction
-                using the <a>steps for aborting a transaction</a>.
+                using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
+                creating the <a>object store</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -508,7 +510,7 @@
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                  <dd>This method was not called from a <a><code>"versionchange"</code></a>
                   <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
                 <dt>ConstraintError</dt>
                   <dd>An <a>object store</a> with the same name, compared in a 
@@ -523,7 +525,7 @@
               <p>
                 This method destroys the <a>object store</a> with the given name in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, or if this
+                outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transactions
                 <a title="transaction conection">connection</a>, the implementation MUST throw a
                <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -542,7 +544,7 @@
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
-                  This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                  This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a> callback.
                   Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
                 <dt>NotFoundError</dt>
@@ -574,10 +576,10 @@
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
-                <dt>optional unsigned short mode</dt>
+                <dt>optional DOMString mode</dt>
                 <dd> The <a>mode</a> for isolating access to data inside the given
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
-                access <a>mode</a> is <code>READ_ONLY</code>.</dd>
+                access <a>mode</a> is <code>"readonly"</code>.</dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
@@ -637,7 +639,7 @@
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -695,7 +697,7 @@
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -711,7 +713,7 @@
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -769,7 +771,7 @@
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -785,7 +787,7 @@
             <dd>
               <p>
                 This method throws a ReadOnlyError if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</a>
+                has its <a>mode</a> set to <code>"readonly"</code>. If the <var>key</var> parameter is not a <a>valid key</a>
                 or a <a>key range</a> this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
@@ -807,7 +809,8 @@
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is
+                <code>"readonly"</code>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest get()</dt>
@@ -823,7 +826,7 @@
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -844,7 +847,7 @@
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBObjectStore belongs to is
-                has its <a>mode</a> set to READ_ONLY.
+                has its <a>mode</a> set to <code>"readonly"</code>.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
@@ -856,7 +859,8 @@
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is
+                <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
@@ -889,12 +893,14 @@
               <dl class="parameters">
                 <dt>optional any?            range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -906,7 +912,7 @@
               <p>
                 This method creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
-                outside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback, the implementation
+                outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, the implementation
                 MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> exception. 
                 If an index with the same name already exists, the implementation MUST throw a <code>DOMException</code> of type <a>ConstraintError</a>. 
                 Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
@@ -932,7 +938,7 @@
                 index's keyPath. If the <a>referenced</a> object store already contains data which violates these
                 constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
                 The implementation MUST still create and return an <a>IDBIndex</a> object.
-                Instead the implementation must queue up an operation to abort the <a><code>VERSION_CHANGE</code></a> transaction 
+                Instead the implementation must queue up an operation to abort the <a><code>"versionchange"</code></a> transaction 
                 which was used for the createIndex call. 
               </p>
               <p>
@@ -947,7 +953,9 @@
                 or where the implementation might need to ask the user for permission for quota reasons. 
                 Such implementations MUST still create and return an <a>IDBIndex</a> object. Instead,
                 once the implementation realizes that creating the index has failed, it MUST abort the transaction
-                using the <a>steps for aborting a transaction</a>.
+                using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
+                creating the <a>index</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error and if the index
+                can't be created due to <a>unique</a> constraints, <code>ConstraintError</code> MUST be used as error.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
@@ -965,7 +973,7 @@
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                  <dd>This method was not called from a <a><code>"versionchange"</code></a> 
                 <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
                 <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
@@ -999,7 +1007,7 @@
               <p>
                 This method destroys the <a>index</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>. Note that this
-                method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                method must only be called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a> callback.
               </p>
               <p>
@@ -1012,7 +1020,7 @@
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                <dd>This method was not called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a> callback.</dd>
                 <dt>NotFoundError</dt>
                 <dd>There is no <a>index</a> with the given name, compared in a 
@@ -1110,12 +1118,14 @@
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                  <dt>InvalidStateError</dt>
@@ -1150,12 +1160,14 @@
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -1175,7 +1187,7 @@
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -1252,40 +1264,13 @@
             <a title="cursor">Cursor</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBCursor">
-            <dt>const     unsigned short     NEXT = 0</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
-            <dt>const     unsigned short     PREV = 2</dt>
-            <dd>
-              indicates that <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
-
             <dt>readonly attribute Object             source</dt>
             <dd>
             On getting, returns the <a>IDBObjectStore</a> or <a>IDBIndex</a> which this cursor is iterating. This function
             never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
             or its transaction is not <a>active</a>.
             </dd>
-            <dt>readonly attribute unsigned short     direction</dt>
+            <dt>readonly attribute DOMString     direction</dt>
             <dd>
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
@@ -1308,9 +1293,9 @@
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
-                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false or if this
+                has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false or if this
                 cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>. This method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a>. This method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
@@ -1340,10 +1325,10 @@
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code></dd>
+                is <code>"readonly"</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -1404,11 +1389,11 @@
                 <li>The parameter is not a <a>valid key</a>.</li>
                 <li>
                   The parameter is <a>less than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is NEXT or NEXT_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is "next" or "nextunique".
                 </li>
                 <li>
                   The parameter is <a>greater than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is PREV or PREV_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is "prev" or "prevunique".
                 </li>
               </ul>
               <p>
@@ -1446,9 +1431,9 @@
             <dd>          
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
-                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
+                has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -1462,10 +1447,10 @@
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code>.</dd>
+                is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -1487,16 +1472,7 @@
             <a title="transaction">Transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBTransaction : EventTarget">
-            <dt>const     unsigned short READ_ONLY    = 0</dt>
-            <dd>Modification operations are not allowed in the <a>transaction</a>
-            in this mode.</dd>
-            <dt>const     unsigned short READ_WRITE    = 1</dt>
-            <dd>Modification operations are allowed in the <a>transactions</a>
-            in this mode.</dd>
-            <dt>const     unsigned short VERSION_CHANGE = 2</dt>
-            <dd>This mode is used solely for updating the version number of
-            transactions started using the <code>open()</code> method on the <a><code>IDBFactory</code></a> interface.</dd>
-            <dt>readonly attribute unsigned short mode</dt>
+            <dt>readonly attribute DOMString mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
@@ -1545,7 +1521,7 @@
               Otherwise this method sets the transactions's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
               <a>steps for aborting a transaction</a> with 
-              with the error attribute set to a <code>DOMError</code> of type <a>AbortError</a>.
+              with the <var>error</var> parameter set to <code>null</code>.
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>

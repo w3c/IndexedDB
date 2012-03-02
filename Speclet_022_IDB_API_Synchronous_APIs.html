@@ -182,7 +182,7 @@
               <p>
                 If a <var>timeout</var> parameter was supplied, then this limits the total waiting time allowed in
                 step 3 of <a>steps for opening a database</a> and step 4 of the <a>steps for running a
-                <code>VERSION_CHANGE</code> transaction</a>. If more waiting time would be needed in order to progress,
+                <code>"versionchange"</code> transaction</a>. If more waiting time would be needed in order to progress,
                 then abort those algorithms and throw a <code>DOMException</code> of type <a>TimeoutError</a>.
               </p>
               <p class="note">
@@ -198,7 +198,7 @@
               </p>
               <p class="note">
                 Processing a <code>open</code> call may take a long time as it could require running a
-                VERSION_CHANGE transaction which requires all other connections to the database to be closed, which
+                <code>"versionchange"</code> transaction which requires all other connections to the database to be closed, which
                 in turn may depend on user input or other long-running tasks. If blocking for a long period of time
                 is not acceptable for a given scenario then the asynchronous API should be used for version changes.
               </p>
@@ -216,7 +216,7 @@
                 database can be opened.</dd>
                 <dt>optional unsigned long timeout</dt>
                 <dd>Defines a transaction timeout value in milliseconds that will limit the 
-                    how long waiting for the <code>VERSION_CHANGE</code> transaction.  If the parameter is not provided, 
+                    how long waiting for the <code>"versionchange"</code> transaction.  If the parameter is not provided, 
                     the value of <var>timeout</var> is infinite.</dd>
               </dl>
               <dl class="exception" title="DOMException">
@@ -311,7 +311,7 @@
               other <a>connection</a>s are later used to change the set of <a>object
               store</a>s that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
-              <a>IDBDatabaseSync</a> instance except during a <a><code>VERSION_CHANGE</code></a>
+              <a>IDBDatabaseSync</a> instance except during a <a><code>"versionchange"</code></a>
               transaction if 
               <a href="#widl-IDBDatabaseSync-createObjectStore-IDBObjectStoreSync-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a>
               or <a href="#widl-IDBDatabaseSync-deleteObjectStore-void-DOMString-name">deleteObjectStore</a>
@@ -322,7 +322,7 @@
               <p>
                 This method creates and returns a new <a>object store</a> with the
                 given name in the <a title="connection">connected</a> <a>database</a>. This method
-                should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                should only be called from inside a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 This method synchronously modifies the 
@@ -362,7 +362,7 @@
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
-                  This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                  This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a>.
                   Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
                 <dt>ConstraintError</dt>
@@ -379,7 +379,7 @@
                 This method destroys an <a>object store</a> with the 
                 given name as well as all <a title="index">indexes</a> that are 
                 <a title="referenced">referencing</a> that <a>object store</a>. This method
-                should only be called from inside a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>.
+                should only be called from inside a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 This method synchronously modifies the 
@@ -396,7 +396,7 @@
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
-                    This method was not called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a> callback.
+                    This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a> callback.
                     Also occurs if a request is made on a source object that has been deleted or removed.
                 </dd>
                 <dt>NotFoundError</dt>
@@ -434,11 +434,11 @@
                 <dt>IDBTransactionCallback callback</dt>
                 <dd>A callback which will be called with the newly created transaction. When the callback returns,
                   the transaction is committed.</dd>
-                <dt>optional unsigned short mode</dt>
+                <dt>optional DOMString mode</dt>
                 <dd>
                     The <a>mode</a> for isolating access to data inside the given
                     <a title="object store">object stores</a>. If this parameter is not provided, the default
-                    access <a>mode</a> is <code>READ_ONLY</code>.
+                    access <a>mode</a> is <code>"readonly"</code>.
                 </dd>
                 <dt>optional unsigned long timeout</dt>
                 <dd>The interval in milliseconds which this operation is allowed to 
@@ -579,7 +579,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a><code>IDBObjectStoreSync</code></a> belongs to 
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -638,7 +638,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -658,7 +658,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
-                has its <a>mode</a> set to READ_ONLY. If any of the following conditions are true, this method
+                has its <a>mode</a> set to <code>"readonly"</code>. If any of the following conditions are true, this method
                 throws a <code>DOMException</code> of type <a>DataError</a>:
               </p>
               <ul>
@@ -716,7 +716,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>READ_ONLY</code>.</dd>
+                <dd>The <a>mode</a> of the associated <a>transaction</a> is <code>"readonly"</code>.</dd>
                 <dt>DataError</dt>
                 <dd>The calculated key for the insertion was not a <a>valid key</a>. Also thrown if the
                 calculated key for any of the indexes which belong to this object store had a calculated
@@ -737,7 +737,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
-                has its <a>mode</a> set to READ_ONLY. If the <var>key</var> parameter is not a <a>valid key</a>
+                has its <a>mode</a> set to <code>"readonly"</code>. If the <var>key</var> parameter is not a <a>valid key</a>
                 or a <a>key range</a> this method throws a <code>DOMException</code> of type <a>DataError</a>.
               </p>
               <p>
@@ -759,7 +759,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is <code>"readonly"</code>.</dd>
                 <dt>NotFoundError</dt>
                 <dd>A record did not exist in this <a>object store</a> 
                 for the key <var>key</var> parameter.
@@ -779,7 +779,7 @@ cursor.continue();</codeblock>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -800,7 +800,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBObjectStoreSync</a> belongs to is
-                has its <a>mode</a> set to READ_ONLY.
+                has its <a>mode</a> set to <code>"readonly"</code>.
               </p>
               <p>
                 Otherwise this method runs the <a>steps for synchronously executing a request</a>. The steps
@@ -812,7 +812,7 @@ cursor.continue();</codeblock>
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
-                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is READ_ONLY.</dd>
+                <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>Occurs if a request is made on a source object that has been deleted or removed.</dd>
               </dl>
@@ -822,7 +822,7 @@ cursor.continue();</codeblock>
               <p>
                 This creates and returns a new <a>index</a> with the given name and parameters in the 
                 <a title="connection">connected</a> <a>database</a>.  Note that this method must only
-                be called from a <a><code>VERSION_CHANGE</code></a> <a>transaction</a>. The created
+                be called from a <a><code>"versionchange"</code></a> <a>transaction</a>. The created
                 index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
               </p>
@@ -855,7 +855,7 @@ cursor.continue();</codeblock>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
-                  <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a> 
+                  <dd>This method was not called from a <a><code>"versionchange"</code></a> 
                   <a>transaction</a>. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
                 <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
@@ -893,7 +893,7 @@ cursor.continue();</codeblock>
               <p>
                 This method destroys the <a>index</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>. Note that this
-                method must only be called from a <a><code>VERSION_CHANGE</code></a>
+                method must only be called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a>.
               </p>
               <dl class="parameters">
@@ -907,7 +907,7 @@ cursor.continue();</codeblock>
                 in the <a title="connection">connected</a> <a>database</a>.      
                 </dd>
                 <dt>InvalidStateError</dt>
-                <dd>This method was not called from a <a><code>VERSION_CHANGE</code></a>
+                <dd>This method was not called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a>.</dd>
               </dl>
             </dd>
@@ -939,12 +939,14 @@ cursor.continue();</codeblock>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -1089,12 +1091,14 @@ cursor.<a>continue</a>();</codeblock>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed a valid value.</dd>
                 <dt>InvalidStateError</dt>
@@ -1131,12 +1135,14 @@ cursor.<a>continue</a>();</codeblock>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional unsigned short direction</dt>
+                <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
+                <dt>TypeError</dt>
+                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -1156,7 +1162,7 @@ cursor.<a>continue</a>();</codeblock>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-unsigned-short-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -1249,9 +1255,9 @@ while(cursor.<a>continue</a>()) {
             
             <p>
               To start at the last record and end in the first record, the cursor 
-              should be created with the direction parameter <a class="idlType" href="#widl-IDBCursor-PREV"><code>PREV</code></a>.
+              should be created with the direction parameter <code>"prev"</code>.
             </p>
-            <codeblock>var cursor = store.<a>openCursor</a>(<a>IDBCursorSync</a>.<a>PREV</a>);
+            <codeblock>var cursor = store.<a>openCursor</a>("prev");
 while(cursor.<a>continue()</a>) {
     // act on each object or key
 }
@@ -1284,39 +1290,13 @@ var cursor = objects.<a>openCursor</a>(range);
 </codeblock>
           </div>
           <dl title="interface IDBCursorSync" class="idl">
-            <dt>const     unsigned short     NEXT = 0</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically increasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
-            <dt>const     unsigned short     PREV = 2</dt>
-            <dd>
-              indicates that <a>cursor</a> should yield all records, including  
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys.
-            </dd>
-            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
-            <dd>
-              indicates that this <a>cursor</a> should yield all records, not including
-              duplicates and its <a>direction</a> is monotonically decreasing 
-              order of keys. For every key with duplicate values, only the first
-              record is yielded.
-            </dd>
             <dt>readonly attribute Object             source</dt>
             <dd>
             On getting, returns the <a>IDBObjectStoreSync</a> or <a>IDBIndexSync</a> which this cursor is iterating. This function
             never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
             or its transaction is not <a>active</a>.
             </dd>
-            <dt>readonly attribute unsigned short     direction</dt>
+            <dt>readonly attribute DOMString     direction</dt>
             <dd>            
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
@@ -1337,9 +1317,9 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> 
-                if the transaction which this IDBCursorSync belongs to has its <a>mode</a> set to READ_ONLY. 
+                if the transaction which this IDBCursorSync belongs to has its <a>mode</a> set to <code>"readonly"</code>. 
                 If this cursor's <a>got value</a> flag is false or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a>, this method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a>, this method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. 
                 If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
@@ -1369,10 +1349,10 @@ var cursor = objects.<a>openCursor</a>(range);
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursor</a> belongs to
-                is <code>READ_ONLY</code></dd>
+                is <code>"readonly"</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -1432,11 +1412,11 @@ var cursor = objects.<a>openCursor</a>(range);
                 <li>The parameter is not a <a>valid key</a>.</li>
                 <li>
                   The parameter is <a>less than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is NEXT or NEXT_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is <code>"next"</code> or <code>"nextunique"</code>.
                 </li>
                 <li>
                   The parameter is <a>greater than</a> or <a>equal to</> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is PREV or PREV_NO_DUPLICATE.
+                  and this cursor's <a>direction</a> is <code>"prev"</code> or <code>"prevunique"</code>.
                 </li>
               </ul>
               <p>
@@ -1473,9 +1453,9 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>
               <p>
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBCursorSync</a> belongs to
-                has its <a>mode</a> set to READ_ONLY. If this cursor's <a>got value</a> flag is false,
+                has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -1490,10 +1470,10 @@ var cursor = objects.<a>openCursor</a>(range);
                 <dd>The <a>transaction</a> this <a>IDBCursorSync</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
                 <dd>The <a>mode</a> of the <a>transaction</a> this <a>IDBCursorSync</a> belongs to
-                is <code>READ_ONLY</code>.</dd>
+                is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-unsigned-short-direction"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-DOMString-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -1517,16 +1497,7 @@ var cursor = objects.<a>openCursor</a>(range);
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
           <dl class="idl" title="interface IDBTransactionSync">
-            <dt>const     unsigned short READ_ONLY    = 0</dt>
-            <dd>Modification operations are not allowed in the <a>transaction</a>
-            in this mode.</dd>
-            <dt>const     unsigned short READ_WRITE    = 1</dt>
-            <dd>Modification operations are allowed in the <a>transactions</a>
-            in this mode.</dd>
-            <dt>const     unsigned short VERSION_CHANGE = 2</dt>
-            <dd>This mode is used solely for updating the version number of
-            transactions started using the <code>open()</code> method of <a><code>IDBFactorySync</code></a>.</dd>
-            <dt>readonly attribute unsigned short mode</dt>
+            <dt>readonly attribute DOMString mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
