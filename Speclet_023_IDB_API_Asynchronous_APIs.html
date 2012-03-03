@@ -348,8 +348,9 @@
             <dt>IDBOpenDBRequest deleteDatabase()</dt>
             <dd>
               <p>
-                When invoked, this method MUST create a <a>request</a> and return it. The created
-                <a>request</a> has no <a title="request source">source</a> and MUST implement the
+                When invoked, this method MUST create a <a>request</a> and return it. 
+                The created request must implement the <a>IDBOpenDBRequest</a> interface and have its source set to null.
+                The created <a>request</a> has no <a title="request source">source</a> and MUST implement the
                 <a>IDBVersionChangeRequest</a> interface.
                 The method then queues up an operation to run the <a>steps for deleting a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
@@ -370,6 +371,8 @@
                 <a title="request result">result</a> of the <var>request</var>
                 to <code>null</code> and <a>fire a success event</a> at
                 the <a>request</a>.
+                The event MUST implement the <a>IDBVersionChangeEvent</a> interface and have <code>oldVersion</code> set to <var>database version</var> 
+                and have the <code>newVersion</code> property set to null.
               </p>
               <p class="note">
                 The firing of <code>"success"</code> or <code>"error"</code> events do not follow the normal
@@ -1368,7 +1371,7 @@
               <p>
                 Calling this method more than once before new cursor data has been loaded is not allowed 
                 and results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown. 
-                For example, calling <code>continue()</code> twice from the same onsuccess handler 
+                For example, calling <code>advance()</code> twice from the same onsuccess handler 
                 results in a <code>DOMException</code> of type <a>InvalidStateError</a> being thrown on the second call.
               </p>
               <p>
@@ -1508,7 +1511,7 @@
             <dt>IDBObjectStore objectStore()</dt>
             <dd>
               Returns an <a>IDBObjectStore</a> representing an <a>object store</a> that is part of the
-              to the <a>scope</a> of this <a>transaction</a>. Every call to this function on the same
+              <a>scope</a> of this <a>transaction</a>. Every call to this function on the same
               <a>IDBTransaction</a> instance and with the same <var>name</var> returns the same <a>IDBObjectStore</a> instance.
               However the returned <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
               function is called on a different <a>IDBTransaction</a>, a different <a>IDBObjectStore</a> instance is returned.
@@ -1531,8 +1534,7 @@
               If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a <code>DOMException</code> of type <a>InvalidStateError</a>. 
               Otherwise this method sets the transactions's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps for aborting a transaction</a> with 
-              with the <var>error</var> parameter set to <code>null</code>.
+              <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to <code>null</code>.
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
