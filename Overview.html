@@ -1810,18 +1810,6 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 <li>
                   The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
                 </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is a string,
-                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
-                </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
-                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
-                </li>
               </ul>
               <p>
                 Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
@@ -1883,18 +1871,6 @@ dictionary IDBVersionChangeEventInit : EventInit {
                 </li>
                 <li>
                   The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
-                </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is a string,
-                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
-                </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
-                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -3160,18 +3136,6 @@ cursor.continue();</codeblock>
                 <li>
                   The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
                 </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is a string,
-                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
-                </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
-                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
-                </li>
               </ul>
               <p>
                 Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
@@ -3238,18 +3202,6 @@ cursor.continue();</codeblock>
                 </li>
                 <li>
                   The <var>key</var> parameter was provided but does not contain a <a>valid key</a>.
-                </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is a string,
-                  <a title="evaluate key path">evaluating</a> their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value, and that value is not a <a>valid key</a>.
-                </li>
-                <li>
-                  If there are any <a>index</a>es <a title="referenced">referencing</a> this object
-                  store whose <a title="index key path">key path</a> is an <code>Array</code>,
-                  <a title="evaluate key path">evaluating</a> any of the items in their <a title="index key path">key path</a>
-                  on the <var>value</var> parameter yields a value and that value is not a <a>valid key</a>.
                 </li>
               </ul>
               <p>
@@ -4889,37 +4841,32 @@ var cursor = objects.<a>openCursor</a>(range);
                   Set <var>index</var> to the index.
                 </li>
                 <li>
-                  If <var>index</var>'s <a title="index key path">key path</a> is a string, then
-                  <a title="evaluate key path">evaluate</a> it on
-                  <var>value</var>. If this does not yield a value don't take any further actions for this index.
+                  <a title="evaluate key path">Evaluate</a> <var>index</var>'s <a title="index key path">key path</a>
+                  on <var>value</var>. If this does not yield a value, take no further actions for this index.
                   Otherwise set the result to <var>index key</var>.
                 </li>
                 <li>
-                  If <var>index</var>'s <a title="index key path">key path</a> is an <code>Array</code>, then set
-                  <var>index key</var> to a newly created empty <code>Array</code>. For each item in
-                  <var>index</var>'s <a title="index key path">key path</a> <a title="evaluate key path">evaluate</a>
-                  the item on <var>value</var>. If this does not yield a value don't take any further actions for this index.
-                  Otherwise add the value to the end of the <var>index key</var> <code>Array</code>.
+                  If <var>index</var>'s <a>multiEntry</a> flag is false or if <var>index key</var> is not an <code>Array</code>,
+                  and if <var>index key</var> is not a <a>valid key</a>, take no further actions for this index.
                 </li>
                 <li>
-                  <div class="note">
-                    The places invoking these steps ensures that <var>index key</var> is always a <a>valid key</a> by the time
-                    we get to this step.
-                  </div>
+                  If <var>index</var>'s <a>multiEntry</a> flag is true, and <var>index key</var> is an <code>Array</code>,
+                  remove any elements from <var>index key</var> that are not <a>valid key</a>s.
+                  <p class="note">
+                    After this step <var>index key</var> is or contains only <a>valid key</a>s.
+                  </p>
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
-                  and <var>index</var> has it's <a>unique</a> flag set to true, then 
-                  set the <code>error</code> attribute to a <code>DOMError</code> of type <a>ConstraintError</a>
-                  and abort this algorithm without taking any further steps.
+                  and <var>index</var> has it's <a>unique</a> flag set to true, then this operation failed with a
+                  <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry</a> flag is true and <var>index key</var> is an <code>Array</code>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
-                  values in <var>index key</var>, and <var>index</var> has it's <a>unique</a> flag set to true, then set 
-                  set the <code>error</code> attribute to a <code>DOMError</code> of type <a>ConstraintError</a>
-                  and abort this algorithm without taking any further steps.
+                  values in <var>index key</var>, and <var>index</var> has it's <a>unique</a> flag set to true, then this operation
+                  failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
