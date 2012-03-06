@@ -883,9 +883,8 @@
             <li>
               If the no-overwrite flag was passed to these steps and is set, and 
               a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
-              terminate these steps and set the <code>error</code> attribute to
-              a <code>DOMError</code> of type <a>ConstraintError</a> 
-              and abort this algorithm without taking any further steps.
+              this operation failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking
+              any further steps.
             </li>
             <li>
               If a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then 
@@ -914,7 +913,12 @@
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry</a> flag is true, and <var>index key</var> is an <code>Array</code>,
-                  remove any elements from <var>index key</var> that are not <a>valid key</a>s.
+                  remove any elements from <var>index key</var> that are not <a>valid key</a>s and remove any duplicate
+                  elements from <var>index key</var> such that only one instance of the duplicate value remains.
+                  <p class="note">
+                    For example, the following value of <var>index key</var> <code>[10, 20, null, 30, 20]</code> is converted to
+                    <code>[10, 20, 30]</code>.
+                  </p>
                   <p class="note">
                     After this step <var>index key</var> is or contains only <a>valid key</a>s.
                   </p>
@@ -944,15 +948,15 @@
                   the items value as its key and <var>key</var> as its value. The records are stored in <var>index</var>'s
                   <a title="index record list">list of records</a> such that the list is sorted primarily on the records keys,
                   and secondarily on the records values, in ascending order.
-                  <div class="note">
+                  <p class="note">
                     Note that it is legal for the <code>Array</code> to have length 0, in this case no records are added to
                     the index.
-                  </div>
-                  <div class="note">
+                  </p>
+                  <p class="note">
                     If any of the items in the <code>Array</code> are themselves an <code>Array</code>, then the inner
                     <code>Array</code> is used as a key for that entry. In other words, <code>Array</code>s are not recursively
                     "unpacked" to produce multiple rows. Only the outer-most <code>Array</code> is.
-                  </div>
+                  </p>
                 </li>
               </ol>
             </li>
