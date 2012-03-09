@@ -3043,7 +3043,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
               <a>object store</a> is also designed to use a <a>key generator</a>.
             </p>
             <codeblock>var db = indexedDBSync.open('AddressBook', 1, function(trans, oldVersion) {
-  trans.db.createObjectStore('Contact', 'id', true);
+trans.db.createObjectStore('Contact', {keyPath:'id', autoIncrement:true} );
 });
             </codeblock>
             <p>
@@ -3509,10 +3509,10 @@ cursor.continue();</codeblock>
             </p>
             <codeblock>var db = indexedDBSync.open('AddressBook', 2, function(trans, oldVersion) {
   if (oldVersion === 1) {
-    trans.db.createObjectStore('Contact', 'id', true);
+    trans.db.createObjectStore('Contact', {keyPath:'id', autoIncrement:true});
   }
   var store = vtx.objectStore('Contact');
-  store.createIndex('ContactName', 'name', false);
+  store.createIndex('ContactName', {unique:false, multiEntry:false});
 });
 </codeblock>
             <p>
