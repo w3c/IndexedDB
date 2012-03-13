@@ -198,9 +198,9 @@
             <a>database</a>.
           </p>
           <p>
-            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s
-            can be changed, but can only be changed using a <code>"versionchange"</code> transactions. When a new database is
-            created it doesn't contain any <a>object store</a>s and has <code>0</code> as <a>version</a>.
+            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s can be changed,
+            but can only be changed using a <code>"versionchange"</code> transactions, i.e. in response to a
+            <code>upgradeneeded</code> event. When a new database is created it doesn't contain any <a>object store</a>s.
           </p>
           <p>
             The object store has a <a title="object store record list">list of records</a> which hold the
@@ -216,16 +216,12 @@
             use <dfn>out-of-line</dfn> keys.
           </p>
           <p>
-            The object store can derive the <a>key</a> from one of three sources. Which source is used is determined
-            when the object store is created. The three sources are:
+            The object store can derive the <a>key</a> from one of three sources:
           </p>
           <ol>
             <li>
-              A <dfn>key generator</dfn>. A key generator generates a monotonically increasing numbers every time
+              A <a>key generator</a>. A key generator generates a monotonically increasing numbers every time
               a key is needed.
-              <p class="issue">
-                specify that generators are not shared between stores.
-              </p>
             </li>
             <li>
               Keys can be derived via a <a title="object store key path">key path</a>.
@@ -1057,6 +1053,159 @@ dictionary IDBVersionChangeEventInit : EventInit {
 
 
         </section> <!-- Options Object -->
+        <section id="key-generator-concept" class="section">
+          <h4>Key Generators</h4>
+          <p>
+            When a <a>object store</a> is created it can be specified to use a <dfn>key generator</dfn>.
+            A <a>key generator</a> keeps an internal <dfn>current number</dfn>. The <a>current number</a>
+            is always a positive integer. Whenever the key generator is used to generate a new <a>key</a>, the
+            generator's <a>current number</a> is returned and <strong>then</strong> incremented to prepare
+            for the next time a new <a>key</a> is needed. Implementations MUST use the following rules
+            for generating numbers when a <a>key generator</a> is used.
+          </p>
+          <ul>
+            <li>
+              Every object store that uses key generators use a seprate generator. I.e. interacting with one
+              object store never affects the key generator of any other object store.
+            </li>
+            <li>
+              The <a>current number</a> of a <a>key generator</a> is always set to <code>1</code> when the
+              <a>object store</a> for that key generator is first created.
+            </li>
+            <li>
+              When a key generator is used to generate a new <a>key</a> for a <a>object store</a>, the
+              key generator's <a>current number</a> is used as the new key value and then the
+              key generator's <a>current number</a> is increased by <code>1</code>.
+            </li>
+            <li>
+              When a <a>record</a> is stored in a object store which uses a key generator, and an explicit
+              key is defined, if the key's value is a <code>float</code> greater than or equal to the
+              key generator's <a>current number</a>, then the key generator's <a>current number</a> is set
+              to the smallest integer number <a>larger than</a> the explicit key. Only explicit keys which
+              are <code>float</code> values affect the <a>current number</a> of the key generator.
+              <code>Date</code>s and <code>Array</code>s which contain <code>float</code>s do not affect
+              the <a>current number</a> of the key generator. Likewise, negative <code>float</code> numbers
+              do not affect the <a>current number</a> since they are always lower than the <a>current
+              number</a>.
+              <p class="note">
+                This can happen both with <a>in-line keys</a>, if the property of the stored value is set,
+                or with <a>out-of-line</a> keys, if an explicit key argument is provided.
+              </p>
+            </li>
+            <li>
+              Modifying a key generator's <a>current number</a> is considered part of a database operation.
+              This means that if the operation fails and the operation is reverted, the <a>current number</a>
+              is reverted to the value it had before the operation started. This applies both to modifications
+              that happen due to the <a>current number</a> getting increased by <code>1</code> when the key
+              generator is used, and to modifications that happen due to
+            </li>
+            <li>
+              Likewise, if a <a>transaction</a> is aborted, the <a>current number</a> of the key generator's
+              for all <a>object store</a>s in the transaction's <a>scope</a> is reverted to the values they
+              had before the <a>transaction</a> was started.
+            </li>
+            <li>
+              When the <a>current number</a> of a key generator reaches above the value <code>2^53</code>
+              (<code>9007199254740992</code>) any attempts to use the key generator to generate a new
+              <a>key</a> will result in an error. It's still possible to insert <a>record</a>s into the
+              object store by specifying an explicit key, however the only way to use a key generator
+              again for the object store is to delete the object store and create a new one.
+              <p class="note">
+                Note that as long as key generators are used in a normal fashion this will not be a problem.
+                If you generate a new key 1000 times per second day and night, you won't run into this limit
+                for over 285000 years.
+              </p>
+            </li>
+            <li>
+              The <a>current number</a> for a key generator never decreases, other than as a result of
+              database operations being reverted. Deleting a <a>record</a> from an <a>object store</a>
+              never affects the object store's key generator. Even clearing all records from an
+              object store, for example using the
+              <a href="#widl-IDBObjectStore-clear-IDBRequest"><code>clear()</code></a> function, does
+              not affect the <a>current number</a> of the object store's key generator.
+            </li>
+          </ul>
+          <p>
+            A practical result of this is that the first key generated for an object store is always <code>1</code>
+            (unless a higher numeric key is inserted first) and the key generated for an object store is always a
+            positive integer higher than the highest numeric key in the store. The same key is never generated
+            twice for the same object store unless a transaction is rolled back.
+          </p>
+          <div class="example">       
+            <p>Each object store gets it's own key generator:</p> 
+            <codeblock>
+store1 = db.createObjectStore("store1", { autoIncrement: true });
+store1.put("a"); // Will get key 1
+store2 = db.createObjectStore("store2", { autoIncrement: true });
+store2.put("a"); // Will get key 1
+store1.put("b"); // Will get key 2
+store2.put("b"); // Will get key 2
+            </codeblock>
+
+            <p>If an insertion fails due to constraint violations or IO error, the
+            key generator is not updated.</p>
+            <codeblock>
+transaction.onerror = function(e) { e.preventDefault() };
+store = db.createObjectStore("store1", { autoIncrement: true });
+index = store.createIndex("index1", "ix", { unique: true });
+store.put({ ix: "a"}); // Will get key 1
+store.put({ ix: "a"}); // Will fail
+store.put({ ix: "b"}); // Will get key 2
+            </codeblock>
+
+            <p>Removing items from an objectStore never affects the key generator.
+            Including when .clear() is called.</p>
+            <codeblock>
+store = db.createObjectStore("store1", { autoIncrement: true });
+store.put("a"); // Will get key 1
+store.delete(1);
+store.put("b"); // Will get key 2
+store.clear();
+store.put("c"); // Will get key 3
+store.delete(IDBKeyRange.lowerBound(0));
+store.put("d"); // Will get key 4
+            </codeblock>
+
+            <p>Inserting an item with an explicit key affects the key generator if,
+            and only if, the key is numeric and higher than the last generated
+            key.</p>
+            <codeblock>
+store = db.createObjectStore("store1", { autoIncrement: true });
+store.put("a"); // Will get key 1
+store.put("b", 3); // Will use key 3
+store.put("c"); // Will get key 4
+store.put("d", -10); // Will use key -10
+store.put("e"); // Will get key 5
+store.put("f", 6.00001); // Will use key 6.0001
+store.put("g"); // Will get key 7
+store.put("f", 8.9999); // Will use key 8.9999
+store.put("g"); // Will get key 9
+store.put("h", "foo"); // Will use key "foo"
+store.put("i"); // Will get key 10
+store.put("j", [1000]); // Will use key [1000]
+store.put("k"); // Will get key 11
+// All of these would behave the same if the objectStore used a
+keyPath and the explicit key was passed inline in the object
+            </codeblock>
+
+            <p>Aborting a transaction rolls back any increases to the key generator
+            which happened during the transaction. This is to make all rollbacks
+            consistent since rollbacks that happen due to crash never has a chance
+            to commit the increased key generator value.</p>
+            <codeblock>
+db.createObjectStore("store", { autoIncrement: true });
+trans1 = db.transaction(["store"], "readwrite");
+store_t1 = trans1.objectStore("store");
+store_t1.put("a"); // Will get key 1
+store_t1.put("b"); // Will get key 2
+trans1.abort();
+trans2 = db.transaction(["store"], "readwrite");
+store_t2 = trans2.objectStore("store");
+store_t2.put("c"); // Will get key 1
+store_t2.put("d"); // Will get key 2
+            </codeblock>
+          </div>
+        </section> <!-- Key Generator -->
       </section>
       <!-- end-content -->
     </section>
