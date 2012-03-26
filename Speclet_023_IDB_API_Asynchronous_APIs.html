@@ -575,8 +575,13 @@
                 returned by the steps above.
               </p>
               <p>
-                This method MUST throw a <code>DOMException</code> of type <a>InvalidStateError</a> if called before the 
-                <code>success</code> event for a <a href="#widl-IDBFactor-open">open</a> call has been dispatched.
+                If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code>
+                transaction is still running, a <a>InvalidStateError</a> exception MUST be thrown. I.e. if a
+                <code>"versionchange"</code> transaction is started when a database is opened and this method is
+                called on the <a>IDBDatabase</a> instance for that transaction before the transaction is committed,
+                a <a>InvalidStateError</a> exception MUST be thrown. Likewise, if this method is called on a
+                <a>IDBDatabase</a> instance where the <a>closePending</a> flag is set, a <a>InvalidStateError</a>
+                exception MUST be thrown.
               </p>
               <dl class="parameters">
                 <dt>any storeNames</dt>
@@ -592,7 +597,6 @@
                 <dt>InvalidStateError</dt>
                 <dd>
                   The close() method has been called on this <a>IDBDatabase</a> instance.
-                  Also occurs if a request is made on a source object that has been deleted or removed.  
                 </dd>
                 <dt>NotFoundError</dt>
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>

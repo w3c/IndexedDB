@@ -615,21 +615,6 @@
           </p>
 
           <p>
-            A <code>"versionchange"</code> transaction can never run concurrently with other transactions. When
-            a <code>"versionchange"</code> transaction is created, the implementation MUST wait to
-            <a title="transaction start">start</a> the <code>"versionchange"</code> transaction until no other transactions
-            against the same <a>database</a> are running. As long as the <code>"versionchange"</code> transaction is pending, the implementation
-            MUST wait before <a title="transaction start">starting</a> any other transactions against the same <a>database</a>
-            until the <code>"versionchange"</code> transaction is finished. 
-            However, a new transaction MAY be started as soon as the <code>oncomplete</code> handler is invoked.
-          </p>
-          <p class="note">
-          	During the open database API, a <code>"versionchange"</code> transaction is automatically created 
-          	when a database version number is provided that is greater than the current database version.  
-          	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler, 
-          	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
-          </p>
-          <p>
             Any number of transactions opened in <a><code>"readonly"</code></a> mode are allowed to run concurrently,
             even if the transaction's <a>scope</a> overlap and include the same <a>object store</a>s.
             As long as a <code>"readonly"</code> transaction is running, the data that the implementation returns
@@ -666,6 +651,28 @@
             Generally speaking, the above requirements mean that <code>"readwrite"</code> transactions which have overlapping
             scopes always run in the order they were <a title="transaction create">created</a>, and never run
             in parallel.
+          </p>
+          <p>
+            A <code>"versionchange"</code> transaction never run concurrently with other transactions.
+            When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
+            <code>"versionchange"</code> transaction is automatically created and made available through the
+            <code>"upgradeneeded"</code> event. The <code>"upgradeneeded"</code> event isn't fired, and thus the
+            <code>"versionchange"</code> transaction isn't started, until all other <a>connection</a>s to the same
+            <a>database</a> are closed. This ensures that all other transactions are <a>finished</a>.
+          </p>
+          <p>
+            As long as a <code>"versionchange"</code> transaction
+            is running, attempts to open more <a>connection</a>s to the same <a>database</a> are delayed,
+            and any attempts to use the same <a>connection</a> to start additional transactions will result in
+            an exception being thrown. Thus <code>"versionchange"</code> transactions not only ensure that
+            no other transactions are running concurrently, but also ensure that no other transactions are queued
+            against the same <a>database</a> as long as the transaction is running.
+          </p>
+          <p class="note">
+          	<code>"versionchange"</code> transaction is automatically created 
+          	when a database version number is provided that is greater than the current database version.  
+          	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler, 
+          	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
             User agents MUST ensure a reasonable level of fairness across transactions to prevent
