@@ -2522,16 +2522,6 @@ berjon.WebIDLProcessor.prototype = {
         str += "<span class='idlAttrType'>" + this.writeDatatype(attr.datatype) + arr + nullable + "</span> ";
         for (var i = 0; i < pad; i++) str += " ";
         str += "<span class='idlAttrName'><a href='#" + curLnk + attr.refId + "'>" + attr.id + "</a></span>";
-        if (gets.length) {
-            str += " getraises (" +
-                   gets.map(function (it) { return "<span class='idlRaises'><a>" + it.id + "</a></span>"; }).join(", ") +
-                   ")";
-        }
-        if (sets.length) {
-            str += " setraises (" +
-                   sets.map(function (it) { return "<span class='idlRaises'><a>" + it.id + "</a></span>"; }).join(", ") +
-                   ")";
-        }
         str += ";</span>\n";
         return str;
     },
@@ -2565,12 +2555,6 @@ berjon.WebIDLProcessor.prototype = {
                                 })
                           .join(", ");
         str += ")";
-        if (meth.raises.length) {
-            str += " raises ("
-            str += meth.raises.map(function (it) { return "<span class='idlRaises'><a>" + it.id + "</a></span>"; })
-                              .join(", ");
-            str += ")";
-        }
         str += ";</span>\n";
         return str;
     },
