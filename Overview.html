@@ -623,12 +623,20 @@ prepareDatabase(function(evt) {
         <section id="key-path-construct" class="section">
           <h4>Key Path</h4>
           <p>
-            A <dfn>key path</dfn> is a <code>DOMString</code> that defines how to extract a <a>key</a> from a <a>value</a>.
-            A <dfn>valid key path</dfn> is
-            either the empty string, a JavaScript identifier, or multiple Javascript identifiers separated by
-            periods (ASCII character code 46) [[!ECMA-262]]. (Note that spaces are not allowed
-            within a key path.) To <dfn title="evaluate key path">evaluate a key path</dfn>, run the
-            <a>steps for extracting a key from a value using a key path</a>.
+            A <dfn>key path</dfn> is a <code>DOMString</code> or <code>Array</code> that defines how to extract a <a>key</a>
+            from a <a>value</a>. A <dfn>valid key path</dfn> is one of:
+          </p>
+          <ul>
+            <li>An empty <code>DOMString</code>.</li>
+            <li>A <code>DOMString</code> containing a JavaScript identifier.</li>
+            <li>A <code>DOMString</code> containing multiple Javascript identifiers separated by
+            periods (ASCII character code 46) [[!ECMA-262]].</li>
+            <li>A non-empty <code>Array</code> containing only <code>DOMString</code>s conforming to
+            the above requirements.</li>
+          </ul>
+          <p>
+            Note that spaces are not allowed within a key path. To <dfn title="evaluate key path">evaluate a key path</dfn>,
+            run the <a>steps for extracting a key from a value using a key path</a>.
           </p>
           <p>
           	<a>Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>, 
@@ -1780,10 +1788,9 @@ store_t2.put("d"); // Will get key 2
                 string.
               </p>
               <p>
-                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
-                <code>DOMException</code> of type <a>SyntaxError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
-                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+                If <var>keyPath</var> is not a <a>valid key path</a> then a <code>DOMException</code> of type <a>SyntaxError</a> MUST be
+                thrown. Otherwise set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
+                <var>keyPath</var>.
               </p>
               <p>
                 If the <var>optionalParameters</var> parameter is specified, and <code>autoIncrement</code> is set to true, and
@@ -1925,9 +1932,9 @@ store_t2.put("d"); // Will get key 2
               On getting, provide the <a title="object store name">name</a> of this
               object store.        
             </dd>
-            <dt>readonly attribute DOMString      keyPath</dt>
+            <dt>readonly attribute any            keyPath</dt>
             <dd>
-              On getting, provide the <a title="object store key path">key path</a>
+              On getting, returns the <a title="object store key path">key path</a>
               of this <a>object store</a>. This will be either a <code>DOMString</code>,
               an <code>Array</code> of <code>DOMString</code>s or <code>null</code>.
             </dd>
@@ -2208,12 +2215,12 @@ store_t2.put("d"); // Will get key 2
                 <code>DOMString</code>.
               </p>
               <p>
-                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a <code>DOMException</code>
-                of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
+                If <var>keyPath</var> is not a <a>valid key path</a> then a <code>DOMException</code> of type <a>SyntaxError</a> MUST be
+                thrown. Otherwise set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
+                <var>keyPath</var>. If <var>keyPath</var> is
                 an <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
-                then a <code>DOMException</code> of type <a>InvalidAccessError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
-                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+                then a <code>DOMException</code> of type <a>InvalidAccessError</a> MUST be thrown. Otherwise set the created <a>index</a>'s
+                <a title="index key path">key path</a> to the value of <var>keyPath</var>.
               </p>
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's
@@ -2360,10 +2367,10 @@ store_t2.put("d"); // Will get key 2
               return the same <a>IDBObjectStore</a> instance as was used to get a reference
               to this <a>IDBIndex</a>.
             </dd>
-            <dt>readonly attribute DOMString      keyPath</dt>
+            <dt>readonly attribute any            keyPath</dt>
             <dd>
-              On getting, provide the <a title="index key path">key path</a>
-              of this <a>object store</a>. This will be either a <code>DOMString</code> or
+              On getting, returns the <a title="index key path">key path</a>
+              of this <a>index</a>. This will be either a <code>DOMString</code> or
               an <code>Array</code> of <code>DOMString</code>s.
             </dd>
             <dt>readonly attribute boolean 		multiEntry</dt>
@@ -2618,7 +2625,7 @@ store_t2.put("d"); // Will get key 2
                 <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
-                <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
+                <dd>The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
                 at the object store's <a title="object store key path">key path</a> does not match the key in this <a>cursor</a>'s
                 <a>position</a>.</dd>
                 <dt>DataCloneError</dt>
@@ -3026,10 +3033,9 @@ store_t2.put("d"); // Will get key 2
                 string.
               </p>
               <p>
-                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a
-                <code>DOMException</code> of type <a>SyntaxError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
-                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+                If <var>keyPath</var> is not a <a>valid key path</a> then a <code>DOMException</code> of type <a>SyntaxError</a> MUST be
+                thrown. Otherwise set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
+                <var>keyPath</var>.
               </p>
               <p>
                 If the <var>optionalParameters</var> parameter is specified, and <code>autoIncrement</code> is set to true, and
@@ -3495,12 +3501,12 @@ cursor.continue();</codeblock>
                 <code>DOMString</code>.
               </p>
               <p>
-                If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
-                or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, then a <code>DOMException</code>
-                of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
-                and <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
-                then a <code>DOMException</code> of type <a>InvalidAccessError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
-                <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
+                If <var>keyPath</var> is not a <a>valid key path</a> then a <code>DOMException</code> of type <a>SyntaxError</a> MUST be
+                thrown. Otherwise set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
+                <var>keyPath</var>. If <var>keyPath</var> is
+                an <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
+                then a <code>DOMException</code> of type <a>InvalidAccessError</a> MUST be thrown. Otherwise set the created <a>index</a>'s
+                <a title="index key path">key path</a> to the value of <var>keyPath</var>.
               </p>
               <dl class="parameters">
                 <dt>DOMString      name</dt>
@@ -3713,8 +3719,8 @@ cursor.<a>continue</a>();</codeblock>
         
             <dt>readonly attribute any            keyPath</dt>
             <dd>
-              On getting, provide the <a title="index key path">key path</a>
-              of this <a>object store</a>. This will be either a <code>DOMString</code> or
+              On getting, returns the <a title="index key path">key path</a>
+              of this <a>index</a>. This will be either a <code>DOMString</code> or
               an <code>Array</code> of <code>DOMString</code>s.
             </dd>
 
@@ -4678,7 +4684,6 @@ var cursor = objects.<a>openCursor</a>(range);
             <li>
               Set the version of <var>database</var> to <var>version</var>. This change is considered part of the
               <a>transaction</a>, and so if the transaction is <a>abort</a>ed, this change is reverted.
-              If the <code>"versionchange"</code> <a>transaction</a> fails to commit set the <var>version</var> attribute on the database to <code>undefined</code>.  
             </li>
             <li>
               If running asynchronously, schedule a task to run the following steps:
@@ -4987,6 +4992,11 @@ var cursor = objects.<a>openCursor</a>(range);
         		In other words, before you run these steps, first evaluate the <a>key path</a> against <var>value</var>, 
         		and only if that does not yield a value (where 'undefined' does count as a value) do you generate a key and 
         		use these steps to modify <var>value</var> to contain the generated key.
+        	</p>
+        	<p class="note">
+                  The <a>key path</a> used here is always a <code>DOMString</code> and never an <code>Array</code> since it is not
+                  possible to create a <a>object store</a> whose <a>multiEntry</a> flag is true and whose
+                  <a title="object store key path">key path</a> is an <code>Array</code>.
         	</p>
 		</section>        
       </section>
