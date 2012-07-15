@@ -365,8 +365,11 @@
                   and set the request's <code>error</code> attribute to a <code>DOMError</code> with a type of <a>AbortError</a>.
                 </li>
                 <li>
-                  <a>Fire an error event</a> at the <a>request</a>. However when running these
-                  steps, ignore any request to run the <a>steps for aborting a transaction</a> as those steps are already running.
+                  Dispatch an event at <var>request</var>. The event must use
+                  the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
+                  The event bubbles and is cancelable. The
+                  <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
+                  then <var>transaction</var> and finally the <a>request</a>. There is no <a>default action</a> for the event.
                 </li>
               </ol>
               <p class="note">
@@ -830,7 +833,8 @@
               <a>propagation path</a> for the event is the <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
               <var>transaction</var> by running the <a>steps for aborting a transaction</a> using <var>transaction</var> as <var>transaction</var>
-              and the <code>name</code> of <a>request</a>'s <code>error</code> property as <var>error</var>.
+              and the <code>name</code> of <a>request</a>'s <code>error</code> property as <var>error</var>. However the <a>default action</a> is
+              not taken if any of the event handlers threw an exception.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
@@ -838,7 +842,12 @@
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
               abort the transaction by following the <a>steps for aborting a transaction</a> using <var>transaction</var> as
-              <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>.
+              <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>. This is done even if the error event is not
+              canceled.
+              <p class="note">
+                This means that if an error event is fired and any of the event handlers throw an exception, the <code>error</code> property
+                on the transaction is set to an <code>AbortError</code> rather than whatever <code>DOMError</code> the <code>error</code>
+                property on the request was set to. Even if <code>preventDefault</code> is never called.
             </li>
           </ol>
         </section>

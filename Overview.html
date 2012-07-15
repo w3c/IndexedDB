@@ -1245,7 +1245,7 @@ prepareDatabase(function(evt) {
             <dfn>Options object</dfn>s are dictionary objects [[!WEBIDL]] 
             which are used to supply optional parameters to some indexedDB functions like 
             <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a> and
-            <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-keyPath-IDBIndexParameters-optionalParameters">createIndex</a>. The attributes on the object
+            <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-any-keyPath-IDBIndexParameters-optionalParameters">createIndex</a>. The attributes on the object
             correspond to optional parameters on the function called.
           </p>
           <div class="block">
@@ -2215,8 +2215,8 @@ store_t2.put("d"); // Will get key 2
                 If <var>keyPath</var> is an <code>Array</code> and any items in the array is not a <a>valid key path</a>,
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a> then a <code>DOMException</code>
                 of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
-                and <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
-                then a <code>DOMException</code> of type <a>NotSupportedError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
+                an <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
+                then a <code>DOMException</code> of type <a>InvalidAccessError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <p>
@@ -2771,20 +2771,18 @@ store_t2.put("d"); // Will get key 2
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part
             </dd>
-			<dt>readonly attribute DOMError       error</dt>
-			<dd>
-              When the <a title="request done">done</a> flag is true, getting this
-              property MUST return the error of the request that caused the <a>transaction</a> to be aborted. 
-              If the error was generated when committing the <a>transaction</a> and not from an individual request, 
-              the error must contain the reasons for the transaction failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>). 
-              This is null when no error occurred or when the transaction is programmatically aborted. 
-              When the <a title="request done">done</a> flag is false, 
-              getting this property MUST throw a DOMException of type <code>InvalidStateError</code>.
-              <dl class="getraises" title="DOMException">
-                <dt><a>InvalidStateError</a></dt>
-                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
-              </dl>
-			</dd>
+            <dt>readonly attribute DOMError       error</dt>
+            <dd>
+              If this <a>transaction</a> is not <a>finished</a>, is <a>finished</a> but was successfully
+              <a title="commit">committed</a>, or was aborted due to a call to the
+              <a class="idlType" href="#widl-IDBTransaction-abort-void"><code>abort</code></a> function, this property
+              returns <code>null</code>.
+              If this transaction was aborted due to a failed <a>request</a>, this property returns the same
+              <code>DOMError</code> as the <a>request</a> which caused this transaction to be aborted.
+              If this transaction was aborted due to an error when committing the <a>transaction</a>, and not due to a failed
+              <a>request</a>, this property returns a <code>DOMError</code> which contains the reason for the transaction
+              failure (e.g. <code>QuotaExceededError</code> or <code>UnknownError</code>).
+            </dd>
             <dt>IDBObjectStore objectStore()</dt>
             <dd>
               Returns an <a>IDBObjectStore</a> representing an <a>object store</a> that is part of the
@@ -3509,7 +3507,7 @@ cursor.continue();</codeblock>
                 or if <var>keyPath</var> is a string and is not a <a>valid key path</a>, then a <code>DOMException</code>
                 of type <a>SyntaxError</a> MUST be thrown. If <var>keyPath</var> is
                 and <code>Array</code> and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
-                then a <code>DOMException</code> of type <a>NotSupportedError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
+                then a <code>DOMException</code> of type <a>InvalidAccessError</a> MUST be thrown. Otherwise set the created <a>object store</a>'s
                 <a title="object store key path">key path</a> is set to the value of <var>keyPath</var>.
               </p>
               <dl class="parameters">
@@ -4181,20 +4179,18 @@ var cursor = objects.<a>openCursor</a>(range);
             <dt>attribute IDBDatabaseSync db</dt>
             <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part</dd>
-			<dt>readonly attribute DOMError       error</dt>
-			<dd>
-              When the <a title="request done">done</a> flag is true, getting this
-              property MUST return the error of the request that caused the <a>transaction</a> to be aborted. 
-              If the error was generated when committing the <a>transaction</a> and not from an individual request, 
-              the error must contain the reasons for the transaction failure (e.g. <code>QuotaExceededError</code>, <code>UnknownError</code>). 
-              This is null when no error occurred or when the transaction is programmatically aborted. 
-              When the <a title="request done">done</a> flag is false, 
-              getting this property MUST throw a DOMException of type <code>InvalidStateError</code>.
-              <dl class="getraises" title="DOMException">
-                <dt><a>InvalidStateError</a></dt>
-                <dd>Thrown when this attribute was read when the <a title="request done">done</a> flag was set to false.</dd>
-              </dl>
-			</dd>
+            <dt>readonly attribute DOMError       error</dt>
+            <dd>
+              If this <a>transaction</a> is not <a>finished</a>, is <a>finished</a> but was successfully
+              <a title="commit">committed</a>, or was aborted due to a call to the
+              <a class="idlType" href="#widl-IDBTransactionSync-abort-void"><code>abort</code></a> function, this property
+              returns <code>null</code>.
+              If this transaction was aborted due to a failed <a>request</a>, this property returns the same
+              <code>DOMError</code> as the <a>request</a> which caused this transaction to be aborted.
+              If this transaction was aborted due to an error when committing the <a>transaction</a>, and not due to a failed
+              <a>request</a>, this property returns a <code>DOMError</code> which contains the reason for the transaction
+              failure (e.g. <code>QuotaExceededError</code> or <code>UnknownError</code>).
+            </dd>
             <dt>IDBObjectStoreSync objectStore()</dt>
             <dd>
               Returns an <a>IDBObjectStoreSync</a> representing an <a>object store</a> that is within the <a>scope</a> of this <a>transaction</a>. 
@@ -4219,9 +4215,8 @@ var cursor = objects.<a>openCursor</a>(range);
             <dd>
               If this <a>transaction</a> is <a title="transaction finish">finished</a>, throw a <code>DOMException</code> of type <a>InvalidStateError</a>. 
               Otherwise this method sets the transactions's <a>active</a> flag to false and
-              <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps for aborting a transaction</a>.
-              It also sets the <var>error</var> attribute on the <a>transaction</a> to a <code>DOMError</code> of type <a>AbortError</a>.
+              <a title="transaction abort">aborts</a> the transaction by running the <a>steps for aborting a transaction</a> with the <var>error</var>
+              parameter set to <code>null</code>.
               <dl class="exception" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
@@ -4468,8 +4463,11 @@ var cursor = objects.<a>openCursor</a>(range);
                   and set the request's <code>error</code> attribute to a <code>DOMError</code> with a type of <a>AbortError</a>.
                 </li>
                 <li>
-                  <a>Fire an error event</a> at the <a>request</a>. However when running these
-                  steps, ignore any request to run the <a>steps for aborting a transaction</a> as those steps are already running.
+                  Dispatch an event at <var>request</var>. The event must use
+                  the <a><code>Event</code></a> interface and have its <code>type</code> set to <code>"error"</code>.
+                  The event bubbles and is cancelable. The
+                  <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a>,
+                  then <var>transaction</var> and finally the <a>request</a>. There is no <a>default action</a> for the event.
                 </li>
               </ol>
               <p class="note">
@@ -4933,7 +4931,8 @@ var cursor = objects.<a>openCursor</a>(range);
               <a>propagation path</a> for the event is the <var>transaction</var>'s <a title="transaction connection">connection</a>,
               then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
               <var>transaction</var> by running the <a>steps for aborting a transaction</a> using <var>transaction</var> as <var>transaction</var>
-              and the <code>name</code> of <a>request</a>'s <code>error</code> property as <var>error</var>.
+              and the <code>name</code> of <a>request</a>'s <code>error</code> property as <var>error</var>. However the <a>default action</a> is
+              not taken if any of the event handlers threw an exception.
             </li>
             <li>
               Set the <a>active</a> flag of <var>transaction</var> to false.
@@ -4941,7 +4940,12 @@ var cursor = objects.<a>openCursor</a>(range);
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
               abort the transaction by following the <a>steps for aborting a transaction</a> using <var>transaction</var> as
-              <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>.
+              <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>. This is done even if the error event is not
+              canceled.
+              <p class="note">
+                This means that if an error event is fired and any of the event handlers throw an exception, the <code>error</code> property
+                on the transaction is set to an <code>AbortError</code> rather than whatever <code>DOMError</code> the <code>error</code>
+                property on the request was set to. Even if <code>preventDefault</code> is never called.
             </li>
           </ol>
         </section>
