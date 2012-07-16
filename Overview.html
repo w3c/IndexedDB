@@ -12,10 +12,10 @@
 
           shortName:            "IndexedDB",
 
-          //publishDate:          "2010-01-05",
+          publishDate:          "2012-07-16",
 
-          previousPublishDate:  "2011-12-06",
-          previousMaturity:     "WD",
+          previousPublishDate:  "2012-05-24",
+          previousMaturity:     "LC",
 
           edDraftURI:           "http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html",
 
@@ -1661,8 +1661,6 @@ store_t2.put("d"); // Will get key 2
               <p>
                 When invoked, this method MUST create a <a>request</a> and return it. 
                 The created request must implement the <a>IDBOpenDBRequest</a> interface and have its source set to null.
-                The created <a>request</a> has no <a title="request source">source</a> and MUST implement the
-                <a>IDBVersionChangeRequest</a> interface.
                 The method then queues up an operation to run the <a>steps for deleting a database</a>.
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
@@ -1956,7 +1954,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               On getting, returns the <a>transaction</a> this <a>object store</a> belongs to.        
             </dd>
-            <dt>readonly attribute boolean	autoIncremenent;</dt>
+            <dt>readonly attribute boolean	autoIncrement;</dt>
             <dd>On getting, provides the auto increment flag for this <a>object store</a>.</dd>
 
             <dt>IDBRequest put()</dt>
@@ -2059,6 +2057,11 @@ store_t2.put("d"); // Will get key 2
                 as <var>store</var>, the created clone as <var>value</var>, the <var>key</var> parameter as
                 <var>key</var>, and with the <var>no-overwrite flag</var> flag set to true.
               </p>
+            <p class="note">
+            	To determine if a <a>transaction</a> has completed successfully, 
+            	listen to the <a title="transaction">transaction’s</a> <code>complete</code> event rather than the <code>IDBObjectStore.add</code> request’s <code>success</code> event, 
+            	because the <a>transaction</a> may still fail after the <code>success</code> event fires.
+            </p>
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the <a>record</a></dd>
@@ -2827,7 +2830,14 @@ store_t2.put("d"); // Will get key 2
             <dt>[TreatNonCallableAsNull] attribute Function? onabort</dt>
             <dd>The event handler for the <a>abort event</a>.</dd>
             <dt>[TreatNonCallableAsNull] attribute Function? oncomplete</dt>
-            <dd>The event handler for the <a>complete event</a>.</dd>
+            <dd>
+            The event handler for the <a>complete event</a>.
+            <p class="note">
+            	To determine if a <a>transaction</a> has completed successfully, 
+            	listen to the <a title="transaction">transaction’s</a> <code>complete</code> event rather than the <code>IDBObjectStore.add</code> request’s <code>success</code> event, 
+            	because the <a>transaction</a> may still fail after the <code>success</code> event fires.
+            </p>
+            </dd>
             <dt>[TreatNonCallableAsNull] attribute Function? onerror</dt>
             <dd>The event handler for the <a>error event</a>.</dd>
           </dl>
@@ -4746,8 +4756,7 @@ var cursor = objects.<a>openCursor</a>(range);
               and <var>old version</var> the second argument.
             </li>
             <li>
-              Follow the normal steps for executing a <a><code>transaction</code></a> and let the <a><code>transaction</code></a>
-              finish normally.
+              Execute the transaction.
             </li>
             <li>
               When the transaction is finished, if these steps are run asynchronously, immediately set <var>request</var>'s
@@ -5394,7 +5403,7 @@ var cursor = objects.<a>openCursor</a>(range);
   <!-- database-api -->
 
 
-	    <section id="privacy" class="section">
+	    <section id="privacy" class="informative">
       <h2>Privacy</h2>
       
       <section id="user-tracking" class="section">
@@ -5442,7 +5451,7 @@ var cursor = objects.<a>openCursor</a>(range);
           <dd>          
             <p>User agents should present the database feature
             to the user in a way that associates them strongly with HTTP
-            session cookies. [[!COOKIES]]</p>
+            session cookies. [[COOKIES]]</p>
         
             <p>This might encourage users to view such storage with healthy
             suspicion.</p>
@@ -5530,7 +5539,7 @@ var cursor = objects.<a>openCursor</a>(range);
       </section>
     </section> <!-- Privacy -->
 
-    <section id="authorization" class="section">
+    <section id="authorization" class="informative">
       <h2>Authorization</h2>
       
       <section id="dns-spoofing-attacks" class="section">
