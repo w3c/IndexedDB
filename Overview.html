@@ -12,9 +12,9 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2012-07-24",
+          //publishDate:          "2010-01-05",
 
-          previousPublishDate:  "2012-05-24",
+          previousPublishDate:  "2011-12-06",
           previousMaturity:     "WD",
 
           edDraftURI:           "http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html",
@@ -367,6 +367,12 @@ prepareDatabase(function(evt) {
        <section id="database-concept" class="section">
           <h4>Database</h4>
           <p>
+          	A database's <a>origin</a> is the same as the <a>origin</a> of the document or <a>worker</a>.  
+          	Each <a>origin</a> has an associated set of databases.
+          </p>
+          <p class="note">The database origin is not affected by changes to <code>document.domain</code>.
+		  </p>
+          <p>
             Each <a>origin</a> has an associated set of 
             <a title="database">databases</a>. A <dfn>database</dfn> comprises
             one or more <a title="object store">object stores</a> which hold the data stored
@@ -686,9 +692,9 @@ prepareDatabase(function(evt) {
             which reference a given record in an object store.
           </p>
           <p>
-            The <a>record</a>s in an index are always sorted according to the <a>record</a>s key. However unlike object stores,
+            The <a>record</a>s in an index are always sorted according to the <a title="record">record's</a> key. However unlike object stores,
             a given index can contain multiple records with the same key. Such records are additionally sorted according to
-            the records value.
+            the <a title="index">index's</a> <a title="record">record's</a> value (meaning the key of the record in the referenced <a>object store</a>).
           </p>
           <p>
             An index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
@@ -793,7 +799,7 @@ prepareDatabase(function(evt) {
               A transaction can fail for reasons not tied to a particular <a>DOMRequest</a>. For example due to IO errors
               when committing the transaction, or due to running into a quota limit where the implementation can't tie
               exceeding the quota to a partcular request. In this case the implementation MUST run the
-              <a>steps for aborting a transaction<a> using the transaction as <var>transaction</var> and the appropriate
+              <a>steps for aborting a transaction</a> using the transaction as <var>transaction</var> and the appropriate
               error type as <var>error</var>. For example if quota was exceeded then <code>QuotaExceededError</code> should
               be used as <var>error</var>, and if an IO error happened, <code>UnknownError</code> should be used as
               <var>error</var>.
@@ -2217,7 +2223,7 @@ store_t2.put("d"); // Will get key 2
                 <a title="connection">connected</a> <a>database</a>. If this function is called from
                 outside a <a><code>"versionchange"</code></a> <a>transaction</a> callback, the implementation
                 MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> exception. 
-                If an index with the same name already exists, the implementation MUST throw a <code>DOMException</code> of type <a>ConstraintError</a>. 
+                If an index with the same name already exists in the <a>object store</a>, the implementation MUST throw a <code>DOMException</code> of type <a>ConstraintError</a>. 
                 Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
                 index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
@@ -2281,7 +2287,7 @@ store_t2.put("d"); // Will get key 2
                 <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
-                  <a title="connection">connected</a> <a>database</a>. </dd>
+                  <a>object store</a>. </dd>
               </dl>
             </dd>
             <dt>IDBIndex index()</dt>
@@ -2309,7 +2315,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 This method destroys the <a>index</a> with the given name in the
-                <a title="connection">connected</a> <a>database</a>. Note that this
+                <a>object store</a>. Note that this
                 method must only be called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a> callback.
               </p>
@@ -2327,7 +2333,7 @@ store_t2.put("d"); // Will get key 2
                 <a>transaction</a> callback.</dd>
                 <dt>NotFoundError</dt>
                 <dd>There is no <a>index</a> with the given name, compared in a 
-                case-sensitive manner, in the  <a title="connection">connected</a> <a>database</a>.</dd>
+                case-sensitive manner, in the  <a>object store</a>.</dd>
               </dl>
             </dd>
             <dt>IDBRequest count()</dt>
@@ -3513,7 +3519,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This creates and returns a new <a>index</a> with the given name and parameters in the 
-                <a title="connection">connected</a> <a>database</a>.  Note that this method must only
+                <a>object store</a>.  Note that this method must only
                 be called from a <a><code>"versionchange"</code></a> <a>transaction</a>. The created
                 index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
@@ -3552,7 +3558,7 @@ cursor.continue();</codeblock>
                 <dt>ConstraintError</dt>
                   <dd>An <a>index</a> with the same name, compared in a 
                   case-sensitive manner, already exists in the 
-                  <a title="connection">connected</a> <a>database</a>. 
+                  <a>object store</a>. 
                   Also thrown when creating a unique <a>index</a> on top of an <a>object store</a>
                   that already contains records that violate the unique constraint.</dd>
               </dl>
@@ -3584,7 +3590,7 @@ cursor.continue();</codeblock>
             <dd>
               <p>
                 This method destroys the <a>index</a> with the given name in the
-                <a title="connection">connected</a> <a>database</a>. Note that this
+                <a>object store</a>. Note that this
                 method must only be called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a>.
               </p>
@@ -3596,7 +3602,7 @@ cursor.continue();</codeblock>
                 <dt>NotFoundError</dt>
                 <dd>
                 If the <a>index</a> with the given name does not exist 
-                in the <a title="connection">connected</a> <a>database</a>.      
+                in the <a>object store</a>.      
                 </dd>
                 <dt>InvalidStateError</dt>
                 <dd>This method was not called from a <a><code>"versionchange"</code></a>
@@ -5288,7 +5294,7 @@ var cursor = objects.<a>openCursor</a>(range);
               <p class="note">
                 <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
                 <var>source</var> being an <a>index</a>, <var>records</var> is secondarily sorted in ascending
-                <a>value</a> order.
+                <a>value</a> order (where the value in an <a>index</a> is the <a>key</a> of the <a>record</a> in the referenced <a>object store</a>).
               </p>
             </li>
 
