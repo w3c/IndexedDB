@@ -783,28 +783,36 @@ prepareDatabase(function(evt) {
             Transactions are opened in one of three <dfn title="mode">modes</dfn>. The mode
             determines how concurrent access to <a>object store</a>s in the transaction are isolated.
           </p>
-          <ol>
-            <li><code><dfn>"readonly"</dfn></code>. This mode means that the transaction is only allowed
-            to read data. No modifications can be done by this type of transaction. This has the advantage
-            that several <code>"readonly"</code> transactions can run at the same time even if their <a>scope</a>s
-            are overlapping, i.e. if they are using the same object stores. This type of transaction can
-            be created any time once a database has been opened using the <a>IDBDatabase.transaction()</a> or
-            <a>IDBDatabaseSync.transaction()</a> functions.</li>
-            <li><code><dfn>"readwrite"</dfn></code>. The type of transaction is allowed to read, modify and
-            delete data from existing object stores. However object stores and indexes can't be added or removed.
-            Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a>scope</a>s are overlapping
-            since that would mean that they can modify each other's data in the middle of the transaction.
-            This type of transaction can be created any time once a database has been opened using the
-            <a>IDBDatabase.transaction()</a> function.</li>
-            <li><code><dfn>"versionchange"</dfn></code>. This is similar to a <code>"readwrite"</code> transaction,
-            however it can additionally create and remove object stores and indexes. It is the only type of
-            transaction that can do so. This type of transaction can't be manually created, but instead is created
-            automatically when a <a><code>upgradeneeded</code></a> event is fired.</li>
-          </ol>
-          
-          <p>
-            The this is defined in more detail below.
-          </p>
+
+          <dl class="idl" title="enum TransactionMode">
+            <dt>readonly</dt>
+            <dd>
+                This mode means that the transaction is only allowed
+                to read data. No modifications can be done by this type of transaction. This has the advantage
+                that several <code>"readonly"</code> transactions can run at the same time even if their <a>scope</a>s
+                are overlapping, i.e. if they are using the same object stores. This type of transaction can
+                be created any time once a database has been opened using the <a>IDBDatabase.transaction()</a> or
+                <a>IDBDatabaseSync.transaction()</a> functions.
+            </dd>
+
+            <dt>readwrite</dt>
+            <dd>
+                The type of transaction is allowed to read, modify and
+                delete data from existing object stores. However object stores and indexes can't be added or removed.
+                Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a>scope</a>s are overlapping
+                since that would mean that they can modify each other's data in the middle of the transaction.
+                This type of transaction can be created any time once a database has been opened using the
+                <a>IDBDatabase.transaction()</a> function.
+            </dd>
+
+            <dt>versionchange</dt>
+            <dd>
+                This is similar to a <code>"readwrite"</code> transaction,
+                however it can additionally create and remove object stores and indexes. It is the only type of
+                transaction that can do so. This type of transaction can't be manually created, but instead is created
+                automatically when a <a><code>upgradeneeded</code></a> event is fired.
+            </dd>
+          </dl>
 
           <p>
             Any number of transactions opened in <a><code>"readonly"</code></a> mode are allowed to run concurrently,
@@ -1846,9 +1854,6 @@ store_t2.put("d"); // Will get key 2
                 returned by the steps above.
               </p>
               <p>
-              	If the value for the <var>mode</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
                 If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code>
                 transaction is still running, a <a>InvalidStateError</a> exception MUST be thrown. I.e. if a
                 <code>"versionchange"</code> transaction is started when a database is opened and this method is
@@ -1862,7 +1867,7 @@ store_t2.put("d"); // Will get key 2
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
-                <dt>optional DOMString mode</dt>
+                <dt>optional TransactionMode mode</dt>
                 <dd> The <a>mode</a> for isolating access to data inside the given
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
                 access <a>mode</a> is <code>"readonly"</code>.</dd>
@@ -1874,8 +1879,6 @@ store_t2.put("d"); // Will get key 2
                 </dd>
                 <dt>NotFoundError</dt>
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>mode</a> parameter is invalid.</dd>
                 <dt>InvalidAccessError</dt>
                 <dd>The function was called with an empty list of store names</dd>
               </dl>
@@ -2755,7 +2758,7 @@ store_t2.put("d"); // Will get key 2
             <a title="transaction">Transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBTransaction : EventTarget">
-            <dt>readonly attribute enum  mode</dt>
+            <dt>readonly attribute TransactionMode mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
@@ -3115,9 +3118,6 @@ store_t2.put("d"); // Will get key 2
                 returned by the steps above.
               </p>
               <p>
-              	If the value for the <var>mode</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
                 This method MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> 
                 when it is called within the <a>IDBTransactionCallback</a> of a <code>transaction</code> method or the
                 <a>IDBVersionChangeCallback</a> of a <code>open</code> method.
@@ -3130,7 +3130,7 @@ store_t2.put("d"); // Will get key 2
                 <dt>IDBTransactionCallback callback</dt>
                 <dd>A callback which will be called with the newly created transaction. When the callback returns,
                   the transaction is committed.</dd>
-                <dt>optional DOMString mode</dt>
+                <dt>optional TransactionMode mode</dt>
                 <dd>
                     The <a>mode</a> for isolating access to data inside the given
                     <a title="object store">object stores</a>. If this parameter is not provided, the default
@@ -3155,8 +3155,6 @@ store_t2.put("d"); // Will get key 2
                   <a>IDBVersionChangeCallback</a> of a <code>open</code> method.</dd>
                 <dt>NotFoundError</dt>
                 <dd>One of the names provided in the <var>storeNames</var> argument doesn't exist in this <a>database</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>mode</a> parameter is invalid.</dd>
                 <dt>InvalidAccessError</dt>
                 <dd>The function was called with an empty list of store names</dd>
               </dl>
@@ -4183,7 +4181,7 @@ var cursor = objects.<a>openCursor</a>(range);
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
           <dl class="idl" title="interface IDBTransactionSync">
-            <dt>readonly attribute DOMString mode</dt>
+            <dt>readonly attribute TransactionMode mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
