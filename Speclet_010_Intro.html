@@ -3,9 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.41 2010/03/24 17:58:17 nmehta3 Exp $'/>
-    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
-    <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
+    <script src='//www.w3.org/Tools/respec/respec-w3c-common' class='remove' async></script>
     <script class='remove'>
       var respecConfig = {
           specStatus:           "ED",
@@ -21,11 +19,6 @@
 
           // if this is a LCWD, uncomment and set the end of its review period
           // lcEnd: "2009-08-05",
-
-          extraCSS: [
-                "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css",
-                "SimpleDB.css"
-          ],
 
           // editors, add as many as you like
           // only "name" is required
@@ -53,56 +46,17 @@
           wgPublicList: "public-webapps",
 
           wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
+
+          // Please do not use this "idlOldStyleExceptions" mechanism in other
+          // specs. Exceptions should be described normatively in the prose and
+          // define consider the order for which exceptional conditions will be
+          // tested. See: https://www.w3.org/Bugs/Public/show_bug.cgi?id=17681
+          idlOldStyleExceptions: true,
+
+          noIDLSectionTitle: true,
       };
     </script>
-    <script class="remove">
-      function examples() {
-        var examples = document.querySelectorAll('div.example');
-        sn = new berjon.simpleNode({
-                        "":     "http://www.w3.org/1999/xhtml",
-                        "x":    "http://www.w3.org/1999/xhtml"
-                    });
-        for (var i = 0; i < examples.length; i++) {
-          var example = examples.item(i);
-          var header = sn.element('div', {'class': 'exampleHeader'}, null, 'Example');
-          example.insertBefore(header, example.firstChild);
-        }
-      }
 
-      function codeblocks() {
-        document.normalize();
-        sn = new berjon.simpleNode({
-                        "":     "http://www.w3.org/1999/xhtml",
-                        "x":    "http://www.w3.org/1999/xhtml"
-                    });
-
-        var blocks = document.querySelectorAll('codeblock');
-        for (var i = 0; i < blocks.length; i++) {
-          var codeblock = blocks.item(i);
-          var div = sn.element('div', {'class': 'block'})
-          sn.element('span', {'class': 'blockTitle'},
-            sn.element('div', {'class': 'blockTitleDiv'}, div), 'ECMAScript');
-          var code = sn.element('code', {'class': 'es-code'},
-                       sn.element('pre', {'class': 'code'},
-                         sn.element('div', {'class': 'blockContent'}, div)));
-          sn.copyChildren(codeblock, code);
-          codeblock.parentNode.replaceChild(div, codeblock);
-        }
-      }
-      window.onload = function() {
-        examples();
-        codeblocks();
-        (new berjon.respec()).loadAndRun();
-      }
-    </script>
-    <!--[if IE]>
-    <style type='text/css'>
-      .ignore {
-        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
-        filter: alpha(opacity=50);
-      }
-    </style>
-    <![endif]-->
     <style type="text/css">
       table {
         border-collapse: collapse;
@@ -118,8 +72,8 @@
         padding: 0.2em;
         vertical-align: top;
       }
-      h5 {
-        display: none
+      aside>.example-title>span {
+          display: none
       }
     </style>
   </head>
@@ -181,7 +135,7 @@
           for a given author. If an exact match is not found, the operation
           raises an exception.
         </p>
-        <codeblock>var db = indexedDB.open('books', 'Book store', false);
+        <pre class="example highlight">var db = indexedDB.open('books', 'Book store', false);
 if (db.version !== '1.0') {
   var olddb = indexedDB.open('books', 'Book store');
   olddb.createObjectStore('books', 'isbn');
@@ -194,11 +148,11 @@ var matching = index.get('fred');
 if (matching)
   report(matching.isbn, matching.name, matching.author);
 else
-  report(null);</codeblock>
+  report(null);</pre>
         <p>
         The next example performs the exact same logic as above asynchronously.
         </p>
-        <codeblock>
+        <pre class="example highlight">
   function findFred() {
     var store = db.objectStore('books');
     var index = store.index('BookAuthor');
@@ -236,7 +190,7 @@ else
     }
   }
    
-        </codeblock>
+        </pre>
         <p>
         Here is an example of a script using this API. First, a function
         <code>prepareDatabase()</code> is defined. This function tries to create 
@@ -245,7 +199,7 @@ else
         doesn't need creating, it calls the function that does the
         actual work, in this case <code>showDocCount()</code>.
         </p>
-        <codeblock>
+        <pre class="example highlight">
 var request = null;
 function prepareDatabase(ready, error) {
   request = new <a>IDBDatabaseRequest</a>();
@@ -284,7 +238,7 @@ prepareDatabase(function(evt) {
   // error getting database
   var error = request.error;
   alert(error.message);
-});</codeblock>
+});</pre>
       </div>-->
     </section>
 

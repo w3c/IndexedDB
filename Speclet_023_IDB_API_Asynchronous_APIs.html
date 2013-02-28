@@ -3,9 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.41 2010/03/24 17:58:17 nmehta3 Exp $'/>
-    <script src='js/respec.js' class='remove'></script>
-    <script src='js/simple-node.js' class='remove'></script>
+    <script src='//www.w3.org/Tools/respec/respec-w3c-common' class='remove' async></script>
     <script class='remove'>
       var respecConfig = {
           specStatus:           "ED",
@@ -20,12 +18,7 @@
           edDraftURI:           "http://dvcs.w3.org/hg/IndexedDB/raw-file/tip/Overview.html",
 
           // if this is a LCWD, uncomment and set the end of its review period
-                       // lcEnd: "2009-08-05",
-
-          extraCSS: [
-                "http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css",
-                "SimpleDB.css"
-          ],
+          // lcEnd: "2009-08-05",
 
           // editors, add as many as you like
           // only "name" is required
@@ -53,56 +46,17 @@
           wgPublicList: "public-webapps",
 
           wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
+
+          // Please do not use this "idlOldStyleExceptions" mechanism in other
+          // specs. Exceptions should be described normatively in the prose and
+          // define consider the order for which exceptional conditions will be
+          // tested. See: https://www.w3.org/Bugs/Public/show_bug.cgi?id=17681
+          idlOldStyleExceptions: true,
+
+          noIDLSectionTitle: true,
       };
     </script>
-    <script class="remove">
-      function examples() {
-        var examples = document.querySelectorAll('div.example');
-        sn = new berjon.simpleNode({
-                        "":     "http://www.w3.org/1999/xhtml",
-                        "x":    "http://www.w3.org/1999/xhtml"
-                    });
-        for (var i = 0; i < examples.length; i++) {
-          var example = examples.item(i);
-          var header = sn.element('div', {'class': 'exampleHeader'}, null, 'Example');
-          example.insertBefore(header, example.firstChild);
-        }
-      }
 
-      function codeblocks() {
-        document.normalize();
-        sn = new berjon.simpleNode({
-                        "":     "http://www.w3.org/1999/xhtml",
-                        "x":    "http://www.w3.org/1999/xhtml"
-                    });
-
-        var blocks = document.querySelectorAll('codeblock');
-        for (var i = 0; i < blocks.length; i++) {
-          var codeblock = blocks.item(i);
-          var div = sn.element('div', {'class': 'block'})
-          sn.element('span', {'class': 'blockTitle'},
-            sn.element('div', {'class': 'blockTitleDiv'}, div), 'ECMAScript');
-          var code = sn.element('code', {'class': 'es-code'},
-                       sn.element('pre', {'class': 'code'},
-                         sn.element('div', {'class': 'blockContent'}, div)));
-          sn.copyChildren(codeblock, code);
-          codeblock.parentNode.replaceChild(div, codeblock);
-        }
-      }
-      window.onload = function() {
-        examples();
-        codeblocks();
-        (new berjon.respec()).loadAndRun();
-      }
-    </script>
-    <!--[if IE]>
-    <style type='text/css'>
-      .ignore {
-        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
-        filter: alpha(opacity=50);
-      }
-    </style>
-    <![endif]-->
     <style type="text/css">
       table {
         border-collapse: collapse;
@@ -118,8 +72,8 @@
         padding: 0.2em;
         vertical-align: top;
       }
-      h5 {
-        display: none
+      aside>.example-title>span {
+          display: none
       }
     </style>
   </head>
@@ -158,17 +112,17 @@
             asynchronous requests to <a title="database">databases</a> and <a>database</a> 
             <a>objects</a> using <a>event handler attributes</a> [[!DOM-LEVEL-3-EVENTS]]. 
           </p>
-          <div class="example">       
+          <aside class="example">
             <p>
               In the following example, we open a <a>database</a> asynchronously. Various 
               event handlers are registered for responding to various situations.
             </p>
-            <codeblock>
+            <pre class="example highlight">
  var request = indexedDB.<a>open</a>('AddressBook', 15);
  request.<a>onsuccess</a> = function(evt) {...};
  request.<a>onerror</a> = function(evt) {...};
-            </codeblock>
-          </div>
+            </pre>
+          </aside>
           <dl class="idl" title="interface IDBRequest : EventTarget">
             <dt>readonly attribute any result</dt>
             <dd>
@@ -349,7 +303,7 @@
                 <dt>[EnforceRange] optional unsigned long long version</dt>
                 <dd>The <a>version</a> for the <a>database</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
               	<dt>TypeError</dt>
               	<dd>The value of <code>version</code> is <code>0</code> (zero) or a negative number.</dd>		
               </dl>
@@ -404,7 +358,7 @@
                 <dt>any second</dt>
                 <dd>The second <a>key</a> to compare.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>DataError</dt>
                 <dd>One of the supplied keys was not a <a>valid key</a>.</dd>
               </dl>
@@ -521,7 +475,7 @@
                     <code>autoIncrement</code> specifies whether the <a>object store</a>
                     created should have a <a>key generator</a>.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>InvalidStateError</dt>
                   <dd>This method was not called from a <a><code>"versionchange"</code></a>
                   <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
@@ -554,7 +508,7 @@
                 <dd>The <a title="object store name">name</a> of an existing
                 <a>object store</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
                   This method was not called from a <a><code>"versionchange"</code></a> <a>transaction</a> callback.
@@ -602,7 +556,7 @@
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
                 access <a>mode</a> is <code>"readonly"</code>.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>
                   The close() method has been called on this <a>IDBDatabase</a> instance.
@@ -704,7 +658,7 @@
                 <dt>optional any key</dt>
                 <dd>The key used to identify the <a>record</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
@@ -769,7 +723,7 @@
                 <dt>optional any key</dt>
                 <dd>The key used to identify the <a>record</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
@@ -805,7 +759,7 @@
                 <dt>any key</dt>
                 <dd>Key identifying the <a>record</a> to be deleted</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
@@ -836,7 +790,7 @@
                 <dd>Key identifying the <a>record</a> to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retreives the first existing value in that range.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>DataError</dt>
@@ -857,7 +811,7 @@
                 <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
                 this <a>IDBObjectStore</a> as <var>store</var>.
               </p>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
@@ -901,7 +855,7 @@
                 <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>TypeError</dt>
@@ -976,7 +930,7 @@
                     set.
                   </dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>InvalidStateError</dt>
                   <dd>This method was not called from a <a><code>"versionchange"</code></a> 
                 <a>transaction</a> callback. Also occurs if a request is made on a source object that has been deleted or removed.</dd>
@@ -999,7 +953,7 @@
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>NotFoundError</dt>
                 <dd>There is no <a>index</a> with the given name, compared in a 
                 case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>.</dd>
@@ -1023,7 +977,7 @@
                 <dt>DOMString indexName</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>This method was not called from a <a><code>"versionchange"</code></a>
                 <a>transaction</a> callback.</dd>
@@ -1052,7 +1006,7 @@
                   This can also be an <a><code>IDBKeyRange</code></a>.
                 </dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
                 <dt>DataError</dt>
@@ -1131,7 +1085,7 @@
                 <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>TypeError</dt>
@@ -1176,7 +1130,7 @@
                 <dt>optional DOMString direction</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>TypeError</dt>
@@ -1208,7 +1162,7 @@
                 <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retreives the first existing value in that range.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>DataError</dt>
@@ -1235,7 +1189,7 @@
                 <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retreives the first existing value in that range.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>DataError</dt>
@@ -1264,7 +1218,7 @@
                   This can also be an <a><code>IDBKeyRange</code></a>.
                 </dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
                 <dt>DataError</dt>
@@ -1338,7 +1292,7 @@
                 <dt>any value</dt>
                 <dd>The new value to store at the current position.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
@@ -1386,7 +1340,7 @@
                 <dt>[EnforceRange] unsigned long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TypeError</dt>
                 <dd>The value passed into the <code>count</code> parameter was zero or a negative number.</dd>
                 <dt>TransactionInactiveError</dt>
@@ -1435,7 +1389,7 @@
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -1460,7 +1414,7 @@
                 and the <a>steps for deleting records from an object store</a> as <var>operation</var>, using this cursor's
                 <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
               </p>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>.</dd>
                 <dt>ReadOnlyError</dt>
@@ -1521,7 +1475,7 @@
                 <dt>DOMString name</dt>
                 <dd>The requested <a>object store</a></dd>
               </dl>
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>NotFoundError</dt>
                 <dd>
                 If the requested <a>object store</a> is not in this 
@@ -1537,7 +1491,7 @@
               Otherwise this method sets the transaction's <a>active</a> flag to false and
               <a title="transaction abort">aborts</a> the transaction by running the
               <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to <code>null</code>.
-              <dl class="exception" title="DOMException">
+              <dl class="exception remove" title="DOMException">
                 <dt>InvalidStateError</dt>
                 <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
               </dl>
