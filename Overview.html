@@ -1069,23 +1069,29 @@ prepareDatabase(function(evt) {
             It also determines in which direction the cursor moves when iterated, and if it skips duplicated values
             when iterating indexes. The allowed values for a cursor's <a>direction</a> is as follows:
           </p>
-          <ul>
-            <li><dfn><code>"next"</code></dfn>. This direction causes the cursor to be opened at the start of the
+          <dl class="idl" title="enum IDBCursorDirection">
+            <dt>next</dt>
+            <dd>This direction causes the cursor to be opened at the start of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
-            duplicates, in monotonically increasing order of keys.</li>
-            <li><dfn><code>"nextunique"</code></dfn>. This direction causes the cursor to be opened at the start of the
+            duplicates, in monotonically increasing order of keys.</dd>
+
+            <dt>nextunique</dt>
+            <dd>This direction causes the cursor to be opened at the start of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
             the same key, but otherwise yield all records, in monotonically increasing order of keys. For every key
             with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
-            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"next"</code>.
-            <li><dfn><code>"prev"</code></dfn>. This direction causes the cursor to be opened at the end of the
+            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"next"</code>.</dd>
+            <dt>prev</dt>
+            <dd>This direction causes the cursor to be opened at the end of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
-            duplicates, in monotonically decreasing order of keys.</li>
-            <li><dfn><code>"prevunique"</code></dfn>. This direction causes the cursor to be opened at the end of the
+            duplicates, in monotonically decreasing order of keys.</dd>
+
+            <dt>prevunique</dt>
+            <dd>This direction causes the cursor to be opened at the end of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
             the same key, but otherwise yield all records, in monotonically decreasing order of keys. For every key
             with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
-            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"prev"</code>.</li>
+            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"prev"</code>.</dd>
           </ul>
           <p>
             If the <a title="cursor source">source</a> of a cursor is an <a>object store</a>, the <dfn>effective object store</dfn>
@@ -2104,7 +2110,7 @@ store_t2.put("d"); // Will get key 2
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any---range-IDBCursorDirection-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -2146,9 +2152,6 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-              	If the value for the <var>direction</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
                 MUST implement the <a>IDBCursorWithValue</a> interface.
@@ -2174,14 +2177,12 @@ store_t2.put("d"); // Will get key 2
               <dl class="parameters">
                 <dt>optional any?            range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional DOMString direction</dt>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -2375,9 +2376,6 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-              	If the value for the <var>direction</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a <code>DOMException</code> of type <a>DataError</a>. 
                 Otherwise, this method creates a <a>cursor</a>. 
@@ -2404,14 +2402,12 @@ store_t2.put("d"); // Will get key 2
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional DOMString direction</dt>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                  <dt>InvalidStateError</dt>
@@ -2420,9 +2416,6 @@ store_t2.put("d"); // Will get key 2
             </dd>
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
-              <p>
-              	If the value for the <var>direction</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
@@ -2449,14 +2442,12 @@ store_t2.put("d"); // Will get key 2
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional DOMString direction</dt>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndex</a> belongs to is not <a>active</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -2476,7 +2467,7 @@ store_t2.put("d"); // Will get key 2
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndex-openCursor-IDBRequest-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndex-openCursor-IDBRequest-any---range-IDBCursorDirection-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -2566,7 +2557,7 @@ store_t2.put("d"); // Will get key 2
             never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
             or its transaction is not <a>active</a>.
             </dd>
-            <dt>readonly attribute DOMString     direction</dt>
+            <dt>readonly attribute IDBCursorDirection direction</dt>
             <dd>
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
@@ -2591,7 +2582,7 @@ store_t2.put("d"); // Will get key 2
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false or if this
                 cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a>, this method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a>, this method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
                 of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
@@ -2624,7 +2615,7 @@ store_t2.put("d"); // Will get key 2
                 is <code>"readonly"</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd>The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -2685,11 +2676,11 @@ store_t2.put("d"); // Will get key 2
                 <li>The parameter is not a <a>valid key</a>.</li>
                 <li>
                   The parameter is <a>less than</a> or <a>equal to</a> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is "next" or "nextunique".
+                  and this cursor's <a>direction</a> is <code>"next"</code> or <code>"nextunique"</code>.
                 </li>
                 <li>
                   The parameter is <a>greater than</a> or <a>equal to</a> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is "prev" or "prevunique".
+                  and this cursor's <a>direction</a> is <code>"prev"</code> or <code>"prevunique"</code>.
                 </li>
               </ul>
               <p>
@@ -2729,7 +2720,7 @@ store_t2.put("d"); // Will get key 2
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this IDBCursor belongs to
                 has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -2746,7 +2737,7 @@ store_t2.put("d"); // Will get key 2
                 is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
@@ -3460,7 +3451,7 @@ cursor.continue();</pre>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBObjectStoreSync-openCursor-IDBCursorWithValueSync-any---range-IDBCursorDirection-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -3595,9 +3586,6 @@ cursor.continue();</pre>
             <dt>IDBCursorWithValueSync openCursor()</dt>
             <dd>
               <p>
-              	If the value for the <var>direction</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
                 MUST implement the <a>IDBCursorWithValueSync</a> interface.
@@ -3623,14 +3611,12 @@ cursor.continue();</pre>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional DOMString direction</dt>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The <a>transaction</a> this <a>IDBObjectStoreSync</a> belongs to is not <a>active</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -3752,9 +3738,6 @@ cursor.<a>continue</a>();</pre>
             <dt>IDBCursorWithValueSync openCursor()</dt>
             <dd>
               <p>
-              	If the value for the <var>direction</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
                 MUST implement the <a>IDBCursorWithValueSync</a> interface.
@@ -3780,14 +3763,12 @@ cursor.<a>continue</a>();</pre>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional DOMString direction</dt>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed a valid value.</dd>
                 <dt>InvalidStateError</dt>
@@ -3797,9 +3778,6 @@ cursor.<a>continue</a>();</pre>
 
             <dt>IDBCursorSync openKeyCursor()</dt>
             <dd>
-              <p>
-              	If the value for the <var>direction</var> parameter is invalid, this method MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
               <p>
                 If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
                 this method throws a <code>DOMException</code> of type <a>DataError</a>. Otherwise, this method creates a <a>cursor</a>. The cursor
@@ -3827,14 +3805,12 @@ cursor.<a>continue</a>();</pre>
               <dl class="parameters">
                 <dt>optional any?    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional DOMString direction</dt>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
               <dl class="exception remove" title="DOMException">
                 <dt>TransactionInactiveError</dt>
                 <dd>The transaction this <a>IDBIndexSync</a> belongs to is not <a>active</a>.</dd>
-                <dt>TypeError</dt>
-                <dd>The value for the <a>direction</a> parameter is invalid.</dd>
                 <dt>DataError</dt>
                 <dd>The <var>range</var> parameter was not passed <a>key range</a> or a <a>valid key</a>.</dd>
                 <dt>InvalidStateError</dt>
@@ -3854,7 +3830,7 @@ cursor.<a>continue</a>();</pre>
               <p class="note">
                 This function produces the same result if a record with the given key doesn't exist as when a record
                 exists, but has <code>undefined</code> as value. If you need to tell the two situations apart, you can use
-                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any-range-DOMString-direction">openCursor</a> with the same key. This will return a cursor with
+                <a href="#widl-IDBIndexSync-openCursor-IDBCursorWithValueSync-any---range-IDBCursorDirection-direction">openCursor</a> with the same key. This will return a cursor with
                 <code>undefined</code> as value if a record exists, or no cursor if no such record exists.
               </p>
               <dl class="parameters">
@@ -4013,7 +3989,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> 
                 if the transaction which this IDBCursorSync belongs to has its <a>mode</a> set to <code>"readonly"</code>. 
                 If this cursor's <a>got value</a> flag is false or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a>, this method
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a>, this method
                 throws a <code>DOMException</code> of type <a>InvalidStateError</a>. 
                 If the <a>effective object store</a> of this cursor uses <a>in-line</a>
                 keys and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
@@ -4046,7 +4022,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 is <code>"readonly"</code></dd>
                 <dt>InvalidStateError</dt>
                 <dd>Thrown if cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> or if the cursor
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a> or if the cursor
                 is currently being iterated or has iterated past the end.</dd>
                 <dt>DataError</dt>
                 <dd> The underlying <a>object store</a> uses <a>in-line keys</a> and the property in <var>value</var>
@@ -4149,7 +4125,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 This method throws a <code>DOMException</code> of type <a>ReadOnlyError</a> if the transaction which this <a>IDBCursorSync</a> belongs to
                 has its <a>mode</a> set to <code>"readonly"</code>. If this cursor's <a>got value</a> flag is false,
                 or if this cursor was created using
-                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any-range-DOMString-direction"><code>openKeyCursor</code></a> a
+                <a class="idlType" href="#widl-IDBIndex-openKeyCursor-IDBRequest-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a> a
                 <code>DOMException</code> of type <a>InvalidStateError</a> is thrown.
               </p>
               <p>
@@ -4167,7 +4143,7 @@ var cursor = objects.<a>openCursor</a>(range);
                 is <code>"readonly"</code>.</dd>
                 <dt>InvalidStateError</dt>
                 <dd>The cursor was created using
-                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any-range-DOMString-direction"><code>openKeyCursor</code></a> or the cursor
+                <a class="idlType" href="#widl-IDBIndexSync-openKeyCursor-IDBCursorSync-any---range-IDBCursorDirection-direction"><code>openKeyCursor</code></a> or the cursor
                 is currently being iterated or has iterated past the end.</dd>
               </dl>
             </dd>
