@@ -784,7 +784,7 @@ prepareDatabase(function(evt) {
             determines how concurrent access to <a>object store</a>s in the transaction are isolated.
           </p>
 
-          <dl class="idl" title="enum TransactionMode">
+          <dl class="idl" title="enum IDBTransactionMode">
             <dt>readonly</dt>
             <dd>
                 This mode means that the transaction is only allowed
@@ -1868,6 +1868,10 @@ store_t2.put("d"); // Will get key 2
                 returned by the steps above.
               </p>
               <p>
+                If the value for the <var>mode</var> parameter is not <code>"readonly"</code> or <code>"readwrite"</code>,
+                this method MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p>
                 If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code>
                 transaction is still running, a <a>InvalidStateError</a> exception MUST be thrown. I.e. if a
                 <code>"versionchange"</code> transaction is started when a database is opened and this method is
@@ -1881,7 +1885,7 @@ store_t2.put("d"); // Will get key 2
                 <dd>The names of <a title="object store">object stores</a> and 
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
-                <dt>optional TransactionMode mode</dt>
+                <dt>optional IDBTransactionMode mode = "readonly"</dt>
                 <dd> The <a>mode</a> for isolating access to data inside the given
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
                 access <a>mode</a> is <code>"readonly"</code>.</dd>
@@ -2759,7 +2763,7 @@ store_t2.put("d"); // Will get key 2
             <a title="transaction">Transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="interface IDBTransaction : EventTarget">
-            <dt>readonly attribute TransactionMode mode</dt>
+            <dt>readonly attribute IDBTransactionMode mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
@@ -3119,6 +3123,10 @@ store_t2.put("d"); // Will get key 2
                 returned by the steps above.
               </p>
               <p>
+                If the value for the <var>mode</var> parameter is not <code>"readonly"</code> or <code>"readwrite"</code>,
+                this method MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p>
                 This method MUST throw an <code>DOMException</code> of type <a>InvalidStateError</a> 
                 when it is called within the <a>IDBTransactionCallback</a> of a <code>transaction</code> method or the
                 <a>IDBVersionChangeCallback</a> of a <code>open</code> method.
@@ -3131,7 +3139,7 @@ store_t2.put("d"); // Will get key 2
                 <dt>IDBTransactionCallback callback</dt>
                 <dd>A callback which will be called with the newly created transaction. When the callback returns,
                   the transaction is committed.</dd>
-                <dt>optional TransactionMode mode</dt>
+                <dt>optional IDBTransactionMode mode = "readonly"</dt>
                 <dd>
                     The <a>mode</a> for isolating access to data inside the given
                     <a title="object store">object stores</a>. If this parameter is not provided, the default
@@ -4167,7 +4175,7 @@ var cursor = objects.<a>openCursor</a>(range);
             to reserve the required <a>database</a> <a>objects</a>.
           </p>
           <dl class="idl" title="interface IDBTransactionSync">
-            <dt>readonly attribute TransactionMode mode</dt>
+            <dt>readonly attribute IDBTransactionMode mode</dt>
             <dd>On getting, provide the <a>mode</a> for isolating access to data inside
             the <a title="object store">object stores</a> that are in the
             <a>scope</a> of the <a>transaction</a>.</dd>
