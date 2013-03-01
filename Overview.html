@@ -1610,14 +1610,17 @@ store_t2.put("d"); // Will get key 2
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a>, <var>name</var> and <var>version</var> be the <var>name</var>
                 and <var>version</var> parameters passed to this function, and <var>request</var> be
-                the newly created request.
+                the newly created request. If the <var>version</var> parameter is not specified,
+                let <var>version</var> be <code>undefined</code>.
               </p>
               <p>
-              	If no version is specified and a database exists,
-              	use the current database version and follow the <a>steps for opening a database</a>.
-              	If no version is specified and no database exists,
-              	set database version to 1, follow the <a>steps for opening a database</a>,
-              	and return a database without <a title="object store">object stores</a>.
+                If the value of <var>version</var> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p class="note">
+                If <var>version</var> is not specified and a <a>database</a> with that name already exists,
+                a connection will be opened without changing the <a>version</a>. If <var>version</var>
+                is not specified and no <a>database</a> with that name exists, a new <a>database</a>
+                will be created with <a>version</a> equal to <code>1</code>.
               </p>
               <p>
                 If an error is returned from the steps above, the implementation MUST set the
@@ -1635,9 +1638,6 @@ store_t2.put("d"); // Will get key 2
                 to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
                 path</a> of the event is just the request. If the steps above resulted in a <code>"versionchange"</code> transaction being
                 run, then firing the <code>"success"</code> event MUST be done after the <code>“versionchange”</code> <a>transaction</a> completes.
-              </p>
-              <p>
-              	If the value of <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,
@@ -2882,13 +2882,17 @@ store_t2.put("d"); // Will get key 2
                 synchronously runs the <a>steps for opening a database</a>. Let <var>origin</var> be the origin of the
                 <a>IDBEnvironmentSync</a> used to access this <a>IDBFactorySync</a>, <var>name</var>, <var>version</var>
                 and <var>upgrade callback</var> be the <var>name</var>, <var>version</var> and <var>upgradeCallback</var>
-                arguments passed to this function.
+                arguments passed to this function. If the <var>version</var> parameter is not specified,
+                let <var>version</var> be <code>undefined</code>.
               </p>
               <p>
-              	If no version is specified and a database exists,
-              	use the current database version and follow the <a>steps for opening a database</a>.
-              	If no version is specified and no database exists, set database version to 1,
-              	follow the <a>steps for opening a database</a>, and return a <a>database</a> without <a title="object store">object stores</a>.
+                If the value of <var>version</var> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p class="note">
+                If <var>version</var> is not specified and a <a>database</a> with that name already exists,
+                a connection will be opened without changing the <a>version</a>. If <var>version</var>
+                is not specified and no <a>database</a> with that name exists, a new <a>database</a>
+                will be created with <a>version</a> equal to <code>1</code>.
               </p>
               <p>
                 If a <var>timeout</var> parameter was supplied, then this limits the total waiting time allowed in
@@ -2906,9 +2910,6 @@ store_t2.put("d"); // Will get key 2
               <p>
                 If the steps above are successful, the implementation MUST create an <a>IDBDatabaseSync</a>
                 object representing the created <a>connection</a> and return it.
-              </p>
-              <p>
-              	If the value of <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
               </p>
               <p class="note">
                 Processing a <code>open</code> call may take a long time as it could require running a
@@ -4339,6 +4340,10 @@ var cursor = objects.<a>openCursor</a>(range);
               deleted during the previous step, then create a <a>database</a> with name <var>name</var>,
               with <code>0</code> as <a>version</a>, and with no <a>object store</a>s. Let <var>db</var>
               be the new database.
+            </li>
+            <li>
+                If <var>version</var> is <code>undefined</code>, then let <var>version</var> be <code>1</code>
+                if <var>db</var> was created in the previous step, or the current <a>version</a> of <var>db</var> otherwise.
             </li>
             <li>
               If the <a>version</a> of <var>db</var> is higher than <var>version</var>, abort these steps and return

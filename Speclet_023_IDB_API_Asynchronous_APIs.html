@@ -258,14 +258,17 @@
                 Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
                 this <a>IDBFactory</a>, <var>name</var> and <var>version</var> be the <var>name</var>
                 and <var>version</var> parameters passed to this function, and <var>request</var> be
-                the newly created request.
+                the newly created request. If the <var>version</var> parameter is not specified,
+                let <var>version</var> be <code>undefined</code>.
               </p>
               <p>
-              	If no version is specified and a database exists,
-              	use the current database version and follow the <a>steps for opening a database</a>.
-              	If no version is specified and no database exists,
-              	set database version to 1, follow the <a>steps for opening a database</a>,
-              	and return a database without <a title="object store">object stores</a>.
+                If the value of <var>version</var> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p class="note">
+                If <var>version</var> is not specified and a <a>database</a> with that name already exists,
+                a connection will be opened without changing the <a>version</a>. If <var>version</var>
+                is not specified and no <a>database</a> with that name exists, a new <a>database</a>
+                will be created with <a>version</a> equal to <code>1</code>.
               </p>
               <p>
                 If an error is returned from the steps above, the implementation MUST set the
@@ -283,9 +286,6 @@
                 to <code>"success"</code>. The event does not bubble and is not cancelable. The <a>propagation
                 path</a> of the event is just the request. If the steps above resulted in a <code>"versionchange"</code> transaction being
                 run, then firing the <code>"success"</code> event MUST be done after the <code>“versionchange”</code> <a>transaction</a> completes.
-              </p>
-              <p>
-              	If the value of <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,

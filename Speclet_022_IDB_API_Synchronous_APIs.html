@@ -130,13 +130,17 @@
                 synchronously runs the <a>steps for opening a database</a>. Let <var>origin</var> be the origin of the
                 <a>IDBEnvironmentSync</a> used to access this <a>IDBFactorySync</a>, <var>name</var>, <var>version</var>
                 and <var>upgrade callback</var> be the <var>name</var>, <var>version</var> and <var>upgradeCallback</var>
-                arguments passed to this function.
+                arguments passed to this function. If the <var>version</var> parameter is not specified,
+                let <var>version</var> be <code>undefined</code>.
               </p>
               <p>
-              	If no version is specified and a database exists,
-              	use the current database version and follow the <a>steps for opening a database</a>.
-              	If no version is specified and no database exists, set database version to 1,
-              	follow the <a>steps for opening a database</a>, and return a <a>database</a> without <a title="object store">object stores</a>.
+                If the value of <var>version</var> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p class="note">
+                If <var>version</var> is not specified and a <a>database</a> with that name already exists,
+                a connection will be opened without changing the <a>version</a>. If <var>version</var>
+                is not specified and no <a>database</a> with that name exists, a new <a>database</a>
+                will be created with <a>version</a> equal to <code>1</code>.
               </p>
               <p>
                 If a <var>timeout</var> parameter was supplied, then this limits the total waiting time allowed in
@@ -154,9 +158,6 @@
               <p>
                 If the steps above are successful, the implementation MUST create an <a>IDBDatabaseSync</a>
                 object representing the created <a>connection</a> and return it.
-              </p>
-              <p>
-              	If the value of <code>version</code> is <code>0</code> (zero) or a negative number, this method MUST throw a JavaScript <code>TypeError</code> exception.
               </p>
               <p class="note">
                 Processing a <code>open</code> call may take a long time as it could require running a
