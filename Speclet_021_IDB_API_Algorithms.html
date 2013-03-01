@@ -223,10 +223,11 @@
               <a title="transaction-callback">transaction callback</a>), throw a <code>DOMException</code> of type <a>InvalidStateError</a>.
             </li>
             <li>
-              If <var>storeNames</var> is of type <code>DOMStringList</code> or <code>Array</code> leave it as is. Otherwise,
-              interpret it as an <code>Array</code> with one value, and that value is the <a>stringified</a> version of
-              <var>storeNames</var>. If any of the strings in <var>storeNames</var> identifies an <a>object store</a> which doesn't
-              exist, throw a <code>DOMException</code> of type <a>NotFoundError</a>. If <var>storeNames</var> is an empty list
+              If <var>storeNames</var> is of type <code>sequence&lt;DOMString&gt;</code> then let
+              <var>scope</var> be the set of unique strings in the sequence. Otherwise, <var>storeNames</var>
+              must be a <code>DOMString</code>; let <var>scope</var> be a set containing one string equal to <var>storeNames</var>.
+              If any of the strings in <var>scope</var> identifies an <a>object store</a> which doesn't
+              exist, throw a <code>DOMException</code> of type <a>NotFoundError</a>. If <var>scope</var> is an empty set
               throw a <code>DOMException</code> of type <a>InvalidAccessError</a>.
             </li>
             <li>
@@ -234,8 +235,8 @@
             </li>
             <li>
               <a title="transaction create">Create</a> a <a>transaction</a> using <var>connection</var> as
-              <a>connection</a>, <var>mode</var> as <a>mode</a>, and the <a>object store</a>s identified in
-              <var>storeNames</var> as <a>scope</a>.
+              <a>connection</a>, <var>mode</var> as <a>mode</a>, and the <a title="object store">object stores</a> identified in
+              <var>scope</var> as <a>scope</a>.
             </li>
             <li>
               If these steps are running asynchronously, return the created <a>transaction</a> and queue up the remaining steps.
