@@ -426,28 +426,48 @@ prepareDatabase(function(evt) {
           <p>
             In order to efficiently retrieve <a>record</a>s stored in an indexed database,
             each <a>record</a> is organized according to its <dfn>key</dfn>. A value is said to be a <dfn>valid key</dfn>
-            if it is one of the following types:
-            <code>Array</code> JavaScript objects [[!ECMA-262]], <code>DOMString</code> [[!WEBIDL]],
-            <code>Date</code> [[!ECMA-262]] or <code>float</code> [[!WEBIDL]].
-            However <code>Array</code>s are only <a>valid key</a>s if every item in the array is defined and is
-            a <a>valid key</a> (i.e. sparse arrays can not be <a>valid key</a>s) and if the <code>Array</code> doesn't directly or
+            if it is one of the following JavaScript [[!ECMA-262]] types:
+            <code>Number</code> primitive value,
+            <code>String</code> primitive value,
+            <code>Date</code> object, or
+            <code>Array</code> object.
+
+            An <code>Array</code> is only a <a title="valid key">valid keys</a> if every item in the array is defined and is
+            a <a>valid key</a> (i.e. sparse arrays can not be <a title="valid key">valid keys</a>) and if the <code>Array</code> doesn't directly or
             indirectly contain itself.
-            Any non-numeric properties are ignored, and thus does not affect whether the <code>Array</code> is a <a>valid key</a>.
-            Additionally, if the value is of type <code>float</code>, it is only a <a>valid key</a> if it is not <code>NaN</code>,
-            and if the value is of type <code>Date</code> it is only a <a>valid key</a> if its <code>[<span>[</span>PrimitiveValue]]</code>
+
+            Any non-numeric properties on an <code>Array</code> are ignored, and thus do not affect whether the <code>Array</code> is a <a>valid key</a>.
+
+            If the value is of type <code>Number</code>, it is only a <a>valid key</a> if it is not <code>NaN</code>.
+
+            If the value is of type <code>Date</code> it is only a <a>valid key</a> if its <code>[<span>[</span>PrimitiveValue]]</code>
             internal property, as defined by [[!ECMA-262]], is not <code>NaN</code>.
-            <a>Conforming user agents</a> MUST support all <a>valid key</a>s as keys.
+
+            <a>Conforming user agents</a> MUST support all <a title="valid key">valid keys</a> as keys.
           </p>
           <p class="note">
-            Infinite <code>float</code> values are <a>valid key</a>s. As are empty <code>Array</code>s.
+            Infinite <code>Number</code> values are <a title="valid key">valid keys</a>. As are empty <code>Array</code>s.
           </p>
+
           <p>
-            For purposes of comparison, all <code>Array</code>s are greater than all <code>DOMString</code>,
-            <code>Date</code> and <code>float</code> values; all <code>DOMString</code> values are greater than all
-            <code>Date</code> and <code>float</code> values; and all <code>Date</code> values are greater than all
-            <code>float</code> values. Values of type <code>float</code> are compared to other <code>float</code> values
+              Operations that accept <a title="key">keys</a> MUST perform as if  each <a>key</a> parameter
+              value, in order, is copied by the by the <a>structured clone algorithm</a> [[!HTML5]] and
+              the copy is instead used as input to the operation, before proceding with rest of the operation.
+          </p>
+          <p class="note">
+              This implicit copying step ensures that side effects, as might be implemented
+              by JavaScript [[!ECMA-262]] getters, setters and type conversions functions such as
+              <code>toString()</code> and <code>valueOf()</code>, and that objects used as keys do not
+              change in value after the operation begins.
+          </p>
+
+          <p>
+            For purposes of comparison, all <code>Array</code>s are greater than all <code>String</code>,
+            <code>Date</code> and <code>Number</code> values; all <code>String</code> values are greater than all
+            <code>Date</code> and <code>Number</code> values; and all <code>Date</code> values are greater than all
+            <code>Number</code> values. Values of type <code>Number</code> are compared to other <code>Number</code> values
             numerically. Values of type <code>Date</code> are compared to other <code>Date</code> values chronologically.
-            Values of type <code>DOMString</code> are compared to other values of type <code>DOMString</code>
+            Values of type <code>String</code> are compared to other values of type <code>String</code>
             by using the algorithm defined by step 4 of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>,
             of the ECMAScript Language Specification [[!ECMA-262]].
             Values of type <code>Array</code> are compared to other values of type <code>Array</code> as follows:
@@ -484,7 +504,7 @@ prepareDatabase(function(evt) {
             </li>
           </ol>
           <p class="note">
-            Note that <code>Array</code>s that contain other <code>Array</code>s are allowed as <a>valid key</a>s.
+            Note that <code>Array</code>s that contain other <code>Array</code>s are allowed as <a title="valid key">valid keys</a>.
             In this case the algorithm above runs recursively when comparing the individual values in the arrays.
           </p>
           <p class="note">
@@ -497,7 +517,7 @@ prepareDatabase(function(evt) {
             the above comparisons.
           </p>
           <p>
-            The following examples illustrate the different behaviors when trying to use in-line <a>key</a>s and <a>key generator</a>s
+            The following examples illustrate the different behaviors when trying to use in-line <a title="key">keys</a> and <a>key generator</a>s
             to save an object to an <a>object store</a>.
           </p>
           <aside class="example">
@@ -575,9 +595,9 @@ prepareDatabase(function(evt) {
           <h4>Values</h4>
           <p>
             Each record is associated with a <dfn>value</dfn>. <a>Conforming user agents</a> MUST support
-            any value supported by the <a>structured clone algorithm</a>
-            [[!HTML5]]. This includes simple types such as <code>DOMString</code>
-            and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
+            any JavaScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
+            [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
+            and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
             instances.
           </p>
         </section>
@@ -591,7 +611,7 @@ prepareDatabase(function(evt) {
           <ul>
             <li>An empty <code>DOMString</code>.</li>
             <li>An <dfn>identifier</dfn>, which is a <code>DOMString</code> matching
-                the <code>IdentifierName</code> production from the JavaScript language grammar. [[!ECMA-262]].</li>
+                the <code>IdentifierName</code> production from the ECMAScript Language Specification [[!ECMA-262]].</li>
             <li>A <code>DOMString</code> consisting of two or more <a title="identifier">identifiers</a> separated by
             periods (ASCII character code 46).</li>
             <li>A non-empty <code>Array</code> containing only <code>DOMString</code>s conforming to
