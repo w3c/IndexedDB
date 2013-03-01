@@ -81,12 +81,12 @@
   <body>
     <section id="abstract">
       <p>
-        This document defines APIs for a database of records holding simple 
-        values and hierarchical objects. Each record consists of a key and some 
-        value. Moreover, the database maintains indexes over records it stores. 
-        An application developer directly uses an API to locate records either 
-        by their key or by using an index. A query language can be layered on 
-        this API. An indexed database can be implemented using a persistent 
+        This document defines APIs for a database of records holding simple
+        values and hierarchical objects. Each record consists of a key and some
+        value. Moreover, the database maintains indexes over records it stores.
+        An application developer directly uses an API to locate records either
+        by their key or by using an index. A query language can be layered on
+        this API. An indexed database can be implemented using a persistent
         B-tree data structure.
       </p>
     </section>
@@ -101,13 +101,13 @@
        <section id="database-concept" class="section">
           <h4>Database</h4>
           <p>
-          	A database's <a>origin</a> is the same as the <a>origin</a> of the document or <a>worker</a>.  
+          	A database's <a>origin</a> is the same as the <a>origin</a> of the document or <a>worker</a>.
           	Each <a>origin</a> has an associated set of databases.
           </p>
           <p class="note">The database origin is not affected by changes to <code>document.domain</code>.
 		  </p>
           <p>
-            Each <a>origin</a> has an associated set of 
+            Each <a>origin</a> has an associated set of
             <a title="database">databases</a>. A <dfn>database</dfn> comprises
             one or more <a title="object store">object stores</a> which hold the data stored
             in the database.
@@ -125,7 +125,7 @@
             to map the provided name to a name that it can handle.
           </p>
           <p class="note">
-            Each <a>database</a> has one version at a time; a <a>database</a> 
+            Each <a>database</a> has one version at a time; a <a>database</a>
             can't exist in multiple versions at once. The only way to change the version is using a <code>"versionchange"</code>
             <a>transaction</a>.
           </p>
@@ -135,7 +135,7 @@
             can be deleted.
           </p>
           <p>
-            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple 
+            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple
             <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
             <dfn>closePending</dfn> flag which initially is set to false.
           </p>
@@ -149,11 +149,11 @@
           </p>
           <p>
             The <a><code>IDBDatabase</code></a> and <a><code>IDBDatabaseSync</code></a>
-            interfaces represent a <a>connection</a> to a <a>database</a>. 
+            interfaces represent a <a>connection</a> to a <a>database</a>.
           </p>
         </section>  <!-- IDBDatabase -->
 
-        <section class="section" id="object-store-concept">  
+        <section class="section" id="object-store-concept">
           <h4>Object Store</h4>
           <p>
             An <dfn>object store</dfn> is the primary storage mechanism for storing data in a
@@ -204,7 +204,7 @@
           <p>
             In order to efficiently retrieve <a>record</a>s stored in an indexed database,
             each <a>record</a> is organized according to its <dfn>key</dfn>. A value is said to be a <dfn>valid key</dfn>
-            if it is one of the following types: 
+            if it is one of the following types:
             <code>Array</code> JavaScript objects [[!ECMA-262]], <code>DOMString</code> [[!WEBIDL]],
             <code>Date</code> [[!ECMA-262]] or <code>float</code> [[!WEBIDL]].
             However <code>Array</code>s are only <a>valid key</a>s if every item in the array is defined and is
@@ -225,8 +225,8 @@
             <code>Date</code> and <code>float</code> values; and all <code>Date</code> values are greater than all
             <code>float</code> values. Values of type <code>float</code> are compared to other <code>float</code> values
             numerically. Values of type <code>Date</code> are compared to other <code>Date</code> values chronologically.
-            Values of type <code>DOMString</code> are compared to other values of type <code>DOMString</code> 
-            by using the algorithm defined by step 4 of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>, 
+            Values of type <code>DOMString</code> are compared to other values of type <code>DOMString</code>
+            by using the algorithm defined by step 4 of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>,
             of the ECMAScript Language Specification [[!ECMA-262]].
             Values of type <code>Array</code> are compared to other values of type <code>Array</code> as follows:
           </p>
@@ -267,7 +267,7 @@
           </p>
           <p class="note">
             As a result of the above rules, negative infinity is the lowest possible value for a key.
-            There is no highest possible key value. 
+            There is no highest possible key value.
             This is because an array of any candidate highest key followed by another valid key is even higher.
           </p>
           <p>
@@ -275,38 +275,38 @@
             the above comparisons.
           </p>
           <p>
-            The following examples illustrate the different behaviors when trying to use in-line <a>key</a>s and <a>key generator</a>s 
+            The following examples illustrate the different behaviors when trying to use in-line <a>key</a>s and <a>key generator</a>s
             to save an object to an <a>object store</a>.
           </p>
           <aside class="example">
-            <p>If the following conditions are true:</p> 
+            <p>If the following conditions are true:</p>
               <ul>
                 <li>This is the fourth entry in an <a>object store</a>.</li>
                 <li>The <a>object store</a> has a <a>key generator</a>.</li>
                 <li>There is no in-line value for the <a>key path</a> property.</li>
               </ul>
               <p>
-                Then the value provided by the <a>key generator</a> is used to populate the key value.  
-                In the example below the <a>key path</a> for the object store is <code>"foo.bar"</code>.  
-                The actual object has no value for the <code>bar</code> property, <code>{ foo: {} }</code>.  
-                When the object is saved in the <a>object store</a> the <code>bar</code> property is assigned a value of 4 
+                Then the value provided by the <a>key generator</a> is used to populate the key value.
+                In the example below the <a>key path</a> for the object store is <code>"foo.bar"</code>.
+                The actual object has no value for the <code>bar</code> property, <code>{ foo: {} }</code>.
+                When the object is saved in the <a>object store</a> the <code>bar</code> property is assigned a value of 4
                 because that is the next <a>key</a> generated by the <a>object store</a>.
               </p>
             <pre class="example highlight">
  "foo.bar"
 { foo: {} }
             </pre>
-            <p>If the following conditions are true:</p> 
+            <p>If the following conditions are true:</p>
               <ul>
                 <li>This is the fourth entry in an <a>object store</a>.</li>
                 <li>The <a>object store</a> has a <a>key generator</a>.</li>
                 <li>There is a value for the <a>key path</a> property.</li>
               </ul>
             <p>
-              Then the value associated with the <a>key path</a> property is used.  
-              The auto-generated <a>key</a> is not used.  
-              In the example below the <a>keypath</a> for the <a>object store</a> is <code>"foo.bar"</code>.  
-              The actual object has a value of 10 for the <code>bar</code> property, <code>{ foo: { bar: 10} }</code>.  
+              Then the value associated with the <a>key path</a> property is used.
+              The auto-generated <a>key</a> is not used.
+              In the example below the <a>keypath</a> for the <a>object store</a> is <code>"foo.bar"</code>.
+              The actual object has a value of 10 for the <code>bar</code> property, <code>{ foo: { bar: 10} }</code>.
               When the object is saved in the <a>object store</a> the <code>bar</code> property keeps its value of 10, because that is the <a>key value</a>.
             </p>
             <pre class="example highlight">
@@ -314,13 +314,13 @@
 { foo: { bar: 10 } }
             </pre>
             <p>
-              The following example illustrates the scenario when the specified in-line <a>key</a> is defined through a <a>key path</a> but there is no property matching it.  
-              The value provided by the <a>key generator</a> is then used to populate the <a>key value</a> and the system is responsible 
-              for creating as many properties as it requires to suffice the property dependencies on the hierarchy chain.  
-              In the example below the <a>key path</a> for the <a>object store</a> is <code>"foo.bar.baz"</code>.  
-              The actual object has no value for the <code>foo</code> property, <code>{ zip: {} }</code>.  
-              When the object is saved in the <a>object store</a> the <code>foo</code>, <code>bar</code>, and <code>baz</code> properties 
-              are created each as a child of the other until a value for <code>foo.bar.baz</code> can be assigned. 
+              The following example illustrates the scenario when the specified in-line <a>key</a> is defined through a <a>key path</a> but there is no property matching it.
+              The value provided by the <a>key generator</a> is then used to populate the <a>key value</a> and the system is responsible
+              for creating as many properties as it requires to suffice the property dependencies on the hierarchy chain.
+              In the example below the <a>key path</a> for the <a>object store</a> is <code>"foo.bar.baz"</code>.
+              The actual object has no value for the <code>foo</code> property, <code>{ zip: {} }</code>.
+              When the object is saved in the <a>object store</a> the <code>foo</code>, <code>bar</code>, and <code>baz</code> properties
+              are created each as a child of the other until a value for <code>foo.bar.baz</code> can be assigned.
               The value for <code>foo.bar.baz</code> is the next key generated by the object store.
             </p>
             <pre class="example highlight">
@@ -328,12 +328,12 @@
 { zip: {} }
             </pre>
             <p>
-              Attempting to store a property on a primitive value will fail and throw an error.  
-              In the first example below the <a>key path</a> for the object store is <code>"foo"</code>.  
-              The actual object is a primitive with the value, 4.  
-              Trying to define a property on that primitive value fails.  
-              The same is true for arrays.  Properties are not allowed on an array.  
-              In the second example below, the actual object is an array, [10].  
+              Attempting to store a property on a primitive value will fail and throw an error.
+              In the first example below the <a>key path</a> for the object store is <code>"foo"</code>.
+              The actual object is a primitive with the value, 4.
+              Trying to define a property on that primitive value fails.
+              The same is true for arrays.  Properties are not allowed on an array.
+              In the second example below, the actual object is an array, [10].
               Trying to define a property on the array fails.
             </p>
             <pre class="example highlight">
@@ -344,22 +344,22 @@
 // The key generation will attempt to create and store the key path property on this array.
 "foo"
 [10]
-            
+
             </pre>
           </aside>
         </section>
-        
+
         <section id="value-construct" class="section">
           <h4>Values</h4>
           <p>
             Each record is associated with a <dfn>value</dfn>. <a>Conforming user agents</a> MUST support
-            any value supported by the <a>structured clone algorithm</a> 
+            any value supported by the <a>structured clone algorithm</a>
             [[!HTML5]]. This includes simple types such as <code>DOMString</code>
             and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
             instances.
           </p>
         </section>
-        
+
         <section id="key-path-construct" class="section">
           <h4>Key Path</h4>
           <p>
@@ -379,7 +379,7 @@
             run the <a>steps for extracting a key from a value using a key path</a>.
           </p>
           <p>
-          	<a>Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>, 
+          	<a>Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>,
           	as well as the following properties:
           </p>
           		<ul>
@@ -390,9 +390,9 @@
           			<li><code>Array.length</code></li>
           			<li><code>String.length</code></li>
           		</ul>
-          
+
         </section>
-        
+
         <section id="index-concept" class="section">
           <h4>Index</h4>
           <p>
@@ -449,7 +449,7 @@
             interfaces representing the same <a>index</a> can exist.
           </p>
         </section> <!-- IDBIndex -->
-        
+
         <section id="transaction-concept" class="section">
           <h4>Transaction</h4>
           <p>
@@ -468,20 +468,20 @@
             <a>request</a>s which have been made against the transaction.
           </p>
           <p>
-            Each transaction has a fixed scope, determined when the transaction is created. 
+            Each transaction has a fixed scope, determined when the transaction is created.
             A transaction's scope remains fixed for the lifetime of that transaction.
           </p>
           <p>
-            <a title="transaction">Transactions</a> offer some protection from 
+            <a title="transaction">Transactions</a> offer some protection from
             application and system failures. A <a>transaction</a> may be used to
-            store multiple data records or to conditionally modify certain data 
-            records. A <a>transaction</a> represents an atomic and durable set 
-            of data access and data mutation operations. 
+            store multiple data records or to conditionally modify certain data
+            records. A <a>transaction</a> represents an atomic and durable set
+            of data access and data mutation operations.
           </p>
           <p>
             <a title="transaction">Transactions</a> are expected to be short lived. This is encouraged
             by the <a title="commit">automatic committing</a> functionality described below. Authors can still cause
-            transactions to run for a long time; however, this usage pattern 
+            transactions to run for a long time; however, this usage pattern
             is not generally recommended as it can lead to a bad user experience.
           </p>
           <p>
@@ -489,7 +489,7 @@
           </p>
           <ol>
             <li>
-              A transaction is <dfn title="transaction create">created</dfn> using 
+              A transaction is <dfn title="transaction create">created</dfn> using
               <a class="idlType" href="#widl-IDBDatabase-transaction-IDBTransaction-any-storeNames-DOMString-mode">IDBDatabase.transaction</a>.
               The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
               When a transaction is created its <a>active</a> flag is initially set to true.
@@ -501,12 +501,12 @@
               the implementation MUST NOT execute these requests; however, the implementation MUST keep track of the
               <a>request</a>s and their order. Requests may be placed against a transaction only while that transaction
               is <a>active</a>. If an attempt is made to place a request against a transaction when that transaction is not
-              <a>active</a>, the implementation MUST reject the attempt by throwing a 
+              <a>active</a>, the implementation MUST reject the attempt by throwing a
               <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
             </li>
             <li>
-              Once an implementation is able to enforce the constraints defined for the transaction <a>mode</a>, defined below, 
-              the implementation MUST queue up an operation to <dfn title="transaction start">start</dfn> the transaction asynchronously. 
+              Once an implementation is able to enforce the constraints defined for the transaction <a>mode</a>, defined below,
+              the implementation MUST queue up an operation to <dfn title="transaction start">start</dfn> the transaction asynchronously.
               The timing for when this happens is affected by:
                 <ul>
                   <li>The <a>mode</a> in which the transaction is opened.</li>
@@ -519,12 +519,12 @@
               MUST be executed in the order in which they were made against the transaction. Likewise, their results MUST
               be returned in the order the requests were placed against a specific transaction.
               There is no guarantee about the order that results from requests in different transactions are returned.
-              Similarly, the transaction <a>mode</a>s ensure that two requests placed against different transactions 
+              Similarly, the transaction <a>mode</a>s ensure that two requests placed against different transactions
               can execute in any order without affecting what resulting data is stored in the database.
             </li>
             <li>
-              A transaction can be <dfn title="abort">aborted</dfn> at any time before it is <a title="transaction finish">finished</a>, 
-              even if the transaction isn't currently <a>active</a> or hasn't yet <a title="transaction start">started</a>. 
+              A transaction can be <dfn title="abort">aborted</dfn> at any time before it is <a title="transaction finish">finished</a>,
+              even if the transaction isn't currently <a>active</a> or hasn't yet <a title="transaction start">started</a>.
               When a transaction is aborted the implementation MUST undo (roll back) any changes
               that were made to the <a>database</a> during that transaction. This includes both changes to the contents of
               <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
@@ -540,7 +540,7 @@
             </li>
             <li>
               When a transaction can no longer become <a>active</a>, the implementation MUST attempt to
-              <dfn>commit</dfn> it, as long as the transaction has not been <a title="abort">aborted</a>. 
+              <dfn>commit</dfn> it, as long as the transaction has not been <a title="abort">aborted</a>.
               This usually happens after all requests placed against the
               transaction have been executed and their returned results handled, and no new requests have been placed
               against the transaction. When a transaction is committed, the implementation MUST atomically write
@@ -647,9 +647,9 @@
             against the same <a>database</a> as long as the transaction is running.
           </p>
           <p class="note">
-          	<code>"versionchange"</code> transaction is automatically created 
-          	when a database version number is provided that is greater than the current database version.  
-          	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler, 
+          	<code>"versionchange"</code> transaction is automatically created
+          	when a database version number is provided that is greater than the current database version.
+          	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler,
           	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
@@ -678,10 +678,10 @@
             Finally, requests have a <dfn>request transaction</dfn>. When a request is created, it is
             always <dfn title="place request">placed</dfn> against a <a>transaction</a> using either the
             <a href="#steps-for-asynchronously-executing-a-request">steps for asynchronously executing a request</a> or the
-            <a href="#steps-for-synchronously-executing-a-request">steps for synchronously executing a request</a>. 
-            The steps set the <a>request transaction</a> to be that <a>transaction</a>. 
-            The steps do not set the <a>request transaction</a> to be that request for the request returned from an 
-            <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a> call however. 
+            <a href="#steps-for-synchronously-executing-a-request">steps for synchronously executing a request</a>.
+            The steps set the <a>request transaction</a> to be that <a>transaction</a>.
+            The steps do not set the <a>request transaction</a> to be that request for the request returned from an
+            <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version">IDBFactory.open</a> call however.
             That function create requests which have a null <a>request transaction</a>.
           </p>
           <dl class="idl" title="enum IDBRequestReadyState">
@@ -696,24 +696,24 @@
           <h4>Key Range</h4>
           <p>
             Records can be retrieved from <a>object store</a>s and <a>index</a>es
-            using either <a title="key">keys</a> or <a title="key range">key ranges</a>. A 
-            <dfn>key range</dfn> is a continuous interval over some data type 
+            using either <a title="key">keys</a> or <a title="key range">key ranges</a>. A
+            <dfn>key range</dfn> is a continuous interval over some data type
             used for keys.
           </p>
           <p>
-            A <a>key range</a> MAY be lower-bounded or upper-bounded 
-            (there is a value that is, respectively, smaller than or larger than all its elements). 
+            A <a>key range</a> MAY be lower-bounded or upper-bounded
+            (there is a value that is, respectively, smaller than or larger than all its elements).
             A <a>key range</a> is said to be bounded if it is both lower-bounded and upper-bounded.
             If a key range is neither lower-bounded nor upper-bounded it is said to be unbounded.
-            A <a>key range</a> MAY be open (the key range does not include its endpoints)  
-            or closed (the key range includes its endpoints). 
+            A <a>key range</a> MAY be open (the key range does not include its endpoints)
+            or closed (the key range includes its endpoints).
             A key range MAY consist of a single value.
           </p>
           <p>
-            The <a><code>IDBKeyRange</code></a> interface defines a 
+            The <a><code>IDBKeyRange</code></a> interface defines a
             <a>key range</a>.
           </p>
-          <dl class="idl" title="interface IDBKeyRange"> 
+          <dl class="idl" title="interface IDBKeyRange">
             <dt>readonly attribute any lower</dt>
             <dd>This value is the lower-bound of the <a>key range</a>.</dd>
             <dt>readonly attribute any upper</dt>
@@ -818,21 +818,21 @@
             </li>
           </ul>
         </section> <!-- Key Range -->
-        
+
         <section id="cursor-concept" class="section">
           <h4>Cursor</h4>
           <p>
-            <a title="cursor">Cursors</a> are a transient mechanism used to 
-            iterate over multiple records in a database. 
-            Storage operations are performed on the underlying <a>index</a> or an 
+            <a title="cursor">Cursors</a> are a transient mechanism used to
+            iterate over multiple records in a database.
+            Storage operations are performed on the underlying <a>index</a> or an
             <a>object store</a>.
           </p>
           <p>
             A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an <a>index</a>
             or an <a>object store</a>. The cursor has a <dfn title="cursor source">source</dfn> that indicates
-            which index or object store is associated with the records over which the <a>cursor</a> is iterating. 
-            A <a>cursor</a> maintains a <dfn>position</dfn> over 
-            this series, which moves in a <dfn>direction</dfn> that is in either 
+            which index or object store is associated with the records over which the <a>cursor</a> is iterating.
+            A <a>cursor</a> maintains a <dfn>position</dfn> over
+            this series, which moves in a <dfn>direction</dfn> that is in either
             monotonically increasing or decreasing order of the <a>record</a> keys. Cursors
             also have a <dfn title="cursor key">key</dfn> and a <dfn title="cursor value">value</dfn>
             which represent the <a>key</a> and the <a>value</a> of the last iterated <a>record</a>.
@@ -850,7 +850,7 @@
           <dl class="idl" title="enum IDBCursorDirection">
             <dt>next</dt>
             <dd>This direction causes the cursor to be opened at the start of the
-            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including
             duplicates, in monotonically increasing order of keys.</dd>
 
             <dt>nextunique</dt>
@@ -861,7 +861,7 @@
             an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"next"</code>.</dd>
             <dt>prev</dt>
             <dd>This direction causes the cursor to be opened at the end of the
-            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including  
+            <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including
             duplicates, in monotonically decreasing order of keys.</dd>
 
             <dt>prevunique</dt>
@@ -896,7 +896,7 @@
             <a>position</a> and the <a>object store position</a> are used when finding the next appropriate record.
           </p>
           <p>
-            <a title="cursor">Cursor</a> objects implement the <a><code>IDBCursor</code></a> 
+            <a title="cursor">Cursor</a> objects implement the <a><code>IDBCursor</code></a>
             or the <a><code>IDBCursorSync</code></a> interfaces. There is only ever one
             <a><code>IDBCursor</code></a> or <a><code>IDBCursorSync</code></a> instance representing
             a given <a>cursor</a>. However there is no limit on how many cursors can be used at the
@@ -906,12 +906,12 @@
         <section class="section">
           <h3>Exceptions</h3>
           <p>
-          	Each of the exceptions defined in the IndexedDB spec is a <code><dfn>DOMException</dfn></code> with a specific type. [[!DOM4]] 
+          	Each of the exceptions defined in the IndexedDB spec is a <code><dfn>DOMException</dfn></code> with a specific type. [[!DOM4]]
           	Existing DOM Level 4 exceptions will set their code to a legacy value; however, the new indexedDB type exceptions will have a code value of 0.
           	The message value is optional.
           </p>
           <p>
-          	IndexedDB uses the following new <code>DOMException</code> types with their various messages.  
+          	IndexedDB uses the following new <code>DOMException</code> types with their various messages.
           	All of these new types will have a code value of <code>0</code> zero.
           </p>
           <table>
@@ -926,7 +926,7 @@
           		<tr>
           			<td><code><dfn>ConstraintError</dfn></code></td>
 	          		<td>
-	          			A mutation operation in the transaction failed because a constraint was not satisfied. 
+	          			A mutation operation in the transaction failed because a constraint was not satisfied.
 	          			For example, an object such as an <a>object store</a> or <a>index</a> already exists and a request attempted to create a new one.
 	          		</td>
           		</tr>
@@ -948,8 +948,8 @@
           		</tr>
           	</table>
 			<p>
-				IndexedDB reuses the following existing <a>DOMException</a> types from [[!DOM4]].  
-				These types will continue to return the codes and names as specified in DOM4; 
+				IndexedDB reuses the following existing <a>DOMException</a> types from [[!DOM4]].
+				These types will continue to return the codes and names as specified in DOM4;
 				however, they will have the following messages when thrown from an IndexedDB API:
 			</p>
 			<table>
@@ -960,15 +960,15 @@
 				<tr>
 					<td><code><dfn>NotFoundError</dfn></code></td>
 					<td>
-						The operation failed because the requested database object could not be found. 
+						The operation failed because the requested database object could not be found.
 						For example, an <a>object store</a> did not exist but was being opened.
 					</td>
 				</tr>
 				<tr>
 					<td><code><dfn>InvalidStateError</dfn></code></td>
 					<td>
-						An operation was called on an object on which it is not allowed or at a time when it is not allowed. 
-						Also occurs if a request is made on a source object that has been deleted or removed. 
+						An operation was called on an object on which it is not allowed or at a time when it is not allowed.
+						Also occurs if a request is made on a source object that has been deleted or removed.
 						Use <a>TransactionInactiveError</a> or <a>ReadOnlyError</a> when possible, as they are more specific variations of <a>InvalidStateError</a>.
 					</td>
 				</tr>
@@ -992,7 +992,7 @@
 				<tr>
 					<td><code><dfn>QuotaExceededError</dfn></code></td>
 					<td>
-						The operation failed because there was not enough remaining storage space, 
+						The operation failed because there was not enough remaining storage space,
 						or the storage quota was reached and the user declined to give more space to the database.
 					</td>
 				</tr>
@@ -1010,8 +1010,8 @@
         <section id="options-object-concept" class="section">
           <h4>Options Object</h4>
           <p>
-            <dfn>Options object</dfn>s are dictionary objects [[!WEBIDL]] 
-            which are used to supply optional parameters to some indexedDB functions like 
+            <dfn>Options object</dfn>s are dictionary objects [[!WEBIDL]]
+            which are used to supply optional parameters to some indexedDB functions like
             <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters">createObjectStore</a> and
             <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-any-keyPath-IDBIndexParameters-optionalParameters">createIndex</a>. The attributes on the object
             correspond to optional parameters on the function called.
@@ -1092,7 +1092,7 @@
               This means that if the operation fails and the operation is reverted, the <a>current number</a>
               is reverted to the value it had before the operation started. This applies both to modifications
               that happen due to the <a>current number</a> getting increased by <code>1</code> when the key
-              generator is used, and to modifications that happen due to a <a>record</a> being stored with a 
+              generator is used, and to modifications that happen due to a <a>record</a> being stored with a
               key value specified in the call to store the <a>record</a>.
             </li>
             <li>
@@ -1103,7 +1103,7 @@
             <li>
               When the <a>current number</a> of a key generator reaches above the value <code>2^53</code>
               (<code>9007199254740992</code>) any attempts to use the key generator to generate a new
-              <a>key</a> will result in a <code>ConstraintError</code>. 
+              <a>key</a> will result in a <code>ConstraintError</code>.
               It is still possible to insert <a title="record">records</a> into the
               object store by specifying an explicit key, however the only way to use a key generator
               again for the object store is to delete the object store and create a new one.
@@ -1129,7 +1129,7 @@
             twice for the same object store unless a transaction is rolled back.
           </p>
           <aside class="example">
-            <p>Each object store gets its own key generator:</p> 
+            <p>Each object store gets its own key generator:</p>
             <pre class="example highlight">
 store1 = db.createObjectStore("store1", { autoIncrement: true });
 store1.put("a"); // Will get key 1
