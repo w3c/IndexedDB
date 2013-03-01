@@ -358,7 +358,7 @@ prepareDatabase(function(evt) {
           </p>
           <p>
             The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple
-            <a>connection</a>s to a given <a>database</a> at any given time. Each connection has a
+            <a title="connection">connections</a> to a given <a>database</a> at any given time. Each connection has a
             <dfn>closePending</dfn> flag which initially is set to false.
           </p>
           <p>
@@ -382,9 +382,9 @@ prepareDatabase(function(evt) {
             <a>database</a>.
           </p>
           <p>
-            Each database contain a set of <a>object store</a>s. The set of <a>object store</a>s can be changed,
+            Each database contain a set of <a title="object store">object stores</a>. The set of <a title="object store">object stores</a> can be changed,
             but can only be changed using a <code>"versionchange"</code> transactions, i.e. in response to a
-            <code>upgradeneeded</code> event. When a new database is created it doesn't contain any <a>object store</a>s.
+            <code>upgradeneeded</code> event. When a new database is created it doesn't contain any <a title="object store">object stores</a>.
           </p>
           <p>
             The object store has a <a title="object store record list">list of records</a> which hold the
@@ -424,7 +424,7 @@ prepareDatabase(function(evt) {
         <section id="key-construct" class="section">
           <h4>Keys</h4>
           <p>
-            In order to efficiently retrieve <a>record</a>s stored in an indexed database,
+            In order to efficiently retrieve <a title="record">records</a> stored in an indexed database,
             each <a>record</a> is organized according to its <dfn>key</dfn>. A value is said to be a <dfn>valid key</dfn>
             if it is one of the following JavaScript [[!ECMA-262]] types:
             <code>Number</code> primitive value,
@@ -517,7 +517,7 @@ prepareDatabase(function(evt) {
             the above comparisons.
           </p>
           <p>
-            The following examples illustrate the different behaviors when trying to use in-line <a title="key">keys</a> and <a>key generator</a>s
+            The following examples illustrate the different behaviors when trying to use in-line <a title="key">keys</a> and <a title="key generator">key generators</a>
             to save an object to an <a>object store</a>.
           </p>
           <aside class="example">
@@ -640,20 +640,20 @@ prepareDatabase(function(evt) {
           <h4>Index</h4>
           <p>
             It is sometimes useful to retrieve <a>records</a> in an <a>object store</a> through other means
-            than their <a>key</a>. An <dfn>index</dfn> allows looking up <a>record</a>s in an <a>object store</a>
-            using properties of the <a>value</a>s in the <a>object store</a>s <a>record</a>s.
+            than their <a>key</a>. An <dfn>index</dfn> allows looking up <a title="record">records</a> in an <a>object store</a>
+            using properties of the <a title="value">values</a> in the <a title="object store">object stores</a> <a title="record">records</a>.
           </p>
           <p>
             An index is a specialized persistent key-value storage and has a <dfn>referenced</dfn> <a>object store</a>.
             The index has a <dfn title="index record list">list of records</dfn> which hold the
             data stored in the index. The records in an index are automatically populated whenever records in the
-            <a>referenced</a> object store are inserted, updated or deleted. There can be several <a>index</a>es
+            <a>referenced</a> object store are inserted, updated or deleted. There can be several <a title="index">indexes</a>
             referencing the same <a>object store</a>, in which changes to the object store cause all such indexes
             to get updated.
           </p>
           <p>
-            The values in the index's <a>record</a>s are always values of <a>keys</a> in the index's <a>referenced</a>
-            object store. The keys are derived from the referenced object store's <a>value</a>s using a <dfn title="index key path"><a>key path</a></dfn>.
+            The values in the index's <a title="record">records</a> are always values of <a>keys</a> in the index's <a>referenced</a>
+            object store. The keys are derived from the referenced object store's <a title="value">values</a> using a <dfn title="index key path"><a>key path</a></dfn>.
             If a given <a>record</a> with key <var>X</var> in the object store referenced by the index has the value <var>A</var>, and
             <a title="evaluate key path">evaluating</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
             <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
@@ -669,12 +669,12 @@ prepareDatabase(function(evt) {
             which reference a given record in an object store.
           </p>
           <p>
-            The <a>record</a>s in an index are always sorted according to the <a title="record">record's</a> key. However unlike object stores,
+            The <a title="record">records</a> in an index are always sorted according to the <a title="record">record's</a> key. However unlike object stores,
             a given index can contain multiple records with the same key. Such records are additionally sorted according to
             the <a title="index">index's</a> <a title="record">record's</a> value (meaning the key of the record in the referenced <a>object store</a>).
           </p>
           <p>
-            An index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a>record</a>s
+            An index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a title="record">records</a>
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
@@ -705,10 +705,10 @@ prepareDatabase(function(evt) {
             The transaction has a <a>mode</a> that determines which types of interactions can be performed
             upon that transaction. The <a>mode</a> is set when the transaction is created and remains
             fixed for the life of the transaction. The transaction also has a <dfn>scope</dfn> that
-            determines the <a>object store</a>s with which the transaction may interact. Transactions
-            have an <dfn>active</dfn> flag, which determines if new <a>request</a>s can be made
+            determines the <a title="object store">object stores</a> with which the transaction may interact. Transactions
+            have an <dfn>active</dfn> flag, which determines if new <a title="request">requests</a> can be made
             against the transaction. Finally, transactions also contain a <dfn>request list</dfn> of
-            <a>request</a>s which have been made against the transaction.
+            <a title="request">requests</a> which have been made against the transaction.
           </p>
           <p>
             Each transaction has a fixed scope, determined when the transaction is created.
@@ -738,11 +738,11 @@ prepareDatabase(function(evt) {
               When a transaction is created its <a>active</a> flag is initially set to true.
             </li>
             <li>
-              The implementation MUST allow <a>request</a>s to be <a title="place request">placed</a> against the transaction
+              The implementation MUST allow <a title="request">requests</a> to be <a title="place request">placed</a> against the transaction
               whenever the <a>active</a> flag is true. This is the case even if the transaction has not yet been
               <a title="transaction start">started</a>. Until the transaction is <a title="transaction start">started</a>
               the implementation MUST NOT execute these requests; however, the implementation MUST keep track of the
-              <a>request</a>s and their order. Requests may be placed against a transaction only while that transaction
+              <a title="request">requests</a> and their order. Requests may be placed against a transaction only while that transaction
               is <a>active</a>. If an attempt is made to place a request against a transaction when that transaction is not
               <a>active</a>, the implementation MUST reject the attempt by throwing a
               <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
@@ -753,16 +753,16 @@ prepareDatabase(function(evt) {
               The timing for when this happens is affected by:
                 <ul>
                   <li>The <a>mode</a> in which the transaction is opened.</li>
-                  <li>Which <a>object store</a>s are included in the <a>scope</a> of the transaction.</li>
+                  <li>Which <a title="object store">object stores</a> are included in the <a>scope</a> of the transaction.</li>
                 </ul>
             </li>
             <li>
               Once the transaction has been <a title="transaction start">started</a> the implementation can
-              start executing the <a>request</a>s placed against the transaction. Unless otherwise defined, requests
+              start executing the <a title="request">requests</a> placed against the transaction. Unless otherwise defined, requests
               MUST be executed in the order in which they were made against the transaction. Likewise, their results MUST
               be returned in the order the requests were placed against a specific transaction.
               There is no guarantee about the order that results from requests in different transactions are returned.
-              Similarly, the transaction <a>mode</a>s ensure that two requests placed against different transactions
+              Similarly, the transaction <a title="mode">modes</a> ensure that two requests placed against different transactions
               can execute in any order without affecting what resulting data is stored in the database.
             </li>
             <li>
@@ -770,7 +770,7 @@ prepareDatabase(function(evt) {
               even if the transaction isn't currently <a>active</a> or hasn't yet <a title="transaction start">started</a>.
               When a transaction is aborted the implementation MUST undo (roll back) any changes
               that were made to the <a>database</a> during that transaction. This includes both changes to the contents of
-              <a>object store</a>s as well as additions and removals of <a>object store</a>s and <a>index</a>es.
+              <a title="object store">object stores</a> as well as additions and removals of <a title="object store">object stores</a> and <a title="index">indexes</a>.
             </li>
             <li>
               A transaction can fail for reasons not tied to a particular <a>DOMRequest</a>. For example due to IO errors
@@ -802,7 +802,7 @@ prepareDatabase(function(evt) {
           </ol>
           <p>
             Transactions are opened in one of three <dfn title="mode">modes</dfn>. The mode
-            determines how concurrent access to <a>object store</a>s in the transaction are isolated.
+            determines how concurrent access to <a title="object store">object stores</a> in the transaction are isolated.
           </p>
 
           <dl class="idl" title="enum IDBTransactionMode">
@@ -810,7 +810,7 @@ prepareDatabase(function(evt) {
             <dd>
                 This mode means that the transaction is only allowed
                 to read data. No modifications can be done by this type of transaction. This has the advantage
-                that several <code>"readonly"</code> transactions can run at the same time even if their <a>scope</a>s
+                that several <code>"readonly"</code> transactions can run at the same time even if their <a title="scope">scopes</a>
                 are overlapping, i.e. if they are using the same object stores. This type of transaction can
                 be created any time once a database has been opened using the <a>IDBDatabase.transaction()</a> or
                 <a>IDBDatabaseSync.transaction()</a> functions.
@@ -820,7 +820,7 @@ prepareDatabase(function(evt) {
             <dd>
                 The type of transaction is allowed to read, modify and
                 delete data from existing object stores. However object stores and indexes can't be added or removed.
-                Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a>scope</a>s are overlapping
+                Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a title="scope">scopes</a> are overlapping
                 since that would mean that they can modify each other's data in the middle of the transaction.
                 This type of transaction can be created any time once a database has been opened using the
                 <a>IDBDatabase.transaction()</a> function.
@@ -837,9 +837,9 @@ prepareDatabase(function(evt) {
 
           <p>
             Any number of transactions opened in <a><code>"readonly"</code></a> mode are allowed to run concurrently,
-            even if the transaction's <a>scope</a> overlap and include the same <a>object store</a>s.
+            even if the transaction's <a>scope</a> overlap and include the same <a title="object store">object stores</a>.
             As long as a <code>"readonly"</code> transaction is running, the data that the implementation returns
-            through <a>request</a>s created with that transaction MUST remain
+            through <a title="request">requests</a> created with that transaction MUST remain
             constant. That is, two requests to read the same piece of data MUST yield the same result
             both for the case when data is found and the result is that data, and for the case when data
             is not found and a lack of data is indicated.
@@ -848,16 +848,16 @@ prepareDatabase(function(evt) {
             There are a number of ways that an implementation ensures this. The implementation can prevent any
             <code>"readwrite"</code> transaction, whose scope overlaps the scope of the <code>"readonly"</code> transaction, from
             starting until the <code>"readonly"</code> transaction finishes. Or the implementation can allow the <code>"readonly"</code>
-            transaction to see a snapshot of the contents of the <a>object store</a>s which is taken when
+            transaction to see a snapshot of the contents of the <a title="object store">object stores</a> which is taken when
             the <code>"readonly"</code> transaction started.
           </p>
           <p>
             Similarly, implementations MUST ensure that a <code>"readwrite"</code> transaction is only affected by
-            changes to <a>object store</a>s that are made using the transaction itself. For example, the
+            changes to <a title="object store">object stores</a> that are made using the transaction itself. For example, the
             implementation MUST ensure that another transaction does not modify the contents of
-            <a>object store</a>s in the <code>"readwrite"</code> transaction's <a>scope</a>. The implementation
+            <a title="object store">object stores</a> in the <code>"readwrite"</code> transaction's <a>scope</a>. The implementation
             MUST also ensure that if the <code>"readwrite"</code> transaction completes successfully, the
-            changes written to <a>object store</a>s using the transaction can be committed to the
+            changes written to <a title="object store">object stores</a> using the transaction can be committed to the
             <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
             due to merge conflicts.
           </p>
@@ -878,12 +878,12 @@ prepareDatabase(function(evt) {
             When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
             <code>"versionchange"</code> transaction is automatically created and made available through the
             <code>"upgradeneeded"</code> event. The <code>"upgradeneeded"</code> event isn't fired, and thus the
-            <code>"versionchange"</code> transaction isn't started, until all other <a>connection</a>s to the same
+            <code>"versionchange"</code> transaction isn't started, until all other <a title="connection">connections</a> to the same
             <a>database</a> are closed. This ensures that all other transactions are <a>finished</a>.
           </p>
           <p>
             As long as a <code>"versionchange"</code> transaction
-            is running, attempts to open more <a>connection</a>s to the same <a>database</a> are delayed,
+            is running, attempts to open more <a title="connection">connections</a> to the same <a>database</a> are delayed,
             and any attempts to use the same <a>connection</a> to start additional transactions will result in
             an exception being thrown. Thus <code>"versionchange"</code> transactions not only ensure that
             no other transactions are running concurrently, but also ensure that no other transactions are queued
@@ -912,7 +912,7 @@ prepareDatabase(function(evt) {
           <p>
             Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
             Every request represents one read or write operation.
-            <a>Request</a>s have a <dfn title="request done"><var>done</var></dfn> flag which
+            <a title="request">Requests</a> have a <dfn title="request done"><var>done</var></dfn> flag which
             initially is false, and a <dfn title="request source">source</dfn> object. Every request
             also has a <dfn title="request result">result</dfn> and an <dfn title="error attribute">error attribute</dfn>,
             neither of which are accessible until the <a title="request done">done</a> flag is set to true.
@@ -938,7 +938,7 @@ prepareDatabase(function(evt) {
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
           <p>
-            Records can be retrieved from <a>object store</a>s and <a>index</a>es
+            Records can be retrieved from <a title="object store">object stores</a> and <a title="index">indexes</a>
             using either <a title="key">keys</a> or <a title="key range">key ranges</a>. A
             <dfn>key range</dfn> is a continuous interval over some data type
             used for keys.
@@ -1340,7 +1340,7 @@ prepareDatabase(function(evt) {
             </li>
             <li>
               Likewise, if a <a>transaction</a> is aborted, the <a>current number</a> of the key generator's
-              for all <a>object store</a>s in the transaction's <a>scope</a> is reverted to the values they
+              for all <a title="object store">object stores</a> in the transaction's <a>scope</a> is reverted to the values they
               had before the <a>transaction</a> was started.
             </li>
             <li>
@@ -1700,7 +1700,7 @@ store_t2.put("d"); // Will get key 2
             <dt>short cmp()</dt>
             <dd>
               <p>
-                When invoked, this method MUST compare two <a>key</a>s. The method returns 1 if the first key is
+                When invoked, this method MUST compare two <a title="key">keys</a>. The method returns 1 if the first key is
                 <a>greater than</a> the second, -1 if the first is <a>less than</a> the second, and 0 if
                 the first is <a>equal to</a> the second.
               </p>
@@ -1756,11 +1756,11 @@ store_t2.put("d"); // Will get key 2
               of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
               of the ECMAScript Language Specification [[!ECMA-262]].
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
-              function MUST return a snapshot of the list of names of the <a>object
-              store</a>s taken at the time when the
+              function MUST return a snapshot of the list of names of the <a title="object store">object
+              stores</a> taken at the time when the
               <a href="#widl-IDBDatabase-close-void"><code>close</code></a> method was called. Even if
-              other <a>connection</a>s are later used to change the set of <a>object
-              store</a>s that exist in the <a>database</a>. In other words, the return
+              other <a title="connection">connections</a> are later used to change the set of <a title="object store">object
+              stores</a> that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
               <a>IDBDatabase</a> instance, except during a <a><code>"versionchange"</code></a>
               transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters"><code>createObjectStore</code></a>
@@ -1961,8 +1961,8 @@ store_t2.put("d"); // Will get key 2
                 function MUST return a snapshot of the list of names of the
                 <a title="index">indexes</a> taken at the time when the
                 <a href="#widl-IDBDatabase-close-void"><code>close</code></a> method was called. Even if
-                other <a>connection</a>s are later used to change the set of
-                <a title="index">indexes</a>s that exist in the <a>object store</a>. In other words, the return
+                other <a title="connection">connections</a> are later used to change the set of
+                <a title="index">indexes</a> that exist in the <a>object store</a>. In other words, the return
                 value from this function stays constant for the lifetime of the
                 <a>IDBObjectStore</a> instance, except during a <a><code>"versionchange"</code></a>
                 transaction if
@@ -2309,7 +2309,7 @@ store_t2.put("d"); // Will get key 2
               <a>IDBObjectStore</a> instance and with the same <var>name</var> returns the same <a>IDBIndex</a> instance.
               However the retured <a>IDBIndex</a> instance is specific to this <a>IDBObjectStore</a> instance. If this
               function is called on a different <a>IDBObjectStore</a> instance, a different <a>IDBIndex</a> instance is
-              returned. A result of this is that different <a>IDBTransaction</a>s use different <a>IDBIndex</a> instances
+              returned. A result of this is that different <a>IDBTransaction</a> instances use different <a>IDBIndex</a> instances
               to represent the same <a>index</a>.
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -2986,7 +2986,7 @@ store_t2.put("d"); // Will get key 2
                         <dt>short cmp()</dt>
             <dd>
               <p>
-                When invoked, this method MUST compare two <a>key</a>s. The method returns 1 if the first key is
+                When invoked, this method MUST compare two <a title="key">keys</a>. The method returns 1 if the first key is
                 <a>greater than</a> the second, -1 if the first is <a>less than</a> the second, and 0 if
                 the first is <a>equal to</a> the second.
               </p>
@@ -3041,11 +3041,11 @@ store_t2.put("d"); // Will get key 2
               of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
               of the ECMAScript Language Specification [[!ECMA-262]].
               Once the <a>closePending</a> flag is set on the <a>connection</a>, this
-              function MUST return a snapshot of the list of names of the <a>object
-              store</a>s taken at the time when the
+              function MUST return a snapshot of the list of names of the <a title="object store">object
+              stores</a> taken at the time when the
               <a href="#widl-IDBDatabaseSync-close-void"><code>close</code></a> method was called. Even if
-              other <a>connection</a>s are later used to change the set of <a>object
-              store</a>s that exist in the <a>database</a>. In other words, the return
+              other <a title="connection">connections</a> are later used to change the set of <a title="object store">object
+              stores</a> that exist in the <a>database</a>. In other words, the return
               value from this function stays constant for the lifetime of the
               <a>IDBDatabaseSync</a> instance except during a <a><code>"versionchange"</code></a>
               transaction if
@@ -3312,8 +3312,8 @@ cursor.continue();</pre>
                 function MUST return a snapshot of the list of names of the
                 <a title="index">indexes</a> taken at the time when the
                 <a href="#widl-IDBDatabaseSync-close-void"><code>close</code></a> method was called. Even if
-                other <a>connection</a>s are later used to change the set of
-                <a title="index">indexes</a>s that exist in the <a>object store</a>. In other words, the return
+                other <a title="connection">connections</a> are later used to change the set of
+                <a title="index">indexes</a> that exist in the <a>object store</a>. In other words, the return
                 value from this function stays constant for the lifetime of the
                 <a>IDBObjectStoreSync</a> instance, except during a <a><code>"versionchange"</code></a>
                 transaction if
@@ -3602,7 +3602,7 @@ cursor.continue();</pre>
               <a>IDBObjectStoreSync</a> instance and with the same <var>name</var> returns the same <a>IDBIndexSync</a> instance.
               However the retured <a>IDBIndexSync</a> instance is specific to this <a>IDBObjectStoreSync</a> instance. If this
               function is called on a different <a>IDBObjectStoreSync</a> instance, a different <a>IDBIndexSync</a> instance is
-              returned. A result of this is that different <a>IDBTransactionSync</a>s use different <a>IDBIndexSync</a> instances
+              returned. A result of this is that different <a>IDBTransactionSync</a> instances use different <a>IDBIndexSync</a> instances
               to represent the same <a>index</a>.
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -4346,7 +4346,7 @@ var cursor = objects.<a>openCursor</a>(range);
               If <var>db</var> was found in previous step, wait until the following conditions are all fulfilled:
               <ul>
                 <li>
-                  No already existing <a>connection</a>s to <var>db</var>, have
+                  No already existing <a title="connection">connections</a> to <var>db</var>, have
                   non-<a title="transaction finish">finished</a> <code>"versionchange"</code> <a>transaction</a>.
                 </li>
                 <li>
@@ -4354,7 +4354,7 @@ var cursor = objects.<a>openCursor</a>(range);
                   been deleted.
                 </li>
                 <li>
-                  These steps are not run for any other <a>connection</a>s with the same <var>origin</var>
+                  These steps are not run for any other <a title="connection">connections</a> with the same <var>origin</var>
                   and <var>name</var> but with a higher <var>version</var>.
                 </li>
               </ul>
@@ -4374,7 +4374,7 @@ var cursor = objects.<a>openCursor</a>(range);
             <li>
               If no database with the given name from the origin <var>origin</var> was found, or if it was
               deleted during the previous step, then create a <a>database</a> with name <var>name</var>,
-              with <code>0</code> as <a>version</a>, and with no <a>object store</a>s. Let <var>db</var>
+              with <code>0</code> as <a>version</a>, and with no <a title="object store">object stores</a>. Let <var>db</var>
               be the new database.
             </li>
             <li>
@@ -4413,7 +4413,7 @@ var cursor = objects.<a>openCursor</a>(range);
             When the user agent is to <dfn>create a <a>transaction</a></dfn>
             it MUST run the following steps. This algorithm takes five parameters:
             A <a><var>connection</var></a>, a <a><var>mode</var></a>, a list of <var>storeNames</var> of
-            <a>object store</a>s to be included in the <a>scope</a> of the transaction, a
+            <a title="object store">object stores</a> to be included in the <a>scope</a> of the transaction, a
             <var>timeout</var> for the transaction <a title="transaction start">starting</a>,
             and a <var>callback</var> parameter for synchronously created transactions.
           </p>
@@ -4503,7 +4503,7 @@ var cursor = objects.<a>openCursor</a>(range);
           <ol>
             <li>
               All the changes made to the <a>database</a> by the <a>transaction</a> are reverted. For <code>"versionchange"</code>
-              transactions this includes changes to the set of <a>object store</a>s and <a>index</a>es, as well
+              transactions this includes changes to the set of <a title="object store">object stores</a> and <a title="index">indexes</a>, as well
               as the change to the <a>version</a>. Also run the <a>steps for aborting a <code>"versionchange"</code> transaction</a>
               which reverts changes to all <code>IDBDatabase</code> and <code>IDBObjectStore</code> instances.
             </li>
@@ -4512,7 +4512,7 @@ var cursor = objects.<a>openCursor</a>(range);
               to <var>error</var>. Set <var>transaction</var>'s <code>error</code> property to this newly created <code>DOMError</code>.
             </li>
             <li>
-              If the transaction's <a>request list</a> contain any <a>request</a>s whose <a title="request done">done</a> flag
+              If the transaction's <a>request list</a> contain any <a title="request">requests</a> whose <a title="request done">done</a> flag
               is still false, abort the <a>steps for asynchronously executing a request</a> for each such request and queue
               a task to perform the following steps:
               <ol>
@@ -4565,11 +4565,11 @@ var cursor = objects.<a>openCursor</a>(range);
             <li>
               Create an <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
               <a title="request source">source</a> to <var>source</var> and add <var>request</var> to the end of the
-              <a title="request list">list</a> of <a>request</a>s in <var>transaction</var>.
+              <a title="request list">list</a> of <a title="request">requests</a> in <var>transaction</var>.
               Return this object and queue up the execution of the remaining steps in this algorithm.
               <p class="note">
                 Cursors override this step to reuse an existing <a>IDBRequest</a>. However they still put the
-                <a>IDBRequest</a> at the end of the list of <a>request</a>s in <var>transaction</var>.
+                <a>IDBRequest</a> at the end of the list of <a title="request">requests</a> in <var>transaction</var>.
               </p>
             </li>
             <li>
@@ -4713,7 +4713,7 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               <p>
-                If running asynchronously and any of the <a>connection</a>s in <var>openDatabases</var> are still not closed,
+                If running asynchronously and any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed,
                 queue up a <code>blocked</code> event for the <var>request</var>. The event MUST use the
                 <a><code>IDBVersionChangeEvent</code></a> interface and have the
                 <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
@@ -4737,7 +4737,7 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               Start <var>transaction</var>. Note that until this <a>transaction</a> is finished,
-              no other <a>connection</a>s can be opened to the same <a>database</a>.
+              no other <a title="connection">connections</a> can be opened to the same <a>database</a>.
             </li>
             <li>
               Let <var>old version</var> be <var>database</var>'s <a>version</a>.
@@ -4875,7 +4875,7 @@ var cursor = objects.<a>openCursor</a>(range);
           <p class="note">
             Once the <a>connection</a> is closed, this can unblock the <a>steps for running a <code>"versionchange"</code>
             transaction</a>, and the <a>steps for deleting a database</a>, which <a href="#delete-close-block">both</a>
-            <a href="#version-change-close-block">wait</a> for <a>connection</a>s to a given <a>database</a> to be closed
+            <a href="#version-change-close-block">wait</a> for <a title="connection">connections</a> to a given <a>database</a> to be closed
             before continuing.
           </p>
         </section>
@@ -4919,7 +4919,7 @@ var cursor = objects.<a>openCursor</a>(range);
             </li>
             <li>
               <p>
-                If any of the <a>connection</a>s in <var>openDatabases</var> are still not closed, and <var>request</var> was provided,
+                If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed, and <var>request</var> was provided,
                 fire a <code>blocked</code> event at <var>request</var>. The event MUST use the
                 <a><code>IDBVersionChangeEvent</code></a> interface and have the
                 <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
@@ -5063,7 +5063,7 @@ var cursor = objects.<a>openCursor</a>(range);
       <section class="section" id="database-operations">
         <h3>Database operations</h3>
         <p>
-          This section describes various operations done on the data in <a>object store</a>s and <a>index</a>es
+          This section describes various operations done on the data in <a title="object store">object stores</a> and <a title="index">indexes</a>
           in a <a>database</a>. These operations are run by the <a>steps for asynchronously executing a request</a> and
           the <a>steps for synchronously executing a request</a>.
         </p>
@@ -5112,7 +5112,7 @@ var cursor = objects.<a>openCursor</a>(range);
               that the list is sorted according key of the records in ascending order.
             </li>
             <li>
-              If there are any <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, perform the
+              If there are any <a title="index">indexes</a> which <a title="referenced">reference</a> <var>store</var>, perform the
               following sub steps on each such index.
               <ol>
                 <li>
@@ -5129,14 +5129,14 @@ var cursor = objects.<a>openCursor</a>(range);
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry</a> flag is true, and <var>index key</var> is an <code>Array</code>,
-                  remove any elements from <var>index key</var> that are not <a>valid key</a>s and remove any duplicate
+                  remove any elements from <var>index key</var> that are not <a title="valid key">valid keys</a> and remove any duplicate
                   elements from <var>index key</var> such that only one instance of the duplicate value remains.
                   <p class="note">
                     For example, the following value of <var>index key</var> <code>[10, 20, null, 30, 20]</code> is converted to
                     <code>[10, 20, 30]</code>.
                   </p>
                   <p class="note">
-                    After this step <var>index key</var> is or contains only <a>valid key</a>s.
+                    After this step <var>index key</var> is or contains only <a title="valid key">valid keys</a>.
                   </p>
                 </li>
                 <li>
@@ -5279,7 +5279,7 @@ var cursor = objects.<a>openCursor</a>(range);
                Remove all records, if any, from <var>store</var> with key <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>
-              In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
+              In all <a title="index">indexes</a> which <a title="referenced">reference</a> <var>store</var>, remove all
               <a>records</a> whose value is <a title="in a key range">in</a> <var>range</var>, if any such records exist.
             </li>
             <li>
@@ -5299,7 +5299,7 @@ var cursor = objects.<a>openCursor</a>(range);
                Remove all records from <var>store</var>.
             </li>
             <li>
-              In all <a>index</a>es which <a title="referenced">reference</a> <var>store</var>, remove all
+              In all <a title="index">indexes</a> which <a title="referenced">reference</a> <var>store</var>, remove all
               <a>records</a>.
             </li>
             <li>
