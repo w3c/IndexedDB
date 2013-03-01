@@ -531,11 +531,28 @@ cursor.continue();</pre>
             </dd>
             <dt>readonly attribute DOMStringList  indexNames</dt>
             <dd>
-            On getting, provide a list of the names of <a title="index">indexes</a> on
-            objects in this <a>object store</a>. The list MUST
-              be sorted in ascending order using the algorithm defined by step 4
-              of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
-              of the ECMAScript Language Specification [[!ECMA-262]].
+              <p>
+                On getting, provide a list of the names of <a title="index">indexes</a> on
+                objects in this <a>object store</a>. The list MUST
+                be sorted in ascending order using the algorithm defined by step 4
+                of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
+                of the ECMAScript Language Specification [[!ECMA-262]].
+              </p>
+              <p>
+                Once the <a>closePending</a> flag is set on the <a>connection</a>, this
+                function MUST return a snapshot of the list of names of the
+                <a title="index">indexes</a> taken at the time when the
+                <a href="#widl-IDBDatabaseSync-close-void">close</a> method was called. Even if
+                other <a>connection</a>s are later used to change the set of
+                <a title="index">indexes</a>s that exist in the <a>object store</a>. In other words, the return
+                value from this function stays constant for the lifetime of the
+                <a>IDBObjectStoreSync</a> instance, except during a <a><code>"versionchange"</code></a>
+                transaction if
+                <a href="#widl-IDBObjectStoreSync-createIndex-IDBIndexSync-DOMString-name-DOMString-sequence-DOMString--keyPath-IDBIndexParameters-optionalParameters">createIndex</a>
+                or
+                <a href="#widl-IDBObjectStoreSync-deleteIndex-void-DOMString-indexName">deleteIndex</a>
+                is called on this <a>IDBObjectStoreSync</a> instance itself.
+              </p>
             </dd>
             <dt>readonly attribute IDBTransactionSync transaction</dt>
             <dd>
