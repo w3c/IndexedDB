@@ -3688,11 +3688,12 @@ cursor.continue();</pre>
               index could be maintained on the <em>name</em> property of objects
               in the <em>Contact</em> <a>object store</a>.
             </p>
-            <pre class="example highlight">var db = indexedDBSync.open('AddressBook', 2, function(trans, oldVersion) {
+            <pre class="example highlight">
+var db = indexedDBSync.open('AddressBook', 2, function(trans, oldVersion) {
   if (oldVersion === 1) {
     trans.db.createObjectStore('Contact', {keyPath:'id', autoIncrement:true});
   }
-  var store = vtx.objectStore('Contact');
+  var store = trans.objectStore('Contact');
   store.createIndex('ContactName', 'name', {unique:false, multiEntry:false});
 });
 </pre>
@@ -3701,7 +3702,8 @@ cursor.continue();</pre>
               property value 'Lincoln' can be retrieved using the
               <em>ContactName</em> <a>index</a>.
             </p>
-            <pre class="example highlight">var index = store.<a>openIndex</a>('ContactName');
+            <pre class="example highlight">
+var index = store.<a>index</a>('ContactName');
 var id = index.<a>get</a>('Lincoln');
 // id === 1</pre>
             <p>
