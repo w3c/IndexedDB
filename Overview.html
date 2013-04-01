@@ -10,7 +10,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2013-03-22",
+          publishDate:          "2013-04-01",
 
           previousPublishDate:  "2011-12-06",
           previousMaturity:     "WD",
@@ -72,7 +72,7 @@
         padding: 0.2em;
         vertical-align: top;
       }
-      aside>.example-title>span {
+      .example .example .example-title {
           display: none
       }
     </style>
@@ -279,10 +279,10 @@ prepareDatabase(function(evt) {
             “Web IDL” specification. [[!WEBIDL]]
           </p>
           
-          <div class="note">
+          <p class="note">
             This specification uses both the terms "conforming user agent(s)" 
             and "user agent(s)" to refer to this product class.
-          </div>
+          </p>
         </dd>
       </dl>        
       
@@ -617,8 +617,11 @@ prepareDatabase(function(evt) {
             <li>A non-empty <code>Array</code> containing only <code>DOMString</code>s conforming to
             the above requirements.</li>
           </ul>
+          <p class="note">
+              Spaces are not allowed within a key path.
+          </p>
           <p>
-            Note that spaces are not allowed within a key path. To <dfn title="evaluate key path">evaluate a key path</dfn>,
+            To <dfn title="evaluate key path">evaluate a key path</dfn>,
             run the <a>steps for extracting a key from a value using a key path</a>.
           </p>
           <p>
@@ -658,13 +661,22 @@ prepareDatabase(function(evt) {
             <a title="evaluate key path">evaluating</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
             <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
           </p>
+          <aside class="example">
+              For example, if an index's <a>referenced</a> object store contains a record with the key <code>123</code> 
+              and the value <code>{ first: "Alice", last: "Smith" }</code>, and the <a title="index key path">index's key path</a>
+              is <code>"first"</code> then the index would contain a record with the key <code>"Alice"</code> and the value <code>123</code>.
+          </aside>
           <p>
             Records in an index are said to have a <dfn>referenced value</dfn>. This is the value of the record in the index's referenced
             object store which has a key equal to the index's record's value. So in the example above,
             the record in the index whose key is <var>Y</var> and value is <var>X</var> has a <a>referenced value</a> of <var>A</var>.
           </p>
+          <aside class="example">
+              In the preceding example, the record in the index with key <code>"Alice"</code> and value <code>123</code> would have
+              a <a>referenced value</a> of <code>{ first: "Alice", last: "Smith" }</code>.
+          </aside>
           <p class="note">
-            Each record in an index reference one and only one record in the index's <a>referenced</a> object store. However there can be
+            Each record in an index references one and only one record in the index's <a>referenced</a> object store. However there can be
             multiple records in an index which reference the same record in the object store. And there can also be no records in an index
             which reference a given record in an object store.
           </p>
@@ -1351,7 +1363,7 @@ prepareDatabase(function(evt) {
               object store by specifying an explicit key, however the only way to use a key generator
               again for the object store is to delete the object store and create a new one.
               <p class="note">
-                Note that as long as key generators are used in a normal fashion this will not be a problem.
+                As long as key generators are used in a normal fashion this will not be a problem.
                 If you generate a new key 1000 times per second day and night, you won't run into this limit
                 for over 285000 years.
               </p>
@@ -2855,7 +2867,7 @@ store_t2.put("d"); // Will get key 2
             The event handler for the <a>complete event</a>.
             <p class="note">
             	To determine if a <a>transaction</a> has completed successfully,
-            	listen to the <a title="transaction">transaction’s</a> <code>complete</code> event rather than the <code>IDBObjectStore.add</code> request’s <code>success</code> event,
+            	listen to the <a title="transaction">transaction’s</a> <code>complete</code> event rather than the <code>success</code> event of a particular <a>request</a>,
             	because the <a>transaction</a> may still fail after the <code>success</code> event fires.
             </p>
             </dd>
@@ -4278,12 +4290,12 @@ var cursor = objects.<a>openCursor</a>(range);
               </dl>
             </dd>
           </dl>
-          <div class="note">
+          <p class="note">
             Applications MUST not assume that committing the <a>transaction</a>
             produces an instantaneously durable result. The user agent
             MAY delay flushing data to durable storage until an appropriate
             time.
-          </div>
+          </p>
 
           <p>
             Once a <a>transaction</a> is aborted or committed, the <a>active</a>
@@ -4320,7 +4332,7 @@ var cursor = objects.<a>openCursor</a>(range);
               Likewise, if at any point while running these steps, these steps are also running with the same
               <var>origin</var> and <var>name</var>, but with a higher <var>version</var>, abort these steps and
               return a <a><code>VERSION_ERR</code></a> error.
-              <div class="note">
+              <p class="note">
                 <p>This can happen in for example the following four situations:</p>
                 <ul>
                   <li>
@@ -4340,7 +4352,7 @@ var cursor = objects.<a>openCursor</a>(range);
                     Two calls to open happen at the same time with different version numbers.
                   </li>
                 </ul>
-              </div>
+              </p>
             </li>-->
             <li>
               If <var>db</var> was found in previous step, wait until the following conditions are all fulfilled:
@@ -4486,7 +4498,7 @@ var cursor = objects.<a>openCursor</a>(range);
               <a>propagation path</a> for the event is <var>transaction</var>'s <a title="transaction connection">connection</a> and
               then <var>transaction</var>.
               <p class="note">
-                Note that even if an exception is thrown from one of the event handlers of this event, the transaction is still
+                Even if an exception is thrown from one of the event handlers of this event, the transaction is still
                 committed since writing the database changes happens before the event takes places. Only after the transaction
                 has been successfully written is the <code>"complete"</code> event fired.
               </p>
@@ -4592,9 +4604,9 @@ var cursor = objects.<a>openCursor</a>(range);
               to <code>undefined</code> and set the <code>error</code> attribute on the <var>request</var>
               to the a <code>DOMError</code> with the same error type of the <var>operation</var> that failed.
               Finally <a>fire an error event</a> at <var>request</var>.
-              <div class="note">
+              <p class="note">
                 This only reverts the changes done by this request, not any other changes made by the transaction.
-              </div>
+              </p>
             </li>
           </ol>
         </section>
@@ -5034,11 +5046,11 @@ var cursor = objects.<a>openCursor</a>(range);
         			Go to step 2.
         		</li>
         		<li>
-        			<div class="note">The steps leading here ensure that <var>remainingKeyPath</var> is a single <a>identifier</a> name
+        			<p class="note">The steps leading here ensure that <var>remainingKeyPath</var> is a single <a>identifier</a> name
         			(that is, a string without periods) by this step. The steps also ensure that <var>object</var>
         			is an <code>Object</code> or an <code>Array</code>, and not a <code>Date</code>, <code>RegExp</code>, <code>Blob</code>,
         			or other nonsupported type.
-					</div>
+					</p>
         		</li>
         		<li>
         			Let <var>identifier</var> be <var>remainingKeyPath</var>.
