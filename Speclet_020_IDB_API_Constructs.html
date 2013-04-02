@@ -165,8 +165,8 @@
             <code>upgradeneeded</code> event. When a new database is created it doesn't contain any <a title="object store">object stores</a>.
           </p>
           <p>
-            The object store has a <a title="object store record list">list of records</a> which hold the
-            data stored in the object store. Each <dfn>record</dfn> consists of a <dfn>key</dfn> and a <dfn>value</dfn>.
+            The object store has a <dfn title="object store record list">list of records</dfn> which hold the
+            data stored in the object store. Each <dfn>record</dfn> consists of a <a>key</a> and a <a>value</a>.
             The list is sorted according to key in ascending order. There can never be multiple records in a given object
             store with the same key.
           </p>
@@ -175,7 +175,7 @@
             The name is unique within the <a>database</a> to which it belongs. Every object store also optionally has a
             <a>key generator</a> and an optional <dfn title="object store key path">key path</dfn>.
             If the object store has a key path it is said to use <dfn>in-line keys</dfn>. Otherwise it is said to
-            use <dfn>out-of-line</dfn> keys.
+            use <dfn>out-of-line keys</dfn>.
           </p>
           <p>
             The object store can derive the <a>key</a> from one of three sources:
@@ -221,7 +221,7 @@
             If the value is of type <code>Date</code> it is only a <a>valid key</a> if its <code>[<span>[</span>PrimitiveValue]]</code>
             internal property, as defined by [[!ECMA-262]], is not <code>NaN</code>.
 
-            <a>Conforming user agents</a> MUST support all <a title="valid key">valid keys</a> as keys.
+            <a title="conforming user agent">Conforming user agents</a> MUST support all <a title="valid key">valid keys</a> as keys.
           </p>
           <p class="note">
             Infinite <code>Number</code> values are <a title="valid key">valid keys</a>. As are empty <code>Array</code>s.
@@ -325,9 +325,9 @@
             <p>
               Then the value associated with the <a>key path</a> property is used.
               The auto-generated <a>key</a> is not used.
-              In the example below the <a>keypath</a> for the <a>object store</a> is <code>"foo.bar"</code>.
+              In the example below the <a>key path</a> for the <a>object store</a> is <code>"foo.bar"</code>.
               The actual object has a value of 10 for the <code>bar</code> property, <code>{ foo: { bar: 10} }</code>.
-              When the object is saved in the <a>object store</a> the <code>bar</code> property keeps its value of 10, because that is the <a>key value</a>.
+              When the object is saved in the <a>object store</a> the <code>bar</code> property keeps its value of 10, because that is the key value.
             </p>
             <pre class="example highlight">
 "foo.bar"
@@ -335,7 +335,7 @@
             </pre>
             <p>
               The following example illustrates the scenario when the specified in-line <a>key</a> is defined through a <a>key path</a> but there is no property matching it.
-              The value provided by the <a>key generator</a> is then used to populate the <a>key value</a> and the system is responsible
+              The value provided by the <a>key generator</a> is then used to populate the key value and the system is responsible
               for creating as many properties as it requires to suffice the property dependencies on the hierarchy chain.
               In the example below the <a>key path</a> for the <a>object store</a> is <code>"foo.bar.baz"</code>.
               The actual object has no value for the <code>foo</code> property, <code>{ zip: {} }</code>.
@@ -372,7 +372,7 @@
         <section id="value-construct" class="section">
           <h4>Values</h4>
           <p>
-            Each record is associated with a <dfn>value</dfn>. <a>Conforming user agents</a> MUST support
+            Each record is associated with a <dfn>value</dfn>. <a title="conforming user agent">Conforming user agents</a> MUST support
             any JavaScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
             [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
             and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
@@ -403,7 +403,7 @@
             run the <a>steps for extracting a key from a value using a key path</a>.
           </p>
           <p>
-          	<a>Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>,
+          	<a title="key path">Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>,
           	as well as the following properties:
           </p>
           		<ul>
@@ -420,7 +420,7 @@
         <section id="index-concept" class="section">
           <h4>Index</h4>
           <p>
-            It is sometimes useful to retrieve <a>records</a> in an <a>object store</a> through other means
+            It is sometimes useful to retrieve <a title="record">records</a> in an <a>object store</a> through other means
             than their <a>key</a>. An <dfn>index</dfn> allows looking up <a title="record">records</a> in an <a>object store</a>
             using properties of the <a title="value">values</a> in the <a title="object store">object stores</a> <a title="record">records</a>.
           </p>
@@ -433,7 +433,7 @@
             to get updated.
           </p>
           <p>
-            The values in the index's <a title="record">records</a> are always values of <a>keys</a> in the index's <a>referenced</a>
+            The values in the index's <a title="record">records</a> are always values of <a title="key">keys</a> in the index's <a>referenced</a>
             object store. The keys are derived from the referenced object store's <a title="value">values</a> using a <dfn title="index key path"><a>key path</a></dfn>.
             If a given <a>record</a> with key <var>X</var> in the object store referenced by the index has the value <var>A</var>, and
             <a title="evaluate key path">evaluating</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
@@ -464,13 +464,16 @@
             the <a title="index">index's</a> <a title="record">record's</a> value (meaning the key of the record in the referenced <a>object store</a>).
           </p>
           <p>
-            An index contains a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a title="record">records</a>
+              Every index has a <dfn title="index name">name</dfn>. The name is unique within index's <a>referenced</a> object store.
+          </p>
+          <p>
+            Each index also has a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a title="record">records</a>
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
           </p>
           <p>
-            An index also contains a <dfn>multiEntry</dfn> flag. This flag affects how the index behaves when the result of evaluating
+            Each index also has a <dfn>multiEntry</dfn> flag. This flag affects how the index behaves when the result of evaluating
             the index's <a title="index key path">key path</a> yields an <code>Array</code>. If the <a>multiEntry</a> flag is false, then
             a single <a>record</a> whose <a>key</a> is an <code>Array</code> is added to the index. If the <a>multiEntry</a> flag is
             true, then the one <a>record</a> is added to the index for each item in the <code>Array</code>. The <a>key</a> for each
@@ -513,7 +516,7 @@
           </p>
           <p>
             <a title="transaction">Transactions</a> are expected to be short lived. This is encouraged
-            by the <a title="commit">automatic committing</a> functionality described below. Authors can still cause
+            by the <a title="transaction commit">automatic committing</a> functionality described below. Authors can still cause
             transactions to run for a long time; however, this usage pattern
             is not generally recommended as it can lead to a bad user experience.
           </p>
@@ -556,14 +559,14 @@
               can execute in any order without affecting what resulting data is stored in the database.
             </li>
             <li>
-              A transaction can be <dfn title="abort">aborted</dfn> at any time before it is <a title="transaction finish">finished</a>,
+              A transaction can be <dfn title="transaction abort">aborted</dfn> at any time before it is <a title="transaction finish">finished</a>,
               even if the transaction isn't currently <a>active</a> or hasn't yet <a title="transaction start">started</a>.
               When a transaction is aborted the implementation MUST undo (roll back) any changes
               that were made to the <a>database</a> during that transaction. This includes both changes to the contents of
               <a title="object store">object stores</a> as well as additions and removals of <a title="object store">object stores</a> and <a title="index">indexes</a>.
             </li>
             <li>
-              A transaction can fail for reasons not tied to a particular <a>DOMRequest</a>. For example due to IO errors
+              A transaction can fail for reasons not tied to a particular <a>IDBRequest</a>. For example due to IO errors
               when committing the transaction, or due to running into a quota limit where the implementation can't tie
               exceeding the quota to a partcular request. In this case the implementation MUST run the
               <a>steps for aborting a transaction</a> using the transaction as <var>transaction</var> and the appropriate
@@ -573,21 +576,21 @@
             </li>
             <li>
               When a transaction can no longer become <a>active</a>, the implementation MUST attempt to
-              <dfn>commit</dfn> it, as long as the transaction has not been <a title="abort">aborted</a>.
+              <dfn title="transaction commit">commit</dfn> it, as long as the transaction has not been <a title="transaction abort">aborted</a>.
               This usually happens after all requests placed against the
               transaction have been executed and their returned results handled, and no new requests have been placed
               against the transaction. When a transaction is committed, the implementation MUST atomically write
               any changes to the <a>database</a> made by requests placed against the transaction. That is, either all
               of the changes MUST be written, or if an error occurs, such as a disk write error, the implementation
               MUST NOT write any of the changes to the database. If such an error occurs, the implementation MUST
-              <a>abort</a> the transaction by following the <a>steps for aborting a transaction</a>, otherwise it
-              MUST <a>commit</a> the transaction by following the <a>steps for committing a transaction</a>.
+              <a title="transaction abort">abort</a> the transaction by following the <a>steps for aborting a transaction</a>, otherwise it
+              MUST <a title="transaction commit">commit</a> the transaction by following the <a>steps for committing a transaction</a>.
             </li>
             <li>
-              When a transaction is <a>commit</a>ted or <a>abort</a>ed, it is said to be
+              When a transaction is <a title="transaction commit">committed</a> or <a title="transaction abort">aborted</a>, it is said to be
               <dfn title="transaction finish">finished</dfn>. If a transaction can't be finished, for example
               due to the implementation crashing or the user taking some explicit action to cancel it, the
-              implementation MUST <a>abort</a> the transaction.
+              implementation MUST <a title="transaction abort">abort</a> the transaction.
             </li>
           </ol>
           <p>
@@ -596,7 +599,7 @@
           </p>
 
           <dl class="idl" title="enum IDBTransactionMode">
-            <dt>readonly</dt>
+            <dt><dfn title='"readonly"'>readonly</dfn></dt>
             <dd>
                 This mode means that the transaction is only allowed
                 to read data. No modifications can be done by this type of transaction. This has the advantage
@@ -606,7 +609,7 @@
                 <a>IDBDatabaseSync.transaction()</a> functions.
             </dd>
 
-            <dt>readwrite</dt>
+            <dt><dfn title='"readwrite"'>readwrite</dfn></dt>
             <dd>
                 The type of transaction is allowed to read, modify and
                 delete data from existing object stores. However object stores and indexes can't be added or removed.
@@ -616,7 +619,7 @@
                 <a>IDBDatabase.transaction()</a> function.
             </dd>
 
-            <dt>versionchange</dt>
+            <dt><dfn title='"versionchange"'>versionchange</dfn></dt>
             <dd>
                 This is similar to a <code>"readwrite"</code> transaction,
                 however it can additionally create and remove object stores and indexes. It is the only type of
@@ -667,9 +670,9 @@
             A <code>"versionchange"</code> transaction never run concurrently with other transactions.
             When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
             <code>"versionchange"</code> transaction is automatically created and made available through the
-            <code>"upgradeneeded"</code> event. The <code>"upgradeneeded"</code> event isn't fired, and thus the
+            <a><code>upgradeneeded</code></a> event. The <a><code>upgradeneeded</code></a> event isn't fired, and thus the
             <code>"versionchange"</code> transaction isn't started, until all other <a title="connection">connections</a> to the same
-            <a>database</a> are closed. This ensures that all other transactions are <a>finished</a>.
+            <a>database</a> are closed. This ensures that all other transactions are <a title="transaction finish">finished</a>.
           </p>
           <p>
             As long as a <code>"versionchange"</code> transaction
@@ -682,7 +685,7 @@
           <p class="note">
           	<code>"versionchange"</code> transaction is automatically created
           	when a database version number is provided that is greater than the current database version.
-          	This <a>transaction</a> will be active inside the <a><code>onupgradeneeded</code></a> event handler,
+          	This <a>transaction</a> will be active inside the <a><code>upgradeneeded</code></a> event handler,
           	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
@@ -1107,7 +1110,7 @@
                 number <a>greater than</a> the explicit key.
                 A key can be specified both for object stores which use <a>in-line keys</a>, by setting the
                 property on the stored value which the <a title="object store key path">object store's key path</a>
-                points to, and for object stores which use <a>out-of-line</a> keys, by passing a key argument
+                points to, and for object stores which use <a>out-of-line keys</a>, by passing a key argument
                 to the call to store the <a>record</a>.
               </p>
               <p>
