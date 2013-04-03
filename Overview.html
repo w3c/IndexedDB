@@ -129,128 +129,137 @@
         very large numbers of data records.
       </p>
 
-      <p class="issue">
-        TODO: Add examples using the sync and the async APIs.
-      </p>
+      <aside class="example">
+          <p>
+              In the following example, the asynchronous API is used to access a "library"
+              database that holds books stored by their "isbn" attribute. Additionally,
+              an index is maintained on the "title" attribute of the objects
+              stored in the object store. This index can be used to look up books
+              by title, and enforces a uniqueness constraint. Another index is
+              maintained on the "author" attribute of the objects, and can be used
+              to look up books by author.
+          </p>
+          <p>
+              A connection to the database is opened. If the "library" database
+              did not already exist, it is created and an event handler creates
+              the object store and indexes. Finally, the opened connection is
+              saved for use in subsequent examples.
+          </p>
+          <pre class="example highlight">
+var request = indexedDB.open("library");
 
-<!-- We need and example, but until this one is updated, it is doing more harm than good.
-      <div class="example">
-        <p>
-          A script can efficiently find records in an object store that come 
-          closest to the required value provided the value is stored in either 
-          a primary or a secondary key.
-          In the following example, the 'books' object store holds data about
-          books which are stored by their 'isbn' attribute. Additionally, 
-          an index is maintained on the 'author' attribute of the objects
-          stored in the object store. This index can be used to look up books
-          for a given author. If an exact match is not found, the operation
-          raises an exception.
-        </p>
-        <pre class="example highlight">var db = indexedDB.open('books', 'Book store', false);
-if (db.version !== '1.0') {
-  var olddb = indexedDB.open('books', 'Book store');
-  olddb.createObjectStore('books', 'isbn');
-  olddb.createIndex('BookAuthor', 'books', 'author', false);
-  olddb.setVersion("1.0");  
-}
-// db.version === "1.0";  
-var index = db.openIndex('BookAuthor');
-var matching = index.get('fred');
-if (matching)
-  report(matching.isbn, matching.name, matching.author);
-else
-  report(null);</pre>
-        <p>
-        The next example performs the exact same logic as above asynchronously.
-        </p>
-        <pre class="example highlight">
-  function findFred() {
-    var store = db.objectStore('books');
-    var index = store.index('BookAuthor');
-    var req = index.get('fred');
-    req.onsuccess = function(event) {
-      var matching = event.result;
-      report(matching.isbn, matching.name, matching.author);
-    }
-    req.onerror = function(event) {
-      report(null);
-    }
-  }
+request.onupgradeneeded = function() {
+  // The database did not previously exist, so create object stores and indexes.
+  var db = request.result;
+  var store = db.createObjectStore("books", {keyPath: "isbn"});
+  var titleIndex = store.createIndex("by_title", "title", {unique: true});
+  var authorIndex = store.createIndex("by_author", "author");
 
-  var db;
-  var dbRequest = indexedDB.open('books', 'Book store');
-  dbRequest.onsuccess = function(event) {
-    db = event.result;
-    if (db.version != "1.0") {
-      var versionRequest = db.setVersion("1.0");
-      versionRequest.ontimeout = function(event) {
-        throw new Error("timeout trying to set version to 1.0");
-      }
-      versionRequest.onsuccess = function(event) {
-        var store = db.createObjectStore('books', 'isbn');
-        store.createIndex('BookAuthor', 'books', 'author', false);
-        event.transaction.onabort = function(event) {
-          throw new Error("error while trying to set version to 1.0");
-        }
-        event.transaction.oncomplete = function(event) {
-          findFred(db);
-        }
-      }
-    } else {
-      findFred(db);
-    }
-  }
-   
-        </pre>
-        <p>
-        Here is an example of a script using this API. First, a function
-        <code>prepareDatabase()</code> is defined. This function tries to create 
-        the database if necessary, giving it one object store called "docids" with
-        the primary key "id". If it is successful, or if the table
-        doesn't need creating, it calls the function that does the
-        actual work, in this case <code>showDocCount()</code>.
-        </p>
-        <pre class="example highlight">
-var request = null;
-function prepareDatabase(ready, error) {
-  request = new <a>IDBDatabaseRequest</a>();
-  request.<a>onsuccess</a> = ready;
-  request.<a>onerror</a> = error;
-  var upgrade = 
-    function(changes, db) {
-      changes.<a>createObjectStore</a>('docids', 'id');
-      // now db.<a>version</a> === '1.0'
-    };
-  request.<a>open</a>('documents', '1.0', 'Offline document storage', upgrade);
-}
-
-function showDocCount(db, span) {
-  var storeRequest = new <a>IDBObjectStoreRequest</a>(db);
-  storeRequest.<a>onsuccess</a> = 
-    function() {
-      var store = storeRequest.<a>store</a>, total = 0;
-      var cursorRequest = new <a>IDBCursorRequest</a>(store);
-      cursorRequest.<a>onsuccess</a> = 
-        function() {
-          span.textContent = total;
-        };
-      cursorRequest.<a>open</a>(function(record, cursor) { 
-          total += cursor.<a>count</a>; 
-        }, <a>IDBCursor</a>.<a>NEXT_NO_DUPLICATE</a>);
-    };
-  storeRequest.<a>open</a>('docids', true);
+  // Populate with initial data.
+  store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
+  store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
+  store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
 };
 
-prepareDatabase(function(evt) {
-  // got database
-  var span = document.getElementById('doc-count');
-  showDocCount(request.<a>database</a>, span);
-  }, function (evt) {
-  // error getting database
-  var error = request.error;
-  alert(error.message);
-});</pre>
-      </div>-->
+request.onsuccess = function() {
+  db = request.result;
+};
+          </pre>
+
+          <p>
+              The following example populates the
+              database using a transaction.
+          </p>
+          <pre class="example highlight">
+var tx = db.transaction("books", "readwrite");
+var store = tx.objectStore("books");
+
+store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
+store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
+store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
+
+tx.oncomplete = function() {
+  // All requests have succeeded and the transaction has committed.
+};
+          </pre>
+
+          <p>
+              The following example looks up a single book in the database
+              by title using an index.
+          </p>
+        <pre class="example highlight">
+var tx = db.transaction("books", "readonly");
+var store = tx.objectStore("books");
+var index = store.index("by_title");
+
+var request = index.get("Bedrock Nights");
+request.onsuccess = function() {
+  var matching = request.result;
+  if (matching !== undefined) {
+    // A match was found.
+    report(matching.isbn, matching.title, matching.author);
+  } else {
+    // No match was found.
+    report(null);
+  }
+};
+        </pre>
+
+          <p>
+              The following example looks up all books
+              in the database by author using an index and a cursor.
+          </p>
+        <pre class="example highlight">
+var tx = db.transaction("books", "readonly");
+var store = tx.objectStore("books");
+var index = store.index("by_author");
+
+var request = index.openCursor(IDBKeyRange.only("Fred"));
+request.onsuccess = function() {
+  var cursor = request.result;
+  if (cursor) {
+    // Called for each matching record.
+    report(cursor.value.isbn, cursor.value.title, cursor.value.author);
+    cursor.continue();
+  } else {
+    // No more matching records.
+    report(null);
+  }
+};
+        </pre>
+
+          <p>
+              The following example shows how errors could be handled when
+              a request fails.
+          </p>
+        <pre class="example highlight">
+var tx = db.transaction("books", "readwrite");
+var store = tx.objectStore("books");
+var request = store.put({title: "Water Buffaloes", author: "Slate", isbn: 987654});
+request.onerror = function() {
+  // The uniqueness constraint of the "by_title" index failed.
+  report(request.error);
+  // Could call request.preventDefault() to prevent the transaction from aborting.
+};
+tx.onabort = function() {
+  // Otherwise the transaction will automatically abort due the failed request.
+  report(tx.error);
+};
+        </pre>
+
+          <p>
+              The database connection may be closed when it is no longer needed.
+          </p>
+        <pre class="example highlight">
+db.close();
+        </pre>
+
+      </aside>
+
+      <p class="issue">
+        TODO: Add example using the sync API.
+      </p>
+
     </section>
 
     <section id='conformance' class='section'>
