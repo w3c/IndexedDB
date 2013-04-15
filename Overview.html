@@ -2324,6 +2324,8 @@ store_t2.put("d"); // Will get key 2
               <p>
                 This method will synchronously modify the
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
+                Although this method does not return a <a>IDBRequest</a> object, the index creation itself is
+                processed as an asynchronous request within the <a><code>"versionchange"</code></a> transaction.
               </p>
               <p>
                 In some implementations it is possible for the implementation to asynchronously run into problems
@@ -2337,6 +2339,23 @@ store_t2.put("d"); // Will get key 2
                 creating the <a>index</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error and if the index
                 can't be created due to <a>unique</a> constraints, <code>ConstraintError</code> MUST be used as error.
               </p>
+              <aside class="example">
+                  <p>
+                      The asynchronous creation of indexes is observable in the following example:
+                  </p>
+                  <pre class="example highlight">
+                      var request1 = objectStore.put({name: "betty"}, 1);
+                      var request2 = objectStore.put({name: "betty"}, 2);
+                      var index = objectStore.createIndex("by_name", "name", {unique: true});
+                  </pre>
+                  <p>
+                      At the point where <code>createIndex</code> called, neither of the <a title="request">requests</a>
+                      have executed. When the second request executes, a duplicate name is created. Since the index
+                      creation is considered an asynchronous <a>request</a>, the index's <a title="unique">uniqueness</a>
+                      constraint does not cause the second <a>request</a> to fail. Instead, the <a>transaction</a> will be 
+                      <a title="transaction abort">aborted</a> when the index is created and the constraint fails.
+                  </p>
+              </aside>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                   <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
@@ -2393,6 +2412,8 @@ store_t2.put("d"); // Will get key 2
               <p>
                 This method will synchronously modify the
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
+                Although this method does not return a <a>IDBRequest</a> object, the index deletion itself is
+                processed as an asynchronous request within the <a><code>"versionchange"</code></a> transaction.
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
