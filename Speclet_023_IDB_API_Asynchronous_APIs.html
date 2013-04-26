@@ -1064,7 +1064,7 @@
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
-                If the <a>index</a> has been deleted,
+                If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
@@ -1105,7 +1105,7 @@
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
-                If the <a>index</a> has been deleted,
+                If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
@@ -1143,7 +1143,7 @@
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
-                If the <a>index</a> has been deleted,
+                If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, 
@@ -1177,7 +1177,7 @@
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
-                If the <a>index</a> has been deleted,
+                If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>,
@@ -1202,7 +1202,7 @@
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
-                If the <a>index</a> has been deleted,
+                If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If the optional <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>,
@@ -1268,6 +1268,9 @@
                 If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
+                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
                 If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
                 or if this cursor does not implement the <a>IDBCursorWithValue</a> interface,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -1307,6 +1310,9 @@
                 If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
+                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
                 If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
@@ -1322,11 +1328,11 @@
               <p>
                 Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag on the cursor to false.
               </p>
-              <p>
-                Calling this method more than once before new cursor data has been loaded is not allowed
-                and results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown.
+              <p class="note">
+                Calling this method more than once before new cursor data has been loaded is not allowed.
                 For example, calling <code>advance()</code> twice from the same onsuccess handler
-                results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call.
+                results in an <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call
+                because the cursor's <a>got value</a> has been set to false.
               </p>
               <dl class="parameters">
                 <dt>[EnforceRange] unsigned long count</dt>
@@ -1339,6 +1345,9 @@
               <p>
                 If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+
+                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -1368,11 +1377,11 @@
               <p>
                 Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag on the cursor to false.
               </p>
-              <p>
-                Calling this method more than once before new cursor data has been loaded is not allowed
-                and results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown.
+              <p class="note">
+                Calling this method more than once before new cursor data has been loaded is not allowed.
                 For example, calling <code>continue()</code> twice from the same onsuccess handler
-                results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call.
+                results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call
+                because the cursor's <a>got value</a> has been set to false.
               </p>
               <dl class="parameters">
                 <dt>optional any key</dt>
@@ -1388,6 +1397,9 @@
 
                 If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+
+                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
                 or if this cursor does not implement the <a>IDBCursorWithValue</a> interface,
