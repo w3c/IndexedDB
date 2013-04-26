@@ -395,9 +395,7 @@
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>.
-                Note that this
-                method must only be called from within a <a><code>"versionchange"</code></a>
-                <a>transaction</a>.
+                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 If this <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>, or if this
@@ -420,12 +418,18 @@
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>SyntaxError</code></a>.
               </p>
               <p>
-                If the <var>optionalParameters</var> argument is specified, and <code>autoIncrement</code> is set to true, and
+                If the <var>optionalParameters</var> argument is specified, and <code>autoIncrement</code> is set to true,
+                then set <var>autoIncrement</var> to true.
+
+                If <var>autoIncrement</var> is true and
                 <var>keyPath</var> is an empty <code>DOMString</code> or any <code>sequence&lt;DOMString&gt;</code>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
               </p>
               <p>
-                Otherwise the implementation MUST create a new <a>object store</a> and return an <a>IDBObjectStore</a> object representing it.
+                Otherwise the implementation MUST create a new <a>object store</a> in the <a title="connection">connected</a> <a>database</a>
+                and return an <a>IDBObjectStore</a> object representing it.
+                Set the created <a>object store</a>'s <a title="object store name">name</a> to <var>name</var>.
+                If <var>autoIncrement</var> is true, then the created <a>object store</a> uses a <a>key generator</a>.
                 If <var>keyPath</var> is defined, set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
                 <var>keyPath</var>.
               </p>
@@ -462,9 +466,8 @@
             <dd>
               <p>
                 This method destroys the <a>object store</a> with the given name in the
-                <a title="connection">connected</a> <a>database</a>.  Note that this
-                method must only be called from within a <a><code>"versionchange"</code></a>
-                <a>transaction</a>.
+                <a title="connection">connected</a> <a>database</a>.
+                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 If this <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>, or if this
@@ -479,6 +482,10 @@
                 If there is no <a>object store</a> with <a title="object store name">name</a> <var>name</var>, compared in a
                 case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
+              </p>
+              <p>
+                Otherwise, this method destroys the <a>object store</a> with the <a title="object store name">name</a> <var>name</var>
+                in the <a title="connection">connected</a> <a>database</a>.
               </p>
               <p>
                 This method synchronously modifies the
@@ -841,10 +848,8 @@
             <dt>IDBIndex createIndex()</dt>
             <dd>
               <p>
-                This method creates and returns a new <a>index</a> with the given name and parameters in the
-                <a title="connection">connected</a> <a>database</a>.  Note that this
-                method must only be called from within a <a><code>"versionchange"</code></a>
-                <a>transaction</a>.
+                This method creates and returns a new <a>index</a> with the given name in the <a>object store</a>.
+                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
                 If this <a>object store</a>'s <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>,
@@ -867,10 +872,10 @@
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
               </p>
               <p>
-                Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
-                index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
+                Otherwise, the implementation MUST create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
+                Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
+                Set the created <a>index</a>'s <a>unique</a> and <a>multiEntry</a> flags to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
-                Set the created <a>index</a>'s <a title="index key path">key path</a> to the value of <var>keyPath</var>.
               </p>
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's
@@ -882,8 +887,10 @@
                 which was used for the createIndex call.
               </p>
               <p>
-                This method will synchronously modify the
+                This method synchronously modifies the
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
+                However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
+                property on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return a <a>IDBRequest</a> object, the index creation itself is
                 processed as an asynchronous request within the <a><code>"versionchange"</code></a> transaction.
               </p>
@@ -955,6 +962,10 @@
             <dt>void deleteIndex()</dt>
             <dd>
               <p>
+                This method destroys the <a>index</a> with the given name in the <a>object store</a>.
+                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
+              </p>
+              <p>
                 If this <a>object store</a>'s <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
@@ -968,15 +979,15 @@
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
               </p>
               <p>
-                Otherwise, this method destroys the <a>index</a> with the given name in the
-                <a>object store</a>. Note that this
-                method must only be called from within a <a><code>"versionchange"</code></a>
-                <a>transaction</a>.
+                Otherwise, this method destroys the <a>index</a> with the <a title="index name">name</a> <var>name</var>
+                in the <a>object store</a>.
               </p>
               <p>
-                This method will synchronously modify the
+                This method synchronously modifies the
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
-                Although this method does not return a <a>IDBRequest</a> object, the index deletion itself is
+                However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
+                property on the <a>IDBObjectStore</a> instance on which it was called.
+                Although this method does not return a <a>IDBRequest</a> object, the index destruction itself is
                 processed as an asynchronous request within the <a><code>"versionchange"</code></a> transaction.
               </p>
               <dl class="parameters">
