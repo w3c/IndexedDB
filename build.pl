@@ -5,7 +5,8 @@
 @content = (
   'Speclet_020_IDB_API_Constructs.html',
   'Speclet_023_IDB_API_Asynchronous_APIs.html',
-  'Speclet_022_IDB_API_Synchronous_APIs.html',
+# Synchronous API deferred from V1
+#  'Speclet_022_IDB_API_Synchronous_APIs.html',
   'Speclet_021_IDB_API_Algorithms.html'
 );
 @ending = ('Speclet_030_Privacy_Authorization.html');
