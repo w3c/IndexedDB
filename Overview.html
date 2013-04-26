@@ -1647,7 +1647,11 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBOpenDBRequest open()</dt>
             <dd>
               <p>
-                When invoked, this method MUST create a <a>request</a> and return it. The created
+                If the value of <var>version</var> is <code>0</code> (zero),
+                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
+              </p>
+              <p>
+                Otherwise, this method MUST create a <a>request</a> and return it. The created
                 <a>request</a> MUST implement the <a>IDBOpenDBRequest</a> interface and have its
                 <a title="request source">source</a> set to <code>null</code>.
                 The method then queues up an operation to run the <a>steps for opening a database</a>.
@@ -1656,10 +1660,6 @@ store_t2.put("d"); // Will get key 2
                 and <var>version</var> parameters passed to this function, and <var>request</var> be
                 the newly created request. If the <var>version</var> parameter is not specified,
                 let <var>version</var> be <code>undefined</code>.
-              </p>
-              <p>
-                If the value of <var>version</var> is <code>0</code> (zero),
-                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
               </p>
               <p class="note">
                 If <var>version</var> is not specified and a <a>database</a> with that name already exists,
@@ -1741,7 +1741,11 @@ store_t2.put("d"); // Will get key 2
             <dt>short cmp()</dt>
             <dd>
               <p>
-                When invoked, this method MUST compare two <a title="key">keys</a>. The method returns 1 if the first key is
+                If either <var>first</var> or <var>second</var> is not a <a>valid key</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
+              </p>
+              <p>
+                Otherwise, this method MUST compare two <a title="key">keys</a>. The method returns 1 if the first key is
                 <a>greater than</a> the second, -1 if the first is <a>less than</a> the second, and 0 if
                 the first is <a>equal to</a> the second.
               </p>
@@ -1751,10 +1755,6 @@ store_t2.put("d"); // Will get key 2
                 <dt>any second</dt>
                 <dd>The second <a>key</a> to compare.</dd>
               </dl>
-              <p>
-                If either <var>first</var> or <var>second</var> is not a <a>valid key</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
             </dd>
           </dl>
         </section>
@@ -1822,34 +1822,36 @@ store_t2.put("d"); // Will get key 2
                 function is called on a <a>IDBDatabase</a> object other than that transaction's
                 <a title="transaction connection">connection</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the <a><code>"versionchange"</code></a> <a>transaction</a> is not <a>active</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+
+                If an <a>object store</a> with the <a title="object store name">name</a> <var>name</var> already exists in this <a>database</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>ConstraintError</code></a>.
               </p>
               <p>
-                If an objectStore with the same name already exists,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>ConstraintError</code></a>.
-                Otherwise, the implementation MUST create a new <a>object store</a> and return an <a>IDBObjectStore</a> object representing it.
+                If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
+                which is not <code>undefined</code> or <code>null</code>, then set <var>keyPath</var> to the value
+                of this property.
+
+                If <var>keyPath</var> is not a <a>valid key path</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>SyntaxError</code></a>.
+              </p>
+              <p>
+                If the <var>optionalParameters</var> argument is specified, and <code>autoIncrement</code> is set to true, and
+                <var>keyPath</var> is an empty <code>DOMString</code> or any <code>sequence&lt;DOMString&gt;</code>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
+              </p>
+              <p>
+                Otherwise the implementation MUST create a new <a>object store</a> and return an <a>IDBObjectStore</a> object representing it.
+                If <var>keyPath</var> is defined, set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
+                <var>keyPath</var>.
               </p>
               <p>
                 This method synchronously modifies the
                 <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property. However it
                 only changes the <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a>
                 property on the <a>IDBDatabase</a> instance on which it was called.
-              </p>
-              <p>
-                If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
-                which is not <code>undefined</code> or <code>null</code>, then set <var>keyPath</var> to the value
-                of this property.
-              </p>
-              <p>
-                If <var>keyPath</var> is not a <a>valid key path</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>SyntaxError</code></a>.
-
-                Otherwise set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
-                <var>keyPath</var>.
-              </p>
-              <p>
-                If the <var>optionalParameters</var> parameter is specified, and <code>autoIncrement</code> is set to true, and
-                <code>keyPath</code> is an empty <code>DOMString</code> or any <code>sequence&lt;DOMString&gt;</code>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
               </p>
               <p>
                 In some implementations it is possible for the implementation to run into problems
@@ -1887,9 +1889,12 @@ store_t2.put("d"); // Will get key 2
                 function is called on a <a>IDBDatabase</a> object other than that transactions
                 <a title="transaction connection">connection</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the <a><code>"versionchange"</code></a> <a>transaction</a> is not <a>active</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
               </p>
               <p>
-                If there is no <a>object store</a> with the given name, compared in a
+                If there is no <a>object store</a> with <a title="object store name">name</a> <var>name</var>, compared in a
                 case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
               </p>
@@ -1908,7 +1913,23 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBTransaction transaction()</dt>
             <dd>
               <p>
-                This method, when called MUST execute the
+                If the value for the <var>mode</var> parameter is not <code>"readonly"</code> or <code>"readwrite"</code>,
+                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
+
+                If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code> transaction is still running,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If this method is called on a <a>IDBDatabase</a> instance where the <a>closePending</a> flag is set,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If any of the names in <var>storeNames</var> do not exist in this <a>database</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
+
+                If <var>storeNames</var> is an empty list,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
+              </p>
+              <p>
+                Otherwise, this method MUST execute the
                 <a title="create a transaction">steps for creating a transaction</a> in an asychronous
                 fashion. The <var>storeNames</var> and <var>mode</var> arguments are
                 forwarded to the algorithm as-is.
@@ -1923,17 +1944,6 @@ store_t2.put("d"); // Will get key 2
                 The method returns an <a>IDBTransaction</a> object representing the <a>transaction</a>
                 returned by the steps above.
               </p>
-              <p>
-                If the value for the <var>mode</var> parameter is not <code>"readonly"</code> or <code>"readwrite"</code>,
-                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
-              </p>
-              <p>
-                If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code> transaction is still running,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
-
-                If this method is called on a <a>IDBDatabase</a> instance where the <a>closePending</a> flag is set,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
-              </p>
               <dl class="parameters">
                 <dt>(DOMString or sequence&lt;DOMString&gt;) storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> in the <a>scope</a> of the new
@@ -1943,14 +1953,6 @@ store_t2.put("d"); // Will get key 2
                 <a title="object store">object stores</a>. If this parameter is not provided, the default
                 access <a>mode</a> is <code>"readonly"</code>.</dd>
               </dl>
-              <p>
-                If any of the names in <var>storeNames</var> do not exist in this <a>database</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
-              </p>
-              <p>
-                If <var>storeNames</var> is an empty list,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
-              </p>
             </dd>
             <dt>void close()</dt>
             <dd>
@@ -2058,7 +2060,7 @@ store_t2.put("d"); // Will get key 2
                 </li>
               </ul>
               <p>
-                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                Otherwise, this method creates a <a>structured clone</a> of the <var>value</var> parameter.
                 If the <a>structured clone</a> algorithm throws an exception, that exception is rethrown.
                 Otherwise, run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
                 The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
@@ -2113,7 +2115,7 @@ store_t2.put("d"); // Will get key 2
                 </li>
               </ul>
               <p>
-                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                Otherwise, this method creates a <a>structured clone</a> of the <var>value</var> parameter.
                 If the <a>structure clone</a> algorithm throws an exception, that exception is rethrown.
                 Otherwise, run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
                 The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
@@ -2149,7 +2151,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
-                Otherwise this method runs the <a>steps for
+                Otherwise, this method runs the <a>steps for
                 asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
                 The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for deleting
                 records from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
@@ -2207,7 +2209,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
-                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a> and returns the
                 <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBObjectStore</a> as
                 <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
                 this <a>IDBObjectStore</a> as <var>store</var>.
@@ -2272,24 +2274,21 @@ store_t2.put("d"); // Will get key 2
                 If the <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
-                If an index with the same name already exists in the <a>object store</a>,
+                If an <a>index</a> with the <a title="index name">name</a> <var>name</var> already exists in this <a>object store</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>ConstraintError</code></a>.
-              </p>
-              <p>
-                Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
-                index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
-                <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
-              </p>
-              <p>
+
                 If <var>keyPath</var> is not a <a>valid key path</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>SyntaxError</code></a>.
 
                 If <var>keyPath</var> is a <code>sequence&lt;DOMString&gt;</code>
                 and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidAccessError</code></a>.
-
-                Otherwise set the created <a>index</a>'s
-                <a title="index key path">key path</a> to the value of <var>keyPath</var>.
+              </p>
+              <p>
+                Otherwise, the implementation MUST create a new <a>index</a> and return an <a>IDBIndex</a> object representing it. The created
+                index has its <a>unique</a> and <a>multiEntry</a> flags are set to the values of the
+                <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
+                Set the created <a>index</a>'s <a title="index key path">key path</a> to the value of <var>keyPath</var>.
               </p>
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's
@@ -2374,7 +2373,20 @@ store_t2.put("d"); // Will get key 2
             <dt>void deleteIndex()</dt>
             <dd>
               <p>
-                This method destroys the <a>index</a> with the given name in the
+                If this <a>object store</a>'s <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+
+                If the <a>object store</a> has been deleted,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If there is no <a>index</a> with the <a title="index name">name</a> <var>name</var>, compared in a case-sensitive manner, in the <a>object store</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
+              </p>
+              <p>
+                Otherwise, this method destroys the <a>index</a> with the given name in the
                 <a>object store</a>. Note that this
                 method must only be called from within a <a><code>"versionchange"</code></a>
                 <a>transaction</a>.
@@ -2389,31 +2401,18 @@ store_t2.put("d"); // Will get key 2
                 <dt>DOMString indexName</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <p>
-                If this <a>object store</a>'s <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
-
-                If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
-
-                If the <a>object store</a> has been deleted,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
-
-                If there is no <a>index</a> with the given name, compared in a case-sensitive manner, in the <a>object store</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>NotFoundError</code></a>.
-              </p>
             </dd>
             <dt>IDBRequest count()</dt>
             <dd>
               <p>
-                If the optional <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-
                 If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
                 If the <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the optional <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
                 Otherwise, this method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
@@ -2476,14 +2475,14 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBRequest openCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
                 If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
                 Otherwise, this method creates a <a>cursor</a>.
@@ -2517,14 +2516,14 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
               <p>
-                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-
                 If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
                 If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
                 Otherwise, this method creates a <a>cursor</a>. The cursor
@@ -2568,7 +2567,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
-                This method runs the <a>steps for asynchronously executing a request</a>
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a>
                 and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
                 <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
                 index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
@@ -2602,7 +2601,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
-                This method runs the <a>steps for asynchronously executing a request</a>
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a>
                 and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
                 <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
                 index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and the
@@ -2627,7 +2626,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
-                This method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
                 The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
                 using the created cursor as <var>cursor</var>.
                 If provided, use the <var>key</var> parameter as <var>key</var>, otherwise, use undefined as <var>key</var>.
@@ -2699,7 +2698,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
-                Otherwise this method creates a <a>structured clone</a> of the <var>value</var> parameter.
+                Otherwise, this method creates a <a>structured clone</a> of the <var>value</var> parameter.
                 If the <a>structured clone</a> algorithm throws an exception, that exception is rethrown.
                 Otherwise, run the <a>steps for asynchronously executing a request</a> and
                 return the <a>IDBRequest</a> created by these steps.
@@ -2735,7 +2734,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
-                This method runs the <a>steps for asynchronously executing a request</a>.
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a>.
                 However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
                 <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
                 on the request is set to false before the request is returned.  The steps are run with the cursor's
@@ -2785,7 +2784,7 @@ store_t2.put("d"); // Will get key 2
                 </li>
               </ul>
               <p>
-                Otherwise this method runs the <a>steps for asynchronously executing a request</a>.
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a>.
                 However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
                 <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
                 on the request is set to false before the request is returned.  The steps are run with the cursor's
@@ -2824,7 +2823,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
               <p>
-                Otherwise this method runs the <a>steps for asynchronously executing a request</a> and returns the
+                Otherwise, this method runs the <a>steps for asynchronously executing a request</a> and returns the
                 <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
                 and the <a>steps for deleting records from an object store</a> as <var>operation</var>, using this cursor's
                 <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
@@ -2893,10 +2892,11 @@ store_t2.put("d"); // Will get key 2
                 If this <a>transaction</a> is <a title="transaction finish">finished</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
               </p>
-
-              Otherwise this method sets the transaction's <a>active</a> flag to false and
-              <a title="transaction abort">aborts</a> the transaction by running the
-              <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to <code>null</code>.
+              <p>
+                Otherwise, this method sets the transaction's <a>active</a> flag to false and
+                <a title="transaction abort">aborts</a> the transaction by running the
+                <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to <code>null</code>.
+              </p>
             </dd>
             <dt>attribute EventHandler onabort</dt>
             <dd>The event handler for the <code>abort</code> event.</dd>
@@ -3042,7 +3042,7 @@ store_t2.put("d"); // Will get key 2
             it MUST run the following steps. This algorithm takes three arguments:
             a <a><var>connection</var></a>,
             a <a><var>mode</var></a>,
-            and a list of <var>storeNames</var> of <a title="object store">object stores</a> to be included in the <a>scope</a> of the transaction.
+            and the list <var>storeNames</var> naming the <a title="object store">object stores</a> to be included in the <a>scope</a> of the transaction.
             <!--, a
             <var>timeout</var> for the transaction <a title="transaction start">starting</a>,
             and a <var>callback</var> parameter for synchronously created transactions. -->
