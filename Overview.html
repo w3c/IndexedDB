@@ -10,7 +10,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2013-04-26",
+          publishDate:          "2013-04-29",
 
           previousPublishDate:  "2011-12-06",
           previousMaturity:     "WD",
@@ -455,7 +455,7 @@ request.onsuccess = function() {
           <p>
             In order to efficiently retrieve <a title="record">records</a> stored in an indexed database,
             each <a>record</a> is organized according to its <dfn>key</dfn>. A value is said to be a <dfn>valid key</dfn>
-            if it is one of the following JavaScript [[!ECMA-262]] types:
+            if it is one of the following ECMAScript [[!ECMA-262]] types:
             <code>Number</code> primitive value,
             <code>String</code> primitive value,
             <code>Date</code> object, or
@@ -486,7 +486,7 @@ request.onsuccess = function() {
 
           <p class="note">
               This implicit copying step ensures that <a>key</a> values do not change after
-              the operation begins, due to side effects such as JavaScript [[!ECMA-262]] getters,
+              the operation begins, due to side effects such as ECMAScript [[!ECMA-262]] getters,
               setters and type conversion functions including <code>toString()</code> and
               <code>valueOf()</code>.
           </p>
@@ -625,7 +625,7 @@ request.onsuccess = function() {
           <h4>Values</h4>
           <p>
             Each record is associated with a <dfn>value</dfn>. <a title="conforming user agent">Conforming user agents</a> MUST support
-            any JavaScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
+            any ECMAScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
             [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
             and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
             instances.
@@ -1648,7 +1648,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 If the value of <var>version</var> is <code>0</code> (zero),
-                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
+                the implementation MUST throw a <code>TypeError</code>.
               </p>
               <p>
                 Otherwise, this method MUST create a <a>request</a> and return it. The created
@@ -1921,7 +1921,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 If the value for the <var>mode</var> parameter is not <code>"readonly"</code> or <code>"readwrite"</code>,
-                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
+                the implementation MUST throw a <code>TypeError</code>.
 
                 If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code> transaction is still running,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
@@ -1983,16 +1983,17 @@ store_t2.put("d"); // Will get key 2
               On getting, provide the <a title="object store name">name</a> of this
               object store.
             </dd>
-            <dt>readonly attribute (DOMString or DOMString[])? keyPath</dt>
+            <dt>readonly attribute any keyPath</dt>
             <dd>
-              On getting, returns the <a title="object store key path">key path</a>
-              of this <a>object store</a>. This will be either a <code>DOMString</code>,
-              an <code>Array</code> of <code>DOMString</code>s or <code>null</code>.
-
-              <p class="issue">The <code>Array</code> behavior specified here is in conflict
-                  with <code>DOMString[]</code> in the Web IDL. Also need to specify
-                  if the same object is returned on each access or not.
-                  <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=21555">[Bug]</a>
+              <p>
+                On getting, returns the <a title="object store key path">key path</a>
+                of this <a>object store</a>. This will be either a <code>DOMString</code>,
+                an <code>Array</code> of <code>String</code>s or <code>null</code>.
+              </p>
+              <p>
+                If this attribute returns an object (specifically an <code>Array</code>),
+                it returns the same object instance every time it is inspected, but changing
+                the properties of the object has no effect on the <a>index</a>.
               </p>
             </dd>
             <dt>readonly attribute DOMStringList  indexNames</dt>
@@ -2463,16 +2464,17 @@ store_t2.put("d"); // Will get key 2
               return the same <a>IDBObjectStore</a> instance as was used to get a reference
               to this <a>IDBIndex</a>.
             </dd>
-            <dt>readonly attribute (DOMString or DOMString[]) keyPath</dt>
+            <dt>readonly attribute any keyPath</dt>
             <dd>
-              On getting, returns the <a title="index key path">key path</a>
-              of this <a>index</a>. This will be either a <code>DOMString</code> or
-              an <code>Array</code> of <code>DOMString</code>s.
-
-              <p class="issue">The <code>Array</code> behavior specified here is in conflict
-                  with <code>DOMString[]</code> in the Web IDL. Also need to specify
-                  if the same object is returned on each access or not.
-                  <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=21555">[Bug]</a>
+              <p>
+                On getting, returns the <a title="index key path">key path</a>
+                of this <a>index</a>. This will be either a <code>DOMString</code>,
+                or an <code>Array</code> of <code>String</code>s.
+              </p>
+              <p>
+                If this attribute returns an object (specifically an <code>Array</code>),
+                it returns the same object instance every time it is inspected, but changing
+                the properties of the object has no effect on the <a>index</a>.
               </p>
             </dd>
             <dt>readonly attribute boolean multiEntry</dt>
@@ -2733,7 +2735,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 If the value for <var>count</var> is <code>0</code> (zero),
-                the implementation MUST throw a JavaScript <code>TypeError</code> exception.
+                the implementation MUST throw a <code>TypeError</code>.
 
                 If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
