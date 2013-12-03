@@ -10,7 +10,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2013-08-12",
+          publishDate:          "2013-12-03",
 
           previousPublishDate:  "2013-05-09",
           previousMaturity:     "WD",
@@ -106,20 +106,20 @@
             <section id='introduction' class='section informative'>
       <h2>Introduction</h2>
 
-	
+
       <p>
         User agents need to store large numbers of objects locally in
         order to satisfy off-line data requirements of Web applications.
         [[WEBSTORAGE]] is useful for
-        storing pairs of keys and their corresponding values. However, it does 
+        storing pairs of keys and their corresponding values. However, it does
         not provide in-order retrieval of keys, efficient searching over
-        values, or storage of duplicate values for a key. 
+        values, or storage of duplicate values for a key.
       </p>
-      
+
       <p>
         This specification provides a concrete API to perform advanced key-value data management
         that is at the heart of most sophisticated query processors. It does
-        so by using transactional databases to store keys and their 
+        so by using transactional databases to store keys and their
         corresponding values (one or more per key), and providing a means
         of traversing keys in a deterministic order. This is often implemented
         through the use of persistent B-tree data structures that are considered
@@ -308,46 +308,47 @@ request.onsuccess = function() {
             A user agent MUST behave as described in this specification
             in order to be considered conformant.
           </p>
-          
+
           <p>
             User agents MAY implement algorithms given in this
             specification in any way desired, so long as the end result is
             indistinguishable from the result that would be obtained by the
             specification's algorithms.
           </p>
-          
+
           <p>
             A conforming Indexed Database API user agent MUST also be a
             <em>conforming implementation</em> of the IDL fragments
             of this specification, as described in the
             “Web IDL” specification. [[!WEBIDL]]
           </p>
-          
+
           <p class="note">
-            This specification uses both the terms "conforming user agent(s)" 
+            This specification uses both the terms "conforming user agent(s)"
             and "user agent(s)" to refer to this product class.
           </p>
         </dd>
-      </dl>        
-      
+      </dl>
+
       <section class="section" id="dependencies">
         <h3>Dependencies</h3>
         <p>
-          This specification relies on several other underlying specifications. 
+          This specification relies on several other underlying specifications.
         </p>
         <dl>
           <dt>DOM-LEVEL-3-EVENTS</dt>
-          <dd>The terms <dfn>default action</dfn> and <dfn>propagation path</dfn> are defined by the
+          <dd>The terms <dfn>default action</dfn>, <dfn>propagation path</dfn>
+            and <dfn><code>Event</code></dfn>are defined by the
             Document Object Model (DOM) Level 3 Events Specification [[!DOM-LEVEL-3-EVENTS]].
           </dd>
           <dt>HTML5</dt>
           <dd>The terms and algorithms <dfn id="document-base-url">document base URL</dfn>,
-            <dfn id="event-handler-attributes">event handler attributes</dfn>, 
+            <dfn id="event-handler-attributes">event handler attributes</dfn>,
             <dfn id="event-handler-event-type">event handler event type</dfn>,
-            <dfn title="Function"><code>Function</code></dfn>,
+            <dfn><code>Function</code></dfn>,
             <dfn>origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
-            <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
-            and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
+            <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>,
+            and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5
             specification [[!HTML5]].
           </dd>
           <dt>WebIDL</dt>
@@ -644,7 +645,7 @@ request.onsuccess = function() {
             [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
             and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
             instances, <code>File</code> objects, <code>Blob</code> objects, <code>ImageData</code>
-            objects, and so on. Record <a title="value">values</a> are stored and retrieved 
+            objects, and so on. Record <a title="value">values</a> are stored and retrieved
             by value rather than by reference; later changes to a value have no effect on
             the record stored in the database.
           </p>
@@ -710,7 +711,7 @@ request.onsuccess = function() {
             <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
           </p>
           <aside class="example">
-              For example, if an index's <a>referenced</a> object store contains a record with the key <code>123</code> 
+              For example, if an index's <a>referenced</a> object store contains a record with the key <code>123</code>
               and the value <code>{ first: "Alice", last: "Smith" }</code>, and the <a title="index key path">index's key path</a>
               is <code>"first"</code> then the index would contain a record with the key <code>"Alice"</code> and the value <code>123</code>.
           </aside>
@@ -869,14 +870,14 @@ request.onsuccess = function() {
           </p>
 
           <dl class="idl" title="enum IDBTransactionMode">
-            <dt><dfn title='"readonly"'>readonly</dfn></dt>
+            <dt>"readonly"</dt>
             <dd>
-                This mode means that the transaction is only allowed
+                A <dfn title="transaction readonly"><code>"readonly"</code></dfn> transaction is only allowed
                 to read data. No modifications can be done by this type of transaction. This has the advantage
                 that several <code>"readonly"</code> transactions can run at the same time even if their <a title="scope">scopes</a>
                 are overlapping, i.e. if they are using the same object stores. This type of transaction can
-                be created any time once a database has been opened using the 
-                <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a> 
+                be created any time once a database has been opened using the
+                <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>
                 <!--
                     or
                     <a href="#widl-IDBDatabaseSync-transaction-void-DOMString-sequence-DOMString--storeNames-IDBTransactionCallback-callback-IDBTransactionMode-mode-unsigned-long-timeout"><code>IDBDatabaseSync.transaction</code></a>
@@ -884,9 +885,9 @@ request.onsuccess = function() {
                 method.
             </dd>
 
-            <dt><dfn title='"readwrite"'>readwrite</dfn></dt>
+            <dt>"readwrite"</dt>
             <dd>
-                The type of transaction is allowed to read, modify and
+                A <dfn title="transaction readwrite"><code>"readwrite"</code></dfn> transaction is allowed to read, modify and
                 delete data from existing object stores. However object stores and indexes can't be added or removed.
                 Multiple <code>"readwrite"</code> transactions can't run at the same time if their <a title="scope">scopes</a> are overlapping
                 since that would mean that they can modify each other's data in the middle of the transaction.
@@ -899,9 +900,9 @@ request.onsuccess = function() {
                 method.
             </dd>
 
-            <dt><dfn title='"versionchange"'>versionchange</dfn></dt>
+            <dt>versionchange"</dt>
             <dd>
-                This is similar to a <code>"readwrite"</code> transaction,
+                A <dfn title="transaction versionchange"><code>"versionchange"</code></dfn> transaction is similar to a <code>"readwrite"</code> transaction,
                 however it can additionally create and remove object stores and indexes. It is the only type of
                 transaction that can do so. This type of transaction can't be manually created, but instead is created
                 automatically when a <a><code>upgradeneeded</code></a> event is fired.
@@ -909,7 +910,7 @@ request.onsuccess = function() {
           </dl>
 
           <p>
-            Any number of transactions opened in <a><code>"readonly"</code></a> mode are allowed to run concurrently,
+            Any number of transactions opened in <a title="transaction readonly"><code>"readonly"</code></a> mode are allowed to run concurrently,
             even if the transaction's <a>scope</a> overlap and include the same <a title="object store">object stores</a>.
             As long as a <code>"readonly"</code> transaction is running, the data that the implementation returns
             through <a title="request">requests</a> created with that transaction MUST remain
@@ -975,7 +976,7 @@ request.onsuccess = function() {
             transaction from <a title="transaction start">starting</a>.
           </p>
           <p>
-            Each <a>transaction</a> object implement the <a>IDBTransaction</a> 
+            Each <a>transaction</a> object implement the <a>IDBTransaction</a>
             <!-- or the <a>IDBTransactionSync</a> -->
             interface.
           </p>
@@ -1218,7 +1219,7 @@ request.onsuccess = function() {
             <!-- or the <a>IDBCursorSync</a> -->
             interfaces. There is only ever one
             <a>IDBCursor</a>
-            <!-- or <a>IDBCursorSync</a> --> 
+            <!-- or <a>IDBCursorSync</a> -->
             instance representing
             a given <a>cursor</a>. However there is no limit on how many cursors can be used at the
             same time.
@@ -1548,9 +1549,9 @@ store_t2.put("d"); // Will get key 2
               event handlers are registered for responding to various situations.
             </p>
             <pre class="example highlight">
- var request = indexedDB.<a>open</a>('AddressBook', 15);
- request.<a>onsuccess</a> = function(evt) {...};
- request.<a>onerror</a> = function(evt) {...};
+ var request = indexedDB.open('AddressBook', 15);
+ request.onsuccess = function(evt) {...};
+ request.onerror = function(evt) {...};
             </pre>
           </aside>
           <dl class="idl" title="interface IDBRequest : EventTarget">
@@ -1799,7 +1800,7 @@ store_t2.put("d"); // Will get key 2
               <a>database</a> when this <a>IDBDatabase</a> instance was created.
               When a <a>IDBDatabase</a> instance is created,
               this is always the number passed as the <var>version</var>
-              argument passed to the <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>open</code></a>
+              argument passed to the <a><code>open</code></a>
               call used to create the <a>IDBDatabase</a> instance. This value remains constant for the lifetime of the <a>IDBDatabase</a> object.
               If the <a>connection</a> is closed, this attribute represents a
               snapshot of the version that the <a>database</a> had when the connection
@@ -1821,7 +1822,7 @@ store_t2.put("d"); // Will get key 2
               other <a title="connection">connections</a> are later used to change the set of <a title="object store">object
               stores</a> that exist in the <a>database</a>. In other words, the
               value of this attribute stays constant for the lifetime of the
-              <a>IDBDatabase</a> instance, except during a <a><code>"versionchange"</code></a>
+              <a>IDBDatabase</a> instance, except during a <a title="transaction versionchange"><code>"versionchange"</code></a>
               transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters"><code>createObjectStore</code></a>
               or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name"><code>deleteObjectStore</code></a>
               is called on this <a>IDBDatabase</a> instance itself.
@@ -1831,15 +1832,15 @@ store_t2.put("d"); // Will get key 2
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>.
-                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
+                Note that this method must only be called from within a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
-                If this <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>, or if this
+                If this <a>database</a> is not running a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transaction's
                 <a title="transaction connection">connection</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
-                If the <a><code>"versionchange"</code></a> <a>transaction</a> is not <a>active</a>,
+                If the <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a> is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
 
                 If an <a>object store</a> with the <a title="object store name">name</a> <var>name</var> already exists in this <a>database</a>,
@@ -1903,15 +1904,15 @@ store_t2.put("d"); // Will get key 2
               <p>
                 This method destroys the <a>object store</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>.
-                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
+                Note that this method must only be called from within a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
-                If this <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>, or if this
+                If this <a>database</a> is not running a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transactions
                 <a title="transaction connection">connection</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
-                If the <a><code>"versionchange"</code></a> <a>transaction</a> is not <a>active</a>,
+                If the <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a> is not <a>active</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
               </p>
               <p>
@@ -2038,7 +2039,7 @@ store_t2.put("d"); // Will get key 2
                 other <a title="connection">connections</a> are later used to change the set of
                 <a title="index">indexes</a> that exist in the <a>object store</a>. In other words, the
                 value of this attribute stays constant for the lifetime of the
-                <a>IDBObjectStore</a> instance, except during a <a><code>"versionchange"</code></a>
+                <a>IDBObjectStore</a> instance, except during a <a title="transaction versionchange"><code>"versionchange"</code></a>
                 transaction if
                 <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-sequence-DOMString--keyPath-IDBIndexParameters-optionalParameters"><code>createIndex</code></a>
                 or
@@ -2293,10 +2294,10 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 This method creates and returns a new <a>index</a> with the given name in the <a>object store</a>.
-                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
+                Note that this method must only be called from within a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
-                If this <a>object store</a>'s <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>,
+                If this <a>object store</a>'s <a>database</a> is not running a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2327,7 +2328,7 @@ store_t2.put("d"); // Will get key 2
                 index's keyPath. If the <a>referenced</a> object store already contains data which violates these
                 constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
                 The implementation MUST still create and return an <a>IDBIndex</a> object.
-                Instead the implementation must queue up an operation to abort the <a><code>"versionchange"</code></a> transaction
+                Instead the implementation must queue up an operation to abort the <a title="transaction versionchange"><code>"versionchange"</code></a> transaction
                 which was used for the createIndex call.
               </p>
               <p>
@@ -2336,7 +2337,7 @@ store_t2.put("d"); // Will get key 2
                 However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
                 property on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return a <a>IDBRequest</a> object, the index creation itself is
-                processed as an asynchronous request within the <a><code>"versionchange"</code></a> transaction.
+                processed as an asynchronous request within the <a title="transaction versionchange"><code>"versionchange"</code></a> transaction.
               </p>
               <p>
                 In some implementations it is possible for the implementation to asynchronously run into problems
@@ -2363,7 +2364,7 @@ store_t2.put("d"); // Will get key 2
                       At the point where <code>createIndex</code> called, neither of the <a title="request">requests</a>
                       have executed. When the second request executes, a duplicate name is created. Since the index
                       creation is considered an asynchronous <a>request</a>, the index's <a title="unique">uniqueness</a>
-                      constraint does not cause the second <a>request</a> to fail. Instead, the <a>transaction</a> will be 
+                      constraint does not cause the second <a>request</a> to fail. Instead, the <a>transaction</a> will be
                       <a title="transaction abort">aborted</a> when the index is created and the constraint fails.
                   </p>
               </aside>
@@ -2407,10 +2408,10 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 This method destroys the <a>index</a> with the given name in the <a>object store</a>.
-                Note that this method must only be called from within a <a><code>"versionchange"</code></a> <a>transaction</a>.
+                Note that this method must only be called from within a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>.
               </p>
               <p>
-                If this <a>object store</a>'s <a>database</a> is not running a <a><code>"versionchange"</code></a> <a>transaction</a>,
+                If this <a>object store</a>'s <a>database</a> is not running a <a title="transaction versionchange"><code>"versionchange"</code></a> <a>transaction</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
                 If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2432,7 +2433,7 @@ store_t2.put("d"); // Will get key 2
                 However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
                 property on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return a <a>IDBRequest</a> object, the index destruction itself is
-                processed as an asynchronous request within the <a><code>"versionchange"</code></a> transaction.
+                processed as an asynchronous request within the <a title="transaction versionchange"><code>"versionchange"</code></a> transaction.
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
@@ -2608,7 +2609,7 @@ store_t2.put("d"); // Will get key 2
                 If the <a>index</a> or the index's <a>object store</a> has been deleted,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
 
-                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>, 
+                If the <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>,
                 the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
               </p>
               <p>
