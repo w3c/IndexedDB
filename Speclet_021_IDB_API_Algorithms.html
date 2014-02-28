@@ -118,34 +118,6 @@
               If there is already a database with the given name from the origin <var>origin</var>, then
               let <var>db</var> be that database.
             </li>
-            <!--<li>
-              If <var>db</var> was found in the previous step, and it has a <a>version</a> higher than
-              <var>version</var>, then abort these steps and return a <a><code>VERSION_ERR</code></a> error.
-              Likewise, if at any point while running these steps, these steps are also running with the same
-              <var>origin</var> and <var>name</var>, but with a higher <var>version</var>, abort these steps and
-              return a <a><code>VERSION_ERR</code></a> error.
-              <p class="note">
-                <p>This can happen in for example the following four situations:</p>
-                <ul>
-                  <li>
-                    The database already has a version higher than the version requested to be opened.
-                  </li>
-                  <li>
-                    Another call to <code>open</code> with a higher version is already in progress, but is
-                    waiting for other connections to be closed before being able to fire the
-                    <code>upgradeneeded</code> event.
-                  </li>
-                  <li>
-                    While this call is waiting for other connections to be closed before being able to firing
-                    the <code>upgradeneeded</code> event, another call to <code>open</code> is made with a
-                    higher version.
-                  </li>
-                  <li>
-                    Two calls to open happen at the same time with different version numbers.
-                  </li>
-                </ul>
-              </p>
-            </li>-->
             <li>
               If <var>db</var> was found in previous step, wait until the following conditions are all fulfilled:
               <ul>
@@ -157,22 +129,13 @@
                   If <var>db</var> has its <a>delete pending</a> flag set, wait until <var>db</var> has
                   been deleted.
                 </li>
-                <li>
-                  These steps are not run for any other <a title="connection">connections</a> with the same <var>origin</var>
-                  and <var>name</var> but with a higher <var>version</var>.
-                </li>
               </ul>
               <p class="note">
-                If several connections with the same origin, name and version are opened at the same time,
-                and that version is a higher version that the database's current version, then once any of
+                If several connections with the same origin and name are waiting due to the above conditions,
+                and those connections have a higher version than the database's current version, then once any of
                 those connections can proceed to the next step in this algorithm it will immediately start
                 a <code>"versionchange"</code> transaction. This prevents the other connections from proceeding until that
                 <code>"versionchange"</code> transaction is finished.
-              </p>
-              <p class="note">
-                This means that if two databases with the same name and origin, but with different versions, are
-                being opened at the same time, the one with the highest version will attempt to be opened first.
-                If it is able to successfully open, then the one with the lower version will receive an error.
               </p>
             </li>
             <li>
@@ -518,7 +481,7 @@
           </p>
           <ol>
             <li>
-              Let <var>openDatabases</var> be the set of all <a>IDBDatabase</a> 
+              Let <var>openDatabases</var> be the set of all <a>IDBDatabase</a>
               <!-- and <a>IDBDatabaseSync</a> -->
               objects, except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
             </li>
@@ -635,7 +598,7 @@
               Execute the transaction.
             </li>
             <li>
-              When the transaction is finished, 
+              When the transaction is finished,
               <!-- if these steps are run asynchronously, -->
               immediately set <var>request</var>'s
               <code>transaction</code> property to <code>null</code>. This MUST be done in the same task as the task firing the
