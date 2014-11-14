@@ -459,11 +459,11 @@ table.exceptions table {
   </p>
   <h1 class="title p-name" id="title" property="dcterms:title">Indexed Database API</h1>
   
-  <h2 property="dcterms:issued" datatype="xsd:dateTime" content="2014-11-25T05:00:00.000Z" id="w3c-proposed-recommendation-25-november-2014"><abbr title="World Wide Web Consortium">W3C</abbr> Proposed Recommendation <time class="dt-published" datetime="2014-11-25">25 November 2014</time></h2>
+  <h2 property="dcterms:issued" datatype="xsd:dateTime" content="2014-11-20T05:00:00.000Z" id="w3c-proposed-recommendation-20-november-2014"><abbr title="World Wide Web Consortium">W3C</abbr> Proposed Recommendation <time class="dt-published" datetime="2014-11-20">20 November 2014</time></h2>
   <dl>
     
       <dt>This version:</dt>
-      <dd><a class="u-url" href="http://www.w3.org/TR/2014/PR-IndexedDB-20141125/">http://www.w3.org/TR/2014/PR-IndexedDB-20141125/</a></dd>
+      <dd><a class="u-url" href="http://www.w3.org/TR/2014/PR-IndexedDB-20141120/">http://www.w3.org/TR/2014/PR-IndexedDB-20141120/</a></dd>
       <dt>Latest published version:</dt>
       <dd><a href="http://www.w3.org/TR/IndexedDB/">http://www.w3.org/TR/IndexedDB/</a></dd>
     
@@ -581,8 +581,9 @@ table.exceptions table {
               <a rel="discussion" href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> 
               (<a href="mailto:public-webapps-request@w3.org?subject=subscribe">subscribe</a>,
               <a href="http://lists.w3.org/Archives/Public/public-webapps/">archives</a>)
-              through 23 December 2014. Advisory Committee Representatives should consult their
+              through 18 December 2014. Advisory Committee Representatives should consult their
               <a href="https://www.w3.org/2002/09/wbs/myQuestionnaires">WBS questionnaires</a>. 
+          
         </p>
         
           <p>
@@ -1449,11 +1450,36 @@ request</span><span class="pun">.</span><span class="pln">onsuccess </span><span
             the requirements in the previous paragraph, this also means that it is the only transaction
             which has access to the object store until the transaction is <a title="transaction finish" href="#dfn-transaction-finish" class="internalDFN">finished</a>.
           </p>
+
+          <p>
+            Any transaction
+            <a title="transaction create" href="#dfn-transaction-create" class="internalDFN">created</a> after a
+            <code>"readwrite"</code> transaction <em class="rfc2119" title="MUST">MUST</em> see the changes
+            written by the <code>"readwrite"</code> transaction. So if
+            a
+            <code>"readwrite"</code> transaction, A, is created, and
+            later another transaction B, is created, and the two
+            transactions have overlapping
+            <a title="scope" href="#dfn-scope" class="internalDFN">scopes</a>, then B <em class="rfc2119" title="MUST">MUST</em> see any changes
+            made to any <a title="object store" href="#dfn-object-store" class="internalDFN">object stores</a> that
+            are part of that overlapping <a href="#dfn-scope" class="internalDFN">scope</a>. Due to the
+            requirements in the previous paragraph, this also means
+            that the B transaction does not have access to any
+            <a title="object store" href="#dfn-object-store" class="internalDFN">object stores</a> in that
+            overlapping <a href="#dfn-scope" class="internalDFN">scope</a> until the A transaction
+            is <a title="transaction finish" href="#dfn-transaction-finish" class="internalDFN">finished</a>.
+          </p>
+
           <div class="note"><div class="note-title" aria-level="3" role="heading" id="h_note_11"><span>Note</span></div><p class="">
-            Generally speaking, the above requirements mean that <code>"readwrite"</code> transactions which have overlapping
-            scopes always run in the order they were <a title="transaction create" href="#dfn-transaction-create" class="internalDFN">created</a>, and never run
-            in parallel.
+            Generally speaking, the above requirements mean that any
+            transaction which has an overlapping scope with a
+            <code>"readwrite"</code> transaction and which was created
+            after that
+            <code>"readwrite"</code> transaction, can't run in
+            parallel with that
+            <code>"readwrite"</code> transaction.
           </p></div>
+
           <p>
             A <code>"versionchange"</code> transaction never run concurrently with other transactions.
             When a database is opened with a <a href="#dfn-version" class="internalDFN">version</a> number higher than the current <a href="#dfn-version" class="internalDFN">version</a>, a new
@@ -3600,10 +3626,6 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
             <li id="version-change-close-block">
               Wait until all objects in <var>openDatabases</var> are <a title="database close" href="#dfn-database-close" class="internalDFN">closed</a> and all of
               their transactions are <a title="transaction finish" href="#dfn-transaction-finish" class="internalDFN">finished</a>.
-              <div class="issue"><div class="issue-title" aria-level="3" role="heading" id="h_issue_1"><span>Issue 1</span></div><p class="">If .close() is called immediately but a <a href="#dfn-transaction" class="internalDFN">transaction</a> associated with the <var>connection</var>
-              keeps running for a "long time", should we also fire a <code>blocked</code> event?</p></div>
-              <div class="issue"><div class="issue-title" aria-level="3" role="heading" id="h_issue_2"><span>Issue 2</span></div><p class="">If, while we're waiting here, someone calls open with a version number higher than <var>version</var>,
-              we should probably let that upgrade run first and bail here if it was successful</p></div>
             </li>
             <li>
               Create a new <a href="#dfn-transaction" class="internalDFN">transaction</a> with <a href="#dfn-mode" class="internalDFN">mode</a> set to <code>"versionchange"</code> and <var>connection</var> used as <a href="#dfn-connection" class="internalDFN">connection</a>.
@@ -3803,7 +3825,6 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
             <li id="delete-close-block">
               Wait until all objects in <var>openDatabases</var> are <a title="database close" href="#dfn-database-close" class="internalDFN">closed</a> and all of
               their transactions are <a title="transaction finish" href="#dfn-transaction-finish" class="internalDFN">finished</a>.
-              <div class="issue"><div class="issue-title" aria-level="3" role="heading" id="h_issue_3"><span>Issue 3</span></div><p class="">Should we allow <code>blocked</code> to be fired here too, if waiting takes "too long"?</p></div>
             </li>
             <li>
               Delete <var>db</var>.
@@ -4556,6 +4577,7 @@ interface <span class="idlInterfaceID">IDBEnvironment</span> {
         <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/9cbb21363f41">Fix doubled quotes in enum definition</a></li>
         <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/5a377a17a6c9">Update "event handler attributes" reference</a></li>
         <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/ed9590a0557a">Update "Event" and "WorkerUtils" references</a></li>
+        <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/7b1d540b5fd0">Tighten restriction on starting <code>"readonly"</code> transactions created after <code>"readwrite"</code> transactions.</a> (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=25251">bug 25251</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements" typeof="bibo:Chapter" resource="#acknowledgements" rel="bibo:Chapter">
