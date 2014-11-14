@@ -10,7 +10,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2014-11-12",
+          publishDate:          "2014-11-13",
 
           previousPublishDate:  "2013-05-09",
           previousMaturity:     "WD",
@@ -936,11 +936,36 @@ request.onsuccess = function() {
             the requirements in the previous paragraph, this also means that it is the only transaction
             which has access to the object store until the transaction is <a title="transaction finish">finished</a>.
           </p>
-          <p class="note">
-            Generally speaking, the above requirements mean that <code>"readwrite"</code> transactions which have overlapping
-            scopes always run in the order they were <a title="transaction create">created</a>, and never run
-            in parallel.
+
+          <p>
+            Any transaction
+            <a title="transaction create">created</a> after a
+            <code>"readwrite"</code> transaction MUST see the changes
+            written by the <code>"readwrite"</code> transaction. So if
+            a
+            <code>"readwrite"</code> transaction, A, is created, and
+            later another transaction B, is created, and the two
+            transactions have overlapping
+            <a title="scope">scopes</a>, then B MUST see any changes
+            made to any <a title="object store">object stores</a> that
+            are part of that overlapping <a>scope</a>. Due to the
+            requirements in the previous paragraph, this also means
+            that the B transaction does not have access to any
+            <a title="object store">object stores</a> in that
+            overlapping <a>scope</a> until the A transaction
+            is <a>finished</a>.
           </p>
+
+          <p class="note">
+            Generally speaking, the above requirements mean that any
+            transaction which has an overlapping scope with a
+            <code>"readwrite"</code> transaction and which was created
+            after that
+            <code>"readwrite"</code> transaction, can't run in
+            parallel with that
+            <code>"readwrite"</code> transaction.
+          </p>
+
           <p>
             A <code>"versionchange"</code> transaction never run concurrently with other transactions.
             When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
@@ -4259,6 +4284,7 @@ store_t2.put("d"); // Will get key 2
         <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/9cbb21363f41">Fix doubled quotes in enum definition</a></li>
         <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/5a377a17a6c9">Update "event handler attributes" reference</a></li>
         <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/ed9590a0557a">Update "Event" and "WorkerUtils" references</a></li>
+        <li><a href="https://dvcs.w3.org/hg/IndexedDB/rev/...">Tighten restriction on starting <code>"readonly"</code> transactions created after <code>"readwrite"</code> transactions.</a> (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=25251">bug 25251</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
