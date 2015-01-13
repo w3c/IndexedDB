@@ -2291,6 +2291,47 @@ store_t2.put("d"); // Will get key 2
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
             </dd>
+            <dt>IDBRequest openKeyCursor()</dt>
+            <dd>
+              <p>
+                If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+
+                If the <a>object store</a> has been deleted,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+
+                If the <var>range</var> parameter is specified but is not a <a>valid key</a> or a <a>key range</a>,
+                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
+              </p>
+              <p>
+                Otherwise, this method creates a <a>cursor</a>. The cursor
+                MUST implement the <a>IDBCursor</a> interface, but MUST NOT implement the <a>IDBCursorWithValue</a> interface.
+              </p>
+              <p>
+                The newly created cursor MUST have an undefined <a>position</a>, a <a>direction</a> set to the value
+                of the <var>direction</var> parameter, false as <a>got value</a> flag value, and undefined
+                <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                of the cursor is the <a>IDBObjectStore</a> this function was called on.
+              </p>
+              <p>
+                If the <var>range</var> parameter is a <a>key range</a> then the cursor's <a>range</a> is set to that
+                range. Otherwise, if the <var>range</var> parameter is a <a>valid key</a> then the cursor's <a>range</a>
+                is set to <a>key range</a> containing only that key value. If the <var>range</var> parameter is not specified,
+                the cursor's key range is left as undefined.
+              </p>
+              <p>
+                This method runs the <a>steps for asynchronously executing
+                a request</a> and returns the <a>IDBRequest</a> created by these steps. The steps are run with this
+                <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                using the created cursor as <var>cursor</var> and with undefined as <var>key</var>
+              </p>
+              <dl class="parameters">
+                <dt>optional any range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
+                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
             <dt>IDBIndex createIndex()</dt>
             <dd>
               <p>
@@ -4261,6 +4302,7 @@ store_t2.put("d"); // Will get key 2
       </p>
       <ul>
         <li>Address comparison of empty arrays (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27712">bug #27712</a>)</li>
+        <li>Add <code>openKeyCursor</code> method to <a><code>IDBObjectStore</code></a>.
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
@@ -4303,6 +4345,7 @@ store_t2.put("d"); // Will get key 2
                         Margo Seltzer,
                         Maciej Stachowiak,
                         Ben Turner,
+                        Kyaw Tun,
                         Hans Wennborg,
                         Shawn Wilsher,
                         Boris Zbarsky
