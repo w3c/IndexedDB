@@ -398,8 +398,7 @@ request.onsuccess = function() {
           </p>
           <p>
             When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
-            can be <dfn title="database close">closed</dfn> through several means. If the connection is GCed
-            or execution context where the <a>connection</a> is created is destroyed (for example due to the
+            can be <dfn title="database close">closed</dfn> through several means. If the execution context where the <a>connection</a> was created is destroyed (for example due to the
             user navigating away from that page), the connection is closed. The connection can also be closed
             explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
             the <a>closePending</a> flag is always set to true if it hasn't already been.
@@ -408,6 +407,17 @@ request.onsuccess = function() {
             The <a>IDBDatabase</a>
             interface represents a <a>connection</a> to a <a>database</a>.
           </p>
+
+          <p>
+            An <a>IDBDatabase</a> object must not be garbage collected if its
+            associated connection's <a>closePending</a> flag is unset
+            and it has one or more event listeners registers whose type is one of
+            <code>abort</code>, <code>error</code>, or <code>versionchange</code>.
+
+            If an <a>IDBDatabase</a> object is garbage collected, the
+            associated <a>connection</a> must be <a title="database close">closed</a>.
+          </p>
+
         </section>  <!-- IDBDatabase -->
 
         <section class="section" id="object-store-concept">
@@ -4302,13 +4312,12 @@ store_t2.put("d"); // Will get key 2
       </p>
       <ul>
         <li>Address comparison of empty arrays (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27712">bug #27712</a>)</li>
-        <li>Add <code>openKeyCursor</code> method to <a><code>IDBObjectStore</code></a>.</li>
+        <li>Add <code>openKeyCursor</code> method to <a>IDBObjectStore</a>.</li>
         <li>Correct <var>source</var> used for <code>get()</code>,
           <code>getKey()</code> and <code>openKeyCursor()</code> operations of
-          <a><code>IDBIndex</code></a> objects.
+          <a>IDBIndex</a> objects.
         </li>
-
-
+        <li>Added details around garbage collection of <a>IDBDatabase</a> objects (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=25223">bug #25223</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
