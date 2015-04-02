@@ -404,6 +404,14 @@ request.onsuccess = function() {
             the <a>closePending</a> flag is always set to true if it hasn't already been.
           </p>
           <p>
+            A <a>connection</a> may be closed by a user agent in
+            exceptional circumstances, for example due to loss of
+            access to the file system or a permission change. If this
+            occurs the user agent MUST run the <a>steps for closing a
+            database connection</a> with the <a>connection</a> and
+            with the <var>forced</var> flag set.
+          </p>
+          <p>
             The <a>IDBDatabase</a>
             interface represents a <a>connection</a> to a <a>database</a>.
           </p>
@@ -1997,6 +2005,8 @@ store_t2.put("d"); // Will get key 2
             </dd>
             <dt>attribute EventHandler onabort</dt>
             <dd>The event handler for the <code>abort</code> event.</dd>
+            <dt>attribute EventHandler onclose</dt>
+            <dd>The event handler for the <code>close</code> event.</dd>
             <dt>attribute EventHandler onerror</dt>
             <dd>The event handler for the <code>error</code> event.</dd>
             <dt>attribute EventHandler onversionchange</dt>
@@ -3492,18 +3502,30 @@ store_t2.put("d"); // Will get key 2
         </section>
         <section class="section">
           <h4>Database closing steps</h4>
-          <p>The <dfn>steps for closing a database connection</dfn> are as follows. These steps take one argument, a <var>connection</var> object.
+          <p>The <dfn>steps for closing a database connection</dfn> are as follows.
+            These steps take two arguments, a <var>connection</var> object, and an
+            optional <var>forced</var> flag.
           <ol>
             <li>
               Set the internal <a><code>closePending</code></a> flag of <var>connection</var> to true.
             </li>
             <li>
+              If the <var>forced</var> flag is set, then for each transaction <a title="transaction create">created</a>
+              using <var>connection</var> run the <a>steps for aborting a transaction</a> using the transaction
+              as the <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>.
+            </li>
+            <li>
               Wait for all transactions <a title="transaction create">created</a> using <var>connection</var> to complete.
               Once they are complete, <var>connection</var> is <a title="database close">closed</a>.
             </li>
+            <li>
+              If the <var>forced</var> flag is set, then fire a <code>close</code> event at
+              <var>connection</var>. The event MUST use the <a>Event</a> interface and have its
+              type set to <code>"close"</code>. The event MUST NOT bubble or be cancelable.
+            </li>
           </ol>
           <p class="note">
-            Once the <a><code>closePending</code></a> flag has ben set to true no new transactions can be
+            Once the <a><code>closePending</code></a> flag has been set to true no new transactions can be
             <a title="transaction create">created</a> using <var>connection</var>. All functions that
             <a title="transaction create">create</a> transactions first check the <a>closePending</a> flag first and
             throw an exception if it is true.
@@ -4319,6 +4341,10 @@ store_t2.put("d"); // Will get key 2
         </li>
         <li>Added details around garbage collection of <a>IDBDatabase</a> objects (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=25223">bug #25223</a>)</li>
         <li>Added <code>[Exposed=(Window,Worker)]</code> annotations to interfaces.</li>
+        <li>Added <var>forced</var> flag to the <a>steps for closing a database connection</a>,
+          described the firing of a <code>"close"</code> event, and added <code>onclose</code>
+          event handler definition for <a>IDBDatabase</a>.
+          (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=22540">bug #22540</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
