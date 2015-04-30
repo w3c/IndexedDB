@@ -478,8 +478,19 @@ request.onsuccess = function() {
           <h4>Keys</h4>
           <p>
             In order to efficiently retrieve <a title="record">records</a> stored in an indexed database,
-            each <a>record</a> is organized according to its <dfn>key</dfn>. A value is said to be a <dfn>valid key</dfn>
-            if it is one of the following ECMAScript [[!ECMA-262]] types:
+            each <a>record</a> is organized according to its <a>key</a>.
+
+            A <dfn>key</dfn> has a <dfn title="key type">type</dfn> and a <dfn title="key value">value</dfn>.
+            The <a title="key type">type</a> of a <a>key</a> will be one of:
+            "number",
+            "string",
+            "date",
+            or
+            "array".
+
+            An ECMAScript value can be converted to a <a>key</a> by following the steps to
+            <a>convert an ECMAScript value to a key</a>. This will be a <dfn>valid key</dfn> if the
+            input is one of the following ECMAScript [[!ECMA-262]] types:
             <code>Number</code> primitive value,
             <code>String</code> primitive value,
             <code>Date</code> object, or
@@ -516,20 +527,38 @@ request.onsuccess = function() {
           </p>
 
           <p>
-            For purposes of comparison, all <code>Array</code>s are greater than all <code>String</code>,
-            <code>Date</code> and <code>Number</code> values; all <code>String</code> values are greater than all
-            <code>Date</code> and <code>Number</code> values; and all <code>Date</code> values are greater than all
-            <code>Number</code> values. Values of type <code>Number</code> are compared to other <code>Number</code> values
-            numerically. Values of type <code>Date</code> are compared to other <code>Date</code> values chronologically.
-            Values of type <code>String</code> are compared to other values of type <code>String</code>
-            by using the algorithm defined by step 4 of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>,
-            of the ECMAScript Language Specification [[!ECMA-262]].
-            Values of type <code>Array</code> are compared to other values of type <code>Array</code> as follows:
+            For purposes of comparison:
+
+            all <a title="key">keys</a> of <a title="key type">type</a> "array"
+            are greater than all <a title="key">keys</a> of <a title="key type">type</a> "string", "date" and "number";
+
+            all <a title="key">keys</a> of <a title="key type">type</a> "string"
+            are greater than all <a title="key">keys</a> of <a title="key type">type</a> "date" and "number";
+
+            all <a title="key">keys</a> of <a title="key type">type</a> "date"
+            are greater than all <a title="key">keys</a> of <a title="key type">type</a> "number".
+          </p>
+
+          <p>
+            <a title="key">Keys</a> of <a title="key type">type</a> "number" are compared to other
+            <a title="key">keys</a> of <a title="key type">type</a> "number"
+            by comparing their <a title="key value">values</a> numerically.
+          </p>
+
+          <p>
+            <a title="key">Keys</a> of <a title="key type">type</a> "date" are compared to other
+            <a title="key">keys</a> of <a title="key type">type</a> "date"
+            by comparing their <a title="key value">values</a> numerically.
+          </p>
+
+          <p>
+            <a title="key">Keys</a> of <a title="key type">type</a> "string" are compared to other
+            <a title="key">keys</a> of <a title="key type">type</a> "string" as follows:
           </p>
           <ol>
             <li>
-              Let <var>A</var> be the first <code>Array</code> value and <var>B</var> be the second <code>Array</code>
-              value.
+              Let <var>A</var> be the first <a title="key">key's</a> <a title="key value">value</a>
+              and <var>B</var> be the first <a title="key">key's</a> <a title="key value">value</a>.
             </li>
             <li>
               Let <var>length</var> be the lesser of <var>A</var>'s length and <var>B</var>'s length.
@@ -540,17 +569,43 @@ request.onsuccess = function() {
             <li>
               While <var>i</var> is less than <var>length</var>:
               <ol>
-                <li>
-                  If the <var>i</var>th value of <var>A</var> is <a>less than</a> the <var>i</var>th value of
-                  <var>B</var>, then <var>A</var> is less than <var>B</var>. Skip the remaining steps.
-                </li>
-                <li>
-                  If the <var>i</var>th value of <var>A</var> is <a>greater than</a> the <var>i</var>th value of
-                  <var>B</var>, then <var>A</var> is greater than <var>B</var>. Skip the remaining steps.
-                </li>
-                <li>
-                  Increase <var>i</var> by 1.
-                </li>
+                <li>Let <var>u</var> be the code unit of <var>A</var> at index <var>i</var></li>
+                <li>Let <var>v</var> be the code unit of <var>B</var> at index <var>i</var></li>
+                <li>If <var>u</var> is less than <var>v</var> then <var>A</var> is less than <var>B</var>. Skip the remaining steps.</li>
+                <li>If <var>v</var> is less than <var>u</var> then <var>A</var> is greater than <var>B</var>. Skip the remaining steps.</li>
+                <li>Increase <var>i</var> by 1</li>
+              </ol>
+            </li>
+            <li>
+              If <var>A</var>'s length is less than <var>B</var>'s length, then <var>A</var> is less
+              than <var>B</var>. If <var>A</var>'s length is greater than <var>B</var>'s length, then
+              <var>A</var> is greater than <var>B</var>. Otherwise <var>A</var> and <var>B</var> are equal.
+            </li>
+          </ol>
+
+          <p>
+            <a title="key">Keys</a> of <a title="key type">type</a> "array" are compared to other
+            <a title="key">keys</a> of <a title="key type">type</a> "array" as follows:
+          </p>
+          <ol>
+            <li>
+              Let <var>A</var> be the first <a title="key">key's</a> <a title="key value">value</a>
+              and <var>B</var> be the first <a title="key">key's</a> <a title="key value">value</a>.
+            </li>
+            <li>
+              Let <var>length</var> be the lesser of <var>A</var>'s length and <var>B</var>'s length.
+            </li>
+            <li>
+              Let <var>i</var> be 0.
+            </li>
+            <li>
+              While <var>i</var> is less than <var>length</var>:
+              <ol>
+                <li>Let <var>u</var> be the <a>key</a> in <var>A</var> at index <var>i</var></li>
+                <li>Let <var>v</var> be the <a>key</a> in <var>B</var> at index <var>i</var></li>
+                <li>If the <var>u</var> is <a>less than</a> the <var>v</var>, then <var>A</var> is less than <var>B</var>. Skip the remaining steps.</li>
+                <li>If the <var>u</var> is <a>greater than</a> the <var>v</var>, then <var>A</var> is greater than <var>B</var>. Skip the remaining steps.</li>
+                <li>Increase <var>i</var> by 1.</li>
               </ol>
             </li>
             <li>
@@ -3719,6 +3774,114 @@ store_t2.put("d"); // Will get key 2
                   <a title="object store key path">key path</a> is an <code>sequence&lt;DOMString&gt;</code>.
         	</p>
 		</section>
+
+
+        <section class="section">
+          <h4>Steps to convert a key to a ECMAScript value</h4>
+          <p>
+            The steps to <dfn>convert a key to an ECMAScript value</dfn> are as follows. These
+            steps take one argument, <var>key</var>, and return an ECMAScript [[!ECMA-262]] value.
+          </p>
+          <ol>
+            <li>Let <var>type</var> be <var>key</var>'s <a title="key type">type</a>
+            <li>Let <var>value</var> be <var>key</var>'s <a title="key value">value</a>
+            <li>If <var>type</var> is "number", return an ECMAScript Number value equal to <var>value</var></li>
+            <li>If <var>type</var> is "string", return an ECMAScript String value equal to <var>value</var></li>
+            <li>If <var>type</var> is "date":
+              <ol>
+                <li>Let <var>date</var> be the result of executing the ECMAScript Date constructor with
+                  the single argument <var>value</var></li>
+                <li>Assert: <var>date</var> is not an abrupt completion.</li>
+                <li>Return <var>date</var>
+              </ol>
+            </li>
+            <li>If <var>type</var> is "array", then:
+              <ol>
+                <li>Let <var>array</var> be the result of executing the ECMAScript Array constructor with no arguments.</li>
+                <li>Assert: <var>array</var> is not an abrupt completion.
+                <li>Let <var>len</var> be the length of <var>value</var></li>
+                <li>Let <var>index</var> be 0</li>
+                <li>While <var>index</var> is less than <var>len</var>:
+                  <ol>
+                    <li>Let <var>entry</var> be the result of running the steps to <a>convert a key to an ECMAScript value</a>
+                      with the <var>index</var>th entry of <var>value</var> as input.</li>
+                    <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>)</li>
+                    <li>Assert: <var>status</var> is true</li>
+                    <li>Increase <var>index</var> by 1
+                  </ol>
+                </li>
+                <li>Return <var>array</li>
+              </ol>
+            </li>
+        </section>
+
+        <section class="section">
+          <h4>Steps to convert an ECMAScript value to a key</h4>
+          <p>
+            The steps to <dfn>convert an ECMAScript value to a key</dfn> are as follows. These
+            steps take two arguments, an ECMAScript [[!ECMA-262]] value <var>input</var>, and
+            an optional set <var>seen</var>. The result of these steps is a key or failure.
+          </p>
+          <ol>
+            <!-- Number -->
+            <li>If Type(<var>input</var>) is Number, then:
+              <ol>
+                <li>If <var>input</var> is <code>NaN</code> then return failure.</li>
+                <li>Otherwise, return a new key with <a title="key type">type</a> "number"
+                  and <a title="key value">value<a> <var>input</var></li>
+              </ol>
+            </li>
+
+            <!-- String -->
+            <li>If Type(<var>input</var>) is String, then:
+              <ol>
+                <li>Return <a title="key type">type</a> "string" and <a title="key value">value</a> <var>input</var>.</li>
+              </ol>
+            </li>
+
+            <li>If Type(<var>input</var>) is Object, then:
+              <ol>
+                <!-- Date -->
+                <li>If <var>input</var> has an internal [[DateValue]] slot, then:
+                  <ol>
+                    <li>Let <var>ms</var> be the value of <var>input</var>'s <code>[[DateValue]]</code> internal slot.
+                    <li>If <var>ms</var> is <code>NaN</code> then return failure.
+                    <li>Otherwise, return <a title="key type">type</a> "date" and <a title="key value">value</a> <var>ms</var>.
+                  </ol>
+                </li>
+
+                <!-- Array -->
+                <li>If IsArray(<var>input</var>), then:
+                  <ol>
+                    <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, <code>"length"</code>))</li>
+                    <li>Assert: <var>len</var> will never an abrupt completion.
+                    <li>If <var>seen</var> was not passed, let <var>seen</var> be a new empty set
+                    <li>If <var>input</var> is in <var>seen</var> return failure
+                    <li>Add <var>input</var> to <var>seen</var>
+                    <li>Let <var>keys</var> be a new empty list</li>
+                    <li>Let <var>index</var> be 0</li>
+                    <li>While <var>index</var> is less than <var>len</var>:
+                      <ol>
+                        <li>Let <var>entry</var> be <var>input</var>.[[Get]]</var>(<var>index</var>, <var>input</var>)</li>
+                        <li>Let <var>key</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a>
+                          with arguments <var>entry</var> and <var>seen</var></li>
+                        <li>If <var>key</var> is failure, then abort these steps and return failure.</li>
+                        <li>Append <var>key</var> to <var>keys</var></li>
+                        <li>Increase <var>index</var> by 1
+                      </ol>
+                    </li>
+                    <li>Return <a title="key type">type</a> "array" and <a title="key value">value</a> <var>keys</var>.</li>
+                  </ol>
+                </li>
+
+                <!-- TODO: BufferSource -->
+              </ol>
+            </li>
+            <li>
+              Return failure.
+            </li>
+          </ol>
+        </section>
       </section>
       <section class="section" id="database-operations">
         <h3>Database operations</h3>
