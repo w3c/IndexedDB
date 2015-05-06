@@ -3008,37 +3008,41 @@ store_t2.put("d"); // Will get key 2
 
             <dt>void advance()</dt>
             <dd>
-              <p>
-                If the value for <var>count</var> is <code>0</code> (zero),
-                the implementation MUST throw a <code>TypeError</code>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If <var>count</var> is <code>0</code> (zero),
+                  <a>throw</a> a <code>TypeError</code>.
 
-                If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
-                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
-              </p>
-              <p>
-                Otherwise, this method runs the <a>steps for asynchronously executing a request</a>.
-                However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
-                <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
-                on the request is set to false before the request is returned.  The steps are run with the cursor's
-                <a title="cursor source">source</a> as <var>source</var>. The <var>operation</var>
-                runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
-                with null as <var>key</var> and this cursor as <var>cursor</var>.
-              </p>
-              <p>
-                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag on the cursor to false.
-              </p>
+
+                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>Set the <a>got value</a> flag on the cursor to false.</li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a>
+                  slightly modified such that instead of creating a new request, it reuses the
+                  <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
+                  on the request is set to false. The steps are run with the cursor's
+                  <a title="cursor source">source</a> as <var>source</var>. The <var>operation</var>
+                  runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
+                  with null as <var>key</var> and this cursor as <var>cursor</var>.
+                </li>
+              </ol>
+
               <p class="note">
-                Calling this method more than once before new cursor data has been loaded is not allowed.
-                For example, calling <code>advance()</code> twice from the same onsuccess handler
+                Calling this method more than once before new cursor data has been loaded - for example,
+                calling <code>advance()</code> twice from the same onsuccess handler -
                 results in an <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call
                 because the cursor's <a>got value</a> has been set to false.
               </p>
+
               <dl class="parameters">
                 <dt>[EnforceRange] unsigned long count</dt>
                 <dd>The number of advances forward the cursor should make.</dd>
