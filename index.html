@@ -341,7 +341,7 @@ request.onsuccess = function() {
           </dd>
           <dt>WebIDL</dt>
           <dd>
-            The terms <dfn>unrestricted double</dfn> and <dfn>DOMString</dfn>, and
+            The terms <dfn>throw</dfn>, <dfn>unrestricted double</dfn> and <dfn>DOMString</dfn>, and
             the interface definition language used in this spec are defined by [[!WEBIDL]].</dd>
           <dt>WebWorkers</dt>
           <dd>The terms
@@ -1101,35 +1101,56 @@ request.onsuccess = function() {
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBKeyRange">
             <dt>readonly attribute any lower</dt>
             <dd>This value is the lower-bound of the <a>key range</a>.</dd>
+
             <dt>readonly attribute any upper</dt>
             <dd>This value is the upper-bound of the <a>key range</a>.</dd>
+
             <dt>readonly attribute boolean lowerOpen</dt>
             <dd>Returns false if the lower-bound value is included in the <a>key range</a>.
             Returns true if the lower-bound value is excluded from the <a>key range</a>.</dd>
+
             <dt>readonly attribute boolean upperOpen</dt>
             <dd>Returns false if the upper-bound value is included in the <a>key range</a>.
             Returns true if the upper-bound value is excluded from the <a>key range</a>.</dd>
+
             <dt>static IDBKeyRange only()</dt>
             <dd>
-              Creates and returns a new <a>key range</a> with both <a href="#widl-IDBKeyRange-lower">lower</a> and
-              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>value</var> and both
-              <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> and <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a>
-              set to false.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>Let <var>key</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>value</var>.</li>
+                <li>If <var>key</var> is an exception, <a>throw</a> it.</li>
+                <li>If <var>key</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                <li>Create and return a new <a>key range</a> with
+                  <a href="#widl-IDBKeyRange-lower">lower</a> set to <var>key</var>,
+                  <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to false,
+                  <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>key</var> and
+                  <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to false.
+                </li>
+              </ol>
+
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The only value</dd>
               </dl>
-              <p>
-                If the <var>value</var> parameter is not a <a>valid key</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
             </dd>
+
             <dt>static IDBKeyRange lowerBound()</dt>
             <dd>
-              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
-              <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>open</var>,
-              <a href="#widl-IDBKeyRange-upper">upper</a> set to <code>undefined</code> and
-              <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to true.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>lower</var>.</li>
+                <li>If <var>lowerKey</var> is an exception, <a>throw</a> it.</li>
+                <li>If <var>lowerKey</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                <li>Create and return a new <a>key range</a> with
+                  <a href="#widl-IDBKeyRange-lower">lower</a> set to <var>lowerKey</var>,
+                  <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>lowerOpen</var>,
+                  <a href="#widl-IDBKeyRange-upper">upper</a> set to <code>undefined</code> and
+                  <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to true.
+                </li>
+              </ol>
+
               <dl class="parameters">
                 <dt>any lower</dt>
                 <dd>The lower bound value</dd>
@@ -1137,17 +1158,24 @@ request.onsuccess = function() {
                 <dd>Set to false if the lower-bound should be included in the <a>key range</a>. Set to true if the lower-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (lower-bound value is included).</dd>
               </dl>
-              <p>
-                If the <var>value</var> parameter is not a <a>valid key</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
             </dd>
+
             <dt>static IDBKeyRange upperBound()</dt>
             <dd>
-              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
-              <code>undefined</code>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to true,
-              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>upper</var> and
-              <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>open</var>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>Let <var>upperKey</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>upper</var>.</li>
+                <li>If <var>upperKey</var> is an exception, <a>throw</a> it.</li>
+                <li>If <var>upperKey</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                <li>Create and return a new <a>key range</a> with
+                  <a href="#widl-IDBKeyRange-lower">lower</a> set to <code>undefined</code>,
+                  <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to true,
+                  <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>upperKey</var> and
+                  <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>upperOpen</var>.
+                </li>
+              </ol>
+
               <dl class="parameters">
                 <dt>any upper</dt>
                 <dd>The upper bound value</dd>
@@ -1155,17 +1183,29 @@ request.onsuccess = function() {
                 <dd>Set to false if the upper-bound should be included in the <a>key range</a>. Set to true if the upper-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (upper-bound value is included).</dd>
               </dl>
-              <p>
-                If the <var>value</var> parameter is not a <a>valid key</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
             </dd>
+
             <dt>static IDBKeyRange bound()</dt>
             <dd>
-              Creates and returns a new <a>key range</a> with <a href="#widl-IDBKeyRange-lower">lower</a> set to
-              <var>lower</var>, <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>lowerOpen</var>,
-              <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>upper</var> and
-              <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>upperOpen</var>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>lower</var>.</li>
+                <li>If <var>lowerKey</var> is an exception, <a>throw</a> it.</li>
+                <li>If <var>lowerKey</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                <li>Let <var>upperKey</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>upper</var>.</li>
+                <li>If <var>upperKey</var> is an exception, <a>throw</a> it.</li>
+                <li>If <var>upperKey</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                <li>If <var>lowerKey</var> is <a>greater than</a> <var>upperKey</var>, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                <li>Create and return a new <a>key range</a> with
+                  <a href="#widl-IDBKeyRange-lower">lower</a> set to <var>lowerKey</var>,
+                  <a href="#widl-IDBKeyRange-lowerOpen">lowerOpen</a> set to <var>lowerOpen</var>,
+                  <a href="#widl-IDBKeyRange-upper">upper</a> set to <var>upperKey</var> and
+                  <a href="#widl-IDBKeyRange-upperOpen">upperOpen</a> set to <var>upperOpen</var>.
+                </li>
+              </ol>
               <dl class="parameters">
                 <dt>any lower</dt>
                 <dd>The lower-bound value</dd>
@@ -1178,13 +1218,6 @@ request.onsuccess = function() {
                 <dd>Set to false if the upper-bound should be included in the <a>key range</a>. Set to true if the upper-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (upper-bound value is included).</dd>
               </dl>
-              <p>
-                If either the <var>lower</var> parameter or <var>upper</var> parameter is not <a>valid key</a>,
-                or the lower key is greater than the upper key, or the lower key and upper key match and either
-                of the bounds are open,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
-              </p>
             </dd>
           </dl>
           <p>
