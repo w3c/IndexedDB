@@ -2862,27 +2862,37 @@ store_t2.put("d"); // Will get key 2
                 the function retreives the first existing value in that range.</dd>
               </dl>
             </dd>
+
             <dt>IDBRequest count()</dt>
             <dd>
-              <p>
-                If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
-                If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If the optional <var>key</var> parameter is not a <a>valid key</a> or a <a>key range</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
-              <p>
-                Otherwise, this method runs the <a>steps for asynchronously executing a request</a> and returns the <a>IDBRequest</a> created by these steps.
-                The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
-                using the created cursor as <var>cursor</var>.
-                If provided, use the <var>key</var> parameter as <var>key</var>, otherwise, use undefined as <var>key</var>.
-                If the result of the algorithm is <strong>null</strong> return <code>0</code> (zero) as the result for the request.
-                Otherwise, use the return <a>cursor</a> to determine the total number of objects that share the
-                <a>key</a> or <a>key range</a> and return that value as the result for the request.
-              </p>
+                <li>If <var>key</var> is not a <a>key range</a>:
+                  <ol>
+                    <li>Let <var>r</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>key</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>r</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>key</var> be <var>r</var>.
+                  </ol>
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
+                  The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                  using the created cursor as <var>cursor</var>.
+                  If provided, use the <var>key</var> as <var>key</var>, otherwise, use undefined as <var>key</var>.
+                  If the result of the algorithm is <strong>null</strong> return <code>0</code> (zero) as the result for the request.
+                  Otherwise, use the return <a>cursor</a> to determine the total number of objects that share the
+                  <a>key</a> or <a>key range</a> and return that value as the result for the request.
+                </li>
+              </ol>
+
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>
