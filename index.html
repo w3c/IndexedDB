@@ -3019,7 +3019,6 @@ store_t2.put("d"); // Will get key 2
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-
                 <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
@@ -3027,7 +3026,7 @@ store_t2.put("d"); // Will get key 2
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
-                  slightly modified such that instead of creating a new request, it reuses the
+                  modified such that instead of creating a new request, it reuses the
                   <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
                   on the request is set to false. The steps are run with the cursor's
                   <a title="cursor source">source</a> as <var>source</var>. The <var>operation</var>
@@ -3051,47 +3050,53 @@ store_t2.put("d"); // Will get key 2
 
             <dt>void continue()</dt>
             <dd>
-              <p>
-                If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
-                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If the <var>key</var> parameter is specified and fulfills any of these conditions,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>:
-              </p>
-              <ul>
-                <li>The parameter is not a <a>valid key</a>.</li>
-                <li>
-                  The parameter is <a>less than</a> or <a>equal to</a> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is <code>"next"</code> or <code>"nextunique"</code>.
+                <li>If <var>key</var> is specified:
+                  <ol>
+                    <li>Let <var>r</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>key</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>r</var> is failure, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>key</var> be <var>r</var>.</li>
+
+                    <li>If <var>key</var> is <a>less than</a> or <a>equal to</a> this cursor's <a>position</a>
+                      and this cursor's <a>direction</a> is <code>"next"</code> or <code>"nextunique"</code>,
+                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+
+                    <li>If <var>key</var> is <a>greater than</a> or <a>equal to</a> this cursor's <a>position</a>
+                      and this cursor's <a>direction</a> is <code>"prev"</code> or <code>"prevunique"</code>,
+                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                  </ol>
                 </li>
+
+                <li>Set the <a>got value</a> flag on the cursor to false.</li>
+
                 <li>
-                  The parameter is <a>greater than</a> or <a>equal to</a> this cursor's <a>position</a>
-                  and this cursor's <a>direction</a> is <code>"prev"</code> or <code>"prevunique"</code>.
+                  Run the <a>steps for asynchronously executing a request</a>
+                  modified such that instead of creating a new request, it reuses the
+                  <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
+                  on the request is set to false.  The steps are run with the cursor's
+                  <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
+                  using this cursor as <var>cursor</var> and (if specified) <var>key</var> as <var>key</var>.
                 </li>
-              </ul>
-              <p>
-                Otherwise, this method runs the <a>steps for asynchronously executing a request</a>.
-                However, the steps are slightly modified such that instead of creating a new IDBRequest, it reuses the
-                <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
-                on the request is set to false before the request is returned.  The steps are run with the cursor's
-                <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
-                using this cursor as <var>cursor</var> and the <var>key</var> parameter as <var>key</var>.
-              </p>
-              <p>
-                Before this method returns, unless an exception was thrown, it sets the <a>got value</a> flag on the cursor to false.
-              </p>
+              </ol>
+
               <p class="note">
-                Calling this method more than once before new cursor data has been loaded is not allowed.
-                For example, calling <code>continue()</code> twice from the same onsuccess handler
+                Calling this method more than once before new cursor data has been loaded -
+                for example, calling <code>continue()</code> twice from the same onsuccess handler -
                 results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call
                 because the cursor's <a>got value</a> has been set to false.
               </p>
+
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
