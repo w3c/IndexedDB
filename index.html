@@ -2978,7 +2978,9 @@ store_t2.put("d"); // Will get key 2
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
                 <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
-                  or if this cursor does not implement the <a>IDBCursorWithValue</a> interface,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>If this cursor does not implement the <a>IDBCursorWithValue</a> interface,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
                 <li>Let <var>clone</var> be <a>structured clone</a> of the <var>value</var> parameter. If this
@@ -3118,28 +3120,33 @@ store_t2.put("d"); // Will get key 2
 
             <dt>IDBRequest delete()</dt>
             <dd>
-              <p>
-                If the <a>transaction</a> this <a>IDBCursor</a> belongs to has its <a>mode</a> set to <code>"readonly"</code>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>ReadOnlyError</code></a>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to has its <a>mode</a> set to <code>"readonly"</code>,
+                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
-                If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
-                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
-                or if this cursor does not implement the <a>IDBCursorWithValue</a> interface,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
-              </p>
-              <p>
-                Otherwise, this method runs the <a>steps for asynchronously executing a request</a> and returns the
-                <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
-                and the <a>steps for deleting records from an object store</a> as <var>operation</var>, using this cursor's
-                <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
-              </p>
+                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>If this cursor does not implement the <a>IDBCursorWithValue</a> interface,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a> and return the
+                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
+                  and the <a>steps for deleting records from an object store</a> as <var>operation</var>, using this cursor's
+                  <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
+                </li>
+              </ol>
             </dd>
           </dl>
+
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursorWithValue : IDBCursor">
             <dt>readonly attribute any value</dt>
             <dd>Returns the cursor's current <a title="cursor value">value</a>.
