@@ -2194,7 +2194,7 @@ store_t2.put("d"); // Will get key 2
                     <li>If <var>kpk</var> is not failure:
                       <ol>
                         <li>Let <var>r</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>kpk</var>.
-                          This this throws an exception, <a title="throw">rethrow</a> it.</li>
+                          If this throws an exception, <a title="throw">rethrow</a> it.</li>
                         <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                         <li>Let <var>key</var> be <var>r</var>.
                       </ol>
@@ -2260,7 +2260,7 @@ store_t2.put("d"); // Will get key 2
                     <li>If <var>kpk</var> is not failure:
                       <ol>
                         <li>Let <var>r</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>kpk</var>.
-                          This this throws an exception, <a title="throw">rethrow</a> it.</li>
+                          If this throws an exception, <a title="throw">rethrow</a> it.</li>
                         <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                         <li>Let <var>key</var> be <var>r</var>.
                       </ol>
@@ -2966,40 +2966,53 @@ store_t2.put("d"); // Will get key 2
 
             <dt>IDBRequest update()</dt>
             <dd>
-              <p>
-                If the <a>transaction</a> this <a>IDBCursor</a> belongs to has its <a>mode</a> set to <code>"readonly"</code>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>ReadOnlyError</code></a>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to has its <a>mode</a> set to <code>"readonly"</code>,
+                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
-                If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>TransactionInactiveError</code></a>.
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
-                If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
-                or if this cursor does not implement the <a>IDBCursorWithValue</a> interface,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>InvalidStateError</code></a>.
+                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                  or if this cursor does not implement the <a>IDBCursorWithValue</a> interface,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                If the <a>effective object store</a> of this cursor uses <a>in-line keys</a>
-                and <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
-                of the <var>value</var> parameter results in a different value than the cursor's <a>effective key</a>,
-                the implementation MUST throw a <code>DOMException</code> of type <a><code>DataError</code></a>.
-              </p>
-              <p>
-                Otherwise, this method creates a <a>structured clone</a> of the <var>value</var> parameter.
-                If the <a>structured clone</a> algorithm throws an exception, that exception is rethrown.
-                Otherwise, run the <a>steps for asynchronously executing a request</a> and
-                return the <a>IDBRequest</a> created by these steps.
-                The steps are run with this <a>IDBCursor</a> as <var>source</var> and the <a>steps for
-                storing a record into an object store</a> as <var>operation</var>, using this cursor's
-                <a>effective object store</a> as <var>store</var>, the created clone as <var>value</var>,
-                this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
-                flag set to false.
-              </p>
+                <li>Let <var>clone</var> be <a>structured clone</a> of the <var>value</var> parameter. If this
+                  throws an exception, <a title="throw">rethrow</a> the exception.</li>
+
+                <li>If the <a>effective object store</a> of this cursor uses <a>in-line keys</a>
+                  <ol>
+                    <li>Let <var>kpk</var> be the result of <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
+                      of the <a>effective object store</a> with <var>clone</var>.</li>
+                    <li>If <var>kpk</var> is failure
+                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>r</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>kpk</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>r</var> is not <a>equal to</a> the cursor's <a>effective key</a>,
+                      <a>throw</a> an <a><code>DataError</code></a> exception.</li>
+                  </ol>
+                </li>
+
+                <li>Run <a>steps for asynchronously executing a request</a> and
+                  return the <a>IDBRequest</a> created by these steps.
+                  The steps are run with this <a>IDBCursor</a> as <var>source</var> and the <a>steps for
+                  storing a record into an object store</a> as <var>operation</var>, using this cursor's
+                  <a>effective object store</a> as <var>store</var>, the <var>clone</var> as <var>value</var>,
+                  this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
+                  flag set to false.
+                </li>
+              </ol>
+
               <p class="note">
                 A result of running the <a>steps for storing a record into an object store</a> is that if the record
                 has been deleted since the cursor moved to it, a new record will be created.
               </p>
+
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The new value to store at the current position.</dd>
