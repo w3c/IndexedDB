@@ -3509,57 +3509,6 @@ store_t2.put("d"); // Will get key 2
             </li>
           </ol>
         </section>
-        <section class="section">
-          <h4>Steps for extracting a key from a value using a <a>key path</a></h4>
-          <p>
-            The steps to <dfn>extract a key from a value using a key path</dfn> are as follows.
-            The algorithm takes a <a>key path</a> named <var>keyPath</var> and a
-            <a>value</a> named <var>value</var>. The result of these steps is an ECMAScript value
-            or failure, or the steps may <a>throw</a> an exception.
-          </p>
-          <ol>
-            <li>
-              If <var>keyPath</var> is a <code>sequence&lt;DOMString&gt;</code>, run these substeps:
-              <ol>
-                <li>Let <var>result</var> be a new <code>Array</code> ECMAScript object.</li>
-                <li>For each <var>item</var> in the <var>keyPath</var> sequence, perform the following substeps:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                      using <var>item</var> as <var>keyPath</var> and <var>value</var> as <var>value</var>.</li>
-                    <li>ReturnIfAbrupt(<var>key</var>)</li>
-                    <li>If <var>key</var> is failure, abort the overall algorithm and return failure.</li>
-                    <li>Append the result of the first sub-step to end of <var>result</var>.</li>
-                  </ol>
-                </li>
-                <li>Return <var>result</var>.</li>
-                <p class="note">
-                  This will only ever "recurse" one level since <a>key path</a> sequences can't ever be nested.
-                </p>
-              </ol>
-            </li>
-            <li>
-              If <var>keyPath</var> is the empty string, return <var>value</var> and skip the remaining steps.
-            </li>
-            <li>
-              Let <var>identifiers</var> be the result of <a title="strictly split a string">strictly splitting the string</a> <var>keyPath</var> on
-              U+002E FULL STOP characters (.).
-            </li>
-            <li>
-              For each <var>identifier</var> in <var>identifiers</var>:
-              <ol>
-                <li>If Type(<var>value</var>) is String, and <var>identifier</var> is the last item in <var>identifiers</var>,
-                  and <var>identifier</var> is <code>"length"</code>, return a Number equal to the number of elements in <var>value</var>.</li>
-                <li>If Type(<var>identifier</var>) is not Object, return failure.
-                <li>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]]</var>(<var>identifier</var>, <var>value</var>)</li>
-                <li>ReturnIfAbrupt(<var>value</var>)</li>
-                <li>If <var>value</var> is Undefined, return failure.
-              </ol>
-            </li>
-            <li>
-              Return <var>value</var>.
-            </li>
-          </ol>
-        </section>
 
         <section class="section">
           <h4><code>"versionchange"</code> transaction steps</h4>
@@ -3891,6 +3840,59 @@ store_t2.put("d"); // Will get key 2
             </li>
           </ol>
         </section>
+
+        <section class="section">
+          <h4>Steps for extracting a key from a value using a <a>key path</a></h4>
+          <p>
+            The steps to <dfn>extract a key from a value using a key path</dfn> are as follows.
+            The algorithm takes a <a>key path</a> named <var>keyPath</var> and a
+            <a>value</a> named <var>value</var>. The result of these steps is an ECMAScript value
+            or failure, or the steps may <a>throw</a> an exception.
+          </p>
+          <ol>
+            <li>
+              If <var>keyPath</var> is a <code>sequence&lt;DOMString&gt;</code>, run these substeps:
+              <ol>
+                <li>Let <var>result</var> be a new <code>Array</code> ECMAScript object.</li>
+                <li>For each <var>item</var> in the <var>keyPath</var> sequence, perform the following substeps:
+                  <ol>
+                    <li>Let <var>key</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                      using <var>item</var> as <var>keyPath</var> and <var>value</var> as <var>value</var>.</li>
+                    <li>ReturnIfAbrupt(<var>key</var>)</li>
+                    <li>If <var>key</var> is failure, abort the overall algorithm and return failure.</li>
+                    <li>Append the result of the first sub-step to end of <var>result</var>.</li>
+                  </ol>
+                </li>
+                <li>Return <var>result</var>.</li>
+                <p class="note">
+                  This will only ever "recurse" one level since <a>key path</a> sequences can't ever be nested.
+                </p>
+              </ol>
+            </li>
+            <li>
+              If <var>keyPath</var> is the empty string, return <var>value</var> and skip the remaining steps.
+            </li>
+            <li>
+              Let <var>identifiers</var> be the result of <a title="strictly split a string">strictly splitting the string</a> <var>keyPath</var> on
+              U+002E FULL STOP characters (.).
+            </li>
+            <li>
+              For each <var>identifier</var> in <var>identifiers</var>:
+              <ol>
+                <li>If Type(<var>value</var>) is String, and <var>identifier</var> is the last item in <var>identifiers</var>,
+                  and <var>identifier</var> is <code>"length"</code>, return a Number equal to the number of elements in <var>value</var>.</li>
+                <li>If Type(<var>identifier</var>) is not Object, return failure.
+                <li>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]]</var>(<var>identifier</var>, <var>value</var>)</li>
+                <li>ReturnIfAbrupt(<var>value</var>)</li>
+                <li>If <var>value</var> is Undefined, return failure.
+              </ol>
+            </li>
+            <li>
+              Return <var>value</var>.
+            </li>
+          </ol>
+        </section>
+
         <section class="section">
         	<h4>Steps to assign a key to a value using a key path</h4>
         	<p>
