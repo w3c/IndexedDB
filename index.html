@@ -1847,7 +1847,7 @@ store_t2.put("d"); // Will get key 2
             <dt>IDBOpenDBRequest open()</dt>
             <dd>
               <p>
-                If the value of <var>version</var> is <code>0</code> (zero),
+                If the value of <var>version</var> is 0 (zero),
                 the implementation MUST throw a <code>TypeError</code>.
               </p>
               <p>
@@ -2745,7 +2745,7 @@ store_t2.put("d"); // Will get key 2
                   The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
                   using the created cursor as <var>cursor</var>.
                   If provided, use the <var>key</var> as <var>key</var>, otherwise, use undefined as <var>key</var>.
-                  If the result of the algorithm is <strong>null</strong> return <code>0</code> (zero) as the result for the request.
+                  If the result of the algorithm is null return 0 (zero) as the result for the request.
                   Otherwise, use the return <a>cursor</a> to determine the total number of objects that share the
                   <a>key</a> or <a>key range</a> and return that value as the result for the request.
                 </li>
@@ -3008,7 +3008,7 @@ store_t2.put("d"); // Will get key 2
                   The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
                   using the created cursor as <var>cursor</var>.
                   If provided, use the <var>key</var> as <var>key</var>, otherwise, use undefined as <var>key</var>.
-                  If the result of the algorithm is <strong>null</strong> return <code>0</code> (zero) as the result for the request.
+                  If the result of the algorithm is null return 0 (zero) as the result for the request.
                   Otherwise, use the return <a>cursor</a> to determine the total number of objects that share the
                   <a>key</a> or <a>key range</a> and return that value as the result for the request.
                 </li>
@@ -3132,7 +3132,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If <var>count</var> is <code>0</code> (zero),
+                <li>If <var>count</var> is 0 (zero),
                   <a>throw</a> a <code>TypeError</code>.
 
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
@@ -3385,7 +3385,7 @@ store_t2.put("d"); // Will get key 2
             <li>
               If no database with the given name from the origin <var>origin</var> was found, or if it was
               deleted during the previous step, then create a <a>database</a> with name <var>name</var>,
-              with <code>0</code> as <a>version</a>, and with no <a title="object store">object stores</a>. Let <var>db</var>
+              with 0 (zero) as <a>version</a>, and with no <a title="object store">object stores</a>. Let <var>db</var>
               be the new database.
             </li>
             <li>
@@ -3700,7 +3700,7 @@ store_t2.put("d"); // Will get key 2
 			          		</tr>
 			          		<tr>
 			          			<td><a href="#widl-IDBDatabase-version"><code>version</code></a></td>
-			          			<td> <code>0</code> (zero)</td>
+			          			<td>0 (zero)</td>
 			          		</tr>
 			          		<tr>
 			          			<td><a href="#widl-IDBDatabase-objectStoreNames"><code>objectStoresNames</code></a></td>
@@ -4575,38 +4575,24 @@ store_t2.put("d"); // Will get key 2
               </p>
             </li>
             <li>
-              If <var>found record</var> is not defined, set <var>cursor</var>'s <a title="cursor key">key</a> to undefined.
-              If <var>source</var> is an <a>index</a>, set <var>cursor</var>'s <a>object store position</a> to undefined.
-              If <var>cursor</var>'s <a>key only flag</a> is unset
-              then set <var>cursor</var>'s <a title="cursor value">value</a> to undefined.
-              The result of this algorithm is null. Abort these steps.
+              If <var>found record</var> is not defined:
+              <ol>
+                <li>Set <var>cursor</var>'s <a title="cursor key">key</a> to undefined.</li>
+                <li>If <var>source</var> is an <a>index</a>,
+                  set <var>cursor</var>'s <a>object store position</a> to undefined.</li>
+                <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
+                  set <var>cursor</var>'s <a title="cursor value">value</a> to undefined.</li>
+                <li>The result of this algorithm is null. Abort these steps.</li>
+              </ol>
             </li>
-            <li>
-              <p>
-                Set <var>cursor</var>'s <a>position</a> to <var>found record</var>'s key. If <var>source</var> is an <a>index</a>,
-                set <var>cursor</var>'s <a>object store position</a> to <var>found record</var>'s value.
-              </p>
-            </li>
-            <li>
-              <p>
-                Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.
-              </p>
-              <p>
-                If <var>cursor</var>'s <a>key only flag</a> is unset
-                then set <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>'s
-                <a>referenced value</a>.
-              </p>
-            </li>
-            <li>
-              Set <var>cursor</var>'s <a>got value flag</a> to true.
-              <p class="note">
-                Once data has been successfully read, schedule a task which when run will
-                set the <a title="cursor">cursor's</a> value and <a>fire a success event</a>.
-              </p>
-            </li>
-            <li>
-              The result of the algorithm is <var>cursor</var>.
-            </li>
+            <li>Set <var>cursor</var>'s <a>position</a> to <var>found record</var>'s key.</li>
+            <li>Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.</li>
+            <li>If <var>source</var> is an <a>index</a>,
+              set <var>cursor</var>'s <a>object store position</a> to <var>found record</var>'s value.</li>
+            <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
+              set <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>'s <a>referenced value</a>.</li>
+            <li>Set <var>cursor</var>'s <a>got value flag</a> to true.</li>
+            <li>The result of the algorithm is <var>cursor</var>.</li>
           </ol>
         </section>
       </section>
