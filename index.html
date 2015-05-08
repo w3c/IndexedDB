@@ -3886,7 +3886,7 @@ store_t2.put("d"); // Will get key 2
                 <li>Let <var>result</var> be a new <code>Array</code> ECMAScript object.</li>
                 <li>For each <var>item</var> in the <var>keyPath</var> sequence, perform the following substeps:
                   <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                    <li>Let <var>key</var> be the result of recursively running the steps to <a>extract a key from a value using a key path</a>
                       using <var>item</var> as <var>keyPath</var> and <var>value</var> as <var>value</var>.</li>
                     <li>ReturnIfAbrupt(<var>key</var>)</li>
                     <li>If <var>key</var> is failure, abort the overall algorithm and return failure.</li>
@@ -3924,61 +3924,65 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section">
-        	<h4>Steps to inject a key into a value using a key path</h4>
-        	<p>
-        		The <dfn>steps to inject a key into a value using a key path</dfn> are as follows:
-        	</p>
-        	<ol>
-        		<li>
-        			Let <var>remainingKeyPath</var> be <var>keyPath</var> and <var>object</var> be <var>value</var>.
-        		</li>
-        		<li>
-        			If <var>object</var> is not an <code>Object</code> object or an <code>Array</code> object (see <a>structured clone algorithm</a>
-        			[[!HTML5]]), then
-                                throw a <a><code>DataError</code></a> exception.
+          <h4>Steps to inject a key into a value using a key path</h4>
+          <p>
+            The <dfn>steps to inject a key into a value using a key path</dfn> are as follows:
+          </p>
+          <ol>
+            <li>
+              Let <var>identifiers</var> be the result of
+              <a title="strictly split a string">strictly splitting the string</a>
+              <var>keyPath</var> on U+002E FULL STOP characters (.).
+            </li>
+            <li>Assert: <var>identifiers</var> is not empty.</li>
+            <li>
+              Let <var>last</var> be the last member of <var>identifiers</var>
+              and remove it from the list.
+            </li>
+            <li>For each remaining <var>identifier</var> in <var>identifiers</var>:
+              <ol>
+                <li>
+                  If <var>value</var> is not an <code>Object</code> object or an <code>Array</code>
+                  object (see <a>structured clone algorithm</a> [[!HTML5]]), then
+                  throw a <a><code>DataError</code></a> exception.
+                </li>
+                <li>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</li>
+                <li>ReturnIfAbrupt(<var>hop</var>)</li>
+                <li>
+                  If <var>hop</var> is false:
+                  <ol>
+                    <li>Let <var>o</var> be a new <code>Object</code>.</li>
+                    <li>Let <var>status</var> be
+                      CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>o</var>)</li>
+                    <li>Assert: <var>status</var> is true</li>
+                  </ol>
+                </li>
+                <li>Let <var>value</var> be
+                  <var>value</var>[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</li>
+                <li>Assert: <var>value</var> is not an abrupt completion.</li>
+              </ol>
+            </li>
+            <li>Assert: <var>value</var> is an <code>Object</code> or an <code>Array</code>.</li>
+            <li>Let <var>keyValue</var> be the result of running the steps to
+              <a>convert a key to a value</a>.</li>
+            <li>Let <var>status</var> be
+              CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>keyValue</var>)</li>
+            <li>Assert: <var>status</var> is true</li>
+          </ol>
 
-        		</li>
-        		<li>
-        			If <var>remainingKeyPath</var> has a period in it, assign <var>identifier</var> to be everything before the first period,
-                                and assign <var>remainingKeyPath</var> to be everything after that first period. Otherwise, go to step 7.
-        		</li>
-        		<li>
-        			If <var>object</var> does not have a property named <var>identifier</var>, then set a property named <var>identifier</var>
-                                on <var>object</var> with the value of a new <code>Object</code>.
-        		</li>
-        		<li>
-        			Assign <var>object</var> to be the value of the property named <var>identifier</var> on <var>object</var>.
-        		</li>
-        		<li>
-        			Go to step 2.
-        		</li>
-        		<li>
-        			<p class="note">The steps leading here ensure that <var>remainingKeyPath</var> is a single <a>identifier</a> name
-        			(that is, a string without periods) by this step. The steps also ensure that <var>object</var>
-        			is an <code>Object</code> or an <code>Array</code>, and not a <code>Date</code>, <code>RegExp</code>, <code>Blob</code>,
-        			or other nonsupported type.
-					</p>
-        		</li>
-        		<li>
-        			Let <var>identifier</var> be <var>remainingKeyPath</var>.
-        		</li>
-        		<li>
-        			Set a property named <var>identifier</var> on <var>object</var> with the value <var>key</var>.
-        		</li>
-        	</ol>
-        	<p class="note">
-        		The intent is that these steps are only executed if evaluating the <a>key path</a> did not yield a value.
-        		In other words, before you run these steps, first evaluate the <a>key path</a> against <var>value</var>,
-        		and only if that does not yield a value (where <code>undefined</code> does count as a value) do you generate a key and
-        		use these steps to modify <var>value</var> to contain the generated key.
-        	</p>
-        	<p class="note">
-                  The <a>key path</a> used here is always a <code>DOMString</code> and never an <code>sequence&lt;DOMString&gt;</code> since it is not
-                  possible to create a <a>object store</a> whose <a>multiEntry</a> flag is true and whose
-                  <a title="object store key path">key path</a> is an <code>sequence&lt;DOMString&gt;</code>.
-        	</p>
-		</section>
+          <p class="note">
+            The intent is that these steps are only executed if evaluating the <a>key path</a> did not yield a value.
+            In other words, before you run these steps, first evaluate the <a>key path</a> against <var>value</var>,
+            and only if that does not yield a value (where <code>undefined</code> does count as a value) do you generate a key and
+            use these steps to modify <var>value</var> to contain the generated key.
+          </p>
 
+          <p class="note">
+            The <a>key path</a> used here is always a <code>DOMString</code> and never an <code>sequence&lt;DOMString&gt;</code> since it is not
+            possible to create a <a>object store</a> whose <a>multiEntry</a> flag is true and whose
+            <a title="object store key path">key path</a> is an <code>sequence&lt;DOMString&gt;</code>.
+          </p>
+	</section>
 
         <section class="section">
           <h4>Steps to convert a key to a value</h4>
