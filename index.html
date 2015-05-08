@@ -390,21 +390,21 @@ request.onsuccess = function() {
             <a>transaction</a>.
           </p>
           <p>
-            Databases has a <dfn>delete pending</dfn> flag which is used during deletion. When a database is requested
+            Databases has a <dfn>delete pending flag</dfn> which is used during deletion. When a database is requested
             to be deleted the flag is set to true and all attempts at opening the database are stalled until the database
             can be deleted.
           </p>
           <p>
             The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple
             <a title="connection">connections</a> to a given <a>database</a> at any given time. Each connection has a
-            <dfn>closePending</dfn> flag which initially is set to false.
+            <dfn>close pending flag</dfn> which initially is set to false.
           </p>
           <p>
             When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
             can be <dfn title="database close">closed</dfn> through several means. If the execution context where the <a>connection</a> was created is destroyed (for example due to the
             user navigating away from that page), the connection is closed. The connection can also be closed
             explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
-            the <a>closePending</a> flag is always set to true if it hasn't already been.
+            the <a>close pending flag</a> is always set to true if it hasn't already been.
           </p>
           <p>
             A <a>connection</a> may be closed by a user agent in
@@ -421,7 +421,7 @@ request.onsuccess = function() {
 
           <p>
             An <a>IDBDatabase</a> object must not be garbage collected if its
-            associated connection's <a>closePending</a> flag is unset
+            associated connection's <a>close pending flag</a> is unset
             and it has one or more event listeners registers whose type is one of
             <code>abort</code>, <code>error</code>, or <code>versionchange</code>.
 
@@ -794,15 +794,15 @@ request.onsuccess = function() {
               Every index has a <dfn title="index name">name</dfn>. The name is unique within index's <a>referenced</a> object store.
           </p>
           <p>
-            Each index also has a <dfn>unique</dfn> flag. When this flag is set to true, the index enforces that no two <a title="record">records</a>
+            Each index also has a <dfn>unique flag</dfn>. When this flag is set to true, the index enforces that no two <a title="record">records</a>
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
           </p>
           <p>
-            Each index also has a <dfn>multiEntry</dfn> flag. This flag affects how the index behaves when the result of evaluating
-            the index's <a title="index key path">key path</a> yields an <a>array key</a>. If the <a>multiEntry</a> flag is false, then
-            a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry</a> flag is
+            Each index also has a <dfn>multiEntry flag</dfn>. This flag affects how the index behaves when the result of evaluating
+            the index's <a title="index key path">key path</a> yields an <a>array key</a>. If the <a>multiEntry flag</a> is false, then
+            a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry flag</a> is
             true, then the one <a>record</a> is added to the index for each of the <a>subkeys</a>.
           </p>
           <p>
@@ -825,9 +825,12 @@ request.onsuccess = function() {
             upon that transaction. The <a>mode</a> is set when the transaction is created and remains
             fixed for the life of the transaction. The transaction also has a <dfn>scope</dfn> that
             determines the <a title="object store">object stores</a> with which the transaction may interact. Transactions
-            have an <dfn>active</dfn> flag, which determines if new <a title="request">requests</a> can be made
+            have an <dfn>active flag</dfn>, which determines if new <a title="request">requests</a> can be made
             against the transaction. Finally, transactions also contain a <dfn>request list</dfn> of
             <a title="request">requests</a> which have been made against the transaction.
+          </p>
+          <p>
+            A transaction is set to be <dfn>active</dfn> if its <a>active flag</a> is set.
           </p>
           <p>
             Each transaction has a fixed scope, determined when the transaction is created.
@@ -854,11 +857,11 @@ request.onsuccess = function() {
               A transaction is <dfn title="transaction create">created</dfn> using
               <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>.
               The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
-              When a transaction is created its <a>active</a> flag is initially set to true.
+              When a transaction is created its <a>active flag</a> is initially set to true.
             </li>
             <li>
               The implementation MUST allow <a title="request">requests</a> to be <a title="place request">placed</a> against the transaction
-              whenever the <a>active</a> flag is true. This is the case even if the transaction has not yet been
+              whenever the <a>active flag</a> is true. This is the case even if the transaction has not yet been
               <a title="transaction start">started</a>. Until the transaction is <a title="transaction start">started</a>
               the implementation MUST NOT execute these requests; however, the implementation MUST keep track of the
               <a title="request">requests</a> and their order. Requests may be placed against a transaction only while that transaction
@@ -1058,10 +1061,10 @@ request.onsuccess = function() {
           <p>
             Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
             Every request represents one read or write operation.
-            <a title="request">Requests</a> have a <dfn title="request done"><var>done</var></dfn> flag which
+            <a title="request">Requests</a> have a <dfn title="request done"><var>done</var> flag</dfn> which
             initially is false, and a <dfn title="request source">source</dfn> object. Every request
             also has a <dfn title="request result">result</dfn> and an <dfn>error attribute</dfn>,
-            neither of which are accessible until the <a title="request done">done</a> flag is set to true.
+            neither of which are accessible until the <a title="request done">done flag</a> is set to true.
           </p>
           <p>
             Finally, requests have a <dfn>request transaction</dfn>. When a request is created, it is
@@ -1074,9 +1077,9 @@ request.onsuccess = function() {
           </p>
           <dl class="idl" title="enum IDBRequestReadyState">
             <dt>pending</dt>
-            <dd>The <a title="request done">done</a> flag of the <a>request</a> is false.</dd>
+            <dd>The <a title="request done">done flag</a> of the <a>request</a> is false.</dd>
             <dt>done</dt>
-            <dd>The <a title="request done">done</a> flag of the <a>request</a> is true.</dd>
+            <dd>The <a title="request done">done flag</a> of the <a>request</a> is true.</dd>
           </dl>
         </section>
 
@@ -1279,7 +1282,7 @@ request.onsuccess = function() {
             monotonically increasing or decreasing order of the <a>record</a> keys. Cursors
             also have a <dfn title="cursor key">key</dfn> and a <dfn title="cursor value">value</dfn>
             which represent the <a>key</a> and the <a>value</a> of the last iterated <a>record</a>.
-            Cursors finally have a <dfn>got value</dfn> flag. When this flag is false, the cursor is either
+            Cursors finally have a <dfn>got value flag</dfn>. When this flag is false, the cursor is either
             in the process of loading the next value or it has reached the end of its <a>range</a>, when it
             is true, it indicates that the cursor is currently holding a value and that it is ready to iterate
             to the next one.
@@ -1301,7 +1304,7 @@ request.onsuccess = function() {
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
             the same key, but otherwise yield all records, in monotonically increasing order of keys. For every key
             with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
-            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"next"</code>.</dd>
+            an <a>object store</a> or an <a>index</a> with the <a>unique flag</a> set, this direction has the exact same behavior as <code>"next"</code>.</dd>
             <dt>prev</dt>
             <dd>This direction causes the cursor to be opened at the end of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including
@@ -1312,7 +1315,7 @@ request.onsuccess = function() {
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
             the same key, but otherwise yield all records, in monotonically decreasing order of keys. For every key
             with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
-            an <a>object store</a> or a <a>unique</a> <a>index</a>, this direction has the exact same behavior as <code>"prev"</code>.</dd>
+            an <a>object store</a> or an <a>index</a> with the <a>unique flag</a> set, this direction has the exact same behavior as <code>"prev"</code>.</dd>
           </dl>
           <p>
             If the <a title="cursor source">source</a> of a cursor is an <a>object store</a>, the <dfn>effective object store</dfn>
@@ -1685,19 +1688,19 @@ store_t2.put("d"); // Will get key 2
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBRequest : EventTarget">
             <dt>readonly attribute any result</dt>
             <dd>
-              When the <a title="request done">done</a> flag is true,
+              When the <a title="request done">done flag</a> is true,
               getting this property MUST return the <a title="request result">result</a> of
               the request. This is <code>undefined</code> when the request resulted in an error.
 
-              When the <a title="request done">done</a> flag is false,
+              When the <a title="request done">done flag</a> is false,
               getting this property MUST throw an <a><code>InvalidStateError</code></a> exception.
             </dd>
             <dt>readonly attribute DOMError error</dt>
             <dd>
-              When the <a title="request done">done</a> flag is true,
+              When the <a title="request done">done flag</a> is true,
               getting this property MUST return the error of the request. This is null when no error occurred.
 
-              When the <a title="request done">done</a> flag is false,
+              When the <a title="request done">done flag</a> is false,
               getting this property MUST throw an <a><code>InvalidStateError</code></a> exception.
             </dd>
             <dt>readonly attribute (IDBObjectStore or IDBIndex or IDBCursor)? source</dt>
@@ -1712,7 +1715,7 @@ store_t2.put("d"); // Will get key 2
               returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a>.
             </dd>
             <dt>readonly attribute IDBRequestReadyState readyState</dt>
-            <dd>When the <a title="request done">done</a> flag is false, returns
+            <dd>When the <a title="request done">done flag</a> is false, returns
             <code>"pending"</code>, otherwise returns
             <code>"done"</code>.</dd>
             <dt>attribute EventHandler onsuccess</dt>
@@ -1722,16 +1725,16 @@ store_t2.put("d"); // Will get key 2
           </dl>
           <p>
             When a request is made, a new <a>request</a> is returned with its
-            <a title="request done">done</a> flag set to false.
+            <a title="request done">done flag</a> set to false.
             If a request completes successfully, the
-            <a title="request done">done</a> flag is set to true, the
+            <a title="request done">done flag</a> is set to true, the
             <a title="request result">result</a>
             is set to the result of the request, and an event with type <code>success</code> is fired
             at the <a>request</a>.
           </p>
           <p>
             If an error occurs while performing the operation, the
-            <a title="request done">done</a> flag is set to true, the
+            <a title="request done">done flag</a> is set to true, the
             <a>error attribute</a> is set to a <code>DOMError</code> type that matches the error,
             and an event with type <code>error</code> is fired at the request.
           </p>
@@ -1922,7 +1925,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               On getting, this attribute MUST return the <a title="database name">name</a>
               of the <a title="connection">connected</a> <a>database</a>. The attribute MUST
-              return this name even if the <a>closePending</a> flag is set on the <a>connection</a>.
+              return this name even if the <a>close pending flag</a> is set on the <a>connection</a>.
               In other words, the value of this attribute
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
@@ -1947,7 +1950,7 @@ store_t2.put("d"); // Will get key 2
               be sorted in ascending order using the algorithm defined by step 4
               of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
               of the ECMAScript Language Specification [[!ECMA-262]].
-              Once the <a>closePending</a> flag is set on the <a>connection</a>, this
+              Once the <a>close pending flag</a> is set on the <a>connection</a>, this
               attribute MUST return a snapshot of the list of names of the <a title="object store">object
               stores</a> taken at the time when the
               <a href="#widl-IDBDatabase-close-void"><code>close</code></a> method was called. Even if
@@ -2077,7 +2080,7 @@ store_t2.put("d"); // Will get key 2
                 If this method is called on <a>IDBDatabase</a> object for which a <code>"versionchange"</code> transaction is still running,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If this method is called on a <a>IDBDatabase</a> instance where the <a>closePending</a> flag is set,
+                If this method is called on a <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
                 If any of the names in <var>storeNames</var> do not exist in this <a>database</a>,
@@ -2161,7 +2164,7 @@ store_t2.put("d"); // Will get key 2
                 of the ECMAScript Language Specification [[!ECMA-262]].
               </p>
               <p>
-                Once the <a>closePending</a> flag is set on the <a>connection</a>, this
+                Once the <a>close pending flag</a> is set on the <a>connection</a>, this
                 attribute MUST return a snapshot of the list of names of the
                 <a title="index">indexes</a> taken at the time when the
                 <a href="#widl-IDBDatabase-close-void"><code>close</code></a> method was called. Even if
@@ -2445,7 +2448,7 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a> that implements the <a>IDBCursorWithValue</a> interface,
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value</a> flag value, and undefined
+                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -2489,7 +2492,7 @@ store_t2.put("d"); // Will get key 2
                   Let <var>cursor</var> be a new <a>cursor</a> that implements the <a>IDBCursor</a> interface
                   but does not implement the <a>IDBCursorWithValue</a> interface,
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value</a> flag value, and undefined
+                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -2540,7 +2543,7 @@ store_t2.put("d"); // Will get key 2
               <p>
                 Otherwise, the implementation MUST create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
                 Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
-                Set the created <a>index</a>'s <a>unique</a> and <a>multiEntry</a> flags to the values of the
+                Set the created <a>index</a>'s <a>unique</a> and <a>multiEntry flag</a>s to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
               </p>
               <p>
@@ -2597,9 +2600,9 @@ store_t2.put("d"); // Will get key 2
                   <a>index</a>.</dd>
                 <dt>optional IDBIndexParameters optionalParameters</dt>
                   <dd>The <a>options object</a> whose attributes are optional parameters to this function.
-                    <code>unique</code> specifies whether the <a>index</a>'s <a>unique</a> flag is
+                    <code>unique</code> specifies whether the <a>index</a>'s <a>unique flag</a> is
                     set.
-                    <code>multiEntry</code> specifies whether the <a>index</a>'s <a>multiEntry</a> flag is
+                    <code>multiEntry</code> specifies whether the <a>index</a>'s <a>multiEntry flag</a> is
                     set.
                   </dd>
               </dl>
@@ -2744,11 +2747,11 @@ store_t2.put("d"); // Will get key 2
             </dd>
             <dt>readonly attribute boolean multiEntry</dt>
             <dd>
-            	On getting, provide the <a>multiEntry</a> flag of this <a>index</a>.
+            	On getting, provide the <a>multiEntry flag</a> of this <a>index</a>.
             </dd>
             <dt>readonly attribute boolean unique</dt>
             <dd>
-              On getting, provide the <a>unique</a> flag of this <a>index</a>.
+              On getting, provide the <a>unique flag</a> of this <a>index</a>.
             </dd>
 
             <dt>IDBRequest openCursor()</dt>
@@ -2773,7 +2776,7 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a> that implements the <a>IDBCursorWithValue</a> interface,
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value</a> flag value, and undefined
+                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -2817,7 +2820,7 @@ store_t2.put("d"); // Will get key 2
                   Let <var>cursor</var> be a new <a>cursor</a> that implements the <a>IDBCursor</a> interface
                   but does not implement the <a>IDBCursorWithValue</a> interface,
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value</a> flag value, and undefined
+                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -3013,7 +3016,7 @@ store_t2.put("d"); // Will get key 2
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                <li>If this cursor's <a>got value flag</a> is false, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
                 <li>If this cursor does not implement the <a>IDBCursorWithValue</a> interface,
@@ -3070,15 +3073,15 @@ store_t2.put("d"); // Will get key 2
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                <li>If this cursor's <a>got value flag</a> is false, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>Set the <a>got value</a> flag on the cursor to false.</li>
+                <li>Set the <a>got value flag</a> on the cursor to false.</li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
                   modified such that instead of creating a new request, it reuses the
-                  <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
+                  <a>request</a> originally created when this cursor was created. The <a title="request done">done flag</a>
                   on the request is set to false. The steps are run with the cursor's
                   <a title="cursor source">source</a> as <var>source</var>. The <var>operation</var>
                   runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
@@ -3109,7 +3112,7 @@ store_t2.put("d"); // Will get key 2
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                <li>If this cursor's <a>got value flag</a> is false, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
                 <li>If <var>key</var> is specified:
@@ -3129,12 +3132,12 @@ store_t2.put("d"); // Will get key 2
                   </ol>
                 </li>
 
-                <li>Set the <a>got value</a> flag on the cursor to false.</li>
+                <li>Set the <a>got value flag</a> on the cursor to false.</li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
                   modified such that instead of creating a new request, it reuses the
-                  <a>request</a> originally created when this cursor was created. The <a title="request done">done</a> flag
+                  <a>request</a> originally created when this cursor was created. The <a title="request done">done flag</a>
                   on the request is set to false.  The steps are run with the cursor's
                   <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
                   using this cursor as <var>cursor</var> and (if specified) <var>key</var> as <var>key</var>.
@@ -3167,7 +3170,7 @@ store_t2.put("d"); // Will get key 2
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If this cursor's <a>got value</a> flag is false, indicating that the cursor is being iterated or has iterated past its end,
+                <li>If this cursor's <a>got value flag</a> is false, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
                 <li>If this cursor does not implement the <a>IDBCursorWithValue</a> interface,
@@ -3247,7 +3250,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
               </p>
               <p>
-                Otherwise, this method sets the transaction's <a>active</a> flag to false and
+                Otherwise, this method sets the transaction's <a>active flag</a> to false and
                 <a title="transaction abort">aborts</a> the transaction by running the
                 <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to <code>null</code>.
               </p>
@@ -3299,7 +3302,7 @@ store_t2.put("d"); // Will get key 2
                   non-<a title="transaction finish">finished</a> <code>"versionchange"</code> <a>transaction</a>.
                 </li>
                 <li>
-                  If <var>db</var> has its <a>delete pending</a> flag set, wait until <var>db</var> has
+                  If <var>db</var> has its <a>delete pending flag</a> set, wait until <var>db</var> has
                   been deleted.
                 </li>
               </ul>
@@ -3369,7 +3372,7 @@ store_t2.put("d"); // Will get key 2
               throw an <a><code>InvalidAccessError</code></a> exception.
             </li>
             <li>
-              If the <a>closePending</a> flag is set on <var>connection</var> then
+              If the <a>close pending flag</a> is set on <var>connection</var> then
               throw an <a><code>InvalidStateError</code></a> exception.
             </li>
             <li>
@@ -3379,7 +3382,7 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               Return the created <a>transaction</a> and queue up the remaining steps.
-              When control is returned to the event loop, the implementation MUST set the <a>active</a> flag to false.
+              When control is returned to the event loop, the implementation MUST set the <a>active flag</a> to false.
             </li>
             <li>
               Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
@@ -3439,12 +3442,12 @@ store_t2.put("d"); // Will get key 2
               to <var>error</var>. Set <var>transaction</var>'s <code>error</code> property to this newly created <code>DOMError</code>.
             </li>
             <li>
-              If the transaction's <a>request list</a> contain any <a title="request">requests</a> whose <a title="request done">done</a> flag
+              If the transaction's <a>request list</a> contain any <a title="request">requests</a> whose <a title="request done">done flag</a>
               is still false, abort the <a>steps for asynchronously executing a request</a> for each such request and queue
               a task to perform the following steps:
               <ol>
                 <li>
-                  Set the <a title="request done">done</a> flag on the <a>request</a> to true, set
+                  Set the <a title="request done">done flag</a> on the <a>request</a> to true, set
                   <a title="request result">result</a> of the <a>request</a> to <code>undefined</code>
                   and set the request's <a>error attribute</a> to a <code>DOMError</code> with a type of <a>AbortError</a>.
                 </li>
@@ -3503,20 +3506,20 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               Wait until all previously added <a title="request">requests</a> in <var>transaction</var> have their
-              <a title="request done">done</a> flag set to true.
+              <a title="request done">done flag</a> set to true.
             </li>
             <li>
               Perform <var>operation</var>.
             </li>
             <li>
-              If performing <var>operation</var> succeeded then set the <a title="request done">done</a> flag
+              If performing <var>operation</var> succeeded then set the <a title="request done">done flag</a>
               on the <var>request</var> to true, set <a title="request result">result</a> of the <var>request</var>
               to the result of the request and set the <a>error attribute</a> of the <var>request</var> to <code>undefined</code>.
 			  Finally <a>fire a success event</a> at <var>request</var>.
             </li>
             <li>
               If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
-              set the <a title="request done">done</a> flag on the <var>request</var> to true,
+              set the <a title="request done">done flag</a> on the <var>request</var> to true,
               set <a title="request result">result</a> of the <var>request</var>
               to <code>undefined</code> and set the <a>error attribute</a> on the <var>request</var>
               to a <code>DOMError</code> with the same error type as the <var>operation</var> that failed.
@@ -3545,7 +3548,7 @@ store_t2.put("d"); // Will get key 2
             <li>
               <p>
                 Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
-                be fired on objects which has the <code>closePending</code> flag set. The event MUST use the
+                be fired on objects which has the <a>close pending flag</a> set. The event MUST use the
                 <a>IDBVersionChangeEvent</a> interface and have the
                 <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
                 <a>version</a> and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
@@ -3577,7 +3580,7 @@ store_t2.put("d"); // Will get key 2
             <li>
               Create a new <a>transaction</a> with <a>mode</a> set to <code>"versionchange"</code> and <var>connection</var> used as <a>connection</a>.
               The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
-              <a>active</a> flag to false. Let <var>transaction</var> represent this transaction.
+              <a>active flag</a> to false. Let <var>transaction</var> represent this transaction.
             </li>
             <li>
               Start <var>transaction</var>. Note that until this <a>transaction</a> is finished,
@@ -3605,7 +3608,7 @@ store_t2.put("d"); // Will get key 2
                   <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
                   and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
                   property set to <var>version</var>.
-                  The <a title="request done">done</a> flag on the <a>request</a> is set to true.
+                  The <a title="request done">done flag</a> on the <a>request</a> is set to true.
                 </li>
                 <li>
                   If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
@@ -3703,7 +3706,7 @@ store_t2.put("d"); // Will get key 2
             optional <var>forced</var> flag.
           <ol>
             <li>
-              Set the internal <a><code>closePending</code></a> flag of <var>connection</var> to true.
+              Set the <a>close pending flag</a> of <var>connection</var> to true.
             </li>
             <li>
               If the <var>forced</var> flag is set, then for each transaction <a title="transaction create">created</a>
@@ -3721,9 +3724,9 @@ store_t2.put("d"); // Will get key 2
             </li>
           </ol>
           <p class="note">
-            Once the <a><code>closePending</code></a> flag has been set to true no new transactions can be
+            Once the <a>close pending flag</a> has been set to true no new transactions can be
             <a title="transaction create">created</a> using <var>connection</var>. All functions that
-            <a title="transaction create">create</a> transactions first check the <a>closePending</a> flag first and
+            <a title="transaction create">create</a> transactions first check the <a>close pending flag</a> first and
             throw an exception if it is true.
           </p>
           <p class="note">
@@ -3752,7 +3755,7 @@ store_t2.put("d"); // Will get key 2
               If no database was found, then these steps are considered successful. Abort these steps.
             </li>
             <li>
-              Set <var>db</var>'s <a>delete pending</a> flag to true.
+              Set <var>db</var>'s <a>delete pending flag</a> to true.
             </li>
             <li>
               Let <var>openDatabases</var> be the set of all <a>IDBDatabase</a>
@@ -3761,7 +3764,7 @@ store_t2.put("d"); // Will get key 2
             <li>
               <p>
                 Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
-                be fired on objects which has the <code>closePending</code> flag set. The event MUST use the
+                be fired on objects which has the <a>close pending flag</a> set. The event MUST use the
                 <a>IDBVersionChangeEvent</a> interface and have the
                 <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>db</var>'s
                 <a>version</a> and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
@@ -3805,7 +3808,7 @@ store_t2.put("d"); // Will get key 2
               Set <var>transaction</var> to the <a>transaction</a> associated with the <a title="request source">source</a>.
             </li>
             <li>
-              Set the <a>active</a> flag of <var>transaction</var> to true.
+              Set the <a>active flag</a> of <var>transaction</var> to true.
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
@@ -3815,7 +3818,7 @@ store_t2.put("d"); // Will get key 2
               then <var>transaction</var> and finally <var>request</var>.
             </li>
             <li>
-              Set the <a>active</a> flag of <var>transaction</var> to false.
+              Set the <a>active flag</a> of <var>transaction</var> to false.
             </li>
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
@@ -3836,7 +3839,7 @@ store_t2.put("d"); // Will get key 2
               Set <var>transaction</var> to the <a>transaction</a> associated with the <a title="request source">source</a>.
             </li>
             <li>
-              Set the <a>active</a> flag of <var>transaction</var> to true.
+              Set the <a>active flag</a> of <var>transaction</var> to true.
             </li>
             <li>
               Dispatch an event at <var>request</var>. The event must use
@@ -3849,7 +3852,7 @@ store_t2.put("d"); // Will get key 2
               not taken if any of the event handlers threw an exception.
             </li>
             <li>
-              Set the <a>active</a> flag of <var>transaction</var> to false.
+              Set the <a>active flag</a> of <var>transaction</var> to false.
             </li>
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
@@ -3984,7 +3987,7 @@ store_t2.put("d"); // Will get key 2
 
           <p class="note">
             The <a>key path</a> used here is always a <code>DOMString</code> and never an <code>sequence&lt;DOMString&gt;</code> since it is not
-            possible to create a <a>object store</a> whose <a>multiEntry</a> flag is true and whose
+            possible to create a <a>object store</a> whose <a>multiEntry flag</a> is true and whose
             <a title="object store key path">key path</a> is an <code>sequence&lt;DOMString&gt;</code>.
           </p>
 	</section>
@@ -4219,7 +4222,7 @@ store_t2.put("d"); // Will get key 2
                   results in an exception or failure, take no further actions for this index.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is unset,
+                  If <var>index</var>'s <a>multiEntry flag</a> is unset,
                   let <var>index key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
                 </li>
                 <li>
@@ -4230,26 +4233,26 @@ store_t2.put("d"); // Will get key 2
                   and continue these substeps for the next index.</li>
 
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is unset, or if <var>index key</var> is not an <a>array key</a>,
+                  If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
-                  and <var>index</var> has its <a>unique</a> flag set to true, then this operation failed with a
+                  and <var>index</var> has its <a>unique flag</a> set to true, then this operation failed with a
                   <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is set and <var>index key</var> is an <a>array key</a>,
+                  If <var>index</var>'s <a>multiEntry flag</a> is set and <var>index key</var> is an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
-                  <a>subkeys</a> of <var>index key</var>, and <var>index</var> has its <a>unique</a> flag set to true, then this operation
+                  <a>subkeys</a> of <var>index key</var>, and <var>index</var> has its <a>unique flag</a> set to true, then this operation
                   failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is unset, or if <var>index key</var> is not an <a>array key</a>
+                  If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>
                   then store a record in <var>index</var> containing <var>index key</var> as its key and <var>key</var> as its
                   value. The record is stored in <var>index</var>'s <a title="index record list">list of records</a> such
                   that the list is sorted primarily on the records keys, and secondarily on the records values, in ascending
                   order.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is set and <var>index key</var> is an <a>array key</a>,
+                  If <var>index</var>'s <a>multiEntry flag</a> is set and <var>index key</var> is an <a>array key</a>,
                   then for each <var>subkey</var> of the <a>subkeys</a> of <var>index key</var> store a record in <var>index</var> containing
                   <var>subkey</var> as its key and <var>key</var> as its value. The records are stored in <var>index</var>'s
                   <a title="index record list">list of records</a> such that the list is sorted primarily on the records keys,
@@ -4524,7 +4527,7 @@ store_t2.put("d"); // Will get key 2
               </p>
             </li>
             <li>
-              Set <var>cursor</var>'s <a>got value</a> flag to true.
+              Set <var>cursor</var>'s <a>got value flag</a> to true.
               <p class="note">
                 Once data has been successfully read, schedule a task which when run will
                 set the <a title="cursor">cursor's</a> value and <a>fire a success event</a>.
