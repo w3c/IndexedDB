@@ -1516,7 +1516,7 @@ request.onsuccess = function() {
               <p>
                 When a <a>record</a> is stored and a <a>key</a> is specified in the call to store the record,
                 if <a title="key type">type</a> of the key is "<code>number</code>" and the
-                <a title="key value">value</a> is <a>greater than</a> or <a>equal to</a> the key generator's
+                <a title="key value">value</a> is greater than or equal to the key generator's
                 <a>current number</a>, then the key generator's <a>current number</a> is set to the smallest integer
                 number <a>greater than</a> the explicit key.
                 A key can be specified both for object stores which use <a>in-line keys</a>, by setting the
@@ -3872,7 +3872,7 @@ store_t2.put("d"); // Will get key 2
         </p>
 
         <section class="section">
-          <h4>Steps for extracting a key from a value using a <a>key path</a></h4>
+          <h4>Steps to extract a key from a value using a <a>key path</a></h4>
           <p>
             The steps to <dfn>extract a key from a value using a key path</dfn> are as follows.
             The algorithm takes a <a>key path</a> named <var>keyPath</var> and a
@@ -3926,7 +3926,8 @@ store_t2.put("d"); // Will get key 2
         <section class="section">
           <h4>Steps to inject a key into a value using a key path</h4>
           <p>
-            The <dfn>steps to inject a key into a value using a key path</dfn> are as follows:
+            The steps to <dfn>inject a key into a value using a key path</dfn> are as follows.
+            The algorithm takes a <var>value</var>, a <var>key</var> and a <var>keyPath</var>.
           </p>
           <ol>
             <li>
@@ -4172,22 +4173,22 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               If <var>store</var> uses a <a>key generator</a> and <var>key</var> is undefined, set
-              <var>key</var> to the next generated key. If <var>store</var> also uses <a>in-line keys</a>,
-              then set the property in <var>value</var> pointed to by <var>store</var>'s
-              <a title="object store key path">key path</a> to the new value for <var>key</var>, as shown in the
-              <a>steps to inject a key into a value using a key path</a>. If the current number of a <a>key generator</a>
+              <var>key</var> to the <a>key generator</a>'s <a>current number</a> and increase <a>current number</a> by 1.
+              If <var>store</var> also uses <a>in-line keys</a>, then run the steps to
+              <a>inject a key into a value using a key path</a> with <var>value</var>,
+              <var>key</var> and <var>store</var>'s <a title="object store key path">key path</a>.
+              If the current number of a <a>key generator</a>
               reaches above the value <code>2^53</code> (<code>9007199254740992</code>)
               any attempt to use the <a>key generator</a> to generate a new <a>key</a> fails with a <a><code>ConstraintError</code></a>.
             </li>
             <li>
-              If <var>store</var> uses a <a>key generator</a>, this <a>key generator</a> was not used to generate a value
-              for <var>key</var> in the previous step, <var>key</var> is defined to a <code>Number</code>
-              and this number is larger than, or equal to, the next key that <var>store</var>'s
-              <a>key generator</a> would generate, change <var>store</var>'s <a>key generator</a> such that the next
-              key it generates is the lowest integer larger than <var>key</var>.
+              If <var>store</var> uses a <a>key generator</a>, and this <a>key generator</a> was not used to generate a value
+              for <var>key</var> in the previous step, and the <a title="key type">type</a> of <var>key</var> is "<code>number</code>"
+              and the <a title="key value">value</a> is greater than or equal to the <a>key generator</a>'s
+              <a>current number</a>, set the <a>current number</a> to lowest integer greater than <var>key</var>.
             </li>
             <li>
-              If the no-overwrite flag was passed to these steps and is set, and
+              If the <var>no-overwrite flag</var> was passed to these steps and is set, and
               a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then
               this operation failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking
               any further steps.
