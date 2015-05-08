@@ -444,7 +444,7 @@ request.onsuccess = function() {
           </p>
           <p>
             Each database has a set of <a title="object store">object stores</a>. The set of <a title="object store">object stores</a> can be changed,
-            but can only be changed using a "<code>versionchange</code>" transaction, i.e. in response to a
+            but can only be changed using an <a>upgrade transaction</a>, i.e. in response to a
             <code>upgradeneeded</code> event. When a new database is created it doesn't contain any <a title="object store">object stores</a>.
           </p>
           <p>
@@ -726,7 +726,7 @@ request.onsuccess = function() {
                 the <code>IdentifierName</code> production from the ECMAScript Language Specification [[!ECMA-262]].</li>
             <li>A <a>DOMString</a> consisting of two or more <a title="identifier">identifiers</a> separated by
             periods (ASCII character code 46, U+002E FULL STOP).</li>
-            <li>A non-empty <a>sequence&lt;DOMString&gt;</a> containing only <a>DOMString</a>s conforming to
+            <li>A non-empty <a>sequence&lt;DOMString&gt;</a> containing only strings conforming to
             the above requirements.</li>
           </ul>
           <p class="note">
@@ -937,7 +937,7 @@ request.onsuccess = function() {
             <dd>
                 A <dfn title="transaction readonly">"<code>readonly</code>"</dfn> transaction is only allowed
                 to read data. No modifications can be done by this type of transaction. This has the advantage
-                that several "<code>readonly</code>" transactions can run at the same time even if their <a title="scope">scopes</a>
+                that several <a title="read-only transaction">read-only transactions</a> can run at the same time even if their <a title="scope">scopes</a>
                 are overlapping, i.e. if they are using the same object stores. This type of transaction can
                 be created any time once a database has been opened using the
                 <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>
@@ -965,9 +965,19 @@ request.onsuccess = function() {
           </dl>
 
           <p>
-            Any number of transactions opened in <a title="transaction readonly">"<code>readonly</code>"</a> mode are allowed to run concurrently,
+            A <dfn>read-only transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readonly</code>".
+          </p>
+          <p>
+            A <dfn>read/write transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readwrite</code>".
+          </p>
+          <p>
+            An <dfn>upgrade transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>versionchange</code>".
+          </p>
+
+          <p>
+            Any number of <a title="read-only transaction">read-only transactions</a> are allowed to run concurrently,
             even if the transaction's <a>scope</a> overlap and include the same <a title="object store">object stores</a>.
-            As long as a "<code>readonly</code>" transaction is running, the data that the implementation returns
+            As long as a <a>read-only transaction</a> is running, the data that the implementation returns
             through <a title="request">requests</a> created with that transaction MUST remain
             constant. That is, two requests to read the same piece of data MUST yield the same result
             both for the case when data is found and the result is that data, and for the case when data
@@ -975,23 +985,23 @@ request.onsuccess = function() {
           </p>
           <p>
             There are a number of ways that an implementation ensures this. The implementation can prevent any
-            "<code>readwrite</code>" transaction, whose scope overlaps the scope of the "<code>readonly</code>" transaction, from
-            starting until the "<code>readonly</code>" transaction finishes. Or the implementation can allow the "<code>readonly</code>"
-            transaction to see a snapshot of the contents of the <a title="object store">object stores</a> which is taken when
-            the "<code>readonly</code>" transaction started.
+            <a>read/write transaction</a>, whose scope overlaps the scope of the <a>read-only transaction</a>, from
+            starting until the <a>read-only transaction</a> finishes. Or the implementation can allow the
+            <a>read-only transaction</a> to see a snapshot of the contents of the <a title="object store">object stores</a> which is taken when
+            the <a>read-only transaction</a> started.
           </p>
           <p>
-            Similarly, implementations MUST ensure that a "<code>readwrite</code>" transaction is only affected by
+            Similarly, implementations MUST ensure that a <a>read/write transaction</a> is only affected by
             changes to <a title="object store">object stores</a> that are made using the transaction itself. For example, the
             implementation MUST ensure that another transaction does not modify the contents of
-            <a title="object store">object stores</a> in the "<code>readwrite</code>" transaction's <a>scope</a>. The implementation
-            MUST also ensure that if the "<code>readwrite</code>" transaction completes successfully, the
+            <a title="object store">object stores</a> in the <a>read/write transaction</a>'s <a>scope</a>. The implementation
+            MUST also ensure that if the <a>read/write transaction</a> completes successfully, the
             changes written to <a title="object store">object stores</a> using the transaction can be committed to the
             <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
             due to merge conflicts.
           </p>
           <p>
-            If multiple "<code>readwrite</code>" transactions are attempting to access the same object store (i.e.
+            If multiple <a title="read/write transaction">read/write transactions</a> are attempting to access the same object store (i.e.
             if they have overlapping <a>scope</a>), the transaction that was <a title="transaction create">
             created</a> first MUST be the transaction which gets access to the object store first. Due to
             the requirements in the previous paragraph, this also means that it is the only transaction
@@ -1001,10 +1011,10 @@ request.onsuccess = function() {
           <p>
             Any transaction
             <a title="transaction create">created</a> after a
-            "<code>readwrite</code>" transaction MUST see the changes
-            written by the "<code>readwrite</code>" transaction. So if
+            <a>read/write transaction</a> MUST see the changes
+            written by the <a>read/write transaction</a>. So if
             a
-            "<code>readwrite</code>" transaction, A, is created, and
+            <a>read/write transaction</a>, A, is created, and
             later another transaction B, is created, and the two
             transactions have overlapping
             <a title="scope">scopes</a>, then B MUST see any changes
@@ -1020,40 +1030,40 @@ request.onsuccess = function() {
           <p class="note">
             Generally speaking, the above requirements mean that any
             transaction which has an overlapping scope with a
-            "<code>readwrite</code>" transaction and which was created
+            <a>read/write transaction</a> and which was created
             after that
-            "<code>readwrite</code>" transaction, can't run in
+            <a>read/write transaction</a>, can't run in
             parallel with that
-            "<code>readwrite</code>" transaction.
+            <a>read/write transaction</a>.
           </p>
 
           <p>
-            A "<code>versionchange</code>" transaction never run concurrently with other transactions.
+            An <a>upgrade transaction</a> never run concurrently with other transactions.
             When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
-            "<code>versionchange</code>" transaction is automatically created and made available through the
+            <a>upgrade transaction</a> is automatically created and made available through the
             <a><code>upgradeneeded</code></a> event. The <a><code>upgradeneeded</code></a> event isn't fired, and thus the
-            "<code>versionchange</code>" transaction isn't started, until all other <a title="connection">connections</a> to the same
+            <a>upgrade transaction</a> isn't started, until all other <a title="connection">connections</a> to the same
             <a>database</a> are closed. This ensures that all other transactions are <a title="transaction finish">finished</a>.
           </p>
           <p>
-            As long as a "<code>versionchange</code>" transaction
+            As long as an <a>upgrade transaction</a>
             is running, attempts to open more <a title="connection">connections</a> to the same <a>database</a> are delayed,
             and any attempts to use the same <a>connection</a> to start additional transactions will result in
-            an exception being thrown. Thus "<code>versionchange</code>" transactions not only ensure that
+            an exception being thrown. Thus <a title="upgrade transaction">upgrade transactions</a> not only ensure that
             no other transactions are running concurrently, but also ensure that no other transactions are queued
             against the same <a>database</a> as long as the transaction is running.
           </p>
           <p class="note">
-          	"<code>versionchange</code>" transaction is automatically created
-          	when a database version number is provided that is greater than the current database version.
-          	This <a>transaction</a> will be active inside the <a><code>upgradeneeded</code></a> event handler,
-          	allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
+            An <a>upgrade transaction</a> is automatically created
+            when a database version number is provided that is greater than the current database version.
+            This <a>transaction</a> will be active inside the <a><code>upgradeneeded</code></a> event handler,
+            allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
           </p>
           <p>
             User agents MUST ensure a reasonable level of fairness across transactions to prevent
-            starvation. For example, if multiple "<code>readonly</code>" transactions are started one after another
-            the implementation MUST NOT indefinitely prevent a pending "<code>readwrite</code>"
-            transaction from <a title="transaction start">starting</a>.
+            starvation. For example, if multiple <a title="read-only transaction">read-only transactions</a> are started one after another
+            the implementation MUST NOT indefinitely prevent a pending <a>read/write transaction</a>
+            from <a title="transaction start">starting</a>.
           </p>
           <p>
             Each <a>transaction</a> object implement the <a>IDBTransaction</a>
@@ -1403,7 +1413,7 @@ request.onsuccess = function() {
           		</tr>
           		<tr>
           			<td><code><dfn>ReadOnlyError</dfn></code></td>
-	          		<td>The mutating operation was attempted in a "<code>readonly</code>" transaction.</td>
+	          		<td>The mutating operation was attempted in a <a>read-only transaction</a>.</td>
           		</tr>
           		<tr>
           			<td><code><dfn>VersionError</dfn></code></td>
@@ -1746,7 +1756,7 @@ store_t2.put("d"); // Will get key 2
             <dd>Returns the old version of the database.
             <dt>readonly attribute unsigned long long? newVersion</dt>
             <dd>Returns the new version of the database.
-            See the <a>steps for running a "<code>versionchange</code>" transaction</a>.</dd>
+            See the <a>steps for running an upgrade transaction</a>.</dd>
           </dl>
           <p>
           	Events are constructed as defined in <a href="http://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#constructing-events">Constructing events</a>,
@@ -1816,8 +1826,8 @@ store_t2.put("d"); // Will get key 2
                 <code>result</code> to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
                 The event must use the <code>Event</code> interface and have its <code>type</code> set
                 to "<code>success</code>". The event does not bubble and is not cancelable. The <a>propagation
-                path</a> of the event is just the request. If the steps above resulted in a "<code>versionchange</code>" transaction being
-                run, then firing the "<code>success</code>" event MUST be done after the <code>“versionchange”</code> <a>transaction</a> completes.
+                path</a> of the event is just the request. If the steps above resulted in an <a>upgrade transaction</a> being
+                run, then firing the "<code>success</code>" event MUST be done after the <a>upgrade transaction</a> completes.
               </p>
               <p class="note">
                 The last requirement is to ensure that in case another version upgrade is about to happen,
@@ -1946,8 +1956,8 @@ store_t2.put("d"); // Will get key 2
               other <a title="connection">connections</a> are later used to change the set of <a title="object store">object
               stores</a> that exist in the <a>database</a>. In other words, the
               value of this attribute stays constant for the lifetime of the
-              <a>IDBDatabase</a> instance, except during a <a title="transaction versionchange">"<code>versionchange</code>"</a>
-              transaction if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters"><code>createObjectStore</code></a>
+              <a>IDBDatabase</a> instance, except during an <a>upgrade transaction</a>
+              if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-optionalParameters"><code>createObjectStore</code></a>
               or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name"><code>deleteObjectStore</code></a>
               is called on this <a>IDBDatabase</a> instance itself.
               </p>
@@ -1957,15 +1967,15 @@ store_t2.put("d"); // Will get key 2
               <p>
                 This method creates and returns a new <a>object store</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>.
-                Note that this method must only be called from within a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>.
+                Note that this method must only be called from within an <a>upgrade transaction</a>.
               </p>
               <p>
-                If this <a>database</a> is not running a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>, or if this
+                If this <a>database</a> is not running an <a>upgrade transaction</a>, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transaction's
                 <a title="transaction connection">connection</a>,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If the <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a> is not <a>active</a>,
+                If the <a>upgrade transaction</a> is not <a>active</a>,
                 the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
 
                 If an <a>object store</a> with the <a title="object store name">name</a> <var>name</var> already exists in this <a>database</a>,
@@ -2029,15 +2039,15 @@ store_t2.put("d"); // Will get key 2
               <p>
                 This method destroys the <a>object store</a> with the given name in the
                 <a title="connection">connected</a> <a>database</a>.
-                Note that this method must only be called from within a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>.
+                Note that this method must only be called from within an <a>upgraade transaction</a>.
               </p>
               <p>
-                If this <a>database</a> is not running a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>, or if this
+                If this <a>database</a> is not running a <a>upgrade transaction</a>, or if this
                 function is called on a <a>IDBDatabase</a> object other than that transactions
                 <a title="transaction connection">connection</a>,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If the <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a> is not <a>active</a>,
+                If the <a>upgrade transaction</a> is not <a>active</a>,
                 the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
               </p>
               <p>
@@ -2067,7 +2077,7 @@ store_t2.put("d"); // Will get key 2
                 If the value for the <var>mode</var> parameter is not "<code>readonly</code>" or "<code>readwrite</code>",
                 the implementation MUST throw a <code>TypeError</code>.
 
-                If this method is called on <a>IDBDatabase</a> object for which a "<code>versionchange</code>" transaction is still running,
+                If this method is called on <a>IDBDatabase</a> object for which an <a>upgrade transaction</a> is still running,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
                 If this method is called on a <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
@@ -2161,8 +2171,7 @@ store_t2.put("d"); // Will get key 2
                 other <a title="connection">connections</a> are later used to change the set of
                 <a title="index">indexes</a> that exist in the <a>object store</a>. In other words, the
                 value of this attribute stays constant for the lifetime of the
-                <a>IDBObjectStore</a> instance, except during a <a title="transaction versionchange">"<code>versionchange</code>"</a>
-                transaction if
+                <a>IDBObjectStore</a> instance, except during an <a>upgrade transaction</a> if
                 <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-sequence-DOMString--keyPath-IDBIndexParameters-optionalParameters"><code>createIndex</code></a>
                 or
                 <a href="#widl-IDBObjectStore-deleteIndex-void-DOMString-indexName"><code>deleteIndex</code></a>
@@ -2180,7 +2189,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to has its <a>mode</a> set to "<code>readonly</code>",
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
                   <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2246,7 +2255,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to has its <a>mode</a> set to "<code>readonly</code>",
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
                   <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2316,7 +2325,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to has its <a>mode</a> set to "<code>readonly</code>",
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
                   <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2399,7 +2408,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to has its <a>mode</a> set to "<code>readonly</code>",
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
                   <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2508,10 +2517,10 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 This method creates and returns a new <a>index</a> with the given name in the <a>object store</a>.
-                Note that this method must only be called from within a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>.
+                Note that this method must only be called from within an <a>upgrade transaction</a>.
               </p>
               <p>
-                If this <a>object store</a>'s <a>database</a> is not running a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>,
+                If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
                 If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2533,7 +2542,7 @@ store_t2.put("d"); // Will get key 2
               <p>
                 Otherwise, the implementation MUST create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
                 Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
-                Set the created <a>index</a>'s <a>unique</a> and <a>multiEntry flag</a>s to the values of the
+                Set the created <a>index</a>'s <a>unique flag</a> and <a>multiEntry flag</a> to the values of the
                 <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
               </p>
               <p>
@@ -2542,7 +2551,7 @@ store_t2.put("d"); // Will get key 2
                 index's keyPath. If the <a>referenced</a> object store already contains data which violates these
                 constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
                 The implementation MUST still create and return an <a>IDBIndex</a> object.
-                Instead the implementation must queue up an operation to abort the <a title="transaction versionchange">"<code>versionchange</code>"</a> transaction
+                Instead the implementation must queue up an operation to abort the <a>upgrade transaction</a>
                 which was used for the createIndex call.
               </p>
               <p>
@@ -2551,7 +2560,7 @@ store_t2.put("d"); // Will get key 2
                 However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
                 property on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return a <a>IDBRequest</a> object, the index creation itself is
-                processed as an asynchronous request within the <a title="transaction versionchange">"<code>versionchange</code>"</a> transaction.
+                processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
               <p>
                 In some implementations it is possible for the implementation to asynchronously run into problems
@@ -2624,10 +2633,10 @@ store_t2.put("d"); // Will get key 2
             <dd>
               <p>
                 This method destroys the <a>index</a> with the given name in the <a>object store</a>.
-                Note that this method must only be called from within a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>.
+                Note that this method must only be called from within an <a>upgrade transaction</a>.
               </p>
               <p>
-                If this <a>object store</a>'s <a>database</a> is not running a <a title="transaction versionchange">"<code>versionchange</code>"</a> <a>transaction</a>,
+                If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
                 If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
@@ -2649,7 +2658,7 @@ store_t2.put("d"); // Will get key 2
                 However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
                 property on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return a <a>IDBRequest</a> object, the index destruction itself is
-                processed as an asynchronous request within the <a title="transaction versionchange">"<code>versionchange</code>"</a> transaction.
+                processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
@@ -3011,7 +3020,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to has its <a>mode</a> set to "<code>readonly</code>",
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is a <a>read-only transaction</a>,
                   <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
@@ -3165,7 +3174,7 @@ store_t2.put("d"); // Will get key 2
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to has its <a>mode</a> set to "<code>readonly</code>",
+                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is a <a>read-only transaction</a>,
                   <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
@@ -3303,7 +3312,7 @@ store_t2.put("d"); // Will get key 2
               <ul>
                 <li>
                   No already existing <a title="connection">connections</a> to <var>db</var>, have
-                  non-<a title="transaction finish">finished</a> "<code>versionchange</code>" <a>transaction</a>.
+                  non-<a title="transaction finish">finished</a> <a>upgrade transaction</a>.
                 </li>
                 <li>
                   If <var>db</var> has its <a>delete pending flag</a> set, wait until <var>db</var> has
@@ -3314,8 +3323,8 @@ store_t2.put("d"); // Will get key 2
                 If several connections with the same origin and name are waiting due to the above conditions,
                 and those connections have a higher version than the database's current version, then once any of
                 those connections can proceed to the next step in this algorithm it will immediately start
-                a "<code>versionchange</code>" transaction. This prevents the other connections from proceeding until that
-                "<code>versionchange</code>" transaction is finished.
+                an <a>upgrade transaction</a>. This prevents the other connections from proceeding until that
+                <a>upgrade transaction</a> is finished.
               </p>
             </li>
             <li>
@@ -3337,12 +3346,12 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               If the <a>version</a> of <var>db</var> is lower than <var>version</var>, then run the
-              <a>steps for running a "<code>versionchange</code>" transaction</a> using <var>connection</var>,
+              <a>steps for running an upgrade transaction</a> using <var>connection</var>,
               <var>version</var> and <var>request</var>.
             </li>
             <li>
               If the previous step resulted in an error, then return that error and abort these steps.
-              If the "<code>versionchange</code>" transaction in the previous step was aborted, or if
+              If the <a>upgrade transaction</a> in the previous step was aborted, or if
               <var>connection</var> is <a title="database close">closed</a>, return a
               <code>DOMError</code> of type <a>AbortError</a> and abort these steps.
               In either of these cases, ensure that <var>connection</var> is <a title="database close">closed</a>
@@ -3436,9 +3445,9 @@ store_t2.put("d"); // Will get key 2
           </p>
           <ol>
             <li>
-              All the changes made to the <a>database</a> by the <a>transaction</a> are reverted. For "<code>versionchange</code>"
-              transactions this includes changes to the set of <a title="object store">object stores</a> and <a title="index">indexes</a>, as well
-              as the change to the <a>version</a>. Also run the <a>steps for aborting a "<code>versionchange</code>" transaction</a>
+              All the changes made to the <a>database</a> by the <a>transaction</a> are reverted. For <a title="upgrade transaction">upgrade transactions</a>
+              this includes changes to the set of <a title="object store">object stores</a> and <a title="index">indexes</a>, as well
+              as the change to the <a>version</a>. Also run the <a>steps for aborting an upgrade transaction</a>
               which reverts changes to all <a>IDBDatabase</a> and <a>IDBObjectStore</a> instances.
             </li>
             <li>
@@ -3536,9 +3545,9 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section">
-          <h4>"<code>versionchange</code>" transaction steps</h4>
+          <h4>Upgrade transaction steps</h4>
           <p>
-            The <dfn>steps for running a "<code>versionchange</code>" transaction</dfn> are
+            The <dfn>steps for running an upgrade transaction</dfn> are
             as follows. This algorithm takes three arguments:
             a <var>connection</var> object which is used to update the <a>database</a>,
             a new <var>version</var> to be set for the <a>database</a>,
@@ -3582,7 +3591,7 @@ store_t2.put("d"); // Will get key 2
               their transactions are <a title="transaction finish">finished</a>.
             </li>
             <li>
-              Create a new <a>transaction</a> with <a>mode</a> set to "<code>versionchange</code>" and <var>connection</var> used as <a>connection</a>.
+              Create a new <a>upgrade transaction</a> with <var>connection</var> used as <a>connection</a>.
               The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
               <a>active flag</a> to false. Let <var>transaction</var> represent this transaction.
             </li>
@@ -3620,7 +3629,7 @@ store_t2.put("d"); // Will get key 2
                   <code>AbortError</code>.
                 </li>
                 <li>
-                	If for any reason the "<code>versionchange</code>" transaction is aborted the <a>IDBDatabase</a>
+                	If for any reason the <a>upgrade transaction</a> is aborted the <a>IDBDatabase</a>
                 	instance which represents <var>connection</var> will remain unchanged.
                 	I.e., its <code>name</code>, <code>version</code>, and <code>objectStoreNames</code> properties
                 	will remain the value they were before the transaction was aborted.
@@ -3659,9 +3668,9 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section">
-        	<h4>Steps for aborting a "<code>versionchange</code>" transaction</h4>
+        	<h4>Steps for aborting an upgrade transaction</h4>
         	<p>
-        		The <dfn>steps for aborting a "<code>versionchange</code>" transaction</dfn> are as follows.
+        		The <dfn>steps for aborting an upgrade transaction</dfn> are as follows.
         	</p>
         	<ol>
         		<li>
@@ -3671,18 +3680,18 @@ store_t2.put("d"); // Will get key 2
         		</li>
         		<li>
         			Revert <a href="#widl-IDBDatabase-version"><code>IDBDatabase.version</code></a> to the version the on-disk database had before the transaction was started.
-        			If the "<code>versionchange</code>" <a>transaction</a> was started because the database was newly created,
+        			If the <a>upgrade transaction</a> was started because the database was newly created,
         			revert <a href="#widl-IDBDatabase-version"><code>IDBDatabase.version</code></a> to version 0;
         			if the <a>transaction</a> was started in response to a version upgrade,
         			revert to the version it had before the <a>transaction</a> was started.
         			Note that the only time that the <a href="#widl-IDBDatabase-version"><code>IDBDatabase.version</code></a> property ever changes value
-        			is during a "<code>versionchange</code>" <a>transaction</a>.
+        			is during an <a>upgrade transaction</a>.
         		</li>
         		<li>
         			Revert <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> to the list of names that it had before the transaction was started.
-        			If the "<code>versionchange</code>" <a>transaction</a> was started because the database was newly created,
+        			If the <a>upgrade transaction</a> was started because the database was newly created,
         			revert it to an empty list.
-        			If the "<code>versionchange</code>" <a>transaction</a> was started in response to a version upgrade,
+        			If the <a>upgrade transaction</a> was started in response to a version upgrade,
         			revert to the list of <a>object store</a> names it had before the <a>transaction</a> was started.
         		</li>
         		<li>
@@ -3734,7 +3743,7 @@ store_t2.put("d"); // Will get key 2
             throw an exception if it is true.
           </p>
           <p class="note">
-            Once the <a>connection</a> is closed, this can unblock the <a>steps for running a "<code>versionchange</code>"
+            Once the <a>connection</a> is closed, this can unblock the <a>steps for running an upgrade
             transaction</a>, and the <a>steps for deleting a database</a>, which <a href="#delete-close-block">both</a>
             <a href="#version-change-close-block">wait</a> for <a title="connection">connections</a> to a given <a>database</a> to be closed
             before continuing.
