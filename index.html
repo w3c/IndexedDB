@@ -2731,7 +2731,7 @@ store_t2.put("d"); // Will get key 2
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is not a <a>key range</a>:
+                <li>If <var>key</var> is specified and is not a <a>key range</a>:
                   <ol>
                     <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
@@ -2742,12 +2742,8 @@ store_t2.put("d"); // Will get key 2
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  using the created cursor as <var>cursor</var>.
-                  If provided, use the <var>key</var> as <var>key</var>, otherwise, use undefined as <var>key</var>.
-                  If the result of the algorithm is null return 0 (zero) as the result for the request.
-                  Otherwise, use the return <a>cursor</a> to determine the total number of objects that share the
-                  <a>key</a> or <a>key range</a> and return that value as the result for the request.
+                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
+                  with this <a>object store</a> as <var>source</var> and <var>key</var> as <var>key</var> if specified.
                 </li>
               </ol>
 
@@ -2994,7 +2990,7 @@ store_t2.put("d"); // Will get key 2
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is not a <a>key range</a>:
+                <li>If <var>key</var> is specified and is not a <a>key range</a>:
                   <ol>
                     <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
@@ -3005,12 +3001,8 @@ store_t2.put("d"); // Will get key 2
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  using the created cursor as <var>cursor</var>.
-                  If provided, use the <var>key</var> as <var>key</var>, otherwise, use undefined as <var>key</var>.
-                  If the result of the algorithm is null return 0 (zero) as the result for the request.
-                  Otherwise, use the return <a>cursor</a> to determine the total number of objects that share the
-                  <a>key</a> or <a>key range</a> and return that value as the result for the request.
+                  The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
+                  with this <a>index</a> as <var>source</var> and <var>key</var> as <var>key</var> if specified.
                 </li>
               </ol>
 
@@ -4448,6 +4440,31 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               The result of this algorithm is undefined.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Record Counting Operation</h4>
+          <p>
+            The <dfn>steps to count the records in a range</dfn> with <var>source</var> and optional <var>key</var> are as follows:
+          </p>
+          <ol>
+            <li>If <var>key</var> is given:
+              <ol>
+                <li>
+                  If the <var>key</var> parameter is a <a>key range</a> then let <var>range</var> be that <a>key range</a>.
+                  Otherwise, let <var>range</var> be a <a>key range</a> which containing only <var>key</var>.
+                </li>
+                <li>
+                  Let <var>count</var> be the number of records, if any,
+                  in <var>source</var> with key <a title="in a key range">in</a> <var>range</var>.
+                </li>
+              </ol>
+            </li>
+            <li>Otherwise, let <var>count</var> be the total number of records in <var>source</var>.</li>
+            <li>
+              The result of this algorithm is <var>count</var>.
             </li>
           </ol>
         </section>
