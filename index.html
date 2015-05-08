@@ -3983,13 +3983,6 @@ store_t2.put("d"); // Will get key 2
           </ol>
 
           <p class="note">
-            The intent is that these steps are only executed if evaluating the <a>key path</a> did not yield a value.
-            In other words, before you run these steps, first evaluate the <a>key path</a> against <var>value</var>,
-            and only if that does not yield a value (where <code>undefined</code> does count as a value) do you generate a key and
-            use these steps to modify <var>value</var> to contain the generated key.
-          </p>
-
-          <p class="note">
             The <a>key path</a> used here is always a <a>DOMString</a> and never an <a>sequence&lt;DOMString&gt;</a> since it is not
             possible to create a <a>object store</a> whose <a>multiEntry flag</a> is true and whose
             <a title="object store key path">key path</a> is an <a>sequence&lt;DOMString&gt;</a>.
@@ -4178,25 +4171,36 @@ store_t2.put("d"); // Will get key 2
           </p>
           <ol>
             <li>
-              If <var>store</var> does use <a>in-line keys</a> and <a title="evaluate key path">evaluting</a>
-              <a title="object store key path"><var>store</var>'s key path</a> on <var>value</var> does yield
+              If <var>store</var> uses <a>in-line keys</a> and <a title="evaluate key path">evaluting</a>
+              <var>store</var>'s <a title="object store key path">key path</a> on <var>value</var> yields
               a value, then set <var>key</var> to that result.
             </li>
             <li>
-              If <var>store</var> uses a <a>key generator</a> and <var>key</var> is undefined, set
-              <var>key</var> to the <a>key generator</a>'s <a>current number</a> and increase <a>current number</a> by 1.
-              If <var>store</var> also uses <a>in-line keys</a>, then run the steps to
-              <a>inject a key into a value using a key path</a> with <var>value</var>,
-              <var>key</var> and <var>store</var>'s <a title="object store key path">key path</a>.
-              If the current number of a <a>key generator</a>
-              reaches above the value <code>2^53</code> (<code>9007199254740992</code>)
-              any attempt to use the <a>key generator</a> to generate a new <a>key</a> fails with a <a><code>ConstraintError</code></a>.
-            </li>
-            <li>
-              If <var>store</var> uses a <a>key generator</a>, and this <a>key generator</a> was not used to generate a value
-              for <var>key</var> in the previous step, and the <a title="key type">type</a> of <var>key</var> is "<code>number</code>"
-              and the <a title="key value">value</a> is greater than or equal to the <a>key generator</a>'s
-              <a>current number</a>, set the <a>current number</a> to lowest integer greater than <var>key</var>.
+              If <var>store</var> uses a <a>key generator</a>:
+              <ol>
+                <li>
+                  If <var>key</var> is undefined:
+                  <ol>
+                    <li>
+                      If the <a>key generator</a>'s <a>current number</a> is greater than 2<sup>53</sup> (9007199254740992),
+                      then this operation failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking
+                      any further steps.
+                    </li>
+                    <li>Set <var>key</var> to the <a>key generator</a>'s <a>current number</a></li>
+                    <li>Increase the <a>key generator</a>'s <a>current number</a> by 1.</li>
+                    <li>
+                      If <var>store</var> also uses <a>in-line keys</a>, then run the steps to
+                      <a>inject a key into a value using a key path</a> with <var>value</var>,
+                      <var>key</var> and <var>store</var>'s <a title="object store key path">key path</a>.
+                    </li>
+                  </ol>
+                </li>
+                <li>
+                  Otherwise, if the <a title="key type">type</a> of <var>key</var> is "<code>number</code>"
+                  and the <a title="key value">value</a> is greater than or equal to the <a>key generator</a>'s
+                  <a>current number</a>, set the <a>current number</a> to lowest integer greater than <var>key</var>.
+                </li>
+              </ol>
             </li>
             <li>
               If the <var>no-overwrite flag</var> was passed to these steps and is set, and
@@ -4262,13 +4266,12 @@ store_t2.put("d"); // Will get key 2
                   <a title="index record list">list of records</a> such that the list is sorted primarily on the records keys,
                   and secondarily on the records values, in ascending order.
                   <p class="note">
-                    Note that it is legal for the <code>Array</code> to have length 0, in this case no records are added to
-                    the index.
+                    It is valid for there to be no <a>subkeys</a>. In this case no records are added to the index.
                   </p>
                   <p class="note">
-                    If any of the items in the <code>Array</code> are themselves an <code>Array</code>, then the inner
-                    <code>Array</code> is used as a key for that entry. In other words, <code>Array</code>s are not recursively
-                    "unpacked" to produce multiple rows. Only the outer-most <code>Array</code> is.
+                    Even if any member of <a>subkeys</a> is an <a>array key</a>, the member is used directly
+                    as the key for the index record. Nested <a title="array key">array keys</a> are not flattened
+                    or "unpacked" to produce multiple rows; only the outer-most <a>array key</a>
                   </p>
                 </li>
               </ol>
