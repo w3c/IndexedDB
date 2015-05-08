@@ -516,6 +516,11 @@ request.onsuccess = function() {
           </section>
 
           <p>
+            An <dfn>array key</dfn> is a <a>key</a> with <a title="key type">type</a> "<code>array</code>".
+            The <dfn>subkeys</dfn> of an <a>array key</a> are the members of the <a>array key</a>'s <a title="key value">value</a> list.
+          </p>
+
+          <p>
             To <dfn>compare two keys</dfn> <var>a</var> and <var>b</var>, run these steps:
           </p>
 
@@ -796,10 +801,9 @@ request.onsuccess = function() {
           </p>
           <p>
             Each index also has a <dfn>multiEntry</dfn> flag. This flag affects how the index behaves when the result of evaluating
-            the index's <a title="index key path">key path</a> yields an <code>Array</code>. If the <a>multiEntry</a> flag is false, then
-            a single <a>record</a> whose <a>key</a> is an <code>Array</code> is added to the index. If the <a>multiEntry</a> flag is
-            true, then the one <a>record</a> is added to the index for each item in the <code>Array</code>. The <a>key</a> for each
-            record is the value of respective item in the <code>Array</code>.
+            the index's <a title="index key path">key path</a> yields an <a>array key</a>. If the <a>multiEntry</a> flag is false, then
+            a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry</a> flag is
+            true, then the one <a>record</a> is added to the index for each of the <a>subkeys</a>.
           </p>
           <p>
             The <a>IDBIndex</a> interface
@@ -2131,13 +2135,11 @@ store_t2.put("d"); // Will get key 2
               <p>
                 On getting, returns a value representing the <a title="object store key path">key path</a>
                 of this <a>object store</a>, or <code>null</code> if none.
-
-                If the <a>key path</a> is a <code>DOMString</code>,
-                the value will be a <code>DOMString</code> equal to the key path.
-
-                If the <a>key path</a> is a <code>sequence&lt;DOMString&gt;</code>,
-                the value will be a new <code>Array</code>, populated by appending
-                <code>String</code>s equal to each <code>DOMString</code> in the sequence.
+              </p>
+              <p>
+                The conversion is done following the normal [[!WEBIDL]] binding logic for
+                <code>DOMString</code> and <code>sequence&lt;DOMString&gt;</code> values,
+                as appropriate.
               </p>
               <p>
                 The returned value is not the same instance that was used when the <a>object store</a>
@@ -2721,15 +2723,13 @@ store_t2.put("d"); // Will get key 2
             <dt>readonly attribute any keyPath</dt>
             <dd>
               <p>
-                On getting, returns a value representing the <a title="index key path">key path</a>
-                of this <a>index</a>.
-
-                If the <a>key path</a> is a <code>DOMString</code>,
-                the value will be a <code>DOMString</code> equal to the key path.
-
-                If the <a>key path</a> is a <code>sequence&lt;DOMString&gt;</code>,
-                the value will be a new <code>Array</code>, populated by appending
-                <code>String</code>s equal to each <code>DOMString</code> in the sequence.
+                On getting, returns a value representing the <a title="object store key path">key path</a>
+                of this <a>index</a>, or <code>null</code> if none.
+              </p>
+              <p>
+                The conversion is done following the normal [[!WEBIDL]] binding logic for
+                <code>DOMString</code> and <code>sequence&lt;DOMString&gt;</code> values,
+                as appropriate.
               </p>
               <p>
                 The returned value is not the same instance that was used when the <a>index</a>
@@ -2969,20 +2969,23 @@ store_t2.put("d"); // Will get key 2
             never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
             or its transaction is not <a>active</a>.
             </dd>
+
             <dt>readonly attribute IDBCursorDirection direction</dt>
             <dd>
             On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
             </dd>
+
             <dt>readonly attribute any key</dt>
             <dd>Returns the cursor's current <a title="cursor key">key</a>.
-            Note that if this property returns an object (specifically an <code>Array</code>), it returns the same
+            Note that if this property returns an object (e.g. a <code>Date</code> or <code>Array</code>), it returns the same
             object instance every time it is inspected, until the cursor's <a title="cursor key">key</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
             does not modify the contents of the database.</dd>
+
             <dt>readonly attribute any primaryKey</dt>
             <dd>Returns the cursor's current <a>effective key</a>.
-            Note that if this property returns an object (specifically an <code>Array</code>), it returns the same
+            Note that if this property returns an object (e.g. a <code>Date</code> or <code>Array</code>), it returns the same
             object instance every time it is inspected, until the cursor's <a>effective key</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
@@ -4022,9 +4025,9 @@ store_t2.put("d"); // Will get key 2
                 <!-- Date -->
                 <li>If <var>input</var> has an internal [<span>[</span>DateValue]] slot, then:
                   <ol>
-                    <li>Let <var>ms</var> be the value of <var>input</var>'s <code>[<span>[</span>DateValue]]</code> internal slot.
-                    <li>If <var>ms</var> is <code>NaN</code> then return invalid.
-                    <li>Otherwise, return <a title="key type">type</a> "<code>date</code>" and <a title="key value">value</a> <var>ms</var>.
+                    <li>Let <var>ms</var> be the value of <var>input</var>'s <code>[<span>[</span>DateValue]]</code> internal slot.</li>
+                    <li>If <var>ms</var> is <code>NaN</code> then return invalid.</li>
+                    <li>Otherwise, return <a title="key type">type</a> "<code>date</code>" and <a title="key value">value</a> <var>ms</var>.</li>
                   </ol>
                 </li>
 
@@ -4032,20 +4035,20 @@ store_t2.put("d"); // Will get key 2
                 <li>If IsArray(<var>input</var>), then:
                   <ol>
                     <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, <code>"length"</code>))</li>
-                    <li>Assert: <var>len</var> will never an abrupt completion.
-                    <li>Add <var>input</var> to <var>seen</var>
+                    <li>Assert: <var>len</var> will never an abrupt completion.</li>
+                    <li>Add <var>input</var> to <var>seen</var></li>
                     <li>Let <var>keys</var> be a new empty list</li>
                     <li>Let <var>index</var> be 0</li>
                     <li>While <var>index</var> is less than <var>len</var>:
                       <ol>
                         <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]]</var>(<var>index</var>, <var>input</var>)</li>
-                        <li>ReturnIfAbrupt(<var>entry</var>)
+                        <li>ReturnIfAbrupt(<var>entry</var>)</li>
                         <li>Let <var>key</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a>
                           with arguments <var>entry</var> and <var>seen</var></li>
-                        <li>ReturnIfAbrupt(<var>key</var>)
+                        <li>ReturnIfAbrupt(<var>key</var>)</li>
                         <li>If <var>key</var> is invalid or an exception, then abort these steps and return <var>key</var>.</li>
                         <li>Append <var>key</var> to <var>keys</var></li>
-                        <li>Increase <var>index</var> by 1
+                        <li>Increase <var>index</var> by 1</li>
                       </ol>
                     </li>
                     <li>Return a new <a>key</a> with <a title="key type">type</a> "<code>array</code>" and <a title="key value">value</a> <var>keys</var>.</li>
@@ -4056,10 +4059,63 @@ store_t2.put("d"); // Will get key 2
               </ol>
             </li>
             <li>
-              Return invalid.
+              Otherwise, return invalid.
             </li>
           </ol>
         </section>
+
+        <section class="section">
+          <h4>Steps to convert an ECMAScript value to a multiEntry key</h4>
+          <p>
+            The steps to <dfn>convert an ECMAScript value to a multiEntry key</dfn> are as follows. These
+            steps take one argument, an ECMAScript [[!ECMA-262]] value <var>input</var>.
+            The result of these steps is a <a>key</a> or invalid, or the steps may <a>throw</a> an exception.
+          </p>
+          <ol>
+            <!-- Array -->
+            <li>If IsArray(<var>input</var>), then:
+              <ol>
+                <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, <code>"length"</code>))</li>
+                <li>Assert: <var>len</var> will never an abrupt completion.</li>
+                <li>Let <var>seen</var> be a new set containing only <var>input</var></var>
+                  <li>Let <var>keys</var> be a new empty set</li>
+                  <li>Let <var>index</var> be 0</li>
+                  <li>While <var>index</var> is less than <var>len</var>:
+                    <ol>
+                      <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]]</var>(<var>index</var>, <var>input</var>)</li>
+                      <li>If <var>entry</var> is not an exception:
+                        <ol>
+                          <li>Let <var>key</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a>
+                            with arguments <var>entry</var> and <var>seen</var></li>
+                          <li>If <var>key</var> is not invalid or an exception, add <var>key</var> to <var>keys</var>
+                          if there are no other members of <var>keys</var> <a>equal to</a> <var>key</var></li>
+                        </ol>
+                      </li>
+                      <li>Increase <var>index</var> by 1</li>
+                    </ol>
+                  </li>
+                  <li>Return a new <a>key</a> with <a title="key type">type</a> "<code>array</code>" and <a title="key value">value</a> is
+                    a list of the members of <var>keys</var>.</li>
+                </li>
+              </ol>
+            </li>
+            <li>Otherwise, return the result of running the steps to <a>convert an ECMAScript value to a key</a>
+              with argument <var>input</var>.</li>
+            </li>
+          </ol>
+
+          <p class="note">
+            These steps are similar to those to <a>convert an ECMAScript value to a key</a> but if the top-level
+            value is an <code>Array</code> then members which can not be converted to keys are ignored, and
+            duplicates are removed.
+          </p>
+          <p class="note">
+            For example, the following value of <var>index key</var> <code>[10, 20, null, 30, 20]</code> is converted to
+            <code>[10, 20, 30]</code>.
+          </p>
+
+        </section>
+
       </section>
       <section class="section" id="database-operations">
         <h3>Database operations</h3>
@@ -4116,55 +4172,50 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               If there are any <a title="index">indexes</a> which <a title="referenced">reference</a> <var>store</var>, perform the
-              following sub steps on each such index.
+              following substeps on each such index.
               <ol>
                 <li>
                   Set <var>index</var> to the index.
                 </li>
                 <li>
-                  <a title="evaluate key path">Evaluate</a> <var>index</var>'s <a title="index key path">key path</a>
-                  on <var>value</var>. If this does not yield a value, take no further actions for this index.
-                  Otherwise set the result to <var>index key</var>.
+                  Let <var>kpk</var> be the result of <a title="evaluate key path">evaluating</a>
+                  <var>index</var>'s <a title="index key path">key path</a> on <var>value</var>. If this
+                  results in an exception or failure, take no further actions for this index.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is false or if <var>index key</var> is not an <code>Array</code>,
-                  and if <var>index key</var> is not a <a>valid key</a>, take no further actions for this index.
+                  If <var>index</var>'s <a>multiEntry</a> flag is unset,
+                  let <var>index key</var> be the result of running the steps to <a>convert an ECMAScript value to a key</a> with <var>kpk</var>.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is true, and <var>index key</var> is an <code>Array</code>,
-                  remove any elements from <var>index key</var> that are not <a title="valid key">valid keys</a> and remove any duplicate
-                  elements from <var>index key</var> such that only one instance of the duplicate value remains.
-                  <p class="note">
-                    For example, the following value of <var>index key</var> <code>[10, 20, null, 30, 20]</code> is converted to
-                    <code>[10, 20, 30]</code>.
-                  </p>
-                  <p class="note">
-                    After this step <var>index key</var> is or contains only <a title="valid key">valid keys</a>.
-                  </p>
+                  Otherwise,
+                  let <var>index key</var> be the result of running the steps to <a>convert an ECMAScript value to a multiEntry key</a> with <var>kpk</var>.
                 </li>
+                <li>If <var>index key</var> is an exception or invalid, take no further actions for this index,
+                  and continue these substeps for the next index.</li>
+
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
+                  If <var>index</var>'s <a>multiEntry</a> flag is unset, or if <var>index key</var> is not an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
                   and <var>index</var> has its <a>unique</a> flag set to true, then this operation failed with a
                   <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is true and <var>index key</var> is an <code>Array</code>,
+                  If <var>index</var>'s <a>multiEntry</a> flag is set and <var>index key</var> is an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
-                  values in <var>index key</var>, and <var>index</var> has its <a>unique</a> flag set to true, then this operation
+                  <a>subkeys</a> of <var>index key</var>, and <var>index</var> has its <a>unique</a> flag set to true, then this operation
                   failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is false, or if <var>index key</var> is not an <code>Array</code>,
-                  then store a record in <var>index</var> containig <var>index key</var> as its key and <var>key</var> as its
+                  If <var>index</var>'s <a>multiEntry</a> flag is unset, or if <var>index key</var> is not an <a>array key</a>
+                  then store a record in <var>index</var> containing <var>index key</var> as its key and <var>key</var> as its
                   value. The record is stored in <var>index</var>'s <a title="index record list">list of records</a> such
                   that the list is sorted primarily on the records keys, and secondarily on the records values, in ascending
                   order.
                 </li>
                 <li>
-                  If <var>index</var>'s <a>multiEntry</a> flag is true and <var>index key</var> is an <code>Array</code>,
-                  then for each item in <var>index key</var> store a record in <var>index</var> containig
-                  the items value as its key and <var>key</var> as its value. The records are stored in <var>index</var>'s
+                  If <var>index</var>'s <a>multiEntry</a> flag is set and <var>index key</var> is an <a>array key</a>,
+                  then for each <var>subkey</var> of the <a>subkeys</a> of <var>index key</var> store a record in <var>index</var> containing
+                  <var>subkey</var> as its key and <var>key</var> as its value. The records are stored in <var>index</var>'s
                   <a title="index record list">list of records</a> such that the list is sorted primarily on the records keys,
                   and secondarily on the records values, in ascending order.
                   <p class="note">
@@ -4744,7 +4795,5 @@ store_t2.put("d"); // Will get key 2
 		</p>
       </div>
     </section>
-
-
   </body>
 </html>
