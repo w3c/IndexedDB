@@ -391,20 +391,20 @@ request.onsuccess = function() {
           </p>
           <p>
             Databases has a <dfn>delete pending flag</dfn> which is used during deletion. When a database is requested
-            to be deleted the flag is set to true and all attempts at opening the database are stalled until the database
+            to be deleted the flag is set and all attempts at opening the database are stalled until the database
             can be deleted.
           </p>
           <p>
             The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple
             <a title="connection">connections</a> to a given <a>database</a> at any given time. Each connection has a
-            <dfn>close pending flag</dfn> which initially is set to false.
+            <dfn>close pending flag</dfn> which is initially unset.
           </p>
           <p>
             When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
             can be <dfn title="database close">closed</dfn> through several means. If the execution context where the <a>connection</a> was created is destroyed (for example due to the
             user navigating away from that page), the connection is closed. The connection can also be closed
             explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
-            the <a>close pending flag</a> is always set to true if it hasn't already been.
+            the <a>close pending flag</a> is always set if it hasn't already been.
           </p>
           <p>
             A <a>connection</a> may be closed by a user agent in
@@ -412,7 +412,7 @@ request.onsuccess = function() {
             access to the file system or a permission change. If this
             occurs the user agent MUST run the <a>steps for closing a
             database connection</a> with the <a>connection</a> and
-            with the <var>forced</var> flag set.
+            with the <var>forced flag</var> set.
           </p>
           <p>
             The <a>IDBDatabase</a>
@@ -794,7 +794,7 @@ request.onsuccess = function() {
               Every index has a <dfn title="index name">name</dfn>. The name is unique within index's <a>referenced</a> object store.
           </p>
           <p>
-            Each index also has a <dfn>unique flag</dfn>. When this flag is set to true, the index enforces that no two <a title="record">records</a>
+            Each index also has a <dfn>unique flag</dfn>. When this flag is set, the index enforces that no two <a title="record">records</a>
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
@@ -830,7 +830,7 @@ request.onsuccess = function() {
             <a title="request">requests</a> which have been made against the transaction.
           </p>
           <p>
-            A transaction is set to be <dfn>active</dfn> if its <a>active flag</a> is set.
+            A transaction is said to be <dfn>active</dfn> if its <a>active flag</a> is set.
           </p>
           <p>
             Each transaction has a fixed scope, determined when the transaction is created.
@@ -857,7 +857,7 @@ request.onsuccess = function() {
               A transaction is <dfn title="transaction create">created</dfn> using
               <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>.
               The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
-              When a transaction is created its <a>active flag</a> is initially set to true.
+              When a transaction is created its <a>active flag</a> is initially set.
             </li>
             <li>
               The implementation MUST allow <a title="request">requests</a> to be <a title="place request">placed</a> against the transaction
@@ -1061,10 +1061,10 @@ request.onsuccess = function() {
           <p>
             Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
             Every request represents one read or write operation.
-            <a title="request">Requests</a> have a <dfn title="request done"><var>done</var> flag</dfn> which
+            <a title="request">Requests</a> have a <dfn title="request done">done flag</dfn> which
             initially is false, and a <dfn title="request source">source</dfn> object. Every request
             also has a <dfn title="request result">result</dfn> and an <dfn>error attribute</dfn>,
-            neither of which are accessible until the <a title="request done">done flag</a> is set to true.
+            neither of which are accessible until the <a title="request done">done flag</a> is set.
           </p>
           <p>
             Finally, requests have a <dfn>request transaction</dfn>. When a request is created, it is
@@ -1188,7 +1188,7 @@ request.onsuccess = function() {
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to <var>lowerKey</var>,
-                  <a>lower open flag</a> set to <var>lowerOpen</var>,
+                  <a>lower open flag</a> set if <var>lowerOpen</var> is true and unset otherwise,
                   <a>upper bound</a> set to null and
                   <a>upper open flag</a> set.
                 </li>
@@ -1198,7 +1198,7 @@ request.onsuccess = function() {
                 <dt>any lower</dt>
                 <dd>The lower bound value</dd>
                 <dt>optional boolean open = false</dt>
-                <dd>Set to false if the lower-bound should be included in the <a>key range</a>. Set to true if the lower-bound value should
+                <dd>Specify false if the lower-bound should be included in the <a>key range</a>. Specify true if the lower-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (lower-bound value is included).</dd>
               </dl>
             </dd>
@@ -1214,7 +1214,7 @@ request.onsuccess = function() {
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to null,
                   <a>lower open flag</a> set,
-                  <a>upper bound</a> set to <var>upperKey</var> and
+                  <a>upper bound</a> set if <var>upperKey</var> and unset otherwise, and
                   <a>upper open flag</a> set to <var>upperOpen</var>.
                 </li>
               </ol>
@@ -1223,7 +1223,7 @@ request.onsuccess = function() {
                 <dt>any upper</dt>
                 <dd>The upper bound value</dd>
                 <dt>optional boolean open = false</dt>
-                <dd>Set to false if the upper-bound should be included in the <a>key range</a>. Set to true if the upper-bound value should
+                <dd>Specify false if the upper-bound should be included in the <a>key range</a>. Specify true if the upper-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (upper-bound value is included).</dd>
               </dl>
             </dd>
@@ -1244,9 +1244,9 @@ request.onsuccess = function() {
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to <var>lowerKey</var>,
-                  <a>lower open flag</a> set to <var>lowerOpen</var>,
+                  <a>lower open flag</a> set if <var>lowerOpen</var> is true and unset otherwise,
                   <a>upper bound</a> set to <var>upperKey</var> and
-                  <a>upper open flag</a> set to <var>upperOpen</var>.
+                  <a>upper open flag</a> set if <var>upperOpen</var> is true and unset otherwise.
                 </li>
               </ol>
               <dl class="parameters">
@@ -1255,10 +1255,10 @@ request.onsuccess = function() {
                 <dt>any upper</dt>
                 <dd>The upper-bound value</dd>
                 <dt>optional boolean lowerOpen = false</dt>
-                <dd>Set to false if the lower-bound should be included in the <a>key range</a>. Set to true if the lower-bound value should
+                <dd>Specify false if the lower-bound should be included in the <a>key range</a>. Specify true if the lower-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (lower-bound value is included).</dd>
                 <dt>optional boolean upperOpen = false</dt>
-                <dd>Set to false if the upper-bound should be included in the <a>key range</a>. Set to true if the upper-bound value should
+                <dd>Specify false if the upper-bound should be included in the <a>key range</a>. Specify true if the upper-bound value should
                 be excluded from the <a>key range</a>. Defaults to false (upper-bound value is included).</dd>
               </dl>
             </dd>
@@ -1725,16 +1725,16 @@ store_t2.put("d"); // Will get key 2
           </dl>
           <p>
             When a request is made, a new <a>request</a> is returned with its
-            <a title="request done">done flag</a> set to false.
+            <a title="request done">done flag</a> unset.
             If a request completes successfully, the
-            <a title="request done">done flag</a> is set to true, the
+            <a title="request done">done flag</a> is set, the
             <a title="request result">result</a>
             is set to the result of the request, and an event with type <code>success</code> is fired
             at the <a>request</a>.
           </p>
           <p>
             If an error occurs while performing the operation, the
-            <a title="request done">done flag</a> is set to true, the
+            <a title="request done">done flag</a> is set, the
             <a>error attribute</a> is set to a <code>DOMError</code> type that matches the error,
             and an event with type <code>error</code> is fired at the request.
           </p>
@@ -1990,10 +1990,10 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <a><code>SyntaxError</code></a> exception.
               </p>
               <p>
-                If the <var>optionalParameters</var> argument is specified, and <code>autoIncrement</code> is set to true,
-                then set <var>autoIncrement</var> to true.
+                If the <var>optionalParameters</var> argument is specified, and <code>autoIncrement</code> is true,
+                then set <var>autoIncrement</var>.
 
-                If <var>autoIncrement</var> is true and
+                If <var>autoIncrement</var> is set and
                 <var>keyPath</var> is an empty <code>DOMString</code> or any <code>sequence&lt;DOMString&gt;</code>,
                 the implementation MUST throw an <a><code>InvalidAccessError</code></a> exception.
               </p>
@@ -2240,7 +2240,7 @@ store_t2.put("d"); // Will get key 2
                   The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
                   storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
                   as <var>store</var>, the <var>clone</var> as <var>value</var>, <var>key</var> as
-                  <var>key</var>, and with the <var>no-overwrite flag</var> flag set to false.
+                  <var>key</var>, and with the <var>no-overwrite flag</var> unset.
                 </li>
               </ol>
 
@@ -2306,7 +2306,7 @@ store_t2.put("d"); // Will get key 2
                   The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
                   storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
                   as <var>store</var>, <var>clone</var> as <var>value</var>, <var>key</var> as
-                  <var>key</var>, and with the <var>no-overwrite flag</var> flag set to true.
+                  <var>key</var>, and with the <var>no-overwrite flag</var> set.
                 </li>
               </ol>
               <p class="note">
@@ -3045,7 +3045,7 @@ store_t2.put("d"); // Will get key 2
                   storing a record into an object store</a> as <var>operation</var>, using this cursor's
                   <a>effective object store</a> as <var>store</var>, the <var>clone</var> as <var>value</var>,
                   this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
-                  flag set to false.
+                  unset.
                 </li>
               </ol>
 
@@ -3082,7 +3082,7 @@ store_t2.put("d"); // Will get key 2
                   Run the <a>steps for asynchronously executing a request</a>
                   modified such that instead of creating a new request, it reuses the
                   <a>request</a> originally created when this cursor was created. The <a title="request done">done flag</a>
-                  on the request is set to false. The steps are run with the cursor's
+                  on the request is unset. The steps are run with the cursor's
                   <a title="cursor source">source</a> as <var>source</var>. The <var>operation</var>
                   runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
                   with null as <var>key</var> and this cursor as <var>cursor</var>.
@@ -3093,7 +3093,7 @@ store_t2.put("d"); // Will get key 2
                 Calling this method more than once before new cursor data has been loaded - for example,
                 calling <code>advance()</code> twice from the same onsuccess handler -
                 results in an <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call
-                because the cursor's <a>got value</a> has been set to false.
+                because the cursor's <a>got value flag</a> has been unset.
               </p>
 
               <dl class="parameters">
@@ -3138,7 +3138,7 @@ store_t2.put("d"); // Will get key 2
                   Run the <a>steps for asynchronously executing a request</a>
                   modified such that instead of creating a new request, it reuses the
                   <a>request</a> originally created when this cursor was created. The <a title="request done">done flag</a>
-                  on the request is set to false.  The steps are run with the cursor's
+                  on the request is unset.  The steps are run with the cursor's
                   <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
                   using this cursor as <var>cursor</var> and (if specified) <var>key</var> as <var>key</var>.
                 </li>
@@ -3148,7 +3148,7 @@ store_t2.put("d"); // Will get key 2
                 Calling this method more than once before new cursor data has been loaded -
                 for example, calling <code>continue()</code> twice from the same onsuccess handler -
                 results in a <code>DOMException</code> of type <a><code>InvalidStateError</code></a> being thrown on the second call
-                because the cursor's <a>got value</a> has been set to false.
+                because the cursor's <a>got value flag</a> has been unset.
               </p>
 
               <dl class="parameters">
@@ -3506,7 +3506,7 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               Wait until all previously added <a title="request">requests</a> in <var>transaction</var> have their
-              <a title="request done">done flag</a> set to true.
+              <a title="request done">done flag</a> set.
             </li>
             <li>
               Perform <var>operation</var>.
@@ -3608,7 +3608,7 @@ store_t2.put("d"); // Will get key 2
                   <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> property set to <var>old version</var>
                   and have the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a>
                   property set to <var>version</var>.
-                  The <a title="request done">done flag</a> on the <a>request</a> is set to true.
+                  Set the <a title="request done">done flag</a> on the <a>request</a>.
                 </li>
                 <li>
                   If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
@@ -3703,13 +3703,13 @@ store_t2.put("d"); // Will get key 2
           <h4>Database closing steps</h4>
           <p>The <dfn>steps for closing a database connection</dfn> are as follows.
             These steps take two arguments, a <var>connection</var> object, and an
-            optional <var>forced</var> flag.
+            optional <var>forced flag</var>.
           <ol>
             <li>
               Set the <a>close pending flag</a> of <var>connection</var> to true.
             </li>
             <li>
-              If the <var>forced</var> flag is set, then for each transaction <a title="transaction create">created</a>
+              If the <var>forced flag</var> is set, then for each transaction <a title="transaction create">created</a>
               using <var>connection</var> run the <a>steps for aborting a transaction</a> using the transaction
               as the <var>transaction</var> parameter, and <code>AbortError</code> as <var>error</var>.
             </li>
@@ -3718,13 +3718,13 @@ store_t2.put("d"); // Will get key 2
               Once they are complete, <var>connection</var> is <a title="database close">closed</a>.
             </li>
             <li>
-              If the <var>forced</var> flag is set, then fire a <code>close</code> event at
+              If the <var>forced flag</var> is set, then fire a <code>close</code> event at
               <var>connection</var>. The event MUST use the <a>Event</a> interface and have its
               type set to <code>"close"</code>. The event MUST NOT bubble or be cancelable.
             </li>
           </ol>
           <p class="note">
-            Once the <a>close pending flag</a> has been set to true no new transactions can be
+            Once the <a>close pending flag</a> has been set no new transactions can be
             <a title="transaction create">created</a> using <var>connection</var>. All functions that
             <a title="transaction create">create</a> transactions first check the <a>close pending flag</a> first and
             throw an exception if it is true.
@@ -4235,13 +4235,13 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
-                  and <var>index</var> has its <a>unique flag</a> set to true, then this operation failed with a
+                  and <var>index</var> has its <a>unique flag</a> set, then this operation failed with a
                   <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry flag</a> is set and <var>index key</var> is an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
-                  <a>subkeys</a> of <var>index key</var>, and <var>index</var> has its <a>unique flag</a> set to true, then this operation
+                  <a>subkeys</a> of <var>index key</var>, and <var>index</var> has its <a>unique flag</a> set, then this operation
                   failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
@@ -4774,7 +4774,7 @@ store_t2.put("d"); // Will get key 2
         </li>
         <li>Added details around garbage collection of <a>IDBDatabase</a> objects (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=25223">bug #25223</a>)</li>
         <li>Added <code>[Exposed=(Window,Worker)]</code> annotations to interfaces.</li>
-        <li>Added <var>forced</var> flag to the <a>steps for closing a database connection</a>,
+        <li>Added <var>forced flag</var> to the <a>steps for closing a database connection</a>,
           described the firing of a <code>"close"</code> event, and added <code>onclose</code>
           event handler definition for <a>IDBDatabase</a>.
           (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=22540">bug #22540</a>)</li>
