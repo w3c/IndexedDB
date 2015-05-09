@@ -1158,15 +1158,20 @@ request.onsuccess = function() {
             A <a>key range</a> has an associated <dfn>upper bound</dfn> (null or a <a>key</a>).
           </p>
           <p>
-            A <a>key range</a> has an associated <dfn>lower open flag</dfn>.
+            A <a>key range</a> has an associated <dfn>lower open flag</dfn>. Unless otherwise stated it is unset.
           </p>
           <p>
-            A <a>key range</a> has an associated <dfn>upper open flag</dfn>.
+            A <a>key range</a> has an associated <dfn>upper open flag</dfn>. Unless otherwise stated it is unset.
           </p>
 
           <p>
             A <a>key range</a> MAY have a <a>lower bound</a> <a>equal to</a> its <a>upper bound</a>.
-            A <a>key range</a> MAY NOT have a <a>lower bound</a> <a>greater than</a> its <a>upper bound</a>.
+            A <a>key range</a> MUST NOT have a <a>lower bound</a> <a>greater than</a> its <a>upper bound</a>.
+          </p>
+
+          <p>
+            A <a>key range</a> <dfn>containing only</dfn> <var>key</var> both has
+            <a>lower bound</a> and <a>upper bound</a> equal to <var>key</var>.
           </p>
 
           <p>
@@ -1234,12 +1239,7 @@ request.onsuccess = function() {
                   If this throws an an exception, <a title="throw">rethrow</a> it.</li>
                 <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
 
-                <li>Create and return a new <a>key range</a> with
-                  <a>lower bound</a> set to <var>key</var>,
-                  <a>lower open flag</a> unset,
-                  <a>upper bound</a> set to <var>key</var> and
-                  <a>upper open flag</a> unset.
-                </li>
+                <li>Create and return a new <a>key range</a> <a>containing only</a> <var>key</var>.</li>
               </ol>
 
               <dl class="parameters">
@@ -1258,7 +1258,7 @@ request.onsuccess = function() {
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to <var>lowerKey</var>,
-                  <a>lower open flag</a> set if <var>lowerOpen</var> is true and unset otherwise,
+                  <a>lower open flag</a> set if <var>lowerOpen</var> is true,
                   <a>upper bound</a> set to null and
                   <a>upper open flag</a> set.
                 </li>
@@ -1284,7 +1284,7 @@ request.onsuccess = function() {
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to null,
                   <a>lower open flag</a> set,
-                  <a>upper bound</a> set if <var>upperKey</var> and unset otherwise, and
+                  <a>upper bound</a> set if <var>upperKey</var>, and
                   <a>upper open flag</a> set to <var>upperOpen</var>.
                 </li>
               </ol>
@@ -1314,9 +1314,9 @@ request.onsuccess = function() {
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to <var>lowerKey</var>,
-                  <a>lower open flag</a> set if <var>lowerOpen</var> is true and unset otherwise,
+                  <a>lower open flag</a> set if <var>lowerOpen</var> is true,
                   <a>upper bound</a> set to <var>upperKey</var> and
-                  <a>upper open flag</a> set if <var>upperOpen</var> is true and unset otherwise.
+                  <a>upper open flag</a> set if <var>upperOpen</var> is true.
                 </li>
               </ol>
               <dl class="parameters">
@@ -2495,7 +2495,7 @@ store_t2.put("d"); // Will get key 2
                     <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> containing only <var>key</var>.
+                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
                   </ol>
                 </li>
 
@@ -2538,7 +2538,7 @@ store_t2.put("d"); // Will get key 2
                     <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> containing only <var>key</var>.
+                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
                   </ol>
                 </li>
 
@@ -2826,7 +2826,7 @@ store_t2.put("d"); // Will get key 2
                     <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> containing only <var>key</var>.
+                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
                   </ol>
                 </li>
 
@@ -2869,7 +2869,7 @@ store_t2.put("d"); // Will get key 2
                     <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> containing only <var>key</var>.
+                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
                   </ol>
                 </li>
 
@@ -3421,13 +3421,14 @@ store_t2.put("d"); // Will get key 2
           </p>
           <ol>
             <li>
-              If <var>storeNames</var> is of type <a>sequence&lt;DOMString&gt;</a> then let
-              <var>scope</var> be the set of unique strings in the sequence. Otherwise, <var>storeNames</var>
-              must be a <a>DOMString</a>; let <var>scope</var> be a set containing one string equal to <var>storeNames</var>.
-
+              Let <var>scope</var> be the set of unique strings in <var>storeNames</var> if it is a sequence,
+              or a set containing one string equal to <var>storeNames</var> otherwise.
+            </li>
+            <li>
               If any of the strings in <var>scope</var> identifies an <a>object store</a> which doesn't exist,
               throw a <a><code>NotFoundError</code></a> exception.
-
+            </li>
+            <li>
               If <var>scope</var> is an empty set
               throw an <a><code>InvalidAccessError</code></a> exception.
             </li>
@@ -4428,8 +4429,8 @@ store_t2.put("d"); // Will get key 2
           </p>
           <ol>
             <li>
-              If the <var>key</var> parameter is a <a>key range</a> then let <var>range</var> be that <a>key range</a>.
-              Otherwise, let <var>range</var> be a <a>key range</a> which containing only <var>key</var>.
+              Let <var>range</var> be <var>key</var> if it is a <a>key range</a>,
+              or a new <a>key range</a> <a>containing only</a> <var>key</var> otherwise.
             </li>
             <li>
                Remove all records, if any, from <var>store</var> with key <a title="in a key range">in</a> <var>range</var>.
@@ -4453,8 +4454,8 @@ store_t2.put("d"); // Will get key 2
             <li>If <var>key</var> is given:
               <ol>
                 <li>
-                  If the <var>key</var> parameter is a <a>key range</a> then let <var>range</var> be that <a>key range</a>.
-                  Otherwise, let <var>range</var> be a <a>key range</a> which containing only <var>key</var>.
+                  Let <var>range</var> be <var>key</var> if it is a <a>key range</a>,
+                  or a new <a>key range</a> <a>containing only</a> <var>key</var> otherwise.
                 </li>
                 <li>
                   Let <var>count</var> be the number of records, if any,
@@ -4497,15 +4498,12 @@ store_t2.put("d"); // Will get key 2
             <var>key</var> to iterate to.
           </p>
           <ol>
-            <li>
-              Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>, let
-              <var>records</var> be list of <a title="record">records</a> in <var>source</var>, let <var>direction</var>
-              be <var>cursor</var>'s <a>direction</a>, let <var>position</var> be <var>cursor</var>'s
-              <a>position</a>, let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>
-              and let <var>range</var> be <var>cursor</var>'s <a>range</a>.
-              <p class="note">
-                <var>source</var> is always an <a>object store</a> or an <a>index</a>.
-              </p>
+            <li>Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>.</li>
+            <li>Let <var>records</var> be the list of <a title="record">records</a> in <var>source</var>.</li>
+            <li>Let <var>direction</var> be <var>cursor</var>'s <a>direction</a>.</li>
+            <li>Let <var>position</var> be <var>cursor</var>'s <a>position</a>.</li>
+            <li>Let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>.</li>
+            <li>Let <var>range</var> be <var>cursor</var>'s <a>range</a>.
               <p class="note">
                 <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
                 <var>source</var> being an <a>index</a>, <var>records</var> is secondarily sorted in ascending
