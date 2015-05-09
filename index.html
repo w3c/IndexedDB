@@ -2502,7 +2502,7 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
+                  of the <var>direction</var> parameter, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -2545,7 +2545,7 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
+                  of the <var>direction</var> parameter, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -2597,8 +2597,8 @@ store_t2.put("d"); // Will get key 2
               <p>
                 Otherwise, the implementation MUST create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
                 Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
-                Set the created <a>index</a>'s <a>unique flag</a> and <a>multiEntry flag</a> to the values of the
-                <var>unique</var> and <var>multiEntry</var> properties in the <var>optionalParameters</var> argument.
+                If <var>optionalParameters</var>'s <var>unique</var> member is true, set the created <a>index<a>'s <a>unique flag</a>.
+                If <var>optionalParameters</var>'s <var>multiEntry</var> member is true, set the created <a>index<a>'s <a>multiEntry flag</a>.
               </p>
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's
@@ -2833,7 +2833,7 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
+                  of the <var>direction</var> parameter, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -2876,7 +2876,7 @@ store_t2.put("d"); // Will get key 2
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
                   with an undefined <a>position</a>, a <a>direction</a> set to the value
-                  of the <var>direction</var> parameter, false as <a>got value flag</a> value, and undefined
+                  of the <var>direction</var> parameter, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>, if specified.
@@ -3136,7 +3136,7 @@ store_t2.put("d"); // Will get key 2
                 <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>Set the <a>got value flag</a> on the cursor to false.</li>
+                <li>Unset the <a>got value flag</a> on the cursor.</li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
@@ -3192,7 +3192,7 @@ store_t2.put("d"); // Will get key 2
                   </ol>
                 </li>
 
-                <li>Set the <a>got value flag</a> on the cursor to false.</li>
+                <li>Unset the <a>got value flag</a> on the cursor.</li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
@@ -3310,7 +3310,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
               </p>
               <p>
-                Otherwise, this method sets the transaction's <a>active flag</a> to false and
+                Otherwise, this method unsets the transaction's <a>active flag</a> and
                 <a title="transaction abort">aborts</a> the transaction by running the
                 <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to null.
               </p>
@@ -3443,7 +3443,7 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               Return the created <a>transaction</a> and queue up the remaining steps.
-              When control is returned to the event loop, the implementation MUST set the <a>active flag</a> to false.
+              When control is returned to the event loop, the implementation MUST unset the <a>active flag</a>.
             </li>
             <li>
               Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
@@ -3508,7 +3508,7 @@ store_t2.put("d"); // Will get key 2
               a task to perform the following steps:
               <ol>
                 <li>
-                  Set the <a title="request done">done flag</a> on the <a>request</a> to true, set
+                  Set the <a title="request done">done flag</a> on the <a>request</a>, set
                   <a title="request result">result</a> of the <a>request</a> to undefined
                   and set the request's <a>error attribute</a> to a <a><code>DOMError</code></a> with a type of <a>AbortError</a>.
                 </li>
@@ -3574,13 +3574,13 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               If performing <var>operation</var> succeeded then set the <a title="request done">done flag</a>
-              on the <var>request</var> to true, set <a title="request result">result</a> of the <var>request</var>
+              on the <var>request</var>, set <a title="request result">result</a> of the <var>request</var>
               to the result of the request and set the <a>error attribute</a> of the <var>request</var> to undefined.
 			  Finally <a>fire a success event</a> at <var>request</var>.
             </li>
             <li>
               If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
-              set the <a title="request done">done flag</a> on the <var>request</var> to true,
+              set the <a title="request done">done flag</a> on the <var>request</var>,
               set <a title="request result">result</a> of the <var>request</var>
               to undefined and set the <a>error attribute</a> on the <var>request</var>
               to a <a><code>DOMError</code></a> with the same error type as the <var>operation</var> that failed.
@@ -3640,8 +3640,8 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               Create a new <a>upgrade transaction</a> with <var>connection</var> used as <a>connection</a>.
-              The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Set its
-              <a>active flag</a> to false. Let <var>transaction</var> represent this transaction.
+              The <a>scope</a> of the transaction includes every <a>object store</a> in <var>connection</var>. Unset its
+              <a>active flag</a>. Let <var>transaction</var> represent this transaction.
             </li>
             <li>
               Start <var>transaction</var>. Note that until this <a>transaction</a> is finished,
@@ -3767,7 +3767,7 @@ store_t2.put("d"); // Will get key 2
             optional <var>forced flag</var>.
           <ol>
             <li>
-              Set the <a>close pending flag</a> of <var>connection</var> to true.
+              Set the <a>close pending flag</a> of <var>connection</var>.
             </li>
             <li>
               If the <var>forced flag</var> is set, then for each transaction <a title="transaction create">created</a>
@@ -3816,7 +3816,7 @@ store_t2.put("d"); // Will get key 2
               If no database was found, then these steps are considered successful. Abort these steps.
             </li>
             <li>
-              Set <var>db</var>'s <a>delete pending flag</a> to true.
+              Set <var>db</var>'s <a>delete pending flag</a>.
             </li>
             <li>
               Let <var>openDatabases</var> be the set of all <a>IDBDatabase</a>
@@ -3869,7 +3869,7 @@ store_t2.put("d"); // Will get key 2
               Set <var>transaction</var> to the <a>transaction</a> associated with the <a title="request source">source</a>.
             </li>
             <li>
-              Set the <a>active flag</a> of <var>transaction</var> to true.
+              Set the <a>active flag</a> of <var>transaction</var>.
             </li>
             <li>
               Dispatch an event at <a>request</a>. The event must use
@@ -3879,7 +3879,7 @@ store_t2.put("d"); // Will get key 2
               then <var>transaction</var> and finally <var>request</var>.
             </li>
             <li>
-              Set the <a>active flag</a> of <var>transaction</var> to false.
+              Unset the <a>active flag</a> of <var>transaction</var>.
             </li>
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
@@ -3900,7 +3900,7 @@ store_t2.put("d"); // Will get key 2
               Set <var>transaction</var> to the <a>transaction</a> associated with the <a title="request source">source</a>.
             </li>
             <li>
-              Set the <a>active flag</a> of <var>transaction</var> to true.
+              Set the <a>active flag</a> of <var>transaction</var>.
             </li>
             <li>
               Dispatch an event at <var>request</var>. The event must use
@@ -3913,7 +3913,7 @@ store_t2.put("d"); // Will get key 2
               not taken if any of the event handlers threw an exception.
             </li>
             <li>
-              Set the <a>active flag</a> of <var>transaction</var> to false.
+              Unset the <a>active flag</a> of <var>transaction</var>.
             </li>
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
@@ -4606,7 +4606,7 @@ store_t2.put("d"); // Will get key 2
               set <var>cursor</var>'s <a>object store position</a> to <var>found record</var>'s value.</li>
             <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
               set <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>'s <a>referenced value</a>.</li>
-            <li>Set <var>cursor</var>'s <a>got value flag</a> to true.</li>
+            <li>Set <var>cursor</var>'s <a>got value flag</a>.</li>
             <li>The result of the algorithm is <var>cursor</var>.</li>
           </ol>
         </section>
