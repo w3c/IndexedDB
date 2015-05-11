@@ -2103,7 +2103,7 @@ store_t2.put("d"); // Will get key 2
                 after queuing up an operation to create the <a>object store</a> after the <code>createObjectStore</code> function has returned.
                 For example in implementations where metadata about the newly created <a title="object store">objectStore</a> is inserted into the database asynchronously,
                 or where the implementation might need to ask the user for permission for quota reasons.
-                Such implementations MUST still create and return an <a>IDBObjectStore</a> object. Instead,
+                Such implementations MUST still create and return an <a>IDBObjectStore</a> object, and
                 once the implementation determines that creating the <a title="object store">objectStore</a> has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
                 creating the <a>object store</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error.
@@ -2620,46 +2620,56 @@ store_t2.put("d"); // Will get key 2
                 This method creates and returns a new <a>index</a> with the given name in the <a>object store</a>.
                 Note that this method must only be called from within an <a>upgrade transaction</a>.
               </p>
-              <p>
-                If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
 
-                If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                </li>
 
-                If the <a>object store</a> has been deleted,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
+                <li>If the <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
 
-                If an <a>index</a> with the <a title="index name">name</a> <var>name</var> already exists in this <a>object store</a>,
-                the implementation MUST throw a <a><code>ConstraintError</code></a> exception.
+                <li>If an <a>index</a> <a title="index name">named</a> <var>name</var> already exists in this <a>object store</a>,
+                  <a>throw</a> a <a><code>ConstraintError</code></a> exception.
+                </li>
 
-                If <var>keyPath</var> is not a <a>valid key path</a>,
-                the implementation MUST throw a <a><code>SyntaxError</code></a> exception.
+                <li>If <var>keyPath</var> is not a <a>valid key path</a>,
+                  <a>throw</a> a <a><code>SyntaxError</code></a> exception.
+                </li>
 
-                If <var>keyPath</var> is a <a>sequence&lt;DOMString&gt;</a>
-                and the <var>multiEntry</var> property in the <var>optionalParameters</var> is true,
-                the implementation MUST throw an <a><code>InvalidAccessError</code></a> exception.
-              </p>
-              <p>
-                Otherwise, the implementation MUST create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
-                Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
-                If <var>optionalParameters</var>'s <var>unique</var> member is true, set the created <a>index<a>'s <a>unique flag</a>.
-                If <var>optionalParameters</var>'s <var>multiEntry</var> member is true, set the created <a>index<a>'s <a>multiEntry flag</a>.
-              </p>
+                <li>Let <var>unique</var> be set if <var>optionalParameters</var>'s <code>unique</code> member is true, and unset otherwise.</li>
+
+                <li>Let <var>multiEntry</var> be set if <var>optionalParameters</var>'s <code>multiEntry</code> member is true, and unset otherwise.</li>
+
+                <li>If <var>keyPath</var> is a sequence and <var>multiEntry</var> is set,
+                  <a>throw</a> an <a><code>InvalidAccessError</code></a> exception.
+                </li>
+
+                <li>Create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
+                  Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
+                  If <var>unique</var> is set, set the created <a>index<a>'s <a>unique flag</a>.
+                  If <var>multiEntry</var> is set, set the created <a>index<a>'s <a>multiEntry flag</a>.
+                </li>
+              </ol>
+
               <p>
                 The index that is requested to be created can contain constraints on the data allowed in the index's
                 <a>referenced</a> object store, such as requiring uniqueness of the values referenced by the
                 index's keyPath. If the <a>referenced</a> object store already contains data which violates these
                 constraints, this MUST NOT cause the implementation of createIndex to throw an exception or affect what it returns.
-                The implementation MUST still create and return an <a>IDBIndex</a> object.
-                Instead the implementation must queue up an operation to abort the <a>upgrade transaction</a>
+                The implementation MUST still create and return an <a>IDBIndex</a> object,
+                and the implementation MUST queue up an operation to abort the <a>upgrade transaction</a>
                 which was used for the createIndex call.
               </p>
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
-                However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
-                property on the <a>IDBObjectStore</a> instance on which it was called.
+                <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property
+                on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return a <a>IDBRequest</a> object, the index creation itself is
                 processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
@@ -2669,7 +2679,7 @@ store_t2.put("d"); // Will get key 2
                 For example in implementations where metadata about the newly created index is
                 queued up to be inserted into the database asynchronously,
                 or where the implementation might need to ask the user for permission for quota reasons.
-                Such implementations MUST still create and return an <a>IDBIndex</a> object. Instead,
+                Such implementations MUST still create and return an <a>IDBIndex</a> object, and
                 once the implementation determines that creating the index has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
                 creating the <a>index</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error and if the index
@@ -2744,23 +2754,26 @@ store_t2.put("d"); // Will get key 2
                 This method destroys the <a>index</a> with the given name in the <a>object store</a>.
                 Note that this method must only be called from within an <a>upgrade transaction</a>.
               </p>
-              <p>
-                If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                </li>
+                <li>If the <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>
+                  If there is no <a>index</a> <a title="index name">named</a> <var>name</var> in the <a>object store</a>,
+                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                </li>
+                <li>Destroy the <a>index</a> <a title="index name">named</a> <var>name</var> in the <a>object store</a>.
+                </li>
+              </ol>
 
-                If the <a>object store</a> has been deleted,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
-
-                If there is no <a>index</a> with the <a title="index name">name</a> <var>name</var> in the <a>object store</a>,
-                the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
-              </p>
-              <p>
-                Otherwise, this method destroys the <a>index</a> with the <a title="index name">name</a> <var>name</var>
-                in the <a>object store</a>.
-              </p>
               <p>
                 This method synchronously modifies the
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
