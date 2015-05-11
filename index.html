@@ -3372,16 +3372,17 @@ store_t2.put("d"); // Will get key 2
 
             <dt>void abort()</dt>
             <dd>
-              <p>
-                If this <a>transaction</a> is <a title="transaction finish">finished</a>,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
-              </p>
-              <p>
-                Otherwise, this method unsets the transaction's <a>active flag</a> and
-                <a title="transaction abort">aborts</a> the transaction by running the
-                <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to null.
-              </p>
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If this <a>transaction</a> is <a title="transaction finish">finished</a>,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>Unset the <a>transaction</a>'s <a>active flag</a> and run the
+                  <a>steps for aborting a transaction</a> with the <var>error</var> parameter set to null.
+                </li>
+              </ol>
             </dd>
+
             <dt>attribute EventHandler onabort</dt>
             <dd>The event handler for the <code>abort</code> event.</dd>
             <dt>attribute EventHandler oncomplete</dt>
@@ -3524,7 +3525,7 @@ store_t2.put("d"); // Will get key 2
               which reverts changes to all <a>IDBDatabase</a> and <a>IDBObjectStore</a> instances.
             </li>
             <li>
-              Unless <var>error</var> was set to null, create a <a><code>DOMError</code></a> object and set its <code>name</code>
+              Unless <var>error</var> was null, create a <a><code>DOMError</code></a> object and set its <code>name</code>
               to <var>error</var>. Set <var>transaction</var>'s <code>error</code> property to this newly created <a><code>DOMError</code></a>.
             </li>
             <li>
