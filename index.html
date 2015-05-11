@@ -2272,13 +2272,12 @@ store_t2.put("d"); // Will get key 2
                 <li>If the <a>object store</a> uses <a>in-line keys</a>:
                   <ol>
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.</li>
+                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>kpk</var> is not failure:
                       <ol>
-                        <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
-                          If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                        <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                        <li>Let <var>key</var> be <var>r</var>.
+                        <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                        <li>Let <var>key</var> be <var>kpk</var>.
                       </ol>
                     </li>
                     <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
@@ -2338,13 +2337,12 @@ store_t2.put("d"); // Will get key 2
                 <li>If the <a>object store</a> uses <a>in-line keys</a>:
                   <ol>
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.</li>
+                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>kpk</var> is not failure:
                       <ol>
-                        <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
-                          If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                        <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                        <li>Let <var>key</var> be <var>r</var>.
+                        <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                        <li>Let <var>key</var> be <var>kpk</var>.
                       </ol>
                     </li>
                     <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
@@ -3084,15 +3082,14 @@ store_t2.put("d"); // Will get key 2
                 <li>If the <a>effective object store</a> of this cursor uses <a>in-line keys</a>
                   <ol>
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                      with <var>clone</var> and the <a title="object store key path">key path</a>
-                      of the <a>effective object store</a> with .</li>
+                      with <var>clone</var> and the <a title="object store key path">key path</a> of the <a>effective object store</a>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>kpk</var> is failure
                       <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>If <var>r</var> is not <a>equal to</a> the cursor's <a>effective key</a>,
-                      <a>throw</a> an <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>kpk</var> is invalid,
+                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>kpk</var> is not <a>equal to</a> the cursor's <a>effective key</a>,
+                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                   </ol>
                 </li>
 
@@ -3949,9 +3946,8 @@ store_t2.put("d"); // Will get key 2
                 <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
                   with <var>value</var> and <var>store</var>'s <a title="object store key path">key path</a>.
                 </li>
-                <li>If <var>kpk</var> is not failure,
-                  let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
-                </li>
+                <li>Assert: <var>kpk</var> will not be invalid or an exception.</li>
+                <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
               </ol>
             </li>
             <li>
@@ -3997,28 +3993,17 @@ store_t2.put("d"); // Will get key 2
               that the list is sorted according key of the records in ascending order.
             </li>
             <li>
-              If there are any <a title="index">indexes</a> which <a title="referenced">reference</a> <var>store</var>, perform the
-              following substeps on each such index.
+              For each <var>index</var> which <a title="referenced">reference</a> <var>store</var>, perform the
+              following substeps:
               <ol>
                 <li>
-                  Set <var>index</var> to the index.
+                  Let <var>index key</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                  with <var>value</var>, <var>index</var>'s <a title="index key path">key path</a>,
+                  and <var>index</var>'s <a>multiEntry flag</a>.
                 </li>
-                <li>
-                  Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                  with <var>value</var> and <var>index</var>'s <a title="index key path">key path</a>. If this
-                  results in an exception or failure, take no further actions for this index.
+                <li>If <var>index key</var> is an exception, or invalid, or failure, take no further actions for this index,
+                  and continue these substeps for the next index.
                 </li>
-                <li>
-                  If <var>index</var>'s <a>multiEntry flag</a> is unset,
-                  let <var>index key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
-                </li>
-                <li>
-                  Otherwise,
-                  let <var>index key</var> be the result of running the steps to <a>convert a value to a multiEntry key</a> with <var>kpk</var>.
-                </li>
-                <li>If <var>index key</var> is an exception or invalid, take no further actions for this index,
-                  and continue these substeps for the next index.</li>
-
                 <li>
                   If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
@@ -4346,11 +4331,32 @@ store_t2.put("d"); // Will get key 2
 
         <section class="section">
           <h4>Steps to extract a key from a value using a <a>key path</a></h4>
+
           <p>
             The steps to <dfn>extract a key from a value using a key path</dfn>
+            with <var>value</var>, <var>keyPath</var> and an optional
+            <var>multiEntry flag</var> are as follows.
+            The result of these steps is a <a>key</a>, invalid, or failure,
+            or the steps may throw an exception.
+          </p>
+          <ol>
+            <li>Let <var>r</var> be the result of running the steps to
+              <a>evaluate a key path on a value</a> with <var>value</var> and <var>keyPath</var>.</li>
+            <li>If <var>r</var> is an exception, <a title="throw">rethrow</a> it.</li>
+            <li>If <var>r</var> is failure, return failure.</li>
+            <li>Let <var>key</var> be
+              the result of running the steps to <a>convert a value to a key</a> with <var>r</var> if the <var>multiEntry flag</var> is unset, and
+              the result of running the steps to <a>convert a value to a multiEntry key</a> with <var>r</var> otherwise.
+            <li>If <var>key</var> is an exception, <a title="throw">rethrow</a> it.</li>
+            <li>If <var>key</var> is invalid, return invalid.</li>
+            <li>Return <var>key</var>.</li>
+          </ol>
+
+          <p>
+            The steps to <dfn>evaluate a key path on a value</dfn>
             with <var>value</var> and <var>keyPath</var> are as follows.
             The result of these steps is an ECMAScript value
-            or failure, or the steps may <a>throw</a> an exception.
+            or failure, or the steps may throw an exception.
           </p>
           <ol>
             <li>
@@ -4496,7 +4502,7 @@ store_t2.put("d"); // Will get key 2
             The steps to <dfn>convert a value to a key</dfn> are as follows. These
             steps take two arguments, an ECMAScript value <var>input</var>, and
             an optional set <var>seen</var>. The result of these steps is a <a>key</a> or invalid,
-            or the steps may <a>throw</a> an exception.
+            or the steps may throw an exception.
           </p>
           <ol>
             <li>If <var>seen</var> was not passed, let <var>seen</var> be a new empty set</li>
@@ -4563,7 +4569,7 @@ store_t2.put("d"); // Will get key 2
           <p>
             The steps to <dfn>convert a value to a multiEntry key</dfn> are as follows. These
             steps take one argument, an ECMAScript value <var>input</var>.
-            The result of these steps is a <a>key</a> or invalid, or the steps may <a>throw</a> an exception.
+            The result of these steps is a <a>key</a> or invalid, or the steps may throw an exception.
           </p>
           <ol>
             <!-- Array -->
