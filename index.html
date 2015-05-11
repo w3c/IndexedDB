@@ -451,6 +451,11 @@ request.onsuccess = function() {
             <dfn>close pending flag</dfn> which is initially unset.
           </p>
           <p>
+            A <a>connection</a> object can be used to manipulate the
+            objects of that <a>database</a>. It is also the only way to
+            obtain a <a>transaction</a> for that <a>database</a>.
+          </p>
+          <p>
             When a <a>connection</a> is initially created it is in <var>opened</var> state. The connection
             can be <dfn title="database close">closed</dfn> through several means. If the execution context where the <a>connection</a> was created is destroyed (for example due to the
             user navigating away from that page), the connection is closed. The connection can also be closed
@@ -464,20 +469,6 @@ request.onsuccess = function() {
             occurs the user agent MUST run the <a>steps for closing a
             database connection</a> with the <a>connection</a> and
             with the <var>forced flag</var> set.
-          </p>
-          <p>
-            The <a>IDBDatabase</a>
-            interface represents a <a>connection</a> to a <a>database</a>.
-          </p>
-
-          <p>
-            An <a>IDBDatabase</a> object must not be garbage collected if its
-            associated connection's <a>close pending flag</a> is unset
-            and it has one or more event listeners registers whose type is one of
-            <code>abort</code>, <code>error</code>, or <code>versionchange</code>.
-
-            If an <a>IDBDatabase</a> object is garbage collected, the
-            associated <a>connection</a> must be <a title="database close">closed</a>.
           </p>
 
         </section>  <!-- IDBDatabase -->
@@ -1986,13 +1977,23 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section id="database-interface" class="section">
-          <h4>Database</h4>
+          <h4>The <code>IDBDatabase</code> interface</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
-            A <a>database</a> object can be used to manipulate the
-            objects of that <a>database</a>. It is also the only way to
-            obtain a <a>transaction</a> for that <a>database</a>.
+            The <a>IDBDatabase</a>
+            interface represents a <a>connection</a> to a <a>database</a>.
           </p>
+
+          <p>
+            An <a>IDBDatabase</a> object must not be garbage collected if its
+            associated connection's <a>close pending flag</a> is unset
+            and it has one or more event listeners registers whose type is one of
+            <code>abort</code>, <code>error</code>, or <code>versionchange</code>.
+
+            If an <a>IDBDatabase</a> object is garbage collected, the
+            associated <a>connection</a> must be <a title="database close">closed</a>.
+          </p>
+
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBDatabase : EventTarget">
             <dt>readonly attribute DOMString name</dt>
             <dd>
@@ -2002,6 +2003,7 @@ store_t2.put("d"); // Will get key 2
               In other words, the value of this attribute
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
             </dd>
+
             <dt>readonly attribute unsigned long long version</dt>
             <dd>
               On getting, this attribute MUST return the <a>version</a> of the
@@ -2015,6 +2017,7 @@ store_t2.put("d"); // Will get key 2
               was closed. Even if another <a>connection</a> is later used to modify the
               <a>version</a>, that attribute on closed instances are not changed.
             </dd>
+
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
               <p>
@@ -2039,6 +2042,7 @@ store_t2.put("d"); // Will get key 2
               is called on this <a>IDBDatabase</a> instance itself.
               </p>
             </dd>
+
             <dt>IDBObjectStore createObjectStore()</dt>
             <dd>
               <p>
@@ -2111,6 +2115,7 @@ store_t2.put("d"); // Will get key 2
                     created should have a <a>key generator</a>.</dd>
               </dl>
             </dd>
+
             <dt>void deleteObjectStore()</dt>
             <dd>
               <p>
@@ -2148,36 +2153,47 @@ store_t2.put("d"); // Will get key 2
                 <a>object store</a></dd>
               </dl>
             </dd>
+
             <dt>IDBTransaction transaction()</dt>
             <dd>
-              <p>
-                If the value for the <var>mode</var> parameter is not "<code>readonly</code>" or "<code>readwrite</code>",
-                the implementation MUST throw a <code>TypeError</code>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the value for the <var>mode</var> parameter is not "<code>readonly</code>" or "<code>readwrite</code>",
+                  <a>throw</a> a <code>TypeError</code>.
+                </li>
+                <li>If this method is called on <a>IDBDatabase</a> object for which an <a>upgrade transaction</a> is still running,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>If this method is called on a <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>
+                  Let <var>scope</var> be the set of unique strings in <var>storeNames</var> if it is a sequence,
+                  or a set containing one string equal to <var>storeNames</var> otherwise.
+                </li>
+                <li>If any string in <var>scope</var> is not the name of an <a>object store</a> in the <a title="connection">connected</a> <a>database</a>,
+                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                </li>
+                <li>If <var>scope</var> is empty,
+                  <a>throw</a> an <a><code>InvalidAccessError</code></a> exception.
+                </li>
 
-                If this method is called on <a>IDBDatabase</a> object for which an <a>upgrade transaction</a> is still running,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
+                <li>Let <var>transaction</var> be a <a title="transaction create">new transaction</a>
+                  with <var>connection</var>, <var>mode</var> and the set of <a title="object store">object stores</a> named in <var>scope</var>.
+                </li>
+                <li>
+                  When control is returned to the event loop, the implementation MUST unset the <a>active flag</a>.
+                  <p class="issue">Specify this more precisely in terms of tasks and microtasks.</p>
+                </li>
+                <li>
+                  Return an <a>IDBTransaction</a> object representing <var>transaction</var>.
+                </li>
+              </ol>
 
-                If this method is called on a <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
-
-                If any of the names in <var>storeNames</var> do not exist in this <a>database</a>,
-                the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
-
-                If <var>storeNames</var> is an empty list,
-                the implementation MUST throw an <a><code>InvalidAccessError</code></a> exception.
+              <p class="note">
+                The created <var>transaction</var> will follow the <a>transaction lifetime</a> rules.
               </p>
-              <p>
-                Otherwise, this method MUST execute the
-                <a title="create a transaction">steps for creating a transaction</a> in an asychronous
-                fashion. The <var>storeNames</var> and <var>mode</var> arguments are
-                forwarded to the algorithm as-is.
-                The <var>connection</var> argument is set to the <a>IDBDatabase</a> that the
-                <code>transaction()</code> method was called on.
-              </p>
-              <p>
-                The method returns an <a>IDBTransaction</a> object representing the <a>transaction</a>
-                returned by the steps above.
-              </p>
+
               <dl class="parameters">
                 <dt>(DOMString or sequence&lt;DOMString&gt;) storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> in the <a>scope</a> of the new
@@ -2188,11 +2204,12 @@ store_t2.put("d"); // Will get key 2
                 access <a>mode</a> is "<code>readonly</code>".</dd>
               </dl>
             </dd>
+
             <dt>void close()</dt>
             <dd>
               When invoked, the method must run these steps:
               <ol>
-                <li>Run the <a>steps for closing a database connection</a> with this <a>database</a>.</li>
+                <li>Run the <a>steps for closing a database connection</a> with this <a>connection</a>.</li>
               </ol>
             </dd>
             <dt>attribute EventHandler onabort</dt>
@@ -3429,48 +3446,6 @@ store_t2.put("d"); // Will get key 2
             </li>
             <li>
               Return <var>connection</var>.
-            </li>
-          </ol>
-        </section>
-
-        <section class="section">
-          <h4>Transaction Creation steps</h4>
-          <p>
-            When the user agent is to <dfn>create a <a>transaction</a></dfn>
-            it MUST run the following steps. This algorithm takes three arguments:
-            a <a><var>connection</var></a>,
-            a <a><var>mode</var></a>,
-            and the list <var>storeNames</var> naming the <a title="object store">object stores</a> to be included in the <a>scope</a> of the transaction.
-          </p>
-          <ol>
-            <li>
-              Let <var>scope</var> be the set of unique strings in <var>storeNames</var> if it is a sequence,
-              or a set containing one string equal to <var>storeNames</var> otherwise.
-            </li>
-            <li>
-              If any of the strings in <var>scope</var> identifies an <a>object store</a> which doesn't exist,
-              throw a <a><code>NotFoundError</code></a> exception.
-            </li>
-            <li>
-              If <var>scope</var> is an empty set
-              throw an <a><code>InvalidAccessError</code></a> exception.
-            </li>
-            <li>
-              If the <a>close pending flag</a> is set on <var>connection</var> then
-              throw an <a><code>InvalidStateError</code></a> exception.
-            </li>
-            <li>
-              <a title="transaction create">Create</a> a <a>transaction</a> using <var>connection</var> as
-              <a>connection</a>, <var>mode</var> as <a>mode</a>, and the <a title="object store">object stores</a> identified in
-              <var>scope</var> as <a>scope</a>.
-            </li>
-            <li>
-              Return the created <a>transaction</a> and queue up the remaining steps.
-              When control is returned to the event loop, the implementation MUST unset the <a>active flag</a>.
-            </li>
-            <li>
-              Wait until the <a>transaction</a> can be <a title="transaction start">started</a> according to the
-              <a>transaction lifetime</a> rules.
             </li>
           </ol>
         </section>
