@@ -1842,54 +1842,67 @@ store_t2.put("d"); // Will get key 2
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBFactory">
             <dt>IDBOpenDBRequest open()</dt>
             <dd>
-              <p>
-                If the value of <var>version</var> is 0 (zero),
-                the implementation MUST throw a <code>TypeError</code>.
-              </p>
-              <p>
-                Otherwise, this method MUST create a <a>request</a> and return it. The created
-                <a>request</a> MUST implement the <a>IDBOpenDBRequest</a> interface and have its
-                <a title="request source">source</a> set to null.
-                The method then queues up an operation to run the <a>steps for opening a database</a>.
-                Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
-                this <a>IDBFactory</a>, <var>name</var> and <var>version</var> be the <var>name</var>
-                and <var>version</var> parameters passed to this function, and <var>request</var> be
-                the newly created request. If the <var>version</var> parameter is not specified,
-                let <var>version</var> be undefined.
-              </p>
-              <p class="note">
-                If <var>version</var> is not specified and a <a>database</a> with that name already exists,
-                a connection will be opened without changing the <a>version</a>. If <var>version</var>
-                is not specified and no <a>database</a> with that name exists, a new <a>database</a>
-                will be created with <a>version</a> equal to <code>1</code>.
-              </p>
-              <p>
-                If an error is returned from the steps above, the implementation MUST set the
-                <a>error attribute</a> of the <var>request</var>
-                to a <a><code>DOMError</code></a> whose <code>name</code> is the same as the error returned,
-                and dispatch an event at the <var>request</var>.
-                The event must use the <code>Event</code> interface and have its <code>type</code> set
-                to "<code>error</code>". The event does bubble but is not cancelable. The <a>propagation
-                path</a> of the event is just the request.
-              </p>
-              <p>
-                If the steps above are successful, the implementation MUST set the
-                <code>result</code> to the <a>connection</a> created by the steps above and dispatch an event at <var>request</var>.
-                The event must use the <code>Event</code> interface and have its <code>type</code> set
-                to "<code>success</code>". The event does not bubble and is not cancelable. The <a>propagation
-                path</a> of the event is just the request. If the steps above resulted in an <a>upgrade transaction</a> being
-                run, then firing the "<code>success</code>" event MUST be done after the <a>upgrade transaction</a> completes.
-              </p>
-              <p class="note">
-                The last requirement is to ensure that in case another version upgrade is about to happen,
-                the success event is fired on the connection first so that the page gets a chance to register
-                a listener for the <code>versionchange</code> event.
-              </p>
-              <p class="note">
-                The firing of "<code>success</code>" or "<code>error</code>" events do not follow the normal
-                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
-                transaction at the time when they fire.
-              </p>
+              When invoked, the method must run these steps:
+              <ol>
+                <li>
+                  If the value of <var>version</var> is 0 (zero), <a>throw</var> a <code>TypeError</code>.
+                </li>
+                <li>
+                  Let <var>request</var> be a new <a>request</a> that implements the
+                  <a>IDBOpenDBRequest</a> interface with its <a title="request source">source</a> set to null.
+                </li>
+                <li>
+                  Run these steps in parallel:
+                  <ol>
+                    <li>Queue up an operation to run the <a>steps for opening a database</a>, with
+                      the origin of the <a>IDBEnvironment</a> used to access this <a>IDBFactory</a>,
+                      the <var>name</var> parameter passed to this method,
+                      the <var>version</var> parameter passed to this method if specified and undefined otherwise, and
+                      <var>request</var>.
+                      <p class="note">
+                        If <var>version</var> is not specified and a <a>database</a> with that name already exists,
+                        a connection will be opened without changing the <a>version</a>. If <var>version</var>
+                        is not specified and no <a>database</a> with that name exists, a new <a>database</a>
+                        will be created with <a>version</a> equal to <code>1</code>.
+                      </p>
+                    </li>
+                    <li>
+                      If an error is returned from the operation, set the
+                      <a>error attribute</a> of <var>request</var>
+                      to a <a><code>DOMError</code></a> whose <code>name</code> is the same as the error returned,
+                      and dispatch an event at <var>request</var>.
+                      The event must use the <code>Event</code> interface and have its <code>type</code> set
+                      to "<code>error</code>". The event does bubble but is not cancelable. The <a>propagation path</a>
+                      of the event is just <var>request</var>.
+                    </li>
+                    <li>
+                      Otherwise, set the <var>result</var> of <var>request</var> to the
+                      <a>connection</a> returned by the steps above and dispatch an event at <var>request</var>.
+                      The event must use the <code>Event</code> interface and have its <code>type</code> set
+                      to "<code>success</code>". The event does not bubble and is not cancelable. The <a>propagation path</a>
+                      of the event is just <var>request</var>.
+
+                      If the steps above resulted in an <a>upgrade transaction</a> being
+                      run, then firing the "<code>success</code>" event MUST be done after the <a>upgrade transaction</a> completes.
+
+                      <p class="note">
+                        The last requirement is to ensure that in case another version upgrade is about to happen,
+                        the success event is fired on the connection first so that the page gets a chance to register
+                        a listener for the <code>versionchange</code> event.
+                      </p>
+
+                      <p class="note">
+                        The firing of "<code>success</code>" or "<code>error</code>" events do not follow the normal
+                        steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
+                        transaction at the time when they fire.
+                      </p>
+                    </li>
+                  </ol>
+                </li>
+                <li>
+                  Return <var>request</var>.
+                </li>
+              </ol>
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="database name">name</a> for the <a>database</a></dd>
@@ -1897,43 +1910,56 @@ store_t2.put("d"); // Will get key 2
                 <dd>The <a>version</a> for the <a>database</a></dd>
               </dl>
             </dd>
+
             <dt>IDBOpenDBRequest deleteDatabase()</dt>
             <dd>
-              <p>
-                When invoked, this method MUST create a <a>request</a> and return it.
-                The created request must implement the <a>IDBOpenDBRequest</a> interface and have its source set to null.
-                The method then queues up an operation to run the <a>steps for deleting a database</a>.
-                Let <var>origin</var> be the origin of the <a>IDBEnvironment</a> used to access
-                this <a>IDBFactory</a> and <var>name</var> be the <var>name</var> parameter passed
-                to this function.
-              </p>
-              <p>
-                If an error is returned from the steps above, the implementation MUST set the
-                <a>error attribute</a> of the <var>request</var>
-                to a <a><code>DOMError</code></a> whose <code>name</code> is the same as the error returned,
-                and dispatch an event at the <var>request</var>.
-                The event must use the <code>Event</code> interface and have its <code>type</code> set
-                to "<code>error</code>". The event does bubble but is not cancelable. The <a>propagation
-                path</a> of the event is just the request.
-              </p>
-              <p>
-                If the steps above are successful, the implementation MUST set the
-                <a title="request result">result</a> of the <var>request</var>
-                to undefined and <a>fire a success event</a> at
-                the <a>request</a>.
-                The event MUST implement the <a>IDBVersionChangeEvent</a> interface and have <code>oldVersion</code> set to <var>database version</var>
-                and have the <code>newVersion</code> property set to null.
-              </p>
-              <p class="note">
-                The firing of "<code>success</code>" or "<code>error</code>" events do not follow the normal
-                steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
-                transaction at the time when they fire.
-              </p>
+              When invoked, the method must run these steps:
+              <ol>
+                <li>
+                  Let <var>request</var> be a new <a>request</a> that implements the
+                  <a>IDBOpenDBRequest</a> interface with its <a title="request source">source</a> set to null.
+                </li>
+                <li>
+                  Run these steps in parallel:
+                  <ol>
+                    <li>Queue up an operation to run the <a>steps for deleting a database</a>, with
+                      the origin of the <a>IDBEnvironment</a> used to access this <a>IDBFactory</a>,
+                      the <var>name</var> parameter passed to this method, and
+                      <var>request</var>.
+                    </li>
+                    <li>
+                      If an error is returned from the operation,
+                      set the <a>error attribute</a> of <var>request</var>
+                      to a <a><code>DOMError</code></a> whose <code>name</code> is the same as the error returned,
+                      and dispatch an event at <var>request</var>.
+                      The event must use the <code>Event</code> interface and have its <code>type</code> set
+                      to "<code>error</code>". The event does bubble but is not cancelable. The <a>propagation
+                      path</a> of the event is just <var>request</var>.
+                    </li>
+                    <li>
+                      Otherwise, set the <a title="request result">result</a> of <var>request</var>
+                      to undefined and <a>fire a success event</a> at <a>request</a>.
+                      The event MUST implement the <a>IDBVersionChangeEvent</a> interface and have <code>oldVersion</code> set to <var>database version</var>
+                      and have the <code>newVersion</code> property set to null.
+
+                      <p class="note">
+                        The firing of "<code>success</code>" or "<code>error</code>" events do not follow the normal
+                        steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
+                        transaction at the time when they fire.
+                      </p>
+                    </li>
+                  </ol>
+                </li>
+                <li>
+                  Return <var>request</var>.
+                </li>
+              </ol>
               <dl class="parameters">
                 <dt>DOMString name</dt>
-                <dd>The <a title="database name">name</a> for the <a>database</a></dd>
+                <dd>The <a title="database name">name</a> of the <a>database</a> to delete</dd>
               </dl>
             </dd>
+
             <dt>short cmp()</dt>
             <dd>
               When invoked, the method must run these steps:
