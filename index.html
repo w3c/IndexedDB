@@ -412,11 +412,11 @@ request.onsuccess = function() {
        <section id="database-concept" class="section">
           <h4>Database</h4>
           <p>
-          	A database's <a>origin</a> is the same as the <a>origin</a> of the document or <a>worker</a>.
-          	Each <a>origin</a> has an associated set of databases.
+            A database's <a>origin</a> is the same as the <a>origin</a> of the document or <a>worker</a>.
+            Each <a>origin</a> has an associated set of databases.
           </p>
           <p class="note">The database origin is not affected by changes to <code>document.domain</code>.
-		  </p>
+	  </p>
           <p>
             Each <a>origin</a> has an associated set of
             <a title="database">databases</a>. A <dfn>database</dfn> comprises
@@ -424,7 +424,7 @@ request.onsuccess = function() {
             in the database.
           </p>
           <p>
-            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it within a specific <a>origin</a>.
+            A <a>database</a> has a <dfn title="database name">name</dfn> which identifies it within a specific <a>origin</a>.
             The name can be any string value, including the empty string, and stays constant for the lifetime of the database.
             Database names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
@@ -435,7 +435,7 @@ request.onsuccess = function() {
             to map the provided name to a name that it can handle.
           </p>
           <p>
-            Each <a>database</a> also has a current
+            A <a>database</a> has a
             <dfn>version</dfn>. When a database is first created, its <a>version</a> is 0.
           </p>
           <p class="note">
@@ -444,7 +444,7 @@ request.onsuccess = function() {
             <a>upgrade transaction</a>.
           </p>
           <p>
-            Databases has a <dfn>delete pending flag</dfn> which is used during deletion. When a database is requested
+            A database has a <dfn>delete pending flag</dfn> which is used during deletion. When a database is requested
             to be deleted the flag is set and all attempts at opening the database are stalled until the database
             can be deleted.
           </p>
@@ -474,7 +474,7 @@ request.onsuccess = function() {
             with the <var>forced flag</var> set.
           </p>
 
-        </section>  <!-- IDBDatabase -->
+        </section>  <!-- Database -->
 
         <section class="section" id="object-store-concept">
           <h4>Object Store</h4>
@@ -484,29 +484,31 @@ request.onsuccess = function() {
           </p>
           <p>
             Each database has a set of <a title="object store">object stores</a>. The set of <a title="object store">object stores</a> can be changed,
-            but can only be changed using an <a>upgrade transaction</a>, i.e. in response to an
+            but only using an <a>upgrade transaction</a>, i.e. in response to an
             <code>upgradeneeded</code> event. When a new database is created it doesn't contain any <a title="object store">object stores</a>.
           </p>
           <p>
-            The object store has a <dfn title="object store record list">list of records</dfn> which hold the
+            An <a>object store</a> has a <dfn title="object store record list">list of records</dfn> which hold the
             data stored in the object store. Each <dfn>record</dfn> consists of a <a>key</a> and a <a>value</a>.
             The list is sorted according to key in ascending order. There can never be multiple records in a given object
             store with the same key.
           </p>
           <p>
-            Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
+            An <a>object store</a> has a <dfn title="object store name">name</dfn>.
             The name can be any string value, including the empty string, and stays constant for the lifetime of the object store.
             At any one time, the name is unique within the <a>database</a> to which it belongs.
             Object store names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
           <p>
-            Every object store also optionally has a
-            <a>key generator</a> and an optional <dfn title="object store key path">key path</dfn>.
+            An <a>object store</a> optionally has a <dfn title="object store key path">key path</dfn>.
             If the object store has a key path it is said to use <dfn>in-line keys</dfn>. Otherwise it is said to
             use <dfn>out-of-line keys</dfn>.
           </p>
           <p>
-            The object store can derive the <a>key</a> from one of three sources:
+            An <a>object store</a> optionally has a <a>key generator</a>.
+          </p>
+          <p>
+            An object store can derive a <a>key</a> for a <a>record</a> from one of three sources:
           </p>
           <ol>
             <li>
@@ -520,11 +522,6 @@ request.onsuccess = function() {
               Keys can also be explicitly specified when a <a>value</a> is stored in the object store.
             </li>
           </ol>
-          <p>
-            The <a>IDBObjectStore</a>
-            interface represents an <a>object store</a>. Note however that multiple instances of those
-            interfaces representing the same <a>object store</a> can exist.
-          </p>
         </section> <!-- Object store -->
 
         <section id="key-construct" class="section">
@@ -836,27 +833,22 @@ request.onsuccess = function() {
             the <a title="index">index's</a> <a title="record">record's</a> value (meaning the key of the record in the referenced <a>object store</a>).
           </p>
           <p>
-            Every index has a <dfn title="index name">name</dfn>.
+            An <a>index</a> has a <dfn title="index name">name</dfn>.
             The name can be any string value, including the empty string, and stays constant for the lifetime of the index.
             At any one time, the name is unique within index's <a>referenced</a> <a>object store</a>.
             Index names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
           <p>
-            Each index also has a <dfn>unique flag</dfn>. When this flag is set, the index enforces that no two <a title="record">records</a>
+            An <a>index</a> has a <dfn>unique flag</dfn>. When this flag is set, the index enforces that no two <a title="record">records</a>
             in the index has the same key. If a <a>record</a> in the index's referenced object store is attempted to be inserted or
             modified such that evaluating the index's key path on the records new value yields a result which already exists in the
             index, then the attempted modification to the object store fails.
           </p>
           <p>
-            Each index also has a <dfn>multiEntry flag</dfn>. This flag affects how the index behaves when the result of evaluating
+            An <a>index</a> has a <dfn>multiEntry flag</dfn>. This flag affects how the index behaves when the result of evaluating
             the index's <a title="index key path">key path</a> yields an <a>array key</a>. If the <a>multiEntry flag</a> is unset, then
             a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry flag</a> is
             true, then the one <a>record</a> is added to the index for each of the <a>subkeys</a>.
-          </p>
-          <p>
-            The <a>IDBIndex</a> interface
-            provides access to the metadata of an <a>index</a>. Note however that multiple instances of those
-            interfaces representing the same <a>index</a> can exist.
           </p>
         </section> <!-- IDBIndex -->
 
@@ -867,24 +859,6 @@ request.onsuccess = function() {
             Whenever data is read or written to the database it is done by using a <a>transaction</a>.
           </p>
           <p>
-            All transactions are created through a <a>connection</a>, which is the transaction's
-            <dfn title="transaction connection">connection</dfn>.
-            The transaction has a <a>mode</a> that determines which types of interactions can be performed
-            upon that transaction. The <a>mode</a> is set when the transaction is created and remains
-            fixed for the life of the transaction. The transaction also has a <dfn>scope</dfn> that
-            determines the <a title="object store">object stores</a> with which the transaction may interact. Transactions
-            have an <dfn>active flag</dfn>, which determines if new <a title="request">requests</a> can be made
-            against the transaction. Finally, transactions also contain a <dfn>request list</dfn> of
-            <a title="request">requests</a> which have been made against the transaction.
-          </p>
-          <p>
-            A transaction is said to be <dfn>active</dfn> if its <a>active flag</a> is set.
-          </p>
-          <p>
-            Each transaction has a fixed scope, determined when the transaction is created.
-            A transaction's scope remains fixed for the lifetime of that transaction.
-          </p>
-          <p>
             <a title="transaction">Transactions</a> offer some protection from
             application and system failures. A <a>transaction</a> may be used to
             store multiple data records or to conditionally modify certain data
@@ -892,11 +866,37 @@ request.onsuccess = function() {
             of data access and data mutation operations.
           </p>
           <p>
+            All transactions are created through a <a>connection</a>, which is the transaction's
+            <dfn title="transaction connection">connection</dfn>.
+          </p>
+          <p>
+            A <a>transaction</a> has a <a>mode</a> that determines which types of interactions can be performed
+            upon that transaction. The <a>mode</a> is set when the transaction is created and remains
+            fixed for the life of the transaction.
+          </p>
+          <p>
+            A <a>transaction</a> has a <dfn>scope</dfn> that
+            determines the <a title="object store">object stores</a> with which the transaction may interact.
+            A transaction's scope remains fixed for the lifetime of that transaction.
+          </p>
+          <p>
+            A <a>transaction</a> has an <dfn>active flag</dfn>, which determines if new <a title="request">requests</a> can be made
+            against the transaction.
+          </p>
+          <p>
+            A transaction is said to be <dfn>active</dfn> if its <a>active flag</a> is set.
+          </p>
+          <p>
+            A <a>transaction</a> has a <dfn>request list</dfn> of
+            <a title="request">requests</a> which have been made against the transaction.
+          </p>
+          <p>
             <a title="transaction">Transactions</a> are expected to be short lived. This is encouraged
             by the <a title="transaction commit">automatic committing</a> functionality described below. Authors can still cause
             transactions to run for a long time; however, this usage pattern
             is not generally recommended as it can lead to a bad user experience.
           </p>
+
           <p>
             The <dfn title="transaction lifetime">lifetime</dfn> of a <a>transaction</a> is as follows:
           </p>
@@ -1108,30 +1108,33 @@ request.onsuccess = function() {
             the implementation MUST NOT indefinitely prevent a pending <a>read/write transaction</a>
             from <a title="transaction start">starting</a>.
           </p>
-          <p>
-            Each <a>transaction</a> object implements the <a>IDBTransaction</a>
-            interface.
-          </p>
-        </section> <!-- IDBTransaction -->
+        </section> <!-- Transaction -->
 
         <section class="section" id="request-concept">
           <h4>Requests</h4>
           <p>
             Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
             Every request represents one read or write operation.
-            <a title="request">Requests</a> have a <dfn title="request done">done flag</dfn> which is
-            initially unset, and a <dfn title="request source">source</dfn> object. Every request
-            also has a <dfn title="request result">result</dfn> and an <dfn>error attribute</dfn>,
+          </p>
+          <p>
+            A <a>request</a> has a <dfn title="request done">done flag</dfn> which is
+            initially unset.
+          </p>
+          <p>
+            A <a>request</a> has a <dfn title="request source">source</dfn> object.
+          </p>
+          <p>
+            A <a>request</a> has a <dfn title="request result">result</dfn> and an <dfn>error attribute</dfn>,
             neither of which are accessible until the <a title="request done">done flag</a> is set.
           </p>
           <p>
-            Finally, requests have a <dfn>request transaction</dfn>. When a request is created, it is
-            always <dfn title="place request">placed</dfn> against a <a>transaction</a> using
+            A <a>request</a> has a <dfn>request transaction</dfn> which is initially null.
+            This will be set when a request is <dfn title="place request">placed</dfn> against a <a>transaction</a> using
             the <a>steps for asynchronously executing a request</a>.
-            The steps set the <a>request transaction</a> to be that <a>transaction</a>.
-            The steps do not set the <a>request transaction</a> to be that request for the request returned from an
-            <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a> call however.
-            That function create requests which have a null <a>request transaction</a>.
+          </p>
+          <p class="note">
+            Requests for opening and deleting databases do not take place within a transaction, so the
+            <a>request transaction</a> for such a request is null.
           </p>
           <dl class="idl" title="enum IDBRequestReadyState">
             <dt>pending</dt>
@@ -1139,7 +1142,7 @@ request.onsuccess = function() {
             <dt>done</dt>
             <dd>The <a title="request done">done flag</a> of the <a>request</a> set.</dd>
           </dl>
-        </section>
+        </section> <!-- Requests -->
 
         <section class="section" id="range-concept">
           <h4>Key Range</h4>
@@ -1425,17 +1428,7 @@ request.onsuccess = function() {
             A <a>cursor</a> also has a <dfn>key only flag</dfn>, that indicates whether the cursor's
             <a title="cursor value">value</a> is exposed via the API. Unless stated otherwise it is unset.
           </p>
-
-          <p>
-            <a>Cursor</a> objects implement the <a>IDBCursor</a>
-            interface. There is only ever one
-            <a>IDBCursor</a>
-            instance representing
-            a given <a>cursor</a>. However there is no limit on how many cursors can be used at the
-            same time.
-            A <a>cursor</a> that has the <a>key only flag</a> unset implements the <a>IDBCursorWithValue</a> interface as well.
-          </p>
-        </section> <!-- IDBCursor -->
+        </section> <!-- Cursor -->
 
         <section class="section">
           <h3>Exceptions</h3>
@@ -1713,10 +1706,19 @@ store_t2.put("d"); // Will get key 2
         <section class="section" id="request-api">
           <h4>The <code>IDBRequest</code> Interface</h4>
           <p>
-            The <a>IDBRequest</a> interface provides means to access results of
+            The <a>IDBRequest</a> interface provides the means to access results of
             asynchronous requests to <a title="database">databases</a> and <a>database</a>
             objects using <a>event handler attributes</a> [[!HTML5]].
           </p>
+
+          <p>
+            Every method for making asynchronous requests returns an
+            <a>IDBRequest</a> object that communicates back to the requesting
+            application through events.
+            This design means that any number of requests can be active on any <a>database</a>
+            at a time.
+          </p>
+
           <aside class="example">
             <p>
               In the following example, we open a <a>database</a> asynchronously. Various
@@ -1824,22 +1826,21 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section" id="requests">
-          <h4>Opening a database</h4>
-          <p class="idl" title="Window implements IDBEnvironment"></p>
-          <p class="idl" title="WorkerUtils implements IDBEnvironment"></p>
+          <h4>The <code>IDBFactory</code> interface</h4>
+          <p>
+            <a>Database</a> objects are accessed through methods on the
+            <a>IDBFactory</a> interface.
+            A single object implementing this interface is present in the global scope of environments
+            that support Indexed DB operations.
+          </p>
 
           <dl class="idl" title="[NoInterfaceObject] interface IDBEnvironment">
             <dt>readonly attribute IDBFactory indexedDB</dt>
             <dd>This attribute provides applications a mechanism for accessing
               capabilities of indexed databases.</dd>
           </dl>
-          <p>
-            Every method for making asynchronous requests returns an
-            <a>IDBRequest</a> object that communicates back to the requesting
-            application through events.
-            This design means that any number of requests can be active on any <a>database</a>
-            at a time.
-          </p>
+          <p class="idl" title="Window implements IDBEnvironment"></p>
+          <p class="idl" title="WorkerUtils implements IDBEnvironment"></p>
 
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBFactory">
             <dt>IDBOpenDBRequest open()</dt>
@@ -2230,9 +2231,12 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section" id="object-store">
-          <h4>Object Store</h4>
-          <a title="object store">Object store</a> objects implement the following
-          interface:
+          <h4>The <code>IDBObjectStore</code> interface</h4>
+          <p>
+            The <a>IDBObjectStore</a>
+            interface represents an <a>object store</a>. Note however that multiple instances of those
+            interfaces representing the same <a>object store</a> can exist.
+          </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBObjectStore">
             <dt>readonly attribute DOMString name</dt>
             <dd>
@@ -2834,11 +2838,14 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section" id="index">
-        <h4>Index</h4>
+          <h4>The <code>IDBIndex</code> interface</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
-            <a title="index">Index</a> objects implement the following interface:
+            The <a>IDBIndex</a> interface
+            provides access to the metadata of an <a>index</a>. Note however that multiple instances of those
+            interfaces representing the same <a>index</a> can exist.
           </p>
+
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBIndex">
             <dt>readonly attribute DOMString name</dt>
             <dd>
@@ -3092,10 +3099,14 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section" id="cursor">
-          <h4>Cursor</h4>
+          <h4>The <code>IDBCursor</code> interface</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
-            <a title="cursor">Cursor</a> objects implement the following interface:
+            <a>Cursor</a> objects implement the <a>IDBCursor</a> interface. There is only ever one
+            <a>IDBCursor</a> instance representing a given <a>cursor</a>.
+            There is no limit on how many cursors can be used at the same time.
+          </p>
+
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursor">
             <dt>readonly attribute (IDBObjectStore or IDBIndex) source</dt>
@@ -3313,6 +3324,10 @@ store_t2.put("d"); // Will get key 2
             </dd>
           </dl>
 
+          <p>
+            A <a>cursor</a> that has the <a>key only flag</a> unset implements the <a>IDBCursorWithValue</a> interface as well.
+          </p>
+
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursorWithValue : IDBCursor">
             <dt>readonly attribute any value</dt>
             <dd>Returns the cursor's current <a title="cursor value">value</a>.
@@ -3325,7 +3340,7 @@ store_t2.put("d"); // Will get key 2
         </section>
 
         <section class="section" id="transaction">
-        <h4>Transaction</h4>
+          <h4>The <code>IDBTransaction</code> interface</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
             <a title="transaction">Transaction</a> objects implement the following interface:
