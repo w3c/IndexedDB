@@ -424,16 +424,19 @@ request.onsuccess = function() {
             in the database.
           </p>
           <p>
-            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it
-            within a specific <a>origin</a>. The name can be any string value, including the empty string, and
-            stays constant for the lifetime of the database. Each <a>database</a> also has a current
-            <dfn>version</dfn>. When a database is first created, its <a>version</a> is 0.
+            Every <a>database</a> has a <dfn title="database name">name</dfn> which identifies it within a specific <a>origin</a>.
+            The name can be any string value, including the empty string, and stays constant for the lifetime of the database.
+            Database names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
           <p class="note">
             Implementations MUST support all names. If an implementation
             uses a storage mechanism which can't handle arbitrary database names,
             the implementation must use an escaping mechanism or something similar
             to map the provided name to a name that it can handle.
+          </p>
+          <p>
+            Each <a>database</a> also has a current
+            <dfn>version</dfn>. When a database is first created, its <a>version</a> is 0.
           </p>
           <p class="note">
             Each <a>database</a> has one version at a time; a <a>database</a>
@@ -492,7 +495,12 @@ request.onsuccess = function() {
           </p>
           <p>
             Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
-            The name is unique within the <a>database</a> to which it belongs. Every object store also optionally has a
+            The name can be any string value, including the empty string, and stays constant for the lifetime of the object store.
+            At any one time, the name is unique within the <a>database</a> to which it belongs.
+            Object store names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
+          </p>
+          <p>
+            Every object store also optionally has a
             <a>key generator</a> and an optional <dfn title="object store key path">key path</dfn>.
             If the object store has a key path it is said to use <dfn>in-line keys</dfn>. Otherwise it is said to
             use <dfn>out-of-line keys</dfn>.
@@ -828,7 +836,10 @@ request.onsuccess = function() {
             the <a title="index">index's</a> <a title="record">record's</a> value (meaning the key of the record in the referenced <a>object store</a>).
           </p>
           <p>
-              Every index has a <dfn title="index name">name</dfn>. The name is unique within index's <a>referenced</a> object store.
+            Every index has a <dfn title="index name">name</dfn>.
+            The name can be any string value, including the empty string, and stays constant for the lifetime of the index.
+            At any one time, the name is unique within index's <a>referenced</a> <a>object store</a>.
+            Index names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
           <p>
             Each index also has a <dfn>unique flag</dfn>. When this flag is set, the index enforces that no two <a title="record">records</a>
@@ -2133,8 +2144,7 @@ store_t2.put("d"); // Will get key 2
                 the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
               </p>
               <p>
-                If there is no <a>object store</a> with <a title="object store name">name</a> <var>name</var>, compared in a
-                case-sensitive manner, in the <a title="connection">connected</a> <a>database</a>,
+                If there is no <a>object store</a> with <a title="object store name">name</a> <var>name</var> in the <a title="connection">connected</a> <a>database</a>,
                 the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
               </p>
               <p>
@@ -2704,24 +2714,32 @@ store_t2.put("d"); // Will get key 2
 
             <dt>IDBIndex index()</dt>
             <dd>
-              Returns an <a>IDBIndex</a> representing an <a>index</a> that is part of the
-              <a>object store</a>. Every call to this function on the same
-              <a>IDBObjectStore</a> instance and with the same <var>name</var> returns the same <a>IDBIndex</a> instance.
-              However the retured <a>IDBIndex</a> instance is specific to this <a>IDBObjectStore</a> instance. If this
-              function is called on a different <a>IDBObjectStore</a> instance, a different <a>IDBIndex</a> instance is
-              returned. A result of this is that different <a>IDBTransaction</a> instances use different <a>IDBIndex</a> instances
-              to represent the same <a>index</a>.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If there is no <a>index</a> <a title="index name">named</a> <var>name</var> in this <a>object store</a>,
+                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                </li>
+                <li>If the <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+
+                <li>Return an <a>IDBIndex</a> representing the <a>index</a> associated with this <a>object store</a>
+                  <a title="index name">named</a> <var>name</var>. Every call to this method on the same
+                  <a>IDBObjectStore</a> instance with the same <var>name</var> returns the same <a>IDBIndex</a> instance.
+
+                  <p class="note">
+                    The retured <a>IDBIndex</a> instance is specific to this <a>IDBObjectStore</a> instance. If this
+                    method is called on a different <a>IDBObjectStore</a> instance, a different <a>IDBIndex</a> instance is
+                    returned. A result of this is that different <a>IDBTransaction</a> instances use different <a>IDBIndex</a> instances
+                    to represent the same <a>index</a>.
+                  </p>
+                </li>
+              </ol>
+
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <p>
-                If there is no <a>index</a> with the given name, compared in a case-sensitive manner, in the <a>object store</a>,
-                the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
-
-                If the <a>object store</a> has been deleted,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
-              </p>
             </dd>
 
             <dt>void deleteIndex()</dt>
@@ -2740,7 +2758,7 @@ store_t2.put("d"); // Will get key 2
                 If the <a>object store</a> has been deleted,
                 the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If there is no <a>index</a> with the <a title="index name">name</a> <var>name</var>, compared in a case-sensitive manner, in the <a>object store</a>,
+                If there is no <a>index</a> with the <a title="index name">name</a> <var>name</var> in the <a>object store</a>,
                 the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
               </p>
               <p>
@@ -3324,25 +3342,34 @@ store_t2.put("d"); // Will get key 2
               <a>request</a>, this property returns a <a><code>DOMError</code></a> which contains the reason for the transaction
               failure (e.g. <code>QuotaExceededError</code> or <code>UnknownError</code>).
             </dd>
+
             <dt>IDBObjectStore objectStore()</dt>
             <dd>
-              Returns an <a>IDBObjectStore</a> representing an <a>object store</a> that is part of the
-              <a>scope</a> of this <a>transaction</a>. Every call to this function on the same
-              <a>IDBTransaction</a> instance and with the same <var>name</var> returns the same <a>IDBObjectStore</a> instance.
-              However the returned <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
-              function is called on a different <a>IDBTransaction</a>, a different <a>IDBObjectStore</a> instance is returned.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If there is no <a>object store</a> <a title="object store name">named</a> <var>name</var> in this <a>transaction</a>'s <a>scope</a>,
+                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                </li>
+                <li>If the <a>transaction</a> has <a title="transaction finish">finished</a>,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>Return an <a>IDBObjectStore</a> representing the <a>object store</a> in this <a>transaction</a>'s <a>scope</a>,
+                  <a title="object store name">named</a> <var>name</var>. Every call to this method on the same
+                  <a>IDBTransaction</a> instance with the same <var>name</var> returns the same <a>IDBObjectStore</a> instance.
+
+                  <p class="note">
+                    The returned <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
+                    method is called on a different <a>IDBTransaction</a>, a different <a>IDBObjectStore</a> instance is returned.
+                  </p>
+                </li>
+              </ol>
+
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The requested <a>object store</a></dd>
               </dl>
-              <p>
-                If the requested <a>object store</a> is not in this <a>transaction</a>'s <a>scope</a>,
-                the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
-
-                If the <a>transaction</a> has <a title="transaction finish">finished</a>,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
-              </p>
             </dd>
+
             <dt>void abort()</dt>
             <dd>
               <p>
