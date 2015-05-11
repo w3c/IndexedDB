@@ -778,10 +778,6 @@ request.onsuccess = function() {
               Spaces are not allowed within a key path.
           </p>
           <p>
-            To <dfn title="evaluate key path">evaluate a key path</dfn>,
-            run the steps to <a>extract a key from a value using a key path</a>.
-          </p>
-          <p>
           	<a title="key path">Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>,
           	as well as the following type-specific properties:
           </p>
@@ -813,7 +809,7 @@ request.onsuccess = function() {
             The values in the index's <a title="record">records</a> are always values of <a title="key">keys</a> in the index's <a>referenced</a>
             object store. The keys are derived from the referenced object store's <a title="value">values</a> using a <dfn title="index key path"><a>key path</a></dfn>.
             If a given <a>record</a> with key <var>X</var> in the object store referenced by the index has the value <var>A</var>, and
-            <a title="evaluate key path">evaluating</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
+            <a title="extract a key from a value using a key path">evaluating</a> the <a title="index key path">index's key path</a> on <var>A</var> yields the result
             <var>Y</var>, then the index will contain a record with key <var>Y</var> and value <var>X</var>.
           </p>
           <aside class="example">
@@ -2275,8 +2271,8 @@ store_t2.put("d"); // Will get key 2
 
                 <li>If the <a>object store</a> uses <a>in-line keys</a>:
                   <ol>
-                    <li>Let <var>kpk</var> be the result of <a title="evaluate key path">evaluating</a> the
-                      <a title="object store key path">object store's key path</a> with <var>clone</var>.</li>
+                    <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.</li>
                     <li>If <var>kpk</var> is not failure:
                       <ol>
                         <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
@@ -2341,8 +2337,8 @@ store_t2.put("d"); // Will get key 2
 
                 <li>If the <a>object store</a> uses <a>in-line keys</a>:
                   <ol>
-                    <li>Let <var>kpk</var> be the result of <a title="evaluate key path">evaluating</a> the
-                      <a title="object store key path">object store's key path</a> with <var>clone</var>.</li>
+                    <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.</li>
                     <li>If <var>kpk</var> is not failure:
                       <ol>
                         <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
@@ -3087,8 +3083,9 @@ store_t2.put("d"); // Will get key 2
 
                 <li>If the <a>effective object store</a> of this cursor uses <a>in-line keys</a>
                   <ol>
-                    <li>Let <var>kpk</var> be the result of <a title="evaluate key path">evaluating</a> the <a title="object store key path">key path</a>
-                      of the <a>effective object store</a> with <var>clone</var>.</li>
+                    <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                      with <var>clone</var> and the <a title="object store key path">key path</a>
+                      of the <a>effective object store</a> with .</li>
                     <li>If <var>kpk</var> is failure
                       <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                     <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
@@ -3929,287 +3926,6 @@ store_t2.put("d"); // Will get key 2
         </section>
       </section>
 
-      <section class="section" id="binding">
-        <h3>ECMAScript binding</h3>
-
-        <p>
-          This section defines how <a>key</a> values defined in this specification
-          are converted to and from ECMAScript values, and how they may be
-          extracted and injected into ECMAScript values. This section references
-          types and algorithms from the ECMAScript Language Specification. [[!ECMA-262]]
-        </p>
-
-        <section class="section">
-          <h4>Steps to extract a key from a value using a <a>key path</a></h4>
-          <p>
-            The steps to <dfn>extract a key from a value using a key path</dfn> are as follows.
-            The algorithm takes a <a>key path</a> named <var>keyPath</var> and a
-            <a>value</a> named <var>value</var>. The result of these steps is an ECMAScript value
-            or failure, or the steps may <a>throw</a> an exception.
-          </p>
-          <ol>
-            <li>
-              If <var>keyPath</var> is a <a>sequence&lt;DOMString&gt;</a>, run these substeps:
-              <ol>
-                <li>Let <var>result</var> be a new <code>Array</code> ECMAScript object.</li>
-                <li>For each <var>item</var> in the <var>keyPath</var> sequence, perform the following substeps:
-                  <ol>
-                    <li>Let <var>key</var> be the result of recursively running the steps to <a>extract a key from a value using a key path</a>
-                      using <var>item</var> as <var>keyPath</var> and <var>value</var> as <var>value</var>.</li>
-                    <li>ReturnIfAbrupt(<var>key</var>)</li>
-                    <li>If <var>key</var> is failure, abort the overall algorithm and return failure.</li>
-                    <li>Append the result of the first sub-step to end of <var>result</var>.</li>
-                  </ol>
-                </li>
-                <li>Return <var>result</var>.</li>
-                <p class="note">
-                  This will only ever "recurse" one level since <a>key path</a> sequences can't ever be nested.
-                </p>
-              </ol>
-            </li>
-            <li>
-              If <var>keyPath</var> is the empty string, return <var>value</var> and skip the remaining steps.
-            </li>
-            <li>
-              Let <var>identifiers</var> be the result of <a title="strictly split a string">strictly splitting the string</a> <var>keyPath</var> on
-              U+002E FULL STOP characters (.).
-            </li>
-            <li>
-              For each <var>identifier</var> in <var>identifiers</var>:
-              <ol>
-                <li>If Type(<var>value</var>) is String, and <var>identifier</var> is the last item in <var>identifiers</var>,
-                  and <var>identifier</var> is "<code>length</code>", return a Number equal to the number of elements in <var>value</var>.</li>
-                <li>If Type(<var>identifier</var>) is not Object, return failure.
-                <li>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]]</var>(<var>identifier</var>, <var>value</var>)</li>
-                <li>ReturnIfAbrupt(<var>value</var>)</li>
-                <li>If <var>value</var> is Undefined, return failure.
-              </ol>
-            </li>
-            <li>
-              Return <var>value</var>.
-            </li>
-          </ol>
-        </section>
-
-        <section class="section">
-          <h4>Steps to inject a key into a value using a key path</h4>
-          <p>
-            The steps to <dfn>inject a key into a value using a key path</dfn> are as follows.
-            The algorithm takes a <var>value</var>, a <var>key</var> and a <var>keyPath</var>.
-          </p>
-          <ol>
-            <li>
-              Let <var>identifiers</var> be the result of
-              <a title="strictly split a string">strictly splitting the string</a>
-              <var>keyPath</var> on U+002E FULL STOP characters (.).
-            </li>
-            <li>Assert: <var>identifiers</var> is not empty.</li>
-            <li>
-              Let <var>last</var> be the last member of <var>identifiers</var>
-              and remove it from the list.
-            </li>
-            <li>For each remaining <var>identifier</var> in <var>identifiers</var>:
-              <ol>
-                <li>
-                  If <var>value</var> is not an <code>Object</code> object or an <code>Array</code>
-                  object (see <a>structured clone algorithm</a> [[!HTML5]]), then
-                  throw a <a><code>DataError</code></a> exception.
-                </li>
-                <li>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</li>
-                <li>ReturnIfAbrupt(<var>hop</var>)</li>
-                <li>
-                  If <var>hop</var> is false:
-                  <ol>
-                    <li>Let <var>o</var> be a new <code>Object</code>.</li>
-                    <li>Let <var>status</var> be
-                      CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>o</var>)</li>
-                    <li>Assert: <var>status</var> is true</li>
-                  </ol>
-                </li>
-                <li>Let <var>value</var> be
-                  <var>value</var>[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</li>
-                <li>Assert: <var>value</var> is not an abrupt completion.</li>
-              </ol>
-            </li>
-            <li>Assert: <var>value</var> is an <code>Object</code> or an <code>Array</code>.</li>
-            <li>Let <var>keyValue</var> be the result of running the steps to
-              <a>convert a key to a value</a>.</li>
-            <li>Let <var>status</var> be
-              CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>keyValue</var>)</li>
-            <li>Assert: <var>status</var> is true</li>
-          </ol>
-
-          <p class="note">
-            The <a>key path</a> used here is always a <a>DOMString</a> and never a <a>sequence&lt;DOMString&gt;</a> since it is not
-            possible to create a <a>object store</a> whose <a>multiEntry flag</a> is set and whose
-            <a title="object store key path">key path</a> is an <a>sequence&lt;DOMString&gt;</a>.
-          </p>
-	</section>
-
-        <section class="section">
-          <h4>Steps to convert a key to a value</h4>
-          <p>
-            The steps to <dfn>convert a key to a value</dfn> are as follows. These
-            steps take one argument, <var>key</var>, and return an ECMAScript value.
-          </p>
-          <ol>
-            <li>Let <var>type</var> be <var>key</var>'s <a title="key type">type</a>
-            <li>Let <var>value</var> be <var>key</var>'s <a title="key value">value</a>
-            <li>If <var>type</var> is "<code>number</code>", return an ECMAScript Number value equal to <var>value</var></li>
-            <li>If <var>type</var> is "<code>string</code>", return an ECMAScript String value equal to <var>value</var></li>
-            <li>If <var>type</var> is "<code>date</code>":
-              <ol>
-                <li>Let <var>date</var> be the result of executing the ECMAScript Date constructor with
-                  the single argument <var>value</var></li>
-                <li>Assert: <var>date</var> is not an abrupt completion.</li>
-                <li>Return <var>date</var>
-              </ol>
-            </li>
-            <li>If <var>type</var> is "<code>array</code>", then:
-              <ol>
-                <li>Let <var>array</var> be the result of executing the ECMAScript Array constructor with no arguments.</li>
-                <li>Assert: <var>array</var> is not an abrupt completion.
-                <li>Let <var>len</var> be the length of <var>value</var></li>
-                <li>Let <var>index</var> be 0</li>
-                <li>While <var>index</var> is less than <var>len</var>:
-                  <ol>
-                    <li>Let <var>entry</var> be the result of running the steps to <a>convert a key to a value</a>
-                      with the <var>index</var>th entry of <var>value</var> as input.</li>
-                    <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>)</li>
-                    <li>Assert: <var>status</var> is true</li>
-                    <li>Increase <var>index</var> by 1
-                  </ol>
-                </li>
-                <li>Return <var>array</li>
-              </ol>
-            </li>
-        </section>
-
-        <section class="section">
-          <h4>Steps to convert a value to a key</h4>
-          <p>
-            The steps to <dfn>convert a value to a key</dfn> are as follows. These
-            steps take two arguments, an ECMAScript value <var>input</var>, and
-            an optional set <var>seen</var>. The result of these steps is a <a>key</a> or invalid,
-            or the steps may <a>throw</a> an exception.
-          </p>
-          <ol>
-            <li>If <var>seen</var> was not passed, let <var>seen</var> be a new empty set</li>
-            <li>If <var>input</var> is in <var>seen</var> return invalid</li>
-            <!-- Number -->
-            <li>If Type(<var>input</var>) is Number, then:
-              <ol>
-                <li>If <var>input</var> is <code>NaN</code> then return invalid.</li>
-                <li>Otherwise, return a new <a>key</a> with <a title="key type">type</a> "<code>number</code>"
-                  and <a title="key value">value</a> <var>input</var></li>
-              </ol>
-            </li>
-
-            <!-- String -->
-            <li>If Type(<var>input</var>) is String, then:
-              <ol>
-                <li>Return <a title="key type">type</a> "<code>string</code>" and <a title="key value">value</a> <var>input</var>.</li>
-              </ol>
-            </li>
-
-            <li>If Type(<var>input</var>) is Object, then:
-              <ol>
-                <!-- Date -->
-                <li>If <var>input</var> has an internal [<span>[</span>DateValue]] slot, then:
-                  <ol>
-                    <li>Let <var>ms</var> be the value of <var>input</var>'s <code>[<span>[</span>DateValue]]</code> internal slot.</li>
-                    <li>If <var>ms</var> is <code>NaN</code> then return invalid.</li>
-                    <li>Otherwise, return <a title="key type">type</a> "<code>date</code>" and <a title="key value">value</a> <var>ms</var>.</li>
-                  </ol>
-                </li>
-
-                <!-- Array -->
-                <li>If IsArray(<var>input</var>), then:
-                  <ol>
-                    <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>"))</li>
-                    <li>Assert: <var>len</var> will never an abrupt completion.</li>
-                    <li>Add <var>input</var> to <var>seen</var></li>
-                    <li>Let <var>keys</var> be a new empty list</li>
-                    <li>Let <var>index</var> be 0</li>
-                    <li>While <var>index</var> is less than <var>len</var>:
-                      <ol>
-                        <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]]</var>(<var>index</var>, <var>input</var>)</li>
-                        <li>ReturnIfAbrupt(<var>entry</var>)</li>
-                        <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a>
-                          with arguments <var>entry</var> and <var>seen</var></li>
-                        <li>ReturnIfAbrupt(<var>key</var>)</li>
-                        <li>If <var>key</var> is invalid or an exception, then abort these steps and return <var>key</var>.</li>
-                        <li>Append <var>key</var> to <var>keys</var></li>
-                        <li>Increase <var>index</var> by 1</li>
-                      </ol>
-                    </li>
-                    <li>Return a new <a>key</a> with <a title="key type">type</a> "<code>array</code>" and <a title="key value">value</a> <var>keys</var>.</li>
-                  </ol>
-                </li>
-
-                <!-- TODO: BufferSource -->
-              </ol>
-            </li>
-            <li>
-              Otherwise, return invalid.
-            </li>
-          </ol>
-        </section>
-
-        <section class="section">
-          <h4>Steps to convert a value to a multiEntry key</h4>
-          <p>
-            The steps to <dfn>convert a value to a multiEntry key</dfn> are as follows. These
-            steps take one argument, an ECMAScript value <var>input</var>.
-            The result of these steps is a <a>key</a> or invalid, or the steps may <a>throw</a> an exception.
-          </p>
-          <ol>
-            <!-- Array -->
-            <li>If IsArray(<var>input</var>), then:
-              <ol>
-                <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>"))</li>
-                <li>Assert: <var>len</var> will never an abrupt completion.</li>
-                <li>Let <var>seen</var> be a new set containing only <var>input</var></var>
-                  <li>Let <var>keys</var> be a new empty set</li>
-                  <li>Let <var>index</var> be 0</li>
-                  <li>While <var>index</var> is less than <var>len</var>:
-                    <ol>
-                      <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]]</var>(<var>index</var>, <var>input</var>)</li>
-                      <li>If <var>entry</var> is not an exception:
-                        <ol>
-                          <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a>
-                            with arguments <var>entry</var> and <var>seen</var></li>
-                          <li>If <var>key</var> is not invalid or an exception, add <var>key</var> to <var>keys</var>
-                          if there are no other members of <var>keys</var> <a>equal to</a> <var>key</var></li>
-                        </ol>
-                      </li>
-                      <li>Increase <var>index</var> by 1</li>
-                    </ol>
-                  </li>
-                  <li>Return a new <a>key</a> with <a title="key type">type</a> "<code>array</code>" and <a title="key value">value</a> is
-                    a list of the members of <var>keys</var>.</li>
-                </li>
-              </ol>
-            </li>
-            <li>Otherwise, return the result of running the steps to <a>convert a value to a key</a>
-              with argument <var>input</var>.</li>
-            </li>
-          </ol>
-
-          <div class="note">
-            <p>
-              These steps are similar to those to <a>convert a value to a key</a> but if the top-level
-              value is an <code>Array</code> then members which can not be converted to keys are ignored, and
-              duplicates are removed.
-            </p>
-            <p>
-              For example, the value <code>[10, 20, null, 30, 20]</code> is converted to an
-              <a>array key</a> with <a>subkeys</a> 10, 20, 30.
-            </p>
-          </div>
-        </section>
-
-      </section>
       <section class="section" id="database-operations">
         <h3>Database operations</h3>
         <p>
@@ -4228,9 +3944,15 @@ store_t2.put("d"); // Will get key 2
           </p>
           <ol>
             <li>
-              If <var>store</var> uses <a>in-line keys</a> and <a title="evaluate key path">evaluting</a>
-              <var>store</var>'s <a title="object store key path">key path</a> on <var>value</var> yields
-              a value, then set <var>key</var> to that result.
+              If <var>store</var> uses <a>in-line keys</a>:
+              <ol>
+                <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                  with <var>value</var> and <var>store</var>'s <a title="object store key path">key path</a>.
+                </li>
+                <li>If <var>kpk</var> is not failure,
+                  let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>kpk</var>.
+                </li>
+              </ol>
             </li>
             <li>
               If <var>store</var> uses a <a>key generator</a>:
@@ -4282,8 +4004,8 @@ store_t2.put("d"); // Will get key 2
                   Set <var>index</var> to the index.
                 </li>
                 <li>
-                  Let <var>kpk</var> be the result of <a title="evaluate key path">evaluating</a>
-                  <var>index</var>'s <a title="index key path">key path</a> on <var>value</var>. If this
+                  Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
+                  with <var>value</var> and <var>index</var>'s <a title="index key path">key path</a>. If this
                   results in an exception or failure, take no further actions for this index.
                 </li>
                 <li>
@@ -4610,6 +4332,285 @@ store_t2.put("d"); // Will get key 2
             <li>The result of the algorithm is <var>cursor</var>.</li>
           </ol>
         </section>
+      </section>
+
+      <section class="section" id="binding">
+        <h3>ECMAScript binding</h3>
+
+        <p>
+          This section defines how <a>key</a> values defined in this specification
+          are converted to and from ECMAScript values, and how they may be
+          extracted and injected into ECMAScript values. This section references
+          types and algorithms from the ECMAScript Language Specification. [[!ECMA-262]]
+        </p>
+
+        <section class="section">
+          <h4>Steps to extract a key from a value using a <a>key path</a></h4>
+          <p>
+            The steps to <dfn>extract a key from a value using a key path</dfn> are as follows.
+            The algorithm takes a <a>key path</a> named <var>keyPath</var> and a
+            <a>value</a> named <var>value</var>. The result of these steps is an ECMAScript value
+            or failure, or the steps may <a>throw</a> an exception.
+          </p>
+          <ol>
+            <li>
+              If <var>keyPath</var> is a <a>sequence&lt;DOMString&gt;</a>, run these substeps:
+              <ol>
+                <li>Let <var>result</var> be a new <code>Array</code> ECMAScript object.</li>
+                <li>For each <var>item</var> in the <var>keyPath</var> sequence, perform the following substeps:
+                  <ol>
+                    <li>Let <var>key</var> be the result of recursively running the steps to <a>extract a key from a value using a key path</a>
+                      using <var>item</var> as <var>keyPath</var> and <var>value</var> as <var>value</var>.</li>
+                    <li>ReturnIfAbrupt(<var>key</var>)</li>
+                    <li>If <var>key</var> is failure, abort the overall algorithm and return failure.</li>
+                    <li>Append the result of the first sub-step to end of <var>result</var>.</li>
+                  </ol>
+                </li>
+                <li>Return <var>result</var>.</li>
+                <p class="note">
+                  This will only ever "recurse" one level since <a>key path</a> sequences can't ever be nested.
+                </p>
+              </ol>
+            </li>
+            <li>
+              If <var>keyPath</var> is the empty string, return <var>value</var> and skip the remaining steps.
+            </li>
+            <li>
+              Let <var>identifiers</var> be the result of <a title="strictly split a string">strictly splitting the string</a> <var>keyPath</var> on
+              U+002E FULL STOP characters (.).
+            </li>
+            <li>
+              For each <var>identifier</var> in <var>identifiers</var>:
+              <ol>
+                <li>If Type(<var>value</var>) is String, and <var>identifier</var> is the last item in <var>identifiers</var>,
+                  and <var>identifier</var> is "<code>length</code>", return a Number equal to the number of elements in <var>value</var>.</li>
+                <li>If Type(<var>identifier</var>) is not Object, return failure.
+                <li>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]]</var>(<var>identifier</var>, <var>value</var>)</li>
+                <li>ReturnIfAbrupt(<var>value</var>)</li>
+                <li>If <var>value</var> is Undefined, return failure.
+              </ol>
+            </li>
+            <li>
+              Return <var>value</var>.
+            </li>
+          </ol>
+        </section>
+
+        <section class="section">
+          <h4>Steps to inject a key into a value using a key path</h4>
+          <p>
+            The steps to <dfn>inject a key into a value using a key path</dfn> are as follows.
+            The algorithm takes a <var>value</var>, a <var>key</var> and a <var>keyPath</var>.
+          </p>
+          <ol>
+            <li>
+              Let <var>identifiers</var> be the result of
+              <a title="strictly split a string">strictly splitting the string</a>
+              <var>keyPath</var> on U+002E FULL STOP characters (.).
+            </li>
+            <li>Assert: <var>identifiers</var> is not empty.</li>
+            <li>
+              Let <var>last</var> be the last member of <var>identifiers</var>
+              and remove it from the list.
+            </li>
+            <li>For each remaining <var>identifier</var> in <var>identifiers</var>:
+              <ol>
+                <li>
+                  If <var>value</var> is not an <code>Object</code> object or an <code>Array</code>
+                  object (see <a>structured clone algorithm</a> [[!HTML5]]), then
+                  throw a <a><code>DataError</code></a> exception.
+                </li>
+                <li>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</li>
+                <li>ReturnIfAbrupt(<var>hop</var>)</li>
+                <li>
+                  If <var>hop</var> is false:
+                  <ol>
+                    <li>Let <var>o</var> be a new <code>Object</code>.</li>
+                    <li>Let <var>status</var> be
+                      CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>o</var>)</li>
+                    <li>Assert: <var>status</var> is true</li>
+                  </ol>
+                </li>
+                <li>Let <var>value</var> be
+                  <var>value</var>[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</li>
+                <li>Assert: <var>value</var> is not an abrupt completion.</li>
+              </ol>
+            </li>
+            <li>Assert: <var>value</var> is an <code>Object</code> or an <code>Array</code>.</li>
+            <li>Let <var>keyValue</var> be the result of running the steps to
+              <a>convert a key to a value</a>.</li>
+            <li>Let <var>status</var> be
+              CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>keyValue</var>)</li>
+            <li>Assert: <var>status</var> is true</li>
+          </ol>
+
+          <p class="note">
+            The <a>key path</a> used here is always a <a>DOMString</a> and never a <a>sequence&lt;DOMString&gt;</a> since it is not
+            possible to create a <a>object store</a> whose <a>multiEntry flag</a> is set and whose
+            <a title="object store key path">key path</a> is an <a>sequence&lt;DOMString&gt;</a>.
+          </p>
+	</section>
+
+        <section class="section">
+          <h4>Steps to convert a key to a value</h4>
+          <p>
+            The steps to <dfn>convert a key to a value</dfn> are as follows. These
+            steps take one argument, <var>key</var>, and return an ECMAScript value.
+          </p>
+          <ol>
+            <li>Let <var>type</var> be <var>key</var>'s <a title="key type">type</a>
+            <li>Let <var>value</var> be <var>key</var>'s <a title="key value">value</a>
+            <li>If <var>type</var> is "<code>number</code>", return an ECMAScript Number value equal to <var>value</var></li>
+            <li>If <var>type</var> is "<code>string</code>", return an ECMAScript String value equal to <var>value</var></li>
+            <li>If <var>type</var> is "<code>date</code>":
+              <ol>
+                <li>Let <var>date</var> be the result of executing the ECMAScript Date constructor with
+                  the single argument <var>value</var></li>
+                <li>Assert: <var>date</var> is not an abrupt completion.</li>
+                <li>Return <var>date</var>
+              </ol>
+            </li>
+            <li>If <var>type</var> is "<code>array</code>", then:
+              <ol>
+                <li>Let <var>array</var> be the result of executing the ECMAScript Array constructor with no arguments.</li>
+                <li>Assert: <var>array</var> is not an abrupt completion.
+                <li>Let <var>len</var> be the length of <var>value</var></li>
+                <li>Let <var>index</var> be 0</li>
+                <li>While <var>index</var> is less than <var>len</var>:
+                  <ol>
+                    <li>Let <var>entry</var> be the result of running the steps to <a>convert a key to a value</a>
+                      with the <var>index</var>th entry of <var>value</var> as input.</li>
+                    <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>)</li>
+                    <li>Assert: <var>status</var> is true</li>
+                    <li>Increase <var>index</var> by 1
+                  </ol>
+                </li>
+                <li>Return <var>array</li>
+              </ol>
+            </li>
+        </section>
+
+        <section class="section">
+          <h4>Steps to convert a value to a key</h4>
+          <p>
+            The steps to <dfn>convert a value to a key</dfn> are as follows. These
+            steps take two arguments, an ECMAScript value <var>input</var>, and
+            an optional set <var>seen</var>. The result of these steps is a <a>key</a> or invalid,
+            or the steps may <a>throw</a> an exception.
+          </p>
+          <ol>
+            <li>If <var>seen</var> was not passed, let <var>seen</var> be a new empty set</li>
+            <li>If <var>input</var> is in <var>seen</var> return invalid</li>
+            <!-- Number -->
+            <li>If Type(<var>input</var>) is Number, then:
+              <ol>
+                <li>If <var>input</var> is <code>NaN</code> then return invalid.</li>
+                <li>Otherwise, return a new <a>key</a> with <a title="key type">type</a> "<code>number</code>"
+                  and <a title="key value">value</a> <var>input</var></li>
+              </ol>
+            </li>
+
+            <!-- String -->
+            <li>If Type(<var>input</var>) is String, then:
+              <ol>
+                <li>Return <a title="key type">type</a> "<code>string</code>" and <a title="key value">value</a> <var>input</var>.</li>
+              </ol>
+            </li>
+
+            <li>If Type(<var>input</var>) is Object, then:
+              <ol>
+                <!-- Date -->
+                <li>If <var>input</var> has an internal [<span>[</span>DateValue]] slot, then:
+                  <ol>
+                    <li>Let <var>ms</var> be the value of <var>input</var>'s <code>[<span>[</span>DateValue]]</code> internal slot.</li>
+                    <li>If <var>ms</var> is <code>NaN</code> then return invalid.</li>
+                    <li>Otherwise, return <a title="key type">type</a> "<code>date</code>" and <a title="key value">value</a> <var>ms</var>.</li>
+                  </ol>
+                </li>
+
+                <!-- Array -->
+                <li>If IsArray(<var>input</var>), then:
+                  <ol>
+                    <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>"))</li>
+                    <li>Assert: <var>len</var> will never an abrupt completion.</li>
+                    <li>Add <var>input</var> to <var>seen</var></li>
+                    <li>Let <var>keys</var> be a new empty list</li>
+                    <li>Let <var>index</var> be 0</li>
+                    <li>While <var>index</var> is less than <var>len</var>:
+                      <ol>
+                        <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]]</var>(<var>index</var>, <var>input</var>)</li>
+                        <li>ReturnIfAbrupt(<var>entry</var>)</li>
+                        <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a>
+                          with arguments <var>entry</var> and <var>seen</var></li>
+                        <li>ReturnIfAbrupt(<var>key</var>)</li>
+                        <li>If <var>key</var> is invalid or an exception, then abort these steps and return <var>key</var>.</li>
+                        <li>Append <var>key</var> to <var>keys</var></li>
+                        <li>Increase <var>index</var> by 1</li>
+                      </ol>
+                    </li>
+                    <li>Return a new <a>key</a> with <a title="key type">type</a> "<code>array</code>" and <a title="key value">value</a> <var>keys</var>.</li>
+                  </ol>
+                </li>
+
+                <!-- TODO: BufferSource -->
+              </ol>
+            </li>
+            <li>
+              Otherwise, return invalid.
+            </li>
+          </ol>
+
+          <p>
+            The steps to <dfn>convert a value to a multiEntry key</dfn> are as follows. These
+            steps take one argument, an ECMAScript value <var>input</var>.
+            The result of these steps is a <a>key</a> or invalid, or the steps may <a>throw</a> an exception.
+          </p>
+          <ol>
+            <!-- Array -->
+            <li>If IsArray(<var>input</var>), then:
+              <ol>
+                <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>"))</li>
+                <li>Assert: <var>len</var> will never an abrupt completion.</li>
+                <li>Let <var>seen</var> be a new set containing only <var>input</var></var>
+                  <li>Let <var>keys</var> be a new empty set</li>
+                  <li>Let <var>index</var> be 0</li>
+                  <li>While <var>index</var> is less than <var>len</var>:
+                    <ol>
+                      <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]]</var>(<var>index</var>, <var>input</var>)</li>
+                      <li>If <var>entry</var> is not an exception:
+                        <ol>
+                          <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a>
+                            with arguments <var>entry</var> and <var>seen</var></li>
+                          <li>If <var>key</var> is not invalid or an exception, add <var>key</var> to <var>keys</var>
+                          if there are no other members of <var>keys</var> <a>equal to</a> <var>key</var></li>
+                        </ol>
+                      </li>
+                      <li>Increase <var>index</var> by 1</li>
+                    </ol>
+                  </li>
+                  <li>Return a new <a>key</a> with <a title="key type">type</a> "<code>array</code>" and <a title="key value">value</a> is
+                    a list of the members of <var>keys</var>.</li>
+                </li>
+              </ol>
+            </li>
+            <li>Otherwise, return the result of running the steps to <a>convert a value to a key</a>
+              with argument <var>input</var>.</li>
+            </li>
+          </ol>
+
+          <div class="note">
+            <p>
+              These steps are similar to those to <a>convert a value to a key</a> but if the top-level
+              value is an <code>Array</code> then members which can not be converted to keys are ignored, and
+              duplicates are removed.
+            </p>
+            <p>
+              For example, the value <code>[10, 20, null, 30, 20]</code> is converted to an
+              <a>array key</a> with <a>subkeys</a> 10, 20, 30.
+            </p>
+          </div>
+        </section>
+
       </section>
 
   <!-- database-api -->
