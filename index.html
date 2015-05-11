@@ -2061,58 +2061,54 @@ store_t2.put("d"); // Will get key 2
                 <a title="connection">connected</a> <a>database</a>.
                 Note that this method must only be called from within an <a>upgrade transaction</a>.
               </p>
-              <p>
-                If this <a>database</a> is not running an <a>upgrade transaction</a>, or if this
-                function is called on a <a>IDBDatabase</a> object other than that transaction's
-                <a title="transaction connection">connection</a>,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If the <a>upgrade transaction</a> is not <a>active</a>,
-                the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a not an <a>upgrade transaction</a>,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                </li>
+                <li>If an <a>object store</a> <a title="object store name">named</a> <var>name</var> already exists in this <a>database</a>,
+                  <a>throw</a> a <a><code>ConstraintError</code></a> exception.
+                </li>
 
-                If an <a>object store</a> with the <a title="object store name">name</a> <var>name</var> already exists in this <a>database</a>,
-                the implementation MUST throw a <a><code>ConstraintError</code></a> exception.
-              </p>
-              <p>
-                If the <var>optionalParameters</var> argument is specified and has a <code>keyPath</code> property
-                which is not undefined or null, then set <var>keyPath</var> to the value
-                of this property.
+                <li>Let <var>keyPath</var> be <var>optionalParameters</var>'s <code>keyPath</code> member if it is not undefined or null, or null otherwise.</li>
+                <li>If <var>keyPath</var> is not null and is not a <a>valid key path</a>,
+                  <a>throw</a> a <a><code>SyntaxError</code></a> exception.
+                </li>
 
-                If <var>keyPath</var> is not a <a>valid key path</a>,
-                the implementation MUST throw a <a><code>SyntaxError</code></a> exception.
-              </p>
-              <p>
-                If the <var>optionalParameters</var> argument is specified, and <code>autoIncrement</code> is true,
-                then set <var>autoIncrement</var>.
+                <li>Let <var>autoIncrement</var> be set if <var>optionalParameters</var>'s <code>autoIncrement</code> member is true, or unset otherwise.</li>
+                <li>If <var>autoIncrement</var> is set and <var>keyPath</var> is an empty string or any sequence (empty or otherwise),
+                  <a>throw</a> an <a><code>InvalidAccessError</code></a> exception.
+                </li>
 
-                If <var>autoIncrement</var> is set and
-                <var>keyPath</var> is an empty <a>DOMString</a> or any <a>sequence&lt;DOMString&gt;</a>,
-                the implementation MUST throw an <a><code>InvalidAccessError</code></a> exception.
-              </p>
-              <p>
-                Otherwise the implementation MUST create a new <a>object store</a> in the <a title="connection">connected</a> <a>database</a>
-                and return an <a>IDBObjectStore</a> object representing it.
-                Set the created <a>object store</a>'s <a title="object store name">name</a> to <var>name</var>.
-                If <var>autoIncrement</var> is set, then the created <a>object store</a> uses a <a>key generator</a>.
-                If <var>keyPath</var> is defined, set the created <a>object store</a>'s <a title="object store key path">key path</a> to the value of
-                <var>keyPath</var>.
-              </p>
+                <li>Create a new <a>object store</a> in the <a title="connection">connected</a> <a>database</a>
+                  and return an <a>IDBObjectStore</a> object representing it.
+                  Set the created <a>object store</a>'s <a title="object store name">name</a> to <var>name</var>.
+                  If <var>autoIncrement</var> is set, then the created <a>object store</a> uses a <a>key generator</a>.
+                  If <var>keyPath</var> is not null, set the created <a>object store</a>'s <a title="object store key path">key path</a> to <var>keyPath</var>.
+                </li>
+              </ol>
+
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property. However it
-                only changes the <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a>
-                property on the <a>IDBDatabase</a> instance on which it was called.
+                <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property
+                on the <a>IDBDatabase</a> instance on which it was called.
               </p>
+
               <p>
                 In some implementations it is possible for the implementation to run into problems
                 after queuing up an operation to create the <a>object store</a> after the <code>createObjectStore</code> function has returned.
                 For example in implementations where metadata about the newly created <a title="object store">objectStore</a> is inserted into the database asynchronously,
                 or where the implementation might need to ask the user for permission for quota reasons.
                 Such implementations MUST still create and return an <a>IDBObjectStore</a> object. Instead,
-                once the implementation realizes that creating the <a title="object store">objectStore</a> has failed, it MUST abort the transaction
+                once the implementation determines that creating the <a title="object store">objectStore</a> has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
                 creating the <a>object store</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error.
               </p>
+
               <dl class="parameters">
                 <dt>DOMString name</dt>
                   <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
@@ -2134,28 +2130,28 @@ store_t2.put("d"); // Will get key 2
                 <a title="connection">connected</a> <a>database</a>.
                 Note that this method must only be called from within an <a>upgraade transaction</a>.
               </p>
-              <p>
-                If this <a>database</a> is not running a <a>upgrade transaction</a>, or if this
-                function is called on a <a>IDBDatabase</a> object other than that transactions
-                <a title="transaction connection">connection</a>,
-                the implementation MUST throw an <a><code>InvalidStateError</code></a> exception.
 
-                If the <a>upgrade transaction</a> is not <a>active</a>,
-                the implementation MUST throw a <a><code>TransactionInactiveError</code></a> exception.
-              </p>
-              <p>
-                If there is no <a>object store</a> with <a title="object store name">name</a> <var>name</var> in the <a title="connection">connected</a> <a>database</a>,
-                the implementation MUST throw a <a><code>NotFoundError</code></a> exception.
-              </p>
-              <p>
-                Otherwise, this method destroys the <a>object store</a> with the <a title="object store name">name</a> <var>name</var>
-                in the <a title="connection">connected</a> <a>database</a>.
-              </p>
+              When invoked, the method must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a not an <a>upgrade transaction</a>,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                </li>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                </li>
+                <li>If there is no <a>object store</a> <a title="object store name">named</a> <var>name</var> in the <a title="connection">connected</a> <a>database</a>,
+                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                </li>
+
+                <li>Destroy the <a>object store</a> <a title="object store name">named</a> <var>name</var>
+                  in the <a title="connection">connected</a> <a>database</a>.
+                </li>
+              </ol>
+
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property. However it
-                only changes the <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a>
-                property on the <a>IDBDatabase</a> instance on which it was called.
+                <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property
+                on the <a>IDBDatabase</a> instance on which it was called.
               </p>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -2674,7 +2670,7 @@ store_t2.put("d"); // Will get key 2
                 queued up to be inserted into the database asynchronously,
                 or where the implementation might need to ask the user for permission for quota reasons.
                 Such implementations MUST still create and return an <a>IDBIndex</a> object. Instead,
-                once the implementation realizes that creating the index has failed, it MUST abort the transaction
+                once the implementation determines that creating the index has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using the appropriate error as <var>error</var> parameter. For example if
                 creating the <a>index</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error and if the index
                 can't be created due to <a>unique</a> constraints, <code>ConstraintError</code> MUST be used as error.
