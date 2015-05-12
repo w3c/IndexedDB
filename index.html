@@ -1060,6 +1060,21 @@ request.onsuccess = function() {
             Requests for opening and deleting databases do not take place within a transaction, so the
             <a>request transaction</a> for such a request is null.
           </p>
+          <p>
+            When a request is made, a new <a>request</a> is returned with its
+            <a title="request done">done flag</a> unset.
+            If a request completes successfully, the
+            <a title="request done">done flag</a> is set, the
+            <a title="request result">result</a>
+            is set to the result of the request, and an event with type <code>success</code> is fired
+            at the <a>request</a>.
+          </p>
+          <p>
+            If an error occurs while performing the operation, the
+            <a title="request done">done flag</a> is set, the
+            <a title="request error">error</a> is set to a <a><code>DOMError</code></a> type that matches the error,
+            and an event with type <code>error</code> is fired at the request.
+          </p>
         </section> <!-- Requests -->
 
         <section class="section" id="range-concept">
@@ -1584,6 +1599,11 @@ store.put([10]); // will throw DataError
           available through the properties of the <a>IDBRequest</a> instance.
         </p>
 
+        <p>
+          The <span>task source</span> for these tasks is the
+          <dfn id="database-access-task-source">database access task source</dfn>.
+        </p>
+
         <section class="section" id="request-api">
           <h4>The <code>IDBRequest</code> Interface</h4>
           <p>
@@ -1651,24 +1671,9 @@ store.put([10]); // will throw DataError
             <dd>The event handler for the <code>error</code> event.</dd>
           </dl>
           <p>
-            When a request is made, a new <a>request</a> is returned with its
-            <a title="request done">done flag</a> unset.
-            If a request completes successfully, the
-            <a title="request done">done flag</a> is set, the
-            <a title="request result">result</a>
-            is set to the result of the request, and an event with type <code>success</code> is fired
-            at the <a>request</a>.
-          </p>
-          <p>
-            If an error occurs while performing the operation, the
-            <a title="request done">done flag</a> is set, the
-            <a title="request error">error</a> is set to a <a><code>DOMError</code></a> type that matches the error,
-            and an event with type <code>error</code> is fired at the request.
-          </p>
-          <p>
-            The <code>open</code> and <code>deleteDatabase</code> functions on <code><a>IDBFactory</a></code>
-            uses a separate interface for its requests in order to make use of the
-            <code>blocked</code> event and <code>upgradeneeded</code> event easier.
+            Methods on <a>IDBFactory</a> that return a <a>request</a> use
+            a separate interface to allow listening to the
+            <code>blocked</code> event and <code>upgradeneeded</code> event.
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBOpenDBRequest : IDBRequest">
             <dt>attribute EventHandler onblocked</dt>
@@ -1676,16 +1681,12 @@ store.put([10]); // will throw DataError
             <dt>attribute EventHandler onupgradeneeded</dt>
             <dd>The event handler for the <code>upgradeneeded</code> event.</dd>
           </dl>
-          <p>
-            The <span>task source</span> for these tasks is the
-            <dfn id="database-access-task-source">database access task source</dfn>.
-          </p>
 
           <dl class="idl" title="enum IDBRequestReadyState">
             <dt>pending</dt>
-            <dd>The <a title="request done">done flag</a> of the <a>request</a> unset.</dd>
+            <dd>The <a title="request done">done flag</a> of the <a>request</a> is unset.</dd>
             <dt>done</dt>
-            <dd>The <a title="request done">done flag</a> of the <a>request</a> set.</dd>
+            <dd>The <a title="request done">done flag</a> of the <a>request</a> is set.</dd>
           </dl>
         </section>
 
@@ -1714,7 +1715,7 @@ store.put([10]); // will throw DataError
           </dl>
         </section>
 
-        <section class="section" id="requests">
+        <section class="section" id="factory-interface">
           <h4>The <code>IDBFactory</code> interface</h4>
           <p>
             <a>Database</a> objects are accessed through methods on the
