@@ -1606,35 +1606,45 @@ store.put([10]); // will throw DataError
             <dt>readonly attribute any result</dt>
             <dd>
               If the <a title="request done">done flag</a> is unset,
+              the <code>result</code> attribute's getter
               <a title="throw">throws</a> an <a><code>InvalidStateError</code></a> exception.
-              Otherwise, returns the <a title="request result">result</a> of
+              Otherwise,
+              the <code>result</code> attribute's getter
+              must return the <a title="request result">result</a> of
               the request, or undefined if the request resulted in an error.
             </dd>
 
             <dt>readonly attribute DOMError error</dt>
             <dd>
               If the <a title="request done">done flag</a> is unset,
+              the <code>error</code> attribute's getter
               <a title="throw">throws</a> an <a><code>InvalidStateError</code></a> exception.
-              Otherwise, returns the <a title="request error">error</a> of the request,
+              Otherwise,
+              the <code>error</code> attribute's getter
+              must return the <a title="request error">error</a> of the request,
               or null if no error occurred.
             </dd>
 
             <dt>readonly attribute (IDBObjectStore or IDBIndex or IDBCursor)? source</dt>
             <dd>
-              Returns the <a title="request source">source</a> of the <a>request</a>, or
+              The <code>source</code> attribute's getter
+              must return the <a title="request source">source</a> of the <a>request</a>, or
               null if no <a title="request source">source</a> is set.
             </dd>
 
             <dt>readonly attribute IDBTransaction transaction</dt>
             <dd>
-              Returns the <a title="request transaction">transaction</a> of the <a>request</a>.
+              The <code>transaction</code> attribute's getter
+              must return the <a title="request transaction">transaction</a> of the <a>request</a>.
               This property can be null for certain requests, such as for <a>request</a>
               returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a>.
             </dd>
 
             <dt>readonly attribute IDBRequestReadyState readyState</dt>
-            <dd>Returns "<code>pending</code>" if the <a title="request done">done flag</a> is unset,
-              and returns "<code>done</code>" otherwise.</dd>
+            <dd>
+              The <code>readyState</code> attribute's getter
+              must return "<code>pending</code>" if the <a title="request done">done flag</a> is unset,
+              and "<code>done</code>" otherwise.</dd>
 
             <dt>attribute EventHandler onsuccess</dt>
             <dd>The event handler for the <code>success</code> event.</dd>
@@ -1870,7 +1880,7 @@ store.put([10]); // will throw DataError
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBDatabase : EventTarget">
             <dt>readonly attribute DOMString name</dt>
             <dd>
-              On getting, this attribute MUST return the <a title="database name">name</a>
+              The <code>name</code> attribute's getter must return the <a title="database name">name</a>
               of the <a title="connection">connected</a> <a>database</a>. The attribute MUST
               return this name even if the <a>close pending flag</a> is set on the <a>connection</a>.
               In other words, the value of this attribute
@@ -1879,8 +1889,8 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute unsigned long long version</dt>
             <dd>
-              On getting, this attribute MUST return the <a>version</a> of the
-              <a>database</a> when this <a>IDBDatabase</a> instance was created.
+              The <code>version</code> attribute's getter must return the <a>version</a> of the
+              <a>database</a> when the <a>connection</a> was created.
               When a <a>IDBDatabase</a> instance is created,
               this is always the number passed as the <var>version</var>
               argument passed to the <a><code>open</code></a>
@@ -1894,7 +1904,7 @@ store.put([10]); // will throw DataError
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
               <p>
-              On getting, this attribute MUST return a list of names of the
+                The <code>objectStoreNames</code> attribute's getter must return a list of names of the
               <a title="object store">object stores</a> currently in the
               <a title="connection">connected</a> <a>database</a>. The list MUST
               be sorted in ascending order using the algorithm defined by step 4
@@ -2101,13 +2111,16 @@ store.put([10]); // will throw DataError
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBObjectStore">
             <dt>readonly attribute DOMString name</dt>
             <dd>
-              On getting, provide the <a title="object store name">name</a> of this
+              The <code>name</code> attribute's getter
+              must return the <a title="object store name">name</a> of this
               object store.
             </dd>
+
             <dt>readonly attribute any keyPath</dt>
             <dd>
               <p>
-                On getting, returns a value representing the <a title="object store key path">key path</a>
+                The <code>keyPath</code> attribute's getter
+                must return the <a title="object store key path">key path</a>
                 of this <a>object store</a>, or null if none.
               </p>
               <p>
@@ -2125,7 +2138,8 @@ store.put([10]); // will throw DataError
             <dt>readonly attribute DOMStringList  indexNames</dt>
             <dd>
               <p>
-                On getting, provide a list of the names of <a title="index">indexes</a> on
+                The <code>indexNames</code> attribute's getter must return
+                a list of the names of <a title="index">indexes</a> on
                 objects in this <a>object store</a>. The list MUST
                 be sorted in ascending order using the algorithm defined by step 4
                 of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
@@ -2148,10 +2162,14 @@ store.put([10]); // will throw DataError
             </dd>
             <dt>readonly attribute IDBTransaction transaction</dt>
             <dd>
-              On getting, returns the <a>transaction</a> this <a>object store</a> belongs to.
+              The <code>transaction</code> attribute's getter
+              must return the <a>transaction</a> this <a>object store</a> belongs to.
             </dd>
+
             <dt>readonly attribute boolean autoIncrement</dt>
-            <dd>On getting, provides the auto increment flag for this <a>object store</a>.</dd>
+            <dd>
+              The <code>autoIncrement</code> attribute's getter
+              must return true of this <a>object store</a> has a <a>key generator</a>, and false otherwise.</dd>
 
             <dt>IDBRequest put()</dt>
             <dd>
@@ -2710,19 +2728,24 @@ store.put([10]); // will throw DataError
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBIndex">
             <dt>readonly attribute DOMString name</dt>
             <dd>
-              On getting, provide the <a title="index name">name</a> of this <a>index</a>.
+              The <code>name</code> attribute's getter must return
+              the <a title="index name">name</a> of this <a>index</a>.
             </dd>
+
             <dt>readonly attribute IDBObjectStore objectStore</dt>
             <dd>
-              On getting, returns a reference to the <a>IDBObjectStore</a> instance for the
+              The <code>objectStore</code> attribute's getter
+              must return a reference to the <a>IDBObjectStore</a> instance for the
               <a>referenced</a> object store in this <a>IDBIndex</a>'s transaction. This MUST
               return the same <a>IDBObjectStore</a> instance as was used to get a reference
               to this <a>IDBIndex</a>.
             </dd>
+
             <dt>readonly attribute any keyPath</dt>
             <dd>
               <p>
-                On getting, returns a value representing the <a title="object store key path">key path</a>
+                The <code>keyPath</code> attribute's getter
+                must return a value representing the <a title="object store key path">key path</a>
                 of this <a>index</a>, or null if none.
               </p>
               <p>
@@ -2737,13 +2760,17 @@ store.put([10]); // will throw DataError
                 the properties of the object has no effect on the <a>index</a>.
               </p>
             </dd>
+
             <dt>readonly attribute boolean multiEntry</dt>
             <dd>
-            	On getting, provide the <a>multiEntry flag</a> of this <a>index</a>.
+              The <code>multiEntry</code> attribute's getter must return true if the
+              <a>multiEntry flag</a> of this <a>index</a> is set, and false otherwise.
             </dd>
+
             <dt>readonly attribute boolean unique</dt>
             <dd>
-              On getting, provide the <a>unique flag</a> of this <a>index</a>.
+              The <code>unique</code> attribute's getter must return true if the
+              <a>unique flag</a> of this <a>index</a> is set, and false otherwise.
             </dd>
 
             <dt>IDBRequest openCursor()</dt>
@@ -2967,18 +2994,26 @@ store.put([10]); // will throw DataError
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBKeyRange">
             <dt>readonly attribute any lower</dt>
-            <dd>Returns the result of running the steps to <a>convert a key to a value</a>
+            <dd>
+              The <code>lower</code> attribute's getter must return
+              result of running the steps to <a>convert a key to a value</a>
               with the <a>lower bound</a> if it is not null, or undefined otherwise.</dd>
 
             <dt>readonly attribute any upper</dt>
-            <dd>Returns the result of running the steps to <a>convert a key to a value</a>
+            <dd>
+              The <code>upper</code> attribute's getter must return
+              the result of running the steps to <a>convert a key to a value</a>
               with the <a>upper bound</a> if it is not null, or undefined otherwise.</dd>
 
             <dt>readonly attribute boolean lowerOpen</dt>
-            <dd>Returns true if the <a>lower open flag</a> is set, and false otherwise.</dd>
+            <dd>
+              The <code>lowerOpen</code> attribute's getter must return
+              true if the <a>lower open flag</a> is set, and false otherwise.</dd>
 
             <dt>readonly attribute boolean upperOpen</dt>
-            <dd>Returns true if the <a>upper open flag</a> is set, and false otherwise.</dd>
+            <dd>
+              The <code>upperOpen</code> attribute's getter must return
+              true if the <a>upper open flag</a> is set, and false otherwise.</dd>
 
             <dt>static IDBKeyRange only()</dt>
             <dd>
@@ -3097,19 +3132,22 @@ store.put([10]); // will throw DataError
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursor">
             <dt>readonly attribute (IDBObjectStore or IDBIndex) source</dt>
             <dd>
-            On getting, returns the <a>IDBObjectStore</a> or <a>IDBIndex</a> which this cursor is iterating. This attribute
-            never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
-            or its transaction is not <a>active</a>.
+              The <code>source</code> attribute's getter must return the <a>source</a> of this <a>cursor</a>.
+              This attribute
+              never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
+              or its <a>transaction</a> is not <a>active</a>.
             </dd>
 
             <dt>readonly attribute IDBCursorDirection direction</dt>
             <dd>
-            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
+              The <code>direction</code> attribute's getter must return the
+              <a>direction</a> of the <a>cursor</a>.
             </dd>
 
             <dt>readonly attribute any key</dt>
             <dd>
-              Returns the result of running the steps to <a>convert a key to a value</a>
+              The <code>key</code> attribute's getter must return
+              the result of running the steps to <a>convert a key to a value</a>
               with the cursor's current <a title="cursor key">key</a>.
             Note that if this property returns an object (e.g. a <code>Date</code> or <code>Array</code>), it returns the same
             object instance every time it is inspected, until the cursor's <a title="cursor key">key</a> is changed.
@@ -3119,7 +3157,8 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute any primaryKey</dt>
             <dd>
-              Returns the result of running the steps to <a>convert a key to a value</a>
+              The <code>primaryKey</code> attribute's getter must return
+              the result of running the steps to <a>convert a key to a value</a>
               with the cursor's current <a>effective key</a>.
             Note that if this property returns an object (e.g. a <code>Date</code> or <code>Array</code>), it returns the same
             object instance every time it is inspected, until the cursor's <a>effective key</a> is changed.
@@ -3324,7 +3363,10 @@ store.put([10]); // will throw DataError
 
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursorWithValue : IDBCursor">
             <dt>readonly attribute any value</dt>
-            <dd>Returns the cursor's current <a title="cursor value">value</a>.
+            <dd>
+              The <code>value</code> attribute's getter must return
+              the cursor's current <a title="cursor value">value</a>.
+
             Note that if this property returns an object, it returns the same
             object instance every time it is inspected, until the cursor's <a title="cursor value">value</a> is changed.
             This means that if the object is modified,
@@ -3360,24 +3402,39 @@ store.put([10]); // will throw DataError
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBTransaction : EventTarget">
             <dt>readonly attribute IDBTransactionMode mode</dt>
-            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
-            the <a title="object store">object stores</a> that are in the
-            <a>scope</a> of the <a>transaction</a>.</dd>
-            <dt>readonly attribute IDBDatabase db</dt>
-            <dd>The <a>database</a> <a>connection</a> of which this <a>transaction</a>
-              is a part
+            <dd>
+              The <code>mode</code> attribute's getter must return the <a>mode</a> of the <a>transaction</a>.
             </dd>
+
+            <dt>readonly attribute IDBDatabase db</dt>
+            <dd>
+              The <code>db</code> attribute's getter must return the
+              <a>database</a> <a>connection</a> of which this <a>transaction</a>
+              is a part.
+            </dd>
+
             <dt>readonly attribute DOMError error</dt>
             <dd>
-              If this <a>transaction</a> is not <a title="transaction finish">finished</a>, is <a title="transaction finish">finished</a> but was successfully
-              <a title="transaction commit">committed</a>, or was aborted due to a call to the
-              <a href="#widl-IDBTransaction-abort-void"><code>abort</code></a> function, this property
-              returns null.
-              If this transaction was aborted due to a failed <a>request</a>, this property returns the same
-              <a><code>DOMError</code></a> as the <a>request</a> which caused this transaction to be aborted.
-              If this transaction was aborted due to an error when committing the <a>transaction</a>, and not due to a failed
-              <a>request</a>, this property returns a <a><code>DOMError</code></a> which contains the reason for the transaction
-              failure (e.g. <code>QuotaExceededError</code> or <code>UnknownError</code>).
+              The <code>error</code> attribute's getter must run these steps:
+              <ol>
+                <li>
+                  If this <a>transaction</a> is not <a title="transaction finish">finished</a>, is <a title="transaction finish">finished</a> but was successfully
+                  <a title="transaction commit">committed</a>, or was aborted due to a call to the
+                  <a href="#widl-IDBTransaction-abort-void"><code>abort</code></a> function,
+                  return null.
+                </li>
+                <li>
+                  If this <a>transaction</a> was aborted due to a failed <a>request</a>,
+                  return the same
+                  <a><code>DOMError</code></a> as the <a>request</a> which caused this transaction to be aborted.
+                </li>
+                <li>
+                  Otherwise, this transaction was aborted due to an error when committing the <a>transaction</a>,
+                  and not due to a failed <a>request</a>.
+                  Return a <a><code>DOMError</code></a> which contains the reason for the transaction
+                  failure (e.g. <code>QuotaExceededError</code> or <code>UnknownError</code>).
+                </li>
+              </ol>
             </dd>
 
             <dt>IDBObjectStore objectStore()</dt>
