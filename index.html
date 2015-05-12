@@ -1007,70 +1007,85 @@ request.onsuccess = function() {
           </ol>
 
           <p>
-            Any number of <a title="read-only transaction">read-only transactions</a> are allowed to run concurrently,
-            even if the transaction's <a>scope</a> overlap and include the same <a title="object store">object stores</a>.
-            As long as a <a>read-only transaction</a> is running, the data that the implementation returns
-            through <a title="request">requests</a> created with that transaction MUST remain
-            constant. That is, two requests to read the same piece of data MUST yield the same result
-            both for the case when data is found and the result is that data, and for the case when data
-            is not found and a lack of data is indicated.
-          </p>
-          <p>
-            There are a number of ways that an implementation ensures this. The implementation can prevent any
-            <a>read/write transaction</a>, whose scope overlaps the scope of the <a>read-only transaction</a>, from
-            starting until the <a>read-only transaction</a> finishes. Or the implementation can allow the
-            <a>read-only transaction</a> to see a snapshot of the contents of the <a title="object store">object stores</a> which is taken when
-            the <a>read-only transaction</a> started.
-          </p>
-          <p>
-            Similarly, implementations MUST ensure that a <a>read/write transaction</a> is only affected by
-            changes to <a title="object store">object stores</a> that are made using the transaction itself. For example, the
-            implementation MUST ensure that another transaction does not modify the contents of
-            <a title="object store">object stores</a> in the <a>read/write transaction</a>'s <a>scope</a>. The implementation
-            MUST also ensure that if the <a>read/write transaction</a> completes successfully, the
-            changes written to <a title="object store">object stores</a> using the transaction can be committed to the
-            <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
-            due to merge conflicts.
-          </p>
-          <p>
-            If multiple <a title="read/write transaction">read/write transactions</a> are attempting to access the same object store (i.e.
-            if they have overlapping <a>scope</a>), the transaction that was <a title="transaction create">
-            created</a> first MUST be the transaction which gets access to the object store first. Due to
-            the requirements in the previous paragraph, this also means that it is the only transaction
-            which has access to the object store until the transaction is <a title="transaction finish">finished</a>.
+            The following constraints define when a <a>transaction</a> can be <a title="transaction start">started</a>:
           </p>
 
-          <p>
-            Any transaction
-            <a title="transaction create">created</a> after a
-            <a>read/write transaction</a> MUST see the changes
-            written by the <a>read/write transaction</a>. So if
-            a
-            <a>read/write transaction</a>, A, is created, and
-            later another transaction B, is created, and the two
-            transactions have overlapping
-            <a title="scope">scopes</a>, then B MUST see any changes
-            made to any <a title="object store">object stores</a> that
-            are part of that overlapping <a>scope</a>. Due to the
-            requirements in the previous paragraph, this also means
-            that the B transaction does not have access to any
-            <a title="object store">object stores</a> in that
-            overlapping <a>scope</a> until the A transaction
-            is <a title="transaction finish">finished</a>.
-          </p>
+          <ul>
+            <li>
+              Any number of <a title="read-only transaction">read-only transactions</a> are allowed to run concurrently,
+              even if the transaction's <a>scope</a> overlap and include the same <a title="object store">object stores</a>.
+              As long as a <a>read-only transaction</a> is running, the data that the implementation returns
+              through <a title="request">requests</a> created with that transaction MUST remain
+              constant. That is, two requests to read the same piece of data MUST yield the same result
+              both for the case when data is found and the result is that data, and for the case when data
+              is not found and a lack of data is indicated.
+              <p class="note">
+                There are a number of ways that an implementation can ensure this. The implementation could prevent any
+                <a>read/write transaction</a>, whose scope overlaps the scope of the <a>read-only transaction</a>, from
+                starting until the <a>read-only transaction</a> finishes. Or the implementation could allow the
+                <a>read-only transaction</a> to see a snapshot of the contents of the <a title="object store">object stores</a> which is taken when
+                the <a>read-only transaction</a> started.
+              </p>
+            </li>
 
-          <p class="note">
-            Generally speaking, the above requirements mean that any
-            transaction which has an overlapping scope with a
-            <a>read/write transaction</a> and which was created
-            after that
-            <a>read/write transaction</a>, can't run in
-            parallel with that
-            <a>read/write transaction</a>.
-          </p>
+            <li>
+              Similarly, implementations MUST ensure that a <a>read/write transaction</a> is only affected by
+              changes to <a title="object store">object stores</a> that are made using the transaction itself. For example, the
+              implementation MUST ensure that another transaction does not modify the contents of
+              <a title="object store">object stores</a> in the <a>read/write transaction</a>'s <a>scope</a>. The implementation
+              MUST also ensure that if the <a>read/write transaction</a> completes successfully, the
+              changes written to <a title="object store">object stores</a> using the transaction can be committed to the
+              <a>database</a> without merge conflicts. An implementation MUST NOT abort a transaction
+              due to merge conflicts.
+            </li>
+
+            <li>
+              If multiple <a title="read/write transaction">read/write transactions</a> are attempting to access the same object store (i.e.
+              if they have overlapping <a>scope</a>), the transaction that was <a title="transaction create">
+              created</a> first MUST be the transaction which gets access to the object store first. Due to
+              the requirements in the previous paragraph, this also means that it is the only transaction
+              which has access to the object store until the transaction is <a title="transaction finish">finished</a>.
+            </li>
+
+            <li>
+              Any transaction
+              <a title="transaction create">created</a> after a
+              <a>read/write transaction</a> MUST see the changes
+              written by the <a>read/write transaction</a>. So if
+              a
+              <a>read/write transaction</a>, A, is created, and
+              later another transaction B, is created, and the two
+              transactions have overlapping
+              <a title="scope">scopes</a>, then B MUST see any changes
+              made to any <a title="object store">object stores</a> that
+              are part of that overlapping <a>scope</a>. Due to the
+              requirements in the previous paragraph, this also means
+              that the B transaction does not have access to any
+              <a title="object store">object stores</a> in that
+              overlapping <a>scope</a> until the A transaction
+              is <a title="transaction finish">finished</a>.
+
+              <p class="note">
+                Generally speaking, the above requirements mean that any
+                transaction which has an overlapping scope with a
+                <a>read/write transaction</a> and which was created
+                after that
+                <a>read/write transaction</a>, can't run in
+                parallel with that
+                <a>read/write transaction</a>.
+              </p>
+            </li>
+
+            <li>
+              User agents MUST ensure a reasonable level of fairness across transactions to prevent
+              starvation. For example, if multiple <a title="read-only transaction">read-only transactions</a> are started one after another
+              the implementation MUST NOT indefinitely prevent a pending <a>read/write transaction</a>
+              from <a title="transaction start">starting</a>.
+            </li>
+          </ul>
 
           <p>
-            An <a>upgrade transaction</a> never run concurrently with other transactions.
+            An <a>upgrade transaction</a> is never run concurrently with other transactions.
             When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
             <a>upgrade transaction</a> is automatically created and made available through the
             <a><code>upgradeneeded</code></a> event. The <a><code>upgradeneeded</code></a> event isn't fired, and thus the
@@ -1090,12 +1105,6 @@ request.onsuccess = function() {
             when a database version number is provided that is greater than the current database version.
             This <a>transaction</a> will be active inside the <a><code>upgradeneeded</code></a> event handler,
             allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
-          </p>
-          <p>
-            User agents MUST ensure a reasonable level of fairness across transactions to prevent
-            starvation. For example, if multiple <a title="read-only transaction">read-only transactions</a> are started one after another
-            the implementation MUST NOT indefinitely prevent a pending <a>read/write transaction</a>
-            from <a title="transaction start">starting</a>.
           </p>
         </section> <!-- Transaction -->
 
