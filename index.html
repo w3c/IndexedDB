@@ -699,7 +699,7 @@ request.onsuccess = function() {
               Spaces are not allowed within a key path.
           </p>
           <p>
-          	<a title="key path">Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>,
+          	<a>Key path</a> values can only be accessed from properties explicitly copied by the <a>structured clone algorithm</a>,
           	as well as the following type-specific properties:
           </p>
           <table>
@@ -809,7 +809,7 @@ request.onsuccess = function() {
           <dl>
             <dt>"<code>readonly</code>"</dt>
             <dd>
-                A <dfn title="transaction readonly">"<code>readonly</code>"</dfn> transaction is only allowed
+                The transaction is only allowed
                 to read data. No modifications can be done by this type of transaction. This has the advantage
                 that several <a title="read-only transaction">read-only transactions</a> can run at the same time even if their <a title="scope">scopes</a>
                 are overlapping, i.e. if they are using the same object stores. This type of transaction can
@@ -818,7 +818,7 @@ request.onsuccess = function() {
 
             <dt>"<code>readwrite</code>"</dt>
             <dd>
-                A <dfn title="transaction readwrite">"<code>readwrite</code>"</dfn> transaction is allowed to read, modify and
+                The transaction is allowed to read, modify and
                 delete data from existing object stores. However object stores and indexes can't be added or removed.
                 Multiple "<code>readwrite</code>" transactions can't run at the same time if their <a title="scope">scopes</a> are overlapping
                 since that would mean that they can modify each other's data in the middle of the transaction.
@@ -827,8 +827,9 @@ request.onsuccess = function() {
 
             <dt>"<code>versionchange</code>"</dt>
             <dd>
-                A <dfn title="transaction versionchange">"<code>versionchange</code>"</dfn> transaction is similar to a "<code>readwrite</code>" transaction,
-                however it can additionally create and remove object stores and indexes. It is the only type of
+                The transaction is allowed to read, modify and
+                delete data from existing object stores, and can also
+                create and remove object stores and indexes. It is the only type of
                 transaction that can do so. This type of transaction can't be manually created, but instead is created
                 automatically when a <a><code>upgradeneeded</code></a> event is fired.
             </dd>
@@ -1047,7 +1048,7 @@ request.onsuccess = function() {
             A <a>request</a> has a <dfn title="request source">source</dfn> object.
           </p>
           <p>
-            A <a>request</a> has a <dfn title="request result">result</dfn> and an <dfn>error attribute</dfn>,
+            A <a>request</a> has a <dfn title="request result">result</dfn> and an <dfn title="request error">error</dfn>,
             neither of which are accessible until the <a title="request done">done flag</a> is set.
           </p>
           <p>
@@ -1613,36 +1614,37 @@ store.put([10]); // will throw DataError
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBRequest : EventTarget">
             <dt>readonly attribute any result</dt>
             <dd>
-              When the <a title="request done">done flag</a> is set,
-              getting this property MUST return the <a title="request result">result</a> of
-              the request. This is undefined when the request resulted in an error.
-
-              When the <a title="request done">done flag</a> is unset,
-              getting this property MUST throw an <a><code>InvalidStateError</code></a> exception.
+              If the <a title="request done">done flag</a> is unset,
+              <a title="throw">throws</a> an <a><code>InvalidStateError</code></a> exception.
+              Otherwise, returns the <a title="request result">result</a> of
+              the request, or undefined if the request resulted in an error.
             </dd>
+
             <dt>readonly attribute DOMError error</dt>
             <dd>
-              When the <a title="request done">done flag</a> is set,
-              getting this property MUST return the error of the request. This is null when no error occurred.
-
-              When the <a title="request done">done flag</a> is unset,
-              getting this property MUST throw an <a><code>InvalidStateError</code></a> exception.
+              If the <a title="request done">done flag</a> is unset,
+              <a title="throw">throws</a> an <a><code>InvalidStateError</code></a> exception.
+              Otherwise, returns the <a title="request error">error</a> of the request,
+              or null if no error occurred.
             </dd>
+
             <dt>readonly attribute (IDBObjectStore or IDBIndex or IDBCursor)? source</dt>
             <dd>
-              Getting this property MUST return the <a title="request source">source</a>
-              for the request. Returns null when there is no <a title="request source">source</a> set.
+              Returns the <a title="request source">source</a> of the <a>request</a>, or
+              null if no <a title="request source">source</a> is set.
             </dd>
+
             <dt>readonly attribute IDBTransaction transaction</dt>
             <dd>
-              Getting this property MUST return the <a title="request transaction">transaction</a>
-              for the request. This property can be null for certain requests, such as for <a>request</a>
+              Returns the <a title="request transaction">transaction</a> of the <a>request</a>.
+              This property can be null for certain requests, such as for <a>request</a>
               returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a>.
             </dd>
+
             <dt>readonly attribute IDBRequestReadyState readyState</dt>
-            <dd>When the <a title="request done">done flag</a> is unset, returns
-            "<code>pending</code>", otherwise returns
-            "<code>done</code>".</dd>
+            <dd>Returns "<code>pending</code>" if the <a title="request done">done flag</a> is unset,
+              and returns "<code>done</code>" otherwise.</dd>
+
             <dt>attribute EventHandler onsuccess</dt>
             <dd>The event handler for the <code>success</code> event.</dd>
             <dt>attribute EventHandler onerror</dt>
@@ -1660,7 +1662,7 @@ store.put([10]); // will throw DataError
           <p>
             If an error occurs while performing the operation, the
             <a title="request done">done flag</a> is set, the
-            <a>error attribute</a> is set to a <a><code>DOMError</code></a> type that matches the error,
+            <a title="request error">error</a> is set to a <a><code>DOMError</code></a> type that matches the error,
             and an event with type <code>error</code> is fired at the request.
           </p>
           <p>
@@ -1758,7 +1760,7 @@ store.put([10]); // will throw DataError
                     </li>
                     <li>
                       If an error is returned from the operation, set the
-                      <a>error attribute</a> of <var>request</var>
+                      <a title="request error">error</a> of <var>request</var>
                       to a <a><code>DOMError</code></a> whose <code>name</code> is the same as the error returned,
                       and dispatch an event at <var>request</var>.
                       The event must use the <code>Event</code> interface and have its <code>type</code> set
@@ -1819,7 +1821,7 @@ store.put([10]); // will throw DataError
                     </li>
                     <li>
                       If an error is returned from the operation,
-                      set the <a>error attribute</a> of <var>request</var>
+                      set the <a title="request error">error</a> of <var>request</var>
                       to a <a><code>DOMError</code></a> whose <code>name</code> is the same as the error returned,
                       and dispatch an event at <var>request</var>.
                       The event must use the <code>Event</code> interface and have its <code>type</code> set
@@ -3698,15 +3700,14 @@ store.put([10]); // will throw DataError
               to <var>error</var>. Set <var>transaction</var>'s <code>error</code> property to this newly created <a><code>DOMError</code></a>.
             </li>
             <li>
-              If the transaction's <a>request list</a> contain any <a title="request">requests</a> whose <a title="request done">done flag</a>
-              is still false, abort the <a>steps for asynchronously executing a request</a> for each such request and queue
-              a task to perform the following steps:
+              For each <var>request</var> in <var>transaction</var>'s <a>request list</a>
+              with <a title="request done">done flag</a> unset,
+              abort the <a>steps for asynchronously executing a request</a> for <var>request</var> and
+              queue a task to perform the following steps:
               <ol>
-                <li>
-                  Set the <a title="request done">done flag</a> on the <a>request</a>, set
-                  <a title="request result">result</a> of the <a>request</a> to undefined
-                  and set the request's <a>error attribute</a> to a <a><code>DOMError</code></a> with a type of <a>AbortError</a>.
-                </li>
+                <li>Set the <a title="request done">done flag</a> on <var>request</var>.</li>
+                <li>Set the <a title="request result">result</a> of <var>request</var> to undefined.</li>
+                <li>Set the <a title="request error">error</a> of <var>request</var> to a <a><code>DOMError</code></a> with a type of <a>AbortError</a>.</li>
                 <li>
                   Dispatch an event at <var>request</var>. The event must use
                   the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>error</code>".
@@ -3752,8 +3753,8 @@ store.put([10]); // will throw DataError
             </li>
             <li>
               Create an <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
-              <a title="request source">source</a> to <var>source</var> and add <var>request</var> to the end of the
-              <a title="request list">list</a> of <a title="request">requests</a> in <var>transaction</var>.
+              <a title="request source">source</a> to <var>source</var> and add <var>request</var> to the end of
+              <var>transaction</var>'s <a>request list</a>.
               Return this object and queue up the execution of the remaining steps in this algorithm.
               <p class="note">
                 Cursors override this step to reuse an existing <a>IDBRequest</a>. However they still put the
@@ -3769,15 +3770,15 @@ store.put([10]); // will throw DataError
             </li>
             <li>
               If performing <var>operation</var> succeeded then set the <a title="request done">done flag</a>
-              on the <var>request</var>, set <a title="request result">result</a> of the <var>request</var>
-              to the result of the request and set the <a>error attribute</a> of the <var>request</var> to undefined.
-			  Finally <a>fire a success event</a> at <var>request</var>.
+              on the <var>request</var>, set <a title="request result">result</a> of <var>request</var>
+              to the result of the request and set the <a title="request error">error</a> of <var>request</var> to undefined.
+	      Finally <a>fire a success event</a> at <var>request</var>.
             </li>
             <li>
               If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
-              set the <a title="request done">done flag</a> on the <var>request</var>,
-              set <a title="request result">result</a> of the <var>request</var>
-              to undefined and set the <a>error attribute</a> on the <var>request</var>
+              set the <a title="request done">done flag</a> on <var>request</var>,
+              set <a title="request result">result</a> of <var>request</var>
+              to undefined and set the <a title="request error">>error</a> on <var>request</var>
               to a <a><code>DOMError</code></a> with the same error type as the <var>operation</var> that failed.
               Finally <a>fire an error event</a> at <var>request</var>.
               <p class="note">
