@@ -65,6 +65,7 @@
 
       /* Bump up code size */
       code { font-size: 16px !important; }
+      pre, pre code { font-size: 14px !important; }
 
       /* Reduce vertical space */
       .note { padding: 0em 1.2em !important; }
@@ -3187,6 +3188,9 @@ store.put([10]); // will throw DataError
             <dd>
               When invoked, the <code>advance(<var>count</var>)</code> method must run these steps:
               <ol>
+                <li>
+                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.</a>
+                </li>
                 <li>If <var>count</var> is 0 (zero),
                   <a>throw</a> a <code>TypeError</code>.
 
@@ -3201,14 +3205,15 @@ store.put([10]); // will throw DataError
 
                 <li>Unset the <a>got value flag</a> on the cursor.</li>
 
+                <li>Unset the <a title="request done">done flag</a> on <var>request</var>.</li>
+
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
-                  modified such that instead of creating a new request, it reuses the
-                  <a>request</a> originally created when this cursor was created. The <a title="request done">done flag</a>
-                  on the request is unset. The steps are run with the cursor's
-                  <a title="cursor source">source</a> as <var>source</var>. The <var>operation</var>
+                  with the cursor's
+                  <a title="cursor source">source</a> as <var>source</var>, the <var>operation</var>
                   runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
-                  with null as <var>key</var> and this cursor as <var>cursor</var>.
+                  with null as <var>key</var> and this cursor as <var>cursor</var>,
+                  and <var>request</var>.
                 </li>
               </ol>
 
@@ -3229,6 +3234,9 @@ store.put([10]); // will throw DataError
             <dd>
               When invoked, the <code>continue(<var>key</var>)</code> method must run these steps:
               <ol>
+                <li>
+                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.</a>
+                </li>
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
@@ -3257,13 +3265,14 @@ store.put([10]); // will throw DataError
 
                 <li>Unset the <a>got value flag</a> on the cursor.</li>
 
+                <li>Unset the <a title="request done">done flag</a> on <var>request</var>.</li>
+
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
-                  modified such that instead of creating a new request, it reuses the
-                  <a>request</a> originally created when this cursor was created. The <a title="request done">done flag</a>
-                  on the request is unset.  The steps are run with the cursor's
+                  with the cursor's
                   <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  using this cursor as <var>cursor</var> and (if given) <var>key</var> as <var>key</var>.
+                  using this cursor as <var>cursor</var> and (if given) <var>key</var> as <var>key</var>,
+                  and <var>request</var>.
                 </li>
               </ol>
 
@@ -3707,7 +3716,7 @@ store.put([10]); // will throw DataError
           <p>
             When taking the <dfn>steps for asynchronously executing a request</dfn> the implementation MUST run the
             following algorithm. The algorithm takes a <var>source</var> object and an <var>operation</var> to
-            perform on a database.
+            perform on a database, and an optional <var>request</var>.
           </p>
           <p>
             These steps can be aborted at any point if the <a>transaction</a> the created <a>request</a> belongs
@@ -3722,14 +3731,14 @@ store.put([10]); // will throw DataError
               throw a <a><code>TransactionInactiveError</code></a> exception.
             </li>
             <li>
-              Create an <a>IDBRequest</a> object and set <var>request</var> to this object. Set <var>request</var>'s
-              <a title="request source">source</a> to <var>source</var> and add <var>request</var> to the end of
-              <var>transaction</var>'s <a>request list</a>.
-              Return this object and queue up the execution of the remaining steps in this algorithm.
-              <p class="note">
-                Cursors override this step to reuse an existing <a>IDBRequest</a>. However they still put the
-                <a>IDBRequest</a> at the end of the list of <a title="request">requests</a> in <var>transaction</var>.
-              </p>
+              If <var>request</var> was not given, let <var>request</var> be a new <var>request</var> with
+              <a title="request source">source</a> as <var>source</var>
+            </li>
+            <li>
+              Add <var>request</var> to the end of <var>transaction</var>'s <a>request list</a>.
+            </li>
+            <li>
+              Return <var>request</var> and queue up the execution of the remaining steps in this algorithm.
             </li>
             <li>
               Wait until all previously added <a title="request">requests</a> in <var>transaction</var> have their
@@ -3748,7 +3757,7 @@ store.put([10]); // will throw DataError
               If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
               set the <a title="request done">done flag</a> on <var>request</var>,
               set <a title="request result">result</a> of <var>request</var>
-              to undefined and set the <a title="request error">>error</a> on <var>request</var>
+              to undefined and set the <a title="request error">error</a> on <var>request</var>
               to a <a><code>DOMError</code></a> with the same error type as the <var>operation</var> that failed.
               Finally <a>fire an error event</a> at <var>request</var>.
               <p class="note">
