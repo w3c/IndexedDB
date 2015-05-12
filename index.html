@@ -10,7 +10,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2015-05-06",
+          publishDate:          "2015-05-11",
 
           previousPublishDate:  "2015-01-08",
           previousMaturity:     "TR",
@@ -850,7 +850,7 @@ request.onsuccess = function() {
             a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry flag</a> is
             true, then the one <a>record</a> is added to the index for each of the <a>subkeys</a>.
           </p>
-        </section> <!-- IDBIndex -->
+        </section> <!-- Index -->
 
         <section id="transaction-concept" class="section">
           <h4>Transaction</h4>
@@ -869,21 +869,58 @@ request.onsuccess = function() {
             All transactions are created through a <a>connection</a>, which is the transaction's
             <dfn title="transaction connection">connection</dfn>.
           </p>
-          <p>
-            A <a>transaction</a> has a <a>mode</a> that determines which types of interactions can be performed
-            upon that transaction. The <a>mode</a> is set when the transaction is created and remains
-            fixed for the life of the transaction.
-          </p>
+
           <p>
             A <a>transaction</a> has a <dfn>scope</dfn> that
             determines the <a title="object store">object stores</a> with which the transaction may interact.
             A transaction's scope remains fixed for the lifetime of that transaction.
           </p>
+
+          <p>
+            A <a>transaction</a> has a <dfn>mode</dfn> that determines which types of interactions can be performed
+            upon that transaction. The <a>mode</a> is set when the transaction is created and remains
+            fixed for the life of the transaction. A <a>transaction</a>'s <a>mode</a> is one of the following:
+          </p>
+          <dl>
+            <dt>"<code>readonly</code>"</dt>
+            <dd>
+                A <dfn title="transaction readonly">"<code>readonly</code>"</dfn> transaction is only allowed
+                to read data. No modifications can be done by this type of transaction. This has the advantage
+                that several <a title="read-only transaction">read-only transactions</a> can run at the same time even if their <a title="scope">scopes</a>
+                are overlapping, i.e. if they are using the same object stores. This type of transaction can
+                be created any time once a database has been opened.
+            </dd>
+
+            <dt>"<code>readwrite</code>"</dt>
+            <dd>
+                A <dfn title="transaction readwrite">"<code>readwrite</code>"</dfn> transaction is allowed to read, modify and
+                delete data from existing object stores. However object stores and indexes can't be added or removed.
+                Multiple "<code>readwrite</code>" transactions can't run at the same time if their <a title="scope">scopes</a> are overlapping
+                since that would mean that they can modify each other's data in the middle of the transaction.
+                This type of transaction can be created any time once a database has been opened.
+            </dd>
+
+            <dt>"<code>versionchange</code>"</dt>
+            <dd>
+                A <dfn title="transaction versionchange">"<code>versionchange</code>"</dfn> transaction is similar to a "<code>readwrite</code>" transaction,
+                however it can additionally create and remove object stores and indexes. It is the only type of
+                transaction that can do so. This type of transaction can't be manually created, but instead is created
+                automatically when a <a><code>upgradeneeded</code></a> event is fired.
+            </dd>
+          </dl>
+          <p>
+            A <dfn>read-only transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readonly</code>".
+          </p>
+          <p>
+            A <dfn>read/write transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readwrite</code>".
+          </p>
+          <p>
+            An <dfn>upgrade transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>versionchange</code>".
+          </p>
+
           <p>
             A <a>transaction</a> has an <dfn>active flag</dfn>, which determines if new <a title="request">requests</a> can be made
             against the transaction.
-          </p>
-          <p>
             A transaction is said to be <dfn>active</dfn> if its <a>active flag</a> is set.
           </p>
           <p>
@@ -902,9 +939,7 @@ request.onsuccess = function() {
           </p>
           <ol>
             <li>
-              A transaction is <dfn title="transaction create">created</dfn> using
-              <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>.
-              The arguments passed determine the <a>scope</a> of the transaction and whether the transaction is read-only.
+              A transaction is <dfn title="transaction create">created</dfn> with a <a>scope</a> and a <a>mode</a>.
               When a transaction is created its <a>active flag</a> is initially set.
             </li>
             <li>
@@ -943,7 +978,7 @@ request.onsuccess = function() {
               <a title="object store">object stores</a> as well as additions and removals of <a title="object store">object stores</a> and <a title="index">indexes</a>.
             </li>
             <li>
-              A transaction can fail for reasons not tied to a particular <a>IDBRequest</a>. For example due to IO errors
+              A transaction can fail for reasons not tied to a particular <a>request</a>. For example due to IO errors
               when committing the transaction, or due to running into a quota limit where the implementation can't tie
               exceeding the quota to a partcular request. In this case the implementation MUST run the
               <a>steps for aborting a transaction</a> using the transaction as <var>transaction</var> and the appropriate
@@ -970,52 +1005,6 @@ request.onsuccess = function() {
               implementation MUST <a title="transaction abort">abort</a> the transaction.
             </li>
           </ol>
-          <p>
-            Transactions are opened in one of three <dfn title="mode">modes</dfn>. The mode
-            determines how concurrent access to <a title="object store">object stores</a> in the transaction are isolated.
-          </p>
-
-          <dl class="idl" title="enum IDBTransactionMode">
-            <dt>readonly</dt>
-            <dd>
-                A <dfn title="transaction readonly">"<code>readonly</code>"</dfn> transaction is only allowed
-                to read data. No modifications can be done by this type of transaction. This has the advantage
-                that several <a title="read-only transaction">read-only transactions</a> can run at the same time even if their <a title="scope">scopes</a>
-                are overlapping, i.e. if they are using the same object stores. This type of transaction can
-                be created any time once a database has been opened using the
-                <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>
-                method.
-            </dd>
-
-            <dt>readwrite</dt>
-            <dd>
-                A <dfn title="transaction readwrite">"<code>readwrite</code>"</dfn> transaction is allowed to read, modify and
-                delete data from existing object stores. However object stores and indexes can't be added or removed.
-                Multiple "<code>readwrite</code>" transactions can't run at the same time if their <a title="scope">scopes</a> are overlapping
-                since that would mean that they can modify each other's data in the middle of the transaction.
-                This type of transaction can be created any time once a database has been opened using the
-                <a href="#widl-IDBDatabase-transaction-IDBTransaction-DOMString-sequence-DOMString--storeNames-IDBTransactionMode-mode"><code>IDBDatabase.transaction</code></a>
-                method.
-            </dd>
-
-            <dt>versionchange</dt>
-            <dd>
-                A <dfn title="transaction versionchange">"<code>versionchange</code>"</dfn> transaction is similar to a "<code>readwrite</code>" transaction,
-                however it can additionally create and remove object stores and indexes. It is the only type of
-                transaction that can do so. This type of transaction can't be manually created, but instead is created
-                automatically when a <a><code>upgradeneeded</code></a> event is fired.
-            </dd>
-          </dl>
-
-          <p>
-            A <dfn>read-only transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readonly</code>".
-          </p>
-          <p>
-            A <dfn>read/write transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readwrite</code>".
-          </p>
-          <p>
-            An <dfn>upgrade transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>versionchange</code>".
-          </p>
 
           <p>
             Any number of <a title="read-only transaction">read-only transactions</a> are allowed to run concurrently,
@@ -1136,12 +1125,6 @@ request.onsuccess = function() {
             Requests for opening and deleting databases do not take place within a transaction, so the
             <a>request transaction</a> for such a request is null.
           </p>
-          <dl class="idl" title="enum IDBRequestReadyState">
-            <dt>pending</dt>
-            <dd>The <a title="request done">done flag</a> of the <a>request</a> unset.</dd>
-            <dt>done</dt>
-            <dd>The <a title="request done">done flag</a> of the <a>request</a> set.</dd>
-          </dl>
         </section> <!-- Requests -->
 
         <section class="section" id="range-concept">
@@ -1235,32 +1218,33 @@ request.onsuccess = function() {
             monotonically increasing or decreasing order of the <a>record</a> keys when iterated,
             and if it skips duplicated values when iterating indexes. The direction of a cursor also determines
             if the cursor initial position is at the start of its <a title="cursor source">source</a> or at its end.
-            The allowed values for a cursor's <a>direction</a> are as follows:
+            A cursor's <a>direction</a> is one of the following:
           </p>
 
-          <dl class="idl" title="enum IDBCursorDirection">
-            <dt>next</dt>
+          <dl>
+            <dt>"<code>next</code>"</dt>
             <dd>This direction causes the cursor to be opened at the start of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including
             duplicates, in monotonically increasing order of keys.</dd>
 
-            <dt>nextunique</dt>
+            <dt>"<code>nextunique</code>"</dt>
             <dd>This direction causes the cursor to be opened at the start of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
             the same key, but otherwise yield all records, in monotonically increasing order of keys. For every key
             with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
-            an <a>object store</a> or an <a>index</a> with the <a>unique flag</a> set, this direction has the exact same behavior as "<code>next</code>".</dd>
-            <dt>prev</dt>
+            an <a>object store</a> or an <a>index</a> with the <a>unique flag</a> set, this direction has exactly the same behavior as "<code>next</code>".</dd>
+
+            <dt>"<code>prev</code>"</dt>
             <dd>This direction causes the cursor to be opened at the end of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should yield all records, including
             duplicates, in monotonically decreasing order of keys.</dd>
 
-            <dt>prevunique</dt>
+            <dt>"<code>prevunique</code>"</dt>
             <dd>This direction causes the cursor to be opened at the end of the
             <a title="cursor source">source</a>. When iterated, the <a>cursor</a> should not yield records with
             the same key, but otherwise yield all records, in monotonically decreasing order of keys. For every key
             with duplicate values, only the first record is yielded. When the <a title="cursor source">source</a> is
-            an <a>object store</a> or an <a>index</a> with the <a>unique flag</a> set, this direction has the exact same behavior as "<code>prev</code>".</dd>
+            an <a>object store</a> or an <a>index</a> with the <a>unique flag</a> set, this direction has exactly the same behavior as "<code>prev</code>".</dd>
           </dl>
 
           <p>
@@ -1676,6 +1660,13 @@ store_t2.put("d"); // Will get key 2
             The <span>task source</span> for these tasks is the
             <dfn id="database-access-task-source">database access task source</dfn>.
           </p>
+
+          <dl class="idl" title="enum IDBRequestReadyState">
+            <dt>pending</dt>
+            <dd>The <a title="request done">done flag</a> of the <a>request</a> unset.</dd>
+            <dt>done</dt>
+            <dd>The <a title="request done">done flag</a> of the <a>request</a> set.</dd>
+          </dl>
         </section>
 
         <section class="section" id="events">
@@ -3340,6 +3331,25 @@ store_t2.put("d"); // Will get key 2
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
             does not modify the contents of the database.</dd>
           </dl>
+
+          <p>
+            The <a>direction</a> of an <a>IDBCursor</a> is represented by the <a>IDBCursorDirection</a> enumeration:
+          </p>
+
+          <dl class="idl" title="enum IDBCursorDirection">
+            <dt>next</dt>
+            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>next</code>"</dd>
+
+            <dt>nextunique</dt>
+            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>nextunique</code>"</dd>
+
+            <dt>prev</dt>
+            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>prev</code>"</dd>
+
+            <dt>prevunique</dt>
+            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>prevunique</code>"</dd>
+          </dl>
+
         </section>
 
         <section class="section" id="transaction">
@@ -3423,6 +3433,21 @@ store_t2.put("d"); // Will get key 2
             <dt>attribute EventHandler onerror</dt>
             <dd>The event handler for the <code>error</code> event.</dd>
           </dl>
+
+          <p>
+            The <a>mode</a> of an <a>IDBTransaction</a> is represented by the <a>IDBTransactionMode</a> enumeration:
+          </p>
+
+          <dl class="idl" title="enum IDBTransactionMode">
+            <dt>readonly</dt>
+            <dd>A <a>read-only transaction</a>.</dd>
+            <dt>readwrite</dt>
+            <dd>A <a>read/write transaction</a>.</dd>
+            <dt>versionchange</dt>
+            <dd>An <a>upgrade transaction</a>.</dd>
+          </dl>
+
+
 
         </section>
       </section>
