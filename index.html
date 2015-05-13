@@ -1103,12 +1103,12 @@ request.onsuccess = function() {
           </p>
 
           <p>
-            A <a>key range</a> <dfn>containing only</dfn> <var>key</var> both has
+            A <a>key range</a> <dfn>containing only</dfn> <var>key</var> has both
             <a>lower bound</a> and <a>upper bound</a> equal to <var>key</var>.
           </p>
 
           <p>
-            A <a><var>key</var></a> is <dfn>in a <a>key range</a></dfn> if both of the following conditions are
+            A <var>key</var> is <dfn>in a key range</dfn> if both of the following conditions are
             fulfilled:
           </p>
           <ul>
@@ -1768,7 +1768,7 @@ store.put([10]); // will throw DataError
               When invoked, the <code>open(<var>name</var>, <var>version</var>)</code> method must run these steps:
               <ol>
                 <li>
-                  If the value of <var>version</var> is 0 (zero), <a>throw</var> a <code>TypeError</code>.
+                  If <var>version</var> is 0 (zero), <a>throw</var> a <code>TypeError</code>.
                 </li>
                 <li>
                   Let <var>request</var> be a new <a>open request</a>.
@@ -1936,8 +1936,8 @@ store.put([10]); // will throw DataError
               The <code>version</code> attribute's getter must return the <a>version</a> of the
               <a>database</a> when the <a>connection</a> was created.
               When a <a>IDBDatabase</a> instance is created,
-              this is always the number passed as the <var>version</var>
-              argument passed to the <a><code>open</code></a>
+              this is always the number given as the <var>version</var>
+              argument given to the <a><code>open</code></a>
               call used to create the <a>IDBDatabase</a> instance. This value remains constant for the lifetime of the <a>IDBDatabase</a> object.
               If the <a>connection</a> is closed, this attribute represents a
               snapshot of the version that the <a>database</a> had when the connection
@@ -2253,12 +2253,8 @@ store.put([10]); // will throw DataError
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
                       with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>kpk</var> is not failure:
-                      <ol>
-                        <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                        <li>Let <var>key</var> be <var>kpk</var>.
-                      </ol>
-                    </li>
+                    <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
                     <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
                       <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                   </ol>
@@ -2318,12 +2314,8 @@ store.put([10]); // will throw DataError
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
                       with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>kpk</var> is not failure:
-                      <ol>
-                        <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                        <li>Let <var>key</var> be <var>kpk</var>.
-                      </ol>
-                    </li>
+                    <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
                     <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
                       <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                   </ol>
@@ -2383,7 +2375,7 @@ store.put([10]); // will throw DataError
 
               <p class="note">
                 Unlike other methods which take keys or key ranges, this method does <strong>not</strong> allow null to
-                be passed as key. This is to reduce the risk that a small bug would clear a whole object store.
+                be given as key. This is to reduce the risk that a small bug would clear a whole object store.
               </p>
               <dl class="parameters">
                 <dt>any key</dt>
@@ -3233,11 +3225,7 @@ store.put([10]); // will throw DataError
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
                       with <var>clone</var> and the <a title="object store key path">key path</a> of the <a>effective object store</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>kpk</var> is failure
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>If <var>kpk</var> is invalid,
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>If <var>kpk</var> is not <a>equal to</a> the cursor's <a>effective key</a>,
+                    <li>If <var>kpk</var> is failure, invalid, or not <a>equal to</a> the cursor's <a>effective key</a>,
                       <a>throw</a> a <a><code>DataError</code></a> exception.</li>
                   </ol>
                 </li>
@@ -3267,9 +3255,6 @@ store.put([10]); // will throw DataError
             <dd>
               When invoked, the <code>advance(<var>count</var>)</code> method must run these steps:
               <ol>
-                <li>
-                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.</a>
-                </li>
                 <li>If <var>count</var> is 0 (zero),
                   <a>throw</a> a <code>TypeError</code>.
 
@@ -3283,6 +3268,10 @@ store.put([10]); // will throw DataError
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
                 <li>Unset the <a>got value flag</a> on the cursor.</li>
+
+                <li>
+                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.</a>
+                </li>
 
                 <li>Unset the <a title="request done">done flag</a> on <var>request</var>.</li>
 
@@ -3312,9 +3301,6 @@ store.put([10]); // will throw DataError
             <dd>
               When invoked, the <code>continue(<var>key</var>)</code> method must run these steps:
               <ol>
-                <li>
-                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.</a>
-                </li>
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
@@ -3342,6 +3328,10 @@ store.put([10]); // will throw DataError
                 </li>
 
                 <li>Unset the <a>got value flag</a> on the cursor.</li>
+
+                <li>
+                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.</a>
+                </li>
 
                 <li>Unset the <a title="request done">done flag</a> on <var>request</var>.</li>
 
@@ -3511,7 +3501,7 @@ store.put([10]); // will throw DataError
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
                 </li>
                 <li>Unset the <a>transaction</a>'s <a>active flag</a> and run the
-                  <a>steps for aborting a transaction</a> with <var>error</var> as null.
+                  <a>steps for aborting a transaction</a> with null as <var>error</var>.
                 </li>
               </ol>
             </dd>
@@ -4113,7 +4103,7 @@ store.put([10]); // will throw DataError
               </ol>
             </li>
             <li>
-              If the <var>no-overwrite flag</var> was passed to these steps and is set, and
+              If the <var>no-overwrite flag</var> was given to these steps and is set, and
               a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then
               this operation failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking
               any further steps.
@@ -4192,7 +4182,7 @@ store.put([10]); // will throw DataError
           <ol>
             <li>
               Let <var>key</var> be the key and <var>store</var> be the <a>object
-              store</a> passed to these steps.
+              store</a> given to these steps.
             </li>
             <li>
               If <var>key</var> is not a <a>key range</a> then retreive the <a>record</a>
@@ -4219,7 +4209,7 @@ store.put([10]); // will throw DataError
           <ol>
             <li>
               Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
+              given to these steps.
             </li>
             <li>
               If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
@@ -4246,7 +4236,7 @@ store.put([10]); // will throw DataError
           <ol>
             <li>
               Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              passed to these steps.
+              given to these steps.
             </li>
             <li>
               If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
@@ -4668,7 +4658,7 @@ store.put([10]); // will throw DataError
             or the steps may throw an exception.
           </p>
           <ol>
-            <li>If <var>seen</var> was not passed, let <var>seen</var> be a new empty set</li>
+            <li>If <var>seen</var> was not given, let <var>seen</var> be a new empty set</li>
             <li>If <var>input</var> is in <var>seen</var> return invalid</li>
             <li>Switch on Type(<var>input</var>):
               <dl class="switch">
