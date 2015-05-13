@@ -2457,8 +2457,7 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
                   created by these steps. The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the
-                  <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  <var>cursor</var> as <var>cursor</var> and with undefined as <var>key</var>.
+                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
 
@@ -2501,8 +2500,7 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
                   created by these steps. The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the
-                  <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  <var>cursor</var> as <var>cursor</var> and with undefined as <var>key</var>.
+                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
 
@@ -2821,8 +2819,7 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
                   created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
-                  <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  <var>cursor</var> as <var>cursor</var> and with undefined as <var>key</var>.
+                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
 
@@ -2865,8 +2862,7 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
                   created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
-                  <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  <var>cursor</var> as <var>cursor</var> and with undefined as <var>key</var>.
+                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
 
@@ -3266,9 +3262,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
                   with the cursor's
-                  <a title="cursor source">source</a> as <var>source</var>, the <var>operation</var>
-                  runs the <a>steps for iterating a cursor</a> <var>count</var> number of times
-                  with null as <var>key</var> and this cursor as <var>cursor</var>,
+                  <a title="cursor source">source</a> as <var>source</var> and the
+                  <a>steps for iterating a cursor</a> with this <a>cursor</a> and <var>count</var>,
                   and <var>request</var>.
                 </li>
               </ol>
@@ -3326,8 +3321,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing a request</a>
                   with the cursor's
-                  <a title="cursor source">source</a> as <var>source</var> and the <a>steps for iterating a cursor</a> as <var>operation</var>,
-                  using this cursor as <var>cursor</var> and (if given) <var>key</var> as <var>key</var>,
+                  <a title="cursor source">source</a> as <var>source</var> and
+                  the <a>steps for iterating a cursor</a> with this <a>cursor</a> and <var>key</var> (if given),
                   and <var>request</var>.
                 </li>
               </ol>
@@ -4335,119 +4330,131 @@ store.put([10]); // will throw DataError
           <h4>Cursor Iteration Operation</h4>
           <p>
             The <dfn>steps for iterating a cursor</dfn> are as follows.
-            The algorithm run by these steps takes two parameters: a <var>cursor</var> and optional
-            <var>key</var> to iterate to.
+            The algorithm run by these steps takes three parameters: a <var>cursor</var>, an optional
+            <var>key</var> to iterate to, and an optional <var>count</var>.
           </p>
           <ol>
             <li>Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>.</li>
-            <li>Let <var>records</var> be the list of <a title="record">records</a> in <var>source</var>.</li>
-            <li>Let <var>direction</var> be <var>cursor</var>'s <a>direction</a>.</li>
-            <li>Let <var>position</var> be <var>cursor</var>'s <a>position</a>.</li>
-            <li>Let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>.</li>
-            <li>Let <var>range</var> be <var>cursor</var>'s <a>range</a>.
+            <li>Let <var>records</var> be the list of <a title="record">records</a> in <var>source</var>.
               <p class="note">
                 <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
                 <var>source</var> being an <a>index</a>, <var>records</var> is secondarily sorted in ascending
                 <a>value</a> order (where the value in an <a>index</a> is the <a>key</a> of the <a>record</a> in the referenced <a>object store</a>).
               </p>
             </li>
+            <li>Let <var>range</var> be <var>cursor</var>'s <a>range</a>.</li>
+            <li>Let <var>direction</var> be <var>cursor</var>'s <a>direction</a>.</li>
 
-            <li>
-              <p>
-                If <var>direction</var> is "<code>next</code>", let <var>found record</var> be the first record in <var>records</var> which
-                satisfy all of the following requirements:
-              </p>
-              <ul>
-                <li>
-                  If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
-                </li>
-                <li>
-                  If <var>position</var> is defined, and <var>source</var> is an <a>object store</a>, the record's
-                  key is <a>greater than</a> <var>position</var>.
-                </li>
-                <li>
-                  If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
-                  key is <a>equal to</a> <var>position</var> and the record's value is <a>greater than</a>
-                  <var>object store position</var> or the record's key is <a>greater than</a> <var>position</var>.
-                </li>
-                <li>
-                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
-                </li>
-              </ul>
-              <p>
-                If <var>direction</var> is "<code>nextunique</code>", let <var>found record</var> be the first record in <var>records</var> which
-                satisfy all of the following requirements:
-              </p>
-              <ul>
-                <li>
-                  If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
-                </li>
-                <li>
-                  If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
-                </li>
-                <li>
-                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
-                </li>
-              </ul>
-              <p>
-                If <var>direction</var> is "<code>prev</code>", let <var>found record</var> be the last record in <var>records</var> which
-                satisfy all of the following requirements:
-              </p>
-              <ul>
-                <li>
-                  If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
-                </li>
-                <li>
-                  If <var>position</var> is defined, and <var>source</var> is an <a>object store</a>, the record's
-                  key is <a>less than</a> <var>position</var>.
-                </li>
-                <li>
-                  If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
-                  key is <a>equal to</a> <var>position</var> and the record's value is <a>less than</a>
-                  <var>object store position</var> or the record's key is <a>less than</a> <var>position</var>.
-                </li>
-                <li>
-                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
-                </li>
-              </ul>
-              <p>
-                If <var>direction</var> is "<code>prevunique</code>", let <var>temp record</var> be the last record in
-                <var>records</var> which satisfy all of the following requirements:
-              </p>
-              <ul>
-                <li>
-                  If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
-                </li>
-                <li>
-                  If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
-                </li>
-                <li>
-                  If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
-                </li>
-              </ul>
-              <p>
-                If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
-                whose key is <a>equal to</a> <var>temp record</var>'s key.
-              </p>
-            </li>
-            <li>
-              If <var>found record</var> is not defined:
+            <li>Let <var>position</var> be <var>cursor</var>'s <a>position</a>.</li>
+            <li>Let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>.</li>
+
+            <li>If <var>count</var> is not given, let <var>count</var> be 1.</li>
+            <li>While <var>count</var> is greater than 0:
               <ol>
-                <li>Set <var>cursor</var>'s <a title="cursor key">key</a> to undefined.</li>
+
+                <li>
+                  <p>
+                    If <var>direction</var> is "<code>next</code>", let <var>found record</var> be the first record in <var>records</var> which
+                    satisfy all of the following requirements:
+                  </p>
+                  <ul>
+                    <li>
+                      If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
+                    </li>
+                    <li>
+                      If <var>position</var> is defined, and <var>source</var> is an <a>object store</a>, the record's
+                      key is <a>greater than</a> <var>position</var>.
+                    </li>
+                    <li>
+                      If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
+                      key is <a>equal to</a> <var>position</var> and the record's value is <a>greater than</a>
+                      <var>object store position</var> or the record's key is <a>greater than</a> <var>position</var>.
+                    </li>
+                    <li>
+                      If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                    </li>
+                  </ul>
+                  <p>
+                    If <var>direction</var> is "<code>nextunique</code>", let <var>found record</var> be the first record in <var>records</var> which
+                    satisfy all of the following requirements:
+                  </p>
+                  <ul>
+                    <li>
+                      If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
+                    </li>
+                    <li>
+                      If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
+                    </li>
+                    <li>
+                      If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                    </li>
+                  </ul>
+                  <p>
+                    If <var>direction</var> is "<code>prev</code>", let <var>found record</var> be the last record in <var>records</var> which
+                    satisfy all of the following requirements:
+                  </p>
+                  <ul>
+                    <li>
+                      If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                    </li>
+                    <li>
+                      If <var>position</var> is defined, and <var>source</var> is an <a>object store</a>, the record's
+                      key is <a>less than</a> <var>position</var>.
+                    </li>
+                    <li>
+                      If <var>position</var> is defined, and <var>source</var> is an <a>index</a>, the record's
+                      key is <a>equal to</a> <var>position</var> and the record's value is <a>less than</a>
+                      <var>object store position</var> or the record's key is <a>less than</a> <var>position</var>.
+                    </li>
+                    <li>
+                      If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                    </li>
+                  </ul>
+                  <p>
+                    If <var>direction</var> is "<code>prevunique</code>", let <var>temp record</var> be the last record in
+                    <var>records</var> which satisfy all of the following requirements:
+                  </p>
+                  <ul>
+                    <li>
+                      If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                    </li>
+                    <li>
+                      If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
+                    </li>
+                    <li>
+                      If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                    </li>
+                  </ul>
+                  <p>
+                    If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
+                    whose key is <a>equal to</a> <var>temp record</var>'s key.
+                  </p>
+                </li>
+                <li>
+                  If <var>found record</var> is not defined:
+                  <ol>
+                    <li>Set <var>cursor</var>'s <a title="cursor key">key</a> to undefined.</li>
+                    <li>If <var>source</var> is an <a>index</a>,
+                      set <var>cursor</var>'s <a>object store position</a> to undefined.</li>
+                    <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
+                      set <var>cursor</var>'s <a title="cursor value">value</a> to undefined.</li>
+                    <li>The result of this algorithm is null. Abort these steps.</li>
+                  </ol>
+                </li>
+
+                <li>Let <var>position</var> be <var>found record</var>'s key.</li>
                 <li>If <var>source</var> is an <a>index</a>,
-                  set <var>cursor</var>'s <a>object store position</a> to undefined.</li>
-                <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
-                  set <var>cursor</var>'s <a title="cursor value">value</a> to undefined.</li>
-                <li>The result of this algorithm is null. Abort these steps.</li>
+                  let <var>object store position</var> be <var>found record</var>'s value.</li>
+                <li>Decrease <var>count</var> by 1.</li>
               </ol>
-            </li>
-            <li>Set <var>cursor</var>'s <a>position</a> to <var>found record</var>'s key.</li>
-            <li>Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.</li>
-            <li>If <var>source</var> is an <a>index</a>,
-              set <var>cursor</var>'s <a>object store position</a> to <var>found record</var>'s value.</li>
-            <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
-              set <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>'s <a>referenced value</a>.</li>
-            <li>Set <var>cursor</var>'s <a>got value flag</a>.</li>
+
+              <li>Set <var>cursor</var>'s <a>position</a> to <var>position</var>.</li>
+              <li>If <var>source</var> is an <a>index</a>,
+                set <var>cursor</var>'s <a>object store position</a> to <var>object store position</var>.</li>
+              <li>Set <var>cursor</var>'s <a title="cursor key">key</a> to <var>found record</var>'s key.</li>
+              <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
+                set <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>'s <a>referenced value</a>.</li>
+              <li>Set <var>cursor</var>'s <a>got value flag</a>.</li>
             <li>The result of the algorithm is <var>cursor</var>.</li>
           </ol>
         </section>
