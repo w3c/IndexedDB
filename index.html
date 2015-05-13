@@ -799,7 +799,7 @@ request.onsuccess = function() {
                 delete data from existing object stores, and can also
                 create and remove object stores and indexes. It is the only type of
                 transaction that can do so. This type of transaction can't be manually created, but instead is created
-                automatically when a <a><code>upgradeneeded</code></a> event is fired.
+                automatically when an <a><code>upgradeneeded</code></a> event is fired.
             </dd>
           </dl>
           <p>
@@ -1653,7 +1653,7 @@ store.put([10]); // will throw DataError
           </dl>
           <p>
             Methods on <a>IDBFactory</a> that return a <a>request</a> use
-            a separate interface to allow listening to the
+            an extended interface to allow listening to the
             <code>blocked</code> event and <code>upgradeneeded</code> event.
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBOpenDBRequest : IDBRequest">
@@ -1700,6 +1700,18 @@ store.put([10]); // will throw DataError
             <dt>unsigned long long? newVersion = null
             <dd>
           </dl>
+
+          <p>
+            To <dfn title="fire a version change event">fire a version change event named <var>e</var></dfn> at <var>target</var>
+            given <var>oldVersion</var> and <var>newVersion</var>,
+            dispatch an event at <var>target</var>.
+
+            The event MUST use the <a>IDBVersionChangeEvent</a> interface
+            with its <code>type</code> set to <var>e</var>,
+            its <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute set to <var>oldVersion</var>, and
+            its <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute set to <var>newVersion</var>.
+            This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>target</var>.
+          </p>
         </section>
 
         <section class="section" id="factory-interface">
@@ -1817,11 +1829,9 @@ store.put([10]); // will throw DataError
                       path</a> of the event is just <var>request</var>.
                     </li>
                     <li>
-                      Otherwise, set the <a title="request result">result</a> of <var>request</var>
-                      to undefined and <a>fire a success event</a> at <a>request</a>.
-                      The event MUST implement the <a>IDBVersionChangeEvent</a> interface,
-                      and set the <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute to <var>database version</var>
-                      and set the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute to null.
+                      Otherwise, set the <a title="request result">result</a> of <var>request</var> to undefined and
+                      <a title="fire a version change event">fire a version change event named <code>success</code></a>
+                      at <a>request</a> with <var>database version</var> and null.
 
                       <p class="note">
                         The firing of "<code>success</code>" or "<code>error</code>" events do not follow the normal
@@ -3658,14 +3668,9 @@ store.put([10]); // will throw DataError
               objects connected to <var>db</var>.
             </li>
             <li>
-              <p>
-                Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
-                be fired on objects which has the <a>close pending flag</a> set. The event MUST use the
-                <a>IDBVersionChangeEvent</a> interface
-                and set the <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute to <var>db</var>'s <a>version</a>
-                and set the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute to null.
-                This event MUST NOT bubble or be cancelable.
-              </p>
+              For each <var>entry</var> in <var>openDatabases</var> that does not have its <a>close pending flag</a> set,
+              <a title="fire a version change event">fire a version change event named <code>versionchange</code></a>
+              at <var>entry</var> with <var>db</var>'s <a>version</a> and null.
               <p class="note">
                 Firing this event might cause one or more of the other objects in <var>openDatabases</var> to be closed, in which case
                 the <code>versionchange</code> event MUST NOT be fired at those objects if that hasn't yet been done.
@@ -3674,11 +3679,8 @@ store.put([10]); // will throw DataError
             <li>
               <p>
                 If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed, and <var>request</var> was given,
-                fire a <code>blocked</code> event at <var>request</var>. The event MUST use the
-                <a>IDBVersionChangeEvent</a> interface
-                and set the <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute to <var>db</var>'s <a>version</a>
-                and set the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute to null.
-                This event MUST NOT bubble or be cancelable.
+                <a title="fire a version change event">fire a version change event named <code>blocked</code></a>
+                at <var>request</var> with <var>db</var>'s <a>version</a> and null.
               </p>
             </li>
             <li id="delete-close-block">
@@ -3844,30 +3846,18 @@ store.put([10]); // will throw DataError
               objects, except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
             </li>
             <li>
-              <p>
-                Fire a <code>versionchange</code> event at each object in <var>openDatabases</var> that is open. The event MUST NOT
-                be fired on objects which has the <a>close pending flag</a> set. The event MUST use the
-                <a>IDBVersionChangeEvent</a> interface
-                and set the <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute to <var>db</var>'s <a>version</a>
-                and set the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute to <var>version</var>.
-                This event MUST NOT bubble or be cancelable. The propagation path for the event is just the <a>IDBDatabase</a>
-                object itself.
-              </p>
+              For each <var>entry</var> in <var>openDatabases</var> that does not have its <a>close pending flag</a> set,
+              <a title="fire a version change event">fire a version change event named <code>versionchange</code></a>
+              at <var>entry</var> with <var>db</var>'s <a>version</a> and <var>version</var>.
               <p class="note">
                 Firing this event might cause one or more of the other objects in <var>openDatabases</var> to be closed, in which case
                 the <code>versionchange</code> event MUST NOT be fired at those objects if that hasn't yet been done.
               </p>
             </li>
             <li>
-              <p>
-                If
-                any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed,
-                queue up a <code>blocked</code> event for the <var>request</var>. The event MUST use the
-                <a>IDBVersionChangeEvent</a> interface
-                and set the <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute to <var>db</var>'s <a>version</a>
-                and set the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute to <var>version</var>.
-                This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>request</var>.
-              </p>
+              If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed,
+              <a title="fire a version change event">fire a version change event named <code>blocked</code></a>
+              at <var>request</var> with <var>db</var>'s <a>version</a> and <var>version</var>.
             </li>
             <li id="version-change-close-block">
               Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
@@ -3904,10 +3894,8 @@ store.put([10]); // will throw DataError
                   Set the <a title="request done">done flag</a> on the <a>request</a>.
                 </li>
                 <li>
-                  Fire a <dfn><code>upgradeneeded</code></dfn> event targeted at <var>request</var>. The event MUST use the
-                  <a>IDBVersionChangeEvent</a> interface
-                  and set the <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a> attribute to <var>old version</var>
-                  and set the <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attribute to <var>version</var>.
+                  <a title="fire a version change event">Fire a version change event named <dfn><code>upgradeneeded</code></dfn></a>
+                  at <var>request</var> with <var>old version</var> and <var>version</var>.
                 </li>
                 <li>
                   If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
