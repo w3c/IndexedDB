@@ -3684,25 +3684,25 @@ store.put([10]); // will throw DataError
               Set <var>db</var>'s <a>delete pending flag</a>.
             </li>
             <li>
-              Let <var>openDatabases</var> be the set of all <a title="connection">connections</a>
+              Let <var>openConnections</var> be the set of all <a title="connection">connections</a>
               connected to <var>db</var>.
             </li>
             <li>
-              For each <var>entry</var> in <var>openDatabases</var> that does not have its <a>close pending flag</a> set,
+              For each <var>entry</var> in <var>openConnections</var> that does not have its <a>close pending flag</a> set,
               <a title="fire a version change event">fire a version change event named <code>versionchange</code></a>
               at <var>entry</var> with <var>db</var>'s <a>version</a> and null.
               <p class="note">
-                Firing this event might cause one or more of the other objects in <var>openDatabases</var> to be closed, in which case
+                Firing this event might cause one or more of the other objects in <var>openConnections</var> to be closed, in which case
                 the <code>versionchange</code> event MUST NOT be fired at those objects if that hasn't yet been done.
               </p>
             </li>
             <li>
-              If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed, and <var>request</var> was given,
+              If any of the <a title="connection">connections</a> in <var>openConnections</var> are still not closed, and <var>request</var> was given,
               <a title="fire a version change event">fire a version change event named <code>blocked</code></a>
               at <var>request</var> with <var>db</var>'s <a>version</a> and null.
             </li>
             <li id="delete-close-block">
-              Wait until all <a title="connection">connections</a> in <var>openDatabases</var> are <a title="database close">closed</a> and all of
+              Wait until all <a title="connection">connections</a> in <var>openConnections</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
             </li>
             <li>
@@ -3860,25 +3860,25 @@ store.put([10]); // will throw DataError
           </p>
           <ol>
             <li>
-              Let <var>openDatabases</var> be the set of all <a title="connection">connections</a>,
+              Let <var>openConnections</var> be the set of all <a title="connection">connections</a>,
               except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
             </li>
             <li>
-              For each <var>entry</var> in <var>openDatabases</var> that does not have its <a>close pending flag</a> set,
+              For each <var>entry</var> in <var>openConnections</var> that does not have its <a>close pending flag</a> set,
               <a title="fire a version change event">fire a version change event named <code>versionchange</code></a>
               at <var>entry</var> with <var>db</var>'s <a>version</a> and <var>version</var>.
               <p class="note">
-                Firing this event might cause one or more of the other objects in <var>openDatabases</var> to be closed, in which case
+                Firing this event might cause one or more of the other objects in <var>openConnections</var> to be closed, in which case
                 the <code>versionchange</code> event MUST NOT be fired at those objects if that hasn't yet been done.
               </p>
             </li>
             <li>
-              If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed,
+              If any of the <a title="connection">connections</a> in <var>openConnections</var> are still not closed,
               <a title="fire a version change event">fire a version change event named <code>blocked</code></a>
               at <var>request</var> with <var>db</var>'s <a>version</a> and <var>version</var>.
             </li>
             <li id="version-change-close-block">
-              Wait until all <a title="connection">connections</a> in <var>openDatabases</var> are <a title="database close">closed</a> and all of
+              Wait until all <a title="connection">connections</a> in <var>openConnections</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
             </li>
             <li>
