@@ -10,7 +10,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2015-05-11",
+          publishDate:          "2015-05-13",
 
           previousPublishDate:  "2015-01-08",
           previousMaturity:     "TR",
@@ -374,7 +374,8 @@ request.onsuccess = function() {
 
     <section id="database-api" class="section">
       <h2>Indexed Database API</h2>
-               <section id="constructs" class="section">
+      <section id="constructs" class="section">
+
       <h3>Constructs</h3>
        <section id="database-concept" class="section">
           <h4>Database</h4>
@@ -491,6 +492,20 @@ request.onsuccess = function() {
             </li>
           </ol>
         </section> <!-- Object store -->
+
+        <section id="value-construct" class="section">
+          <h4>Values</h4>
+          <p>
+            Each record is associated with a <dfn>value</dfn>. <a title="conforming user agent">Conforming user agents</a> MUST support
+            any ECMAScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
+            [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
+            and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
+            instances, <code>File</code> objects, <code>Blob</code> objects, <code>ImageData</code>
+            objects, and so on. Record <a title="value">values</a> are stored and retrieved
+            by value rather than by reference; later changes to a value have no effect on
+            the record stored in the database.
+          </p>
+        </section> <!-- value-construct -->
 
         <section id="key-construct" class="section">
           <h4>Keys</h4>
@@ -632,21 +647,7 @@ request.onsuccess = function() {
             The <a>key</a> <var>a</var> is <dfn>equal to</dfn> the <a>key</a> <var>b</var> if the result
             of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var> is 0.
           </p>
-        </section>
-
-        <section id="value-construct" class="section">
-          <h4>Values</h4>
-          <p>
-            Each record is associated with a <dfn>value</dfn>. <a title="conforming user agent">Conforming user agents</a> MUST support
-            any ECMAScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
-            [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
-            and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
-            instances, <code>File</code> objects, <code>Blob</code> objects, <code>ImageData</code>
-            objects, and so on. Record <a title="value">values</a> are stored and retrieved
-            by value rather than by reference; later changes to a value have no effect on
-            the record stored in the database.
-          </p>
-        </section>
+        </section> <!-- key-construct -->
 
         <section id="key-path-construct" class="section">
           <h4>Key Path</h4>
@@ -677,7 +678,7 @@ request.onsuccess = function() {
             <tr><td><code>Array</code></td><td><code>length</code></td></tr>
             <tr><td><code>String</code></td><td><code>length</code></td></tr>
           </table>
-        </section>
+        </section> <!-- key-path-construct -->
 
         <section id="index-concept" class="section">
           <h4>Index</h4>
@@ -743,10 +744,10 @@ request.onsuccess = function() {
             a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry flag</a> is
             true, then the one <a>record</a> is added to the index for each of the <a>subkeys</a>.
           </p>
-        </section> <!-- Index -->
+        </section> <!-- index-construct -->
 
         <section id="transaction-concept" class="section">
-          <h4>Transaction</h4>
+          <h4>Transactions</h4>
           <p>
             A <dfn>transaction</dfn> is used to interact with the data in a <a>database</a>.
             Whenever data is read or written to the database it is done by using a <a>transaction</a>.
@@ -802,15 +803,6 @@ request.onsuccess = function() {
                 automatically when an <a><code>upgradeneeded</code></a> event is fired.
             </dd>
           </dl>
-          <p>
-            A <dfn>read-only transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readonly</code>".
-          </p>
-          <p>
-            A <dfn>read/write transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readwrite</code>".
-          </p>
-          <p>
-            An <dfn>upgrade transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>versionchange</code>".
-          </p>
 
           <p>
             A <a>transaction</a> has an <dfn>active flag</dfn>, which determines if new <a title="request">requests</a> can be made
@@ -850,13 +842,8 @@ request.onsuccess = function() {
               throwing a <a><code>TransactionInactiveError</code></a> exception.
             </li>
             <li>
-              Once an implementation is able to enforce the constraints defined for the transaction <a>mode</a>, defined below,
+              Once an implementation is able to enforce the constraints defined for the transaction <a>scope</a> and <a>mode</a>, defined below,
               the implementation MUST queue up an operation to <dfn title="transaction start">start</dfn> the transaction asynchronously.
-              The timing for when this happens is affected by:
-                <ul>
-                  <li>The <a>mode</a> in which the transaction is opened.</li>
-                  <li>Which <a title="object store">object stores</a> are included in the <a>scope</a> of the transaction.</li>
-                </ul>
             </li>
             <li>
               Once the transaction has been <a title="transaction start">started</a> the implementation can
@@ -902,6 +889,13 @@ request.onsuccess = function() {
               implementation MUST <a title="transaction abort">abort</a> the transaction.
             </li>
           </ol>
+
+          <p>
+            A <dfn>read-only transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readonly</code>".
+          </p>
+          <p>
+            A <dfn>read/write transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>readwrite</code>".
+          </p>
 
           <p>
             The following constraints define when a <a>transaction</a> can be <a title="transaction start">started</a>:
@@ -981,35 +975,43 @@ request.onsuccess = function() {
             </li>
           </ul>
 
-          <p>
-            An <a>upgrade transaction</a> is never run concurrently with other transactions.
-            When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
-            <a>upgrade transaction</a> is automatically created and made available through the
-            <a><code>upgradeneeded</code></a> event. The <a><code>upgradeneeded</code></a> event isn't fired, and thus the
-            <a>upgrade transaction</a> isn't started, until all other <a title="connection">connections</a> to the same
-            <a>database</a> are closed. This ensures that all other transactions are <a title="transaction finish">finished</a>.
-          </p>
-          <p>
-            As long as an <a>upgrade transaction</a>
-            is running, attempts to open more <a title="connection">connections</a> to the same <a>database</a> are delayed,
-            and any attempts to use the same <a>connection</a> to start additional transactions will result in
-            an exception being thrown. Thus <a title="upgrade transaction">upgrade transactions</a> not only ensure that
-            no other transactions are running concurrently, but also ensure that no other transactions are queued
-            against the same <a>database</a> as long as the transaction is running.
-          </p>
-          <p class="note">
-            An <a>upgrade transaction</a> is automatically created
-            when a database version number is provided that is greater than the current database version.
-            This <a>transaction</a> will be active inside the <a><code>upgradeneeded</code></a> event handler,
-            allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
-          </p>
+          <section>
+            <h5>Upgrade Transactions</h5>
+            <p>
+              An <dfn>upgrade transaction</dfn> is a <a>transaction</a> with <a>mode</a> "<code>versionchange</code>".
+            </p>
+            <p>
+              An <a>upgrade transaction</a> is automatically created when running
+              <a>steps for running an upgrade transaction</a> after a <a>connection</a> is opened
+              to a <a>database</a> giving a greater <a>version</a> than the current <a>version</a>.
+              This <a>transaction</a> will be active inside the <a><code>upgradeneeded</code></a> event handler,
+              allowing the creation of new <a title="object store">object stores</a> and <a title="index">indexes</a>.
+            </p>
+            <p>
+              An <a>upgrade transaction</a> is never run concurrently with other transactions.
+              When a database is opened with a <a>version</a> number higher than the current <a>version</a>, a new
+              <a>upgrade transaction</a> is automatically created and made available through the <a>open request</a>
+              when the <a><code>upgradeneeded</code></a> event is fired.
+              The <a><code>upgradeneeded</code></a> event isn't fired, and thus the
+              <a>upgrade transaction</a> isn't started, until all other <a title="connection">connections</a> to the same
+              <a>database</a> are closed. This ensures that all other transactions are <a title="transaction finish">finished</a>.
+            </p>
+            <p>
+              As long as an <a>upgrade transaction</a>
+              is running, attempts to open more <a title="connection">connections</a> to the same <a>database</a> are delayed,
+              and any attempts to use the same <a>connection</a> to start additional transactions will result in
+              an exception being thrown. Thus <a title="upgrade transaction">upgrade transactions</a> not only ensure that
+              no other transactions are running concurrently, but also ensure that no other transactions are queued
+              against the same <a>database</a> as long as the transaction is running.
+            </p>
+          </section>
         </section> <!-- Transaction -->
 
         <section class="section" id="request-concept">
           <h4>Requests</h4>
           <p>
-            Each reading and writing operation on a <a>database</a> is done using a <dfn>request</dfn>.
-            Every request represents one read or write operation.
+            Each asynchronous operation on a <a>database</a> is done using a <dfn>request</dfn>.
+            Every request represents one operation.
           </p>
           <p>
             A <a>request</a> has a <dfn title="request done">done flag</dfn> which is
@@ -1027,10 +1029,6 @@ request.onsuccess = function() {
             This will be set when a request is <dfn title="place request">placed</dfn> against a <a>transaction</a> using
             the <a>steps for asynchronously executing a request</a>.
           </p>
-          <p class="note">
-            Requests for opening and deleting databases do not take place within a transaction, so the
-            <a>request transaction</a> for such a request is null.
-          </p>
           <p>
             When a request is made, a new <a>request</a> is returned with its
             <a title="request done">done flag</a> unset.
@@ -1045,6 +1043,19 @@ request.onsuccess = function() {
             <a title="request done">done flag</a> is set, the
             <a title="request error">error</a> is set to a <a><code>DOMError</code></a> type that matches the error,
             and an event with type <code>error</code> is fired at the request.
+          </p>
+
+          <p>
+            An <dfn>open request</dfn> is a special type of <a>request</a> used when opening a <a>connection</a>
+            or deleting a <a>database</a>. In addition to <code>success</code> and <code>error</code> events,
+            <code>blocked</code> and <code>upgradeneeded</code> may be fired at an <a>open request</a> to indicate progress.
+          </p>
+          <p>
+            The <a title="request source">source</a> of an <a>open request</a> is always null.
+          </p>
+          <p>
+            The <a>request transaction</a> of an <a>open request</a> is null unless an <a><code>upgradeneeded</code></a>
+            event has been fired.
           </p>
         </section> <!-- Requests -->
 
@@ -1116,7 +1127,7 @@ request.onsuccess = function() {
               </li>
             </ul>
           </aside>
-        </section> <!-- Key Range -->
+        </section> <!-- key-range-construct -->
 
         <section id="cursor-concept" class="section">
           <h4>Cursor</h4>
@@ -1211,104 +1222,7 @@ request.onsuccess = function() {
             A <a>cursor</a> also has a <dfn>key only flag</dfn>, that indicates whether the cursor's
             <a title="cursor value">value</a> is exposed via the API. Unless stated otherwise it is unset.
           </p>
-        </section> <!-- Cursor -->
-
-        <section class="section">
-          <h3>Exceptions</h3>
-          <p>
-          	Each of the exceptions defined in this document is a <a><code>DOMException</code></a> with a specific type. [[!DOM4]]
-          	Existing DOM Level 4 exceptions will set their code to a legacy value; however, the new exceptions will have a code value of 0.
-          	The message value is optional.
-          </p>
-          <p>
-          	IndexedDB uses the following new <a><code>DOMException</code></a> types with their various messages.
-          	All of these new types will have a code value of 0 (zero).
-          </p>
-          <table>
-          		<tr>
-          			<th>Type</th>
-          			<th>Message (Optional)</th>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>UnknownError</dfn></code></td>
-          			<td>The operation failed for reasons unrelated to the database itself and not covered by any other errors.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>ConstraintError</dfn></code></td>
-	          		<td>A mutation operation in the transaction failed because a constraint was not satisfied.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>DataError</dfn></code></td>
-	          		<td>Data provided to an operation does not meet requirements.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>TransactionInactiveError</dfn></code></td>
-	          		<td>A request was placed against a transaction which is currently not active, or which is finished.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>ReadOnlyError</dfn></code></td>
-	          		<td>The mutating operation was attempted in a read-only transaction.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>VersionError</dfn></code></td>
-	          		<td>An attempt was made to open a database using a lower version than the existing version.</td>
-          		</tr>
-          	</table>
-			<p>
-				IndexedDB reuses the following existing <a><code>DOMException</code></a> types from [[!DOM4]].
-				These types will continue to return the codes and names as specified in DOM4.
-			</p>
-			<table>
-				<tr>
-					<th>Type</th>
-					<th>Message (Optional)</th>
-				</tr>
-				<tr>
-					<td><code><dfn>NotFoundError</dfn></code></td>
-					<td>
-						The operation failed because the requested database object could not be found.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>InvalidStateError</dfn></code></td>
-					<td>
-						An operation was called on an object on which it is not allowed or at a time when it is not allowed,
-                                                or if a request is made on a source object that has been deleted or removed.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>InvalidAccessError</dfn></code></td>
-					<td>
-						An invalid operation was performed on an object.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>AbortError</dfn></code></td>
-					<td>
-						A request was aborted.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>QuotaExceededError</dfn></code></td>
-					<td>
-						The operation failed because there was not enough remaining storage space,
-						or the storage quota was reached and the user declined to give more space to the database.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>SyntaxError</dfn></code></td>
-					<td>The keyPath argument contains an invalid key path.</td>
-				</tr>
-          		<tr>
-          			<td><code><dfn>DataCloneError</dfn></code></td>
-	          		<td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
-          		</tr>
-			</table>
-
-                        <p class="note">
-                          Implementations are encouraged to provide more specific messages to enable debugging errors.
-                        </p>
-        </section>
+        </section> <!-- cursor-construct -->
 
         <section id="key-generator-concept" class="section">
           <h4>Key Generators</h4>
@@ -1557,11 +1471,108 @@ store.put(4); // will throw DataError
 store.put([10]); // will throw DataError
             </pre>
           </aside>
-        </section> <!-- Key Generator -->
+        </section> <!-- key-generator-construct -->
+
+        <section class="section">
+          <h3>Exceptions</h3>
+          <p>
+          	Each of the exceptions defined in this document is a <a><code>DOMException</code></a> with a specific type. [[!DOM4]]
+          	Existing DOM Level 4 exceptions will set their code to a legacy value; however, the new exceptions will have a code value of 0.
+          	The message value is optional.
+          </p>
+          <p>
+          	IndexedDB uses the following new <a><code>DOMException</code></a> types with their various messages.
+          	All of these new types will have a code value of 0 (zero).
+          </p>
+          <table>
+          		<tr>
+          			<th>Type</th>
+          			<th>Message (Optional)</th>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>UnknownError</dfn></code></td>
+          			<td>The operation failed for reasons unrelated to the database itself and not covered by any other errors.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>ConstraintError</dfn></code></td>
+	          		<td>A mutation operation in the transaction failed because a constraint was not satisfied.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>DataError</dfn></code></td>
+	          		<td>Data provided to an operation does not meet requirements.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>TransactionInactiveError</dfn></code></td>
+	          		<td>A request was placed against a transaction which is currently not active, or which is finished.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>ReadOnlyError</dfn></code></td>
+	          		<td>The mutating operation was attempted in a read-only transaction.</td>
+          		</tr>
+          		<tr>
+          			<td><code><dfn>VersionError</dfn></code></td>
+	          		<td>An attempt was made to open a database using a lower version than the existing version.</td>
+          		</tr>
+          	</table>
+			<p>
+				IndexedDB reuses the following existing <a><code>DOMException</code></a> types from [[!DOM4]].
+				These types will continue to return the codes and names as specified in DOM4.
+			</p>
+			<table>
+				<tr>
+					<th>Type</th>
+					<th>Message (Optional)</th>
+				</tr>
+				<tr>
+					<td><code><dfn>NotFoundError</dfn></code></td>
+					<td>
+						The operation failed because the requested database object could not be found.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>InvalidStateError</dfn></code></td>
+					<td>
+						An operation was called on an object on which it is not allowed or at a time when it is not allowed,
+                                                or if a request is made on a source object that has been deleted or removed.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>InvalidAccessError</dfn></code></td>
+					<td>
+						An invalid operation was performed on an object.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>AbortError</dfn></code></td>
+					<td>
+						A request was aborted.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>QuotaExceededError</dfn></code></td>
+					<td>
+						The operation failed because there was not enough remaining storage space,
+						or the storage quota was reached and the user declined to give more space to the database.
+					</td>
+				</tr>
+				<tr>
+					<td><code><dfn>SyntaxError</dfn></code></td>
+					<td>The keyPath argument contains an invalid key path.</td>
+				</tr>
+          		<tr>
+          			<td><code><dfn>DataCloneError</dfn></code></td>
+	          		<td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
+          		</tr>
+			</table>
+
+                        <p class="note">
+                          Implementations are encouraged to provide more specific messages to enable debugging errors.
+                        </p>
+        </section> <!-- Exceptions -->
       </section>
 
       <section class="section" id="async-api">
-        <h3>APIs</h3>
+        <h3>API</h3>
         <p>
           The API methods return without blocking the calling thread.
           All asynchronous operations immediately return an <a>IDBRequest</a> instance.
@@ -1576,7 +1587,7 @@ store.put([10]); // will throw DataError
         </p>
 
         <section class="section" id="request-api">
-          <h4>The <code>IDBRequest</code> Interface</h4>
+          <h4>The <code>IDBRequest</code> interface</h4>
           <p>
             The <a>IDBRequest</a> interface provides the means to access results of
             asynchronous requests to <a title="database">databases</a> and <a>database</a>
@@ -1652,10 +1663,11 @@ store.put([10]); // will throw DataError
             <dd>The event handler for the <code>error</code> event.</dd>
           </dl>
           <p>
-            Methods on <a>IDBFactory</a> that return a <a>request</a> use
+            Methods on <a>IDBFactory</a> that return a <a>open request</a> use
             an extended interface to allow listening to the
             <code>blocked</code> event and <code>upgradeneeded</code> event.
           </p>
+
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBOpenDBRequest : IDBRequest">
             <dt>attribute EventHandler onblocked</dt>
             <dd>The event handler for the <code>blocked</code> event.</dd>
@@ -1731,6 +1743,8 @@ store.put([10]); // will throw DataError
           <p class="idl" title="Window implements IDBEnvironment"></p>
           <p class="idl" title="WorkerUtils implements IDBEnvironment"></p>
 
+
+
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBFactory">
             <dt>IDBOpenDBRequest open()</dt>
             <dd>
@@ -1740,8 +1754,7 @@ store.put([10]); // will throw DataError
                   If the value of <var>version</var> is 0 (zero), <a>throw</var> a <code>TypeError</code>.
                 </li>
                 <li>
-                  Let <var>request</var> be a new <a>request</a> that implements the
-                  <a>IDBOpenDBRequest</a> interface with its <a title="request source">source</a> set to null.
+                  Let <var>request</var> be a new <a>open request</a>.
                 </li>
                 <li>
                   Run these steps in parallel:
@@ -1792,7 +1805,7 @@ store.put([10]); // will throw DataError
                   </ol>
                 </li>
                 <li>
-                  Return <var>request</var>.
+                  Return a new <a>IDBOpenDBRequest</a> object for <var>request</var>.
                 </li>
               </ol>
               <dl class="parameters">
@@ -1808,8 +1821,7 @@ store.put([10]); // will throw DataError
               When invoked, the <code>deleteDatabase(<var>name</var>)</code> method must run these steps:
               <ol>
                 <li>
-                  Let <var>request</var> be a new <a>request</a> that implements the
-                  <a>IDBOpenDBRequest</a> interface with its <a title="request source">source</a> set to null.
+                  Let <var>request</var> be a new <a>open request</a>.
                 </li>
                 <li>
                   Run these steps in parallel:
@@ -1842,7 +1854,7 @@ store.put([10]); // will throw DataError
                   </ol>
                 </li>
                 <li>
-                  Return <var>request</var>.
+                  Return a new <a>IDBOpenDBRequest</a> object for <var>request</var>.
                 </li>
               </ol>
               <dl class="parameters">
