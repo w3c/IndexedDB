@@ -1025,7 +1025,7 @@ request.onsuccess = function() {
             neither of which are accessible until the <a title="request done">done flag</a> is set.
           </p>
           <p>
-            A <a>request</a> has a <dfn>request transaction</dfn> which is initially null.
+            A <a>request</a> has a <dfn title="request transaction">transaction</dfn> which is initially null.
             This will be set when a request is <dfn title="place request">placed</dfn> against a <a>transaction</a> using
             the <a>steps for asynchronously executing a request</a>.
           </p>
@@ -1054,7 +1054,7 @@ request.onsuccess = function() {
             The <a title="request source">source</a> of an <a>open request</a> is always null.
           </p>
           <p>
-            The <a>request transaction</a> of an <a>open request</a> is null unless an <a><code>upgradeneeded</code></a>
+            The <a title="request transaction">transaction</a> of an <a>open request</a> is null unless an <a><code>upgradeneeded</code></a>
             event has been fired.
           </p>
         </section> <!-- Requests -->
@@ -3671,8 +3671,8 @@ store.put([10]); // will throw DataError
               Set <var>db</var>'s <a>delete pending flag</a>.
             </li>
             <li>
-              Let <var>openDatabases</var> be the set of all <a>IDBDatabase</a>
-              objects connected to <var>db</var>.
+              Let <var>openDatabases</var> be the set of all <a title="connection">connections</a>
+              connected to <var>db</var>.
             </li>
             <li>
               For each <var>entry</var> in <var>openDatabases</var> that does not have its <a>close pending flag</a> set,
@@ -3849,8 +3849,8 @@ store.put([10]); // will throw DataError
           </p>
           <ol>
             <li>
-              Let <var>openDatabases</var> be the set of all <a>IDBDatabase</a>
-              objects, except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
+              Let <var>openDatabases</var> be the set of all <a title="connection">connections</a>,
+              except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
             </li>
             <li>
               For each <var>entry</var> in <var>openDatabases</var> that does not have its <a>close pending flag</a> set,
@@ -3892,10 +3892,10 @@ store.put([10]); // will throw DataError
               Schedule a task to run the following steps:
               <ol>
                 <li>
-                  Set the <a title="request result"><code>result</code></a> property of <var>request</var> to <var>connection</var>.
+                  Set <var>request</var>'s <a title="request result">result</a> to <var>connection</var>.
                 </li>
                 <li>
-                  Set the <code>transaction</code> property of <var>request</var> to <var>transaction</var>.
+                  Set <var>request</var>'s <a title="request transaction">transaction</a> to <var>transaction</var>.
                 </li>
                 <li>
                   Set the <a title="request done">done flag</a> on the <a>request</a>.
@@ -3909,40 +3909,19 @@ store.put([10]); // will throw DataError
                   the transaction by following the <a>steps for aborting a transaction</a> with the <var>error</var> property set to
                   <code>AbortError</code>.
                 </li>
-                <li>
-                	If for any reason the <a>upgrade transaction</a> is aborted the <a>IDBDatabase</a>
-                	instance which represents <var>connection</var> will remain unchanged.
-                	I.e., its <code>name</code>, <code>version</code>, and <code>objectStoreNames</code> properties
-                	will remain the value they were before the transaction was aborted.
-               		The default attributes for the <a>IDBDatabase</a> are:
-                		<table>
-			          		<tr>
-			          			<th>Attribute</th>
-			          			<th>Value</th>
-			          		</tr>
-			          		<tr>
-			          			<td><a href="#widl-IDBDatabase-name"><code>name</code></a></td>
-			          			<td>the <var>name</var> given to <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a></td>
-			          		</tr>
-			          		<tr>
-			          			<td><a href="#widl-IDBDatabase-version"><code>version</code></a></td>
-			          			<td>0 (zero)</td>
-			          		</tr>
-			          		<tr>
-			          			<td><a href="#widl-IDBDatabase-objectStoreNames"><code>objectStoresNames</code></a></td>
-			          			<td>null</td>
-			          		</tr>
-                		</table>
-                </li>
               </ol>
             </li>
             <li>
-              Execute the transaction.
+              Execute transaction.
             </li>
             <li>
-              When the transaction is finished,
-              immediately set <var>request</var>'s
-              <code>transaction</code> property to null. This MUST be done in the same task as the task firing the
+              If <var>transaction</var> is aborted for any reason, the <a>steps for aborting a transaction</a> MUST be run.
+            </li>
+            <li>
+              When <var>transaction</var> is finished,
+              immediately set <var>request</var>'s <a title="request transaction">transaction</a> to null.
+
+              This MUST be done in the same task as the task firing the
               <code>complete</code> or <code>abort</code> event, but after those events has been fired.
             </li>
           </ol>
