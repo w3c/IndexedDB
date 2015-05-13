@@ -1808,7 +1808,7 @@ store.put([10]); // will throw DataError
 
                       <p class="note">
                         The last requirement is to ensure that in case another version upgrade is about to happen,
-                        the success event is fired on the connection first so that the page gets a chance to register
+                        the success event is fired on the connection first so that the script gets a chance to register
                         a listener for the <code>versionchange</code> event.
                       </p>
 
@@ -3554,62 +3554,70 @@ store.put([10]); // will throw DataError
 
           <ol>
             <li>
-              If these steps fail for any reason, return an error with the appropriate type and abort
-              this algorithm.
+              Let <var>db</var> be the <a>database</a> <a title="database name">named</a> <var>name</var> in the
+              origin <var>origin</var>, or null otherwise.
             </li>
             <li>
-              If there is already a database with the given name from the origin <var>origin</var>, then
-              let <var>db</var> be that database.
-            </li>
-            <li>
-              If <var>db</var> was found in previous step, wait until the following conditions are all fulfilled:
-              <ul>
-                <li>
-                  No already existing <a title="connection">connections</a> to <var>db</var>, have
-                  non-<a title="transaction finish">finished</a> <a>upgrade transaction</a>.
+              If <var>db</var> is not null:
+              <ol>
+                <li>Wait until the following conditions are all fulfilled:
+                  <ul>
+                    <li>
+                      No already existing <a title="connection">connections</a> to <var>db</var>, have
+                      non-<a title="transaction finish">finished</a> <a>upgrade transaction</a>.
+                    </li>
+                    <li>
+                      If <var>db</var> has its <a>delete pending flag</a> set, wait until <var>db</var> has
+                      been deleted.
+                    </li>
+                  </ul>
+                  <p class="note">
+                    If several requests with the same <var>origin</var> and <var>name</var> are waiting due to the above conditions,
+                    and those connections have a higher version than the database's current version, then once any of
+                    those connections can proceed to the next step in this algorithm it will immediately start
+                    an <a>upgrade transaction</a>. This prevents the other connections from proceeding until that
+                    <a>upgrade transaction</a> is finished.
+                  </p>
                 </li>
                 <li>
-                  If <var>db</var> has its <a>delete pending flag</a> set, wait until <var>db</var> has
-                  been deleted.
+                  If <var>db</var> was deleted, let <var>db</var> be null.
                 </li>
-              </ul>
-              <p class="note">
-                If several connections with the same origin and name are waiting due to the above conditions,
-                and those connections have a higher version than the database's current version, then once any of
-                those connections can proceed to the next step in this algorithm it will immediately start
-                an <a>upgrade transaction</a>. This prevents the other connections from proceeding until that
-                <a>upgrade transaction</a> is finished.
-              </p>
+              </ol>
             </li>
             <li>
-              If no database with the given name from the origin <var>origin</var> was found, or if it was
-              deleted during the previous step, then create a <a>database</a> with name <var>name</var>,
-              with 0 (zero) as <a>version</a>, and with no <a title="object store">object stores</a>. Let <var>db</var>
-              be the new database.
+              If <var>version</var> is undefined,
+              let <var>version</var> be 1 if <var>db</var> is null, or <var>db</var>'s <a>version</a> otherwise.
             </li>
             <li>
-                If <var>version</var> is undefined, then let <var>version</var> be <code>1</code>
-                if <var>db</var> was created in the previous step, or the current <a>version</a> of <var>db</var> otherwise.
+              If <var>db</var> is null, let <var>db</var> be a new <a>database</a> with
+              <a title="database name">name</a> <var>name</var>, <a>version</a> 0 (zero) as <a>version</a>,
+              and with no <a title="object store">object stores</a>.
             </li>
             <li>
-              If the <a>version</a> of <var>db</var> is higher than <var>version</var>, abort these steps and return
+              If <var>db</var>'s <a>version</a> is greater than <var>version</var>, abort these steps and return
               a <a><code>DOMError</code></a> of type <a>VersionError</a>.
             </li>
             <li>
-              Create a new <a>connection</a> to <var>db</var> and let <var>connection</var> represent it.
+              Let <var>connection</var> be a new <a>connection</a> to <var>db</var>.
             </li>
             <li>
-              If the <a>version</a> of <var>db</var> is lower than <var>version</var>, then run the
-              <a>steps for running an upgrade transaction</a> using <var>connection</var>,
-              <var>version</var> and <var>request</var>.
-            </li>
-            <li>
-              If the previous step resulted in an error, then return that error and abort these steps.
-              If the <a>upgrade transaction</a> in the previous step was aborted, or if
-              <var>connection</var> is <a title="database close">closed</a>, return a
-              <a><code>DOMError</code></a> of type <a>AbortError</a> and abort these steps.
-              In either of these cases, ensure that <var>connection</var> is <a title="database close">closed</a>
-              by running the <a>steps for closing a database connection</a> before these steps are aborted.
+              If <var>db</var>'s <a>version</a> is less than <var>version</var>:
+              <ol>
+                <li>
+                  Run the <a>steps for running an upgrade transaction</a>
+                  using <var>connection</var>, <var>version</var> and <var>request</var>.
+                </li>
+                <li>
+                  If <var>connection</var> was <a title="database close">closed</a>, return a
+                  <a><code>DOMError</code></a> of type <a>AbortError</a> and abort these steps.
+                </li>
+                <li>
+                <li>
+                  If the <a>upgrade transaction</a> was aborted,
+                  run the <a>steps for closing a database connection</a> with <var>connection</var>,
+                  then return a <a><code>DOMError</code></a> of type <a>AbortError</a> and abort these steps.
+                </li>
+              </ol>
             </li>
             <li>
               Return <var>connection</var>.
@@ -3618,7 +3626,7 @@ store.put([10]); // will throw DataError
         </section>
 
         <section class="section">
- se         <h4>Closing a database</h4>
+          <h4>Closing a database</h4>
           <p>The <dfn>steps for closing a database connection</dfn> are as follows.
             These steps take two arguments, a <var>connection</var> object, and an
             optional <var>forced flag</var>.
@@ -3689,14 +3697,12 @@ store.put([10]); // will throw DataError
               </p>
             </li>
             <li>
-              <p>
-                If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed, and <var>request</var> was given,
-                <a title="fire a version change event">fire a version change event named <code>blocked</code></a>
-                at <var>request</var> with <var>db</var>'s <a>version</a> and null.
-              </p>
+              If any of the <a title="connection">connections</a> in <var>openDatabases</var> are still not closed, and <var>request</var> was given,
+              <a title="fire a version change event">fire a version change event named <code>blocked</code></a>
+              at <var>request</var> with <var>db</var>'s <a>version</a> and null.
             </li>
             <li id="delete-close-block">
-              Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
+              Wait until all <a title="connection">connections</a> in <var>openDatabases</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
             </li>
             <li>
@@ -3872,7 +3878,7 @@ store.put([10]); // will throw DataError
               at <var>request</var> with <var>db</var>'s <a>version</a> and <var>version</var>.
             </li>
             <li id="version-change-close-block">
-              Wait until all objects in <var>openDatabases</var> are <a title="database close">closed</a> and all of
+              Wait until all <a title="connection">connections</a> in <var>openDatabases</var> are <a title="database close">closed</a> and all of
               their transactions are <a title="transaction finish">finished</a>.
             </li>
             <li>
@@ -3970,7 +3976,7 @@ store.put([10]); // will throw DataError
         			<p class="note">
         				Although you cannot access <a title="object store">object stores</a> by using the
         				<a href="#widl-IDBTransaction-objectStore-IDBObjectStore-DOMString-name"><code>IDBTransaction.objectStore</code></a> function after a <a>transaction</a> is aborted,
-        				the page may still have references to <a>object store</a> instances.
+        				the execution context may still have references to <a>object store</a> instances.
         				In that case <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> can still be accessed.
         			</p>
         		</li>
@@ -4347,9 +4353,8 @@ store.put([10]); // will throw DataError
             <li>If <var>count</var> is not given, let <var>count</var> be 1.</li>
             <li>While <var>count</var> is greater than 0:
               <ol>
-
                 <li>
-                  <p>Switch on <var>direction</var>:
+                  Switch on <var>direction</var>:
                   <dl class="switch">
                     <dt>"<code>next</code>"</dt>
                     <dd>
