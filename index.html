@@ -342,7 +342,6 @@ request.onsuccess = function() {
           <dt>DOM4</dt>
           <dd>The types
             <dfn><code>DOMError</code></dfn>,
-            <dfn><code>DOMException</code></dfn> and
             <dfn><code>Event</code></dfn>
             are defined by the W3C DOM4 Specification [[!DOM4]].
           </dd>
@@ -361,11 +360,12 @@ request.onsuccess = function() {
           </dd>
           <dt>WebIDL</dt>
           <dd>
-            The terms
+            The terms and types
             <dfn>throw</dfn>,
             <dfn>unrestricted double</dfn>,
             <dfn>DOMString</dfn>,
             <dfn>sequence&lt;DOMString&gt;</dfn>,
+            <dfn><code>DOMException</code></dfn> and
             and the interface definition language used in this spec
             are defined by [[!WEBIDL]].</dd>
           <dt>WebWorkers</dt>
@@ -411,7 +411,7 @@ request.onsuccess = function() {
           </p>
           <p>
             A <a>database</a> has a
-            <dfn>version</dfn>. When a database is first created, its <a>version</a> is 0.
+            <dfn>version</dfn>. When a database is first created, its <a>version</a> is 0 (zero).
           </p>
           <p class="note">
             Each <a>database</a> has one version at a time; a <a>database</a>
@@ -545,7 +545,8 @@ request.onsuccess = function() {
               <li><code>Number</code> primitive values, except NaN. This includes Infinity and -Infinity.</li>
               <li><code>Date</code> objects, except where the [<span>[</span>PrimitiveValue]] internal property is NaN</li>
               <li><code>String</code> primitive values.</li>
-              <li><code>Array</code> objects, where every item is defined, is itself a valid key, and does not directly or indirectly contain itself. This includes empty arrays.</li>
+              <li><code>Array</code> objects, where every item is defined, is itself a valid key, and does not directly or indirectly contain itself.
+                This includes empty arrays. Arrays may contain other arrays.</li>
             </ul>
             <p>Attempting to convert other ECMAScript values to a <a>key</a> will fail.</p>
           </aside>
@@ -646,11 +647,6 @@ request.onsuccess = function() {
               </dl>
             </li>
           </ol>
-          <p class="note">
-            As a result of the above rules, negative infinity is the lowest possible value for a <a>key</a>.
-            There is no highest possible <a>key</a> value.
-            This is because an array of any candidate highest <a>key</a> followed by another <a>key</a> is even higher.
-          </p>
           <p>
             The <a>key</a> <var>a</var> is <dfn>greater than</dfn> the <a>key</a> <var>b</var> if the result
             of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var> is 1.
@@ -663,6 +659,14 @@ request.onsuccess = function() {
             The <a>key</a> <var>a</var> is <dfn>equal to</dfn> the <a>key</a> <var>b</var> if the result
             of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var> is 0.
           </p>
+
+          <p class="note">
+            As a result of the above rules, negative infinity is the lowest possible value for a <a>key</a>.
+            Numbers are less than dates. Dates are less than strings. Strings are less than arrays.
+            There is no highest possible <a>key</a> value.
+            This is because an array of any candidate highest <a>key</a> followed by another <a>key</a> is even higher.
+          </p>
+
         </section> <!-- key-construct -->
 
         <section id="key-path-construct" class="section">
@@ -1073,6 +1077,16 @@ request.onsuccess = function() {
             The <a title="request transaction">transaction</a> of an <a>open request</a> is null unless an <a><code>upgradeneeded</code></a>
             event has been fired.
           </p>
+
+          <aside class="note">
+            Requests are not typically re-used, but there are exceptions. When a <a>cursor</a> is iterated,
+            the success of the iteration is reported on the same <a>request</a> object used to open the cursor.
+            And when an <a>upgrade transaction</a> is necessary, the same <a>open request</a> is used for
+            both the <a><code>upgradeneeded</code></a> event and final result of the open operation itself.
+            In both cases, the request's <a title="request done">done flag</a> will be unset then set again, and the
+            <a title="request result">result</a> may change.
+          </aside>
+
         </section> <!-- Requests -->
 
         <section class="section" id="range-concept">
@@ -1297,8 +1311,8 @@ request.onsuccess = function() {
               key value specified in the call to store the <a>record</a>.
             </li>
             <li>
-              Likewise, if a <a>transaction</a> is aborted, the <a>current number</a> of the key generator's
-              for all <a title="object store">object stores</a> in the transaction's <a>scope</a> is reverted to the values they
+              Likewise, if a <a>transaction</a> is aborted, the <a>current number</a> of the key generator
+              for each <a>object store</a> in the transaction's <a>scope</a> is reverted to the value it
               had before the <a>transaction</a> was started.
             </li>
             <li>
@@ -1492,98 +1506,82 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h3>Exceptions</h3>
           <p>
-          	Each of the exceptions defined in this document is a <a><code>DOMException</code></a> with a specific type. [[!DOM4]]
-          	Existing DOM Level 4 exceptions will set their code to a legacy value; however, the new exceptions will have a code value of 0.
-          	The message value is optional.
-          </p>
-          <p>
-          	IndexedDB uses the following new <a><code>DOMException</code></a> types with their various messages.
-          	All of these new types will have a code value of 0 (zero).
+            Each of the exceptions defined in this document is a <a><code>DOMException</code></a> with a specific type.
+            The exception types and properties such as code value are defined in [[!WEBIDL]].
           </p>
           <table>
-          		<tr>
-          			<th>Type</th>
-          			<th>Message (Optional)</th>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>UnknownError</dfn></code></td>
-          			<td>The operation failed for reasons unrelated to the database itself and not covered by any other errors.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>ConstraintError</dfn></code></td>
-	          		<td>A mutation operation in the transaction failed because a constraint was not satisfied.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>DataError</dfn></code></td>
-	          		<td>Data provided to an operation does not meet requirements.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>TransactionInactiveError</dfn></code></td>
-	          		<td>A request was placed against a transaction which is currently not active, or which is finished.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>ReadOnlyError</dfn></code></td>
-	          		<td>The mutating operation was attempted in a read-only transaction.</td>
-          		</tr>
-          		<tr>
-          			<td><code><dfn>VersionError</dfn></code></td>
-	          		<td>An attempt was made to open a database using a lower version than the existing version.</td>
-          		</tr>
-          	</table>
-			<p>
-				IndexedDB reuses the following existing <a><code>DOMException</code></a> types from [[!DOM4]].
-				These types will continue to return the codes and names as specified in DOM4.
-			</p>
-			<table>
-				<tr>
-					<th>Type</th>
-					<th>Message (Optional)</th>
-				</tr>
-				<tr>
-					<td><code><dfn>NotFoundError</dfn></code></td>
-					<td>
-						The operation failed because the requested database object could not be found.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>InvalidStateError</dfn></code></td>
-					<td>
-						An operation was called on an object on which it is not allowed or at a time when it is not allowed,
-                                                or if a request is made on a source object that has been deleted or removed.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>InvalidAccessError</dfn></code></td>
-					<td>
-						An invalid operation was performed on an object.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>AbortError</dfn></code></td>
-					<td>
-						A request was aborted.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>QuotaExceededError</dfn></code></td>
-					<td>
-						The operation failed because there was not enough remaining storage space,
-						or the storage quota was reached and the user declined to give more space to the database.
-					</td>
-				</tr>
-				<tr>
-					<td><code><dfn>SyntaxError</dfn></code></td>
-					<td>The keyPath argument contains an invalid key path.</td>
-				</tr>
-          		<tr>
-          			<td><code><dfn>DataCloneError</dfn></code></td>
-	          		<td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
-          		</tr>
-			</table>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+	    <tr>
+	      <td><code><dfn>AbortError</dfn></code></td>
+	      <td>A request was aborted.</td>
+	    </tr>
+            <tr>
+              <td><code><dfn>ConstraintError</dfn></code></td>
+	      <td>A mutation operation in the transaction failed because a constraint was not satisfied.</td>
+            </tr>
+            <tr>
+              <td><code><dfn>DataCloneError</dfn></code></td>
+	      <td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
+            </tr>
+            <tr>
+              <td><code><dfn>DataError</dfn></code></td>
+	      <td>Data provided to an operation does not meet requirements.</td>
+            </tr>
+	    <tr>
+	      <td><code><dfn>InvalidAccessError</dfn></code></td>
+	      <td>An invalid operation was performed on an object.</td>
+	    </tr>
+	    <tr>
+	      <td><code><dfn>InvalidStateError</dfn></code></td>
+	      <td>
+		An operation was called on an object on which it is not allowed or at a time when it is not allowed,
+                or if a request is made on a source object that has been deleted or removed.
+	      </td>
+	    </tr>
+	    <tr>
+	      <td><code><dfn>NotFoundError</dfn></code></td>
+	      <td>
+		The operation failed because the requested database object could not be found.
+	      </td>
+	    </tr>
+	    <tr>
+	      <td><code><dfn>QuotaExceededError</dfn></code></td>
+	      <td>
+		The operation failed because there was not enough remaining storage space,
+		or the storage quota was reached and the user declined to give more space to the database.
+	      </td>
+	    </tr>
+	    <tr>
+	      <td><code><dfn>SyntaxError</dfn></code></td>
+	      <td>The keyPath argument contains an invalid key path.</td>
+	    </tr>
+            <tr>
+              <td><code><dfn>ReadOnlyError</dfn></code></td>
+	      <td>The mutating operation was attempted in a read-only transaction.</td>
+            </tr>
+            <tr>
+              <td><code><dfn>TransactionInactiveError</dfn></code></td>
+	      <td>A request was placed against a transaction which is currently not active, or which is finished.</td>
+            </tr>
+            <tr>
+              <td><code><dfn>UnknownError</dfn></code></td>
+              <td>The operation failed for reasons unrelated to the database itself and not covered by any other errors.</td>
+            </tr>
+            <tr>
+              <td><code><dfn>VersionError</dfn></code></td>
+	      <td>An attempt was made to open a database using a lower version than the existing version.</td>
+            </tr>
+	  </table>
 
-                        <p class="note">
-                          Implementations are encouraged to provide more specific messages to enable debugging errors.
-                        </p>
+          <aside class="note">
+            Given that multiple Indexed DB operations can throw the same type of error, and that
+            a even single operation can throw the same type of error for multiple reasons,
+            implementations are encouraged to provide more specific messages to enable developers
+            to identify the cause of errors.
+          </aside>
         </section> <!-- Exceptions -->
       </section>
 
