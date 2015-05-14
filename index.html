@@ -4059,12 +4059,12 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Object Store Storage Operation</h4>
           <p>
-            The <dfn>steps for storing a record into an object store</dfn> are as follows.
-            The algorithm run by these steps takes four arguments:
-            an object store <var>store</var>,
-            a <var>value</var>,
+            The <dfn>steps for storing a record into an object store</dfn> with
+            <var>store</var>,
+            <var>value</var>,
             an optional <var>key</var>,
-            and a <var>no-overwrite flag</var>.
+            and a <var>no-overwrite flag</var>
+            are as follows.
           </p>
           <ol>
             <li>
@@ -4168,7 +4168,7 @@ store.put([10]); // will throw DataError
               </ol>
             </li>
             <li>
-              The result of this algorithm is <var>key</var>.
+              Return <var>key</var>.
             </li>
           </ol>
         </section>
@@ -4176,26 +4176,29 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Object Store Retrieval Operation</h4>
           <p>
-            The <dfn>steps for retrieving a value from an object store</dfn> are
-            as follows. These steps MUST be run with two parameters - the record
-            <a>key</a> and the <a>object store</a>.
+            The <dfn>steps for retrieving a value from an object store</dfn> with
+            <var>store</var> and <var>key</var> are as follows:
           </p>
 
           <ol>
             <li>
-              Let <var>key</var> be the key and <var>store</var> be the <a>object
-              store</a> given to these steps.
+              If <var>key</var> is not a <a>key range</a> then
+              let <var>record</var> be the <a>record</a>
+              in <var>store</var>'s <a title="object store record list">list of records</a>
+              with key <var>key</var>,
+              if any.
             </li>
             <li>
-              If <var>key</var> is not a <a>key range</a> then retrieve the <a>record</a>
-              with key <var>key</var> from <var>store</var>. If <var>key</var> is a <a>key range</a>, then
-              retrieve the first <a>record</a> from <var>store</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+              Otherwise,
+              let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a title="object store record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>key</var>,
+              if any.
             </li>
             <li>
-              If no record was found, the result of this algorithm is undefined.
+              If <var>record</var> was not found, return undefined.
             </li>
             <li>
-              The result of this algorithm is a new <a>structured clone</a> of the value in the found record.
+              Return a <a>structured clone</a> of <var>record</var>'s value.
             </li>
           </ol>
         </section>
@@ -4203,26 +4206,29 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Index Referenced Value Retrieval Operation</h4>
           <p>
-            The <dfn>steps for retrieving a referenced value from an index</dfn> are
-            as follows. These steps MUST be run with two parameters - the record
-            key and the <a>index</a>.
+            The <dfn>steps for retrieving a referenced value from an index</dfn> with
+            <var>index</var> and <var>key</var> are as follows.
           </p>
-
           <ol>
             <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              given to these steps.
+              If <var>key</var> is not a <a>key range</a> then
+              let <var>record</var> be the first <a>record</a>
+              in <var>index</var>'s <a title="index record list">list of records</a>,
+              with key <var>key</var>,
+              if any.
             </li>
             <li>
-              If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
-              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
-              find the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+              Otherwise,
+              let <var>record</var> be the first <a>record</a>
+              in <var>index</var>'s <a title="index record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>key</var>,
+              if any.
             </li>
             <li>
-              If no record was found, the result of this algorithm is undefined.
+              If <var>record</var> was not found, return undefined.
             </li>
             <li>
-              Otherwise, the result of the operation is a <a>structured clone</a> of the <a>referenced value</a> of the found record.
+              Return a <a>structured clone</a> of <var>record</var>'s <a>referenced value</a>.
             </li>
           </ol>
         </section>
@@ -4230,26 +4236,30 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Index Value Retrieval Operation</h4>
           <p>
-            The <dfn>steps for retrieving a value from an index</dfn> are
-            as follows. These steps MUST be run with two parameters - the record
-            key and the <a>index</a>.
+            The <dfn>steps for retrieving a value from an index</dfn> with
+            <var>index</var> and <var>key</var> are as follows.
           </p>
 
           <ol>
             <li>
-              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
-              given to these steps.
+              If <var>key</var> is not a <a>key range</a> then
+              let <var>record</var> be the first <a>record</a>
+              in <var>index</var>'s <a title="index record list">list of records</a>,
+              with key <var>key</var>,
+              if any.
             </li>
             <li>
-              If <var>key</var> is not a <a>key range</a> then find the first <a>record</a>
-              with key <var>key</var> from <var>index</var>. If <var>key</var> is a <a>key range</a>, then
-              find the first <a>record</a> from <var>index</var> whose key is <a title="in a key range">in</a> <var>key</var>.
+              Otherwise,
+              let <var>record</var> be the first <a>record</a>
+              in <var>index</var>'s <a title="index record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>key</var>,
+              if any.
             </li>
             <li>
-              If no record was found, the result of this algorithm is undefined.
+              If <var>record</var> was not found, return undefined.
             </li>
             <li>
-              If a record was found, the result of this algorithm is the <a>value</a> of the found <a>record</a>.
+              Return <var>record</var>'s <a>value</a>.
             </li>
           </ol>
         </section>
@@ -4257,9 +4267,8 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Object Store Deletion Operation</h4>
           <p>
-            The <dfn>steps for deleting records from an object store</dfn> are as follows.
-            The algorithm run by these steps takes two parameters: an object store <var>store</var> and
-            a <var>key</var>.
+            The <dfn>steps for deleting records from an object store</dfn>
+            with <var>store</var> and <var>key</var> are as follows.
           </p>
           <ol>
             <li>
@@ -4267,14 +4276,16 @@ store.put([10]); // will throw DataError
               or a new <a>key range</a> <a>containing only</a> <var>key</var> otherwise.
             </li>
             <li>
-               Remove all records, if any, from <var>store</var> with key <a title="in a key range">in</a> <var>range</var>.
+              Remove all records, if any, from <var>store</var>'s <a title="object store record list">list of records</a>
+              with key <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>
-              In all <a title="index">indexes</a> which <a title="referenced">reference</a> <var>store</var>, remove all
-              <a title="record">records</a> whose value is <a title="in a key range">in</a> <var>range</var>, if any such records exist.
+              For each <var>index</var> which <a title="referenced">references</a> <var>store</var>, remove
+              every <a>record</a> from <var>index</var>'s <a title="index record list">list of records</a>
+              whose value is <a title="in a key range">in</a> <var>range</var>, if any such records exist.
             </li>
             <li>
-              The result of this algorithm is undefined.
+              Return undefined.
             </li>
           </ol>
         </section>
@@ -4293,13 +4304,13 @@ store.put([10]); // will throw DataError
                 </li>
                 <li>
                   Let <var>count</var> be the number of records, if any,
-                  in <var>source</var> with key <a title="in a key range">in</a> <var>range</var>.
+                  in <var>source</var>'s list of records with key <a title="in a key range">in</a> <var>range</var>.
                 </li>
               </ol>
             </li>
             <li>Otherwise, let <var>count</var> be the total number of records in <var>source</var>.</li>
             <li>
-              The result of this algorithm is <var>count</var>.
+              Return <var>count</var>.
             </li>
           </ol>
         </section>
@@ -4307,8 +4318,7 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Object Store Clear Operation</h4>
           <p>
-            The <dfn>steps for clearing an object store</dfn> are as follows.
-            The algorithm run by these steps takes one parameter: an object store <var>store</var>.
+            The <dfn>steps for clearing an object store</dfn> with <var>store</var> are as follows.
           </p>
           <ol>
             <li>
@@ -4319,7 +4329,7 @@ store.put([10]); // will throw DataError
               <a title="record">records</a>.
             </li>
             <li>
-              The result of this algorithm is undefined.
+              Return undefined.
             </li>
           </ol>
         </section>
@@ -4327,9 +4337,8 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Cursor Iteration Operation</h4>
           <p>
-            The <dfn>steps for iterating a cursor</dfn> are as follows.
-            The algorithm run by these steps takes three parameters: a <var>cursor</var>, an optional
-            <var>key</var> to iterate to, and an optional <var>count</var>.
+            The <dfn>steps for iterating a cursor</dfn> with <var>cursor</var>, an optional
+            <var>key</var> to iterate to, and an optional <var>count</var> are as follows.
           </p>
           <ol>
             <li>Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>.</li>
@@ -4440,7 +4449,7 @@ store.put([10]); // will throw DataError
                       set <var>cursor</var>'s <a>object store position</a> to undefined.</li>
                     <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
                       set <var>cursor</var>'s <a title="cursor value">value</a> to undefined.</li>
-                    <li>The result of this algorithm is null. Abort these steps.</li>
+                    <li>Return null.</li>
                   </ol>
                 </li>
 
@@ -4457,7 +4466,7 @@ store.put([10]); // will throw DataError
               <li>If <var>cursor</var>'s <a>key only flag</a> is unset,
                 set <var>cursor</var>'s <a title="cursor value">value</a> to a <a>structured clone</a> of <var>found record</var>'s <a>referenced value</a>.</li>
               <li>Set <var>cursor</var>'s <a>got value flag</a>.</li>
-            <li>The result of the algorithm is <var>cursor</var>.</li>
+            <li>Return <var>cursor</var>.</li>
           </ol>
         </section>
       </section>
