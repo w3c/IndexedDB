@@ -2408,6 +2408,27 @@ store.put([10]); // will throw DataError
               </dl>
             </dd>
 
+            <dt>IDBRequest clear()</dt>
+            <dd>
+              The <code>clear()</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
+                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>Run the <a>steps for asynchronously executing a request</a> and return the
+                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBObjectStore</a> as
+                  <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
+                  this <a>IDBObjectStore</a> as <var>store</var>.
+                </li>
+              </ol>
+            </dd>
+
             <dt>IDBRequest get()</dt>
             <dd>
               The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
@@ -2516,25 +2537,36 @@ store.put([10]); // will throw DataError
               </dl>
             </dd>
 
-            <dt>IDBRequest clear()</dt>
+            <dt>IDBRequest count()</dt>
             <dd>
-              The <code>clear()</code> method, when invoked, must run these steps:
+              The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
-
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>Run the <a>steps for asynchronously executing a request</a> and return the
-                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBObjectStore</a> as
-                  <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
-                  this <a>IDBObjectStore</a> as <var>store</var>.
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>query</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
+                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
+                  with this <a>object store</a> as <var>source</var> and <var>range</var>.
                 </li>
               </ol>
+
+              <dl class="parameters">
+                <dt>optional any query</dt>
+                <dd>
+                  The <a>key</a> or <a>key range</a> indicating the records to count.
+                  If null or not given, all records counted.
+                </dd>
+              </dl>
             </dd>
 
             <dt>IDBRequest openCursor()</dt>
@@ -2791,38 +2823,6 @@ store.put([10]); // will throw DataError
               </dl>
             </dd>
 
-            <dt>IDBRequest count()</dt>
-            <dd>
-              The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
-              <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
-
-                <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
-
-                <li>Let <var>range</var> be the result of running
-                  the steps to <a>convert a value to a key range</a>
-                  with <var>query</var>.
-                  If this throws an exception, <a title="throw">rethrow</a> it.
-                </li>
-
-                <li>
-                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
-                  with this <a>object store</a> as <var>source</var> and <var>range</var>.
-                </li>
-              </ol>
-
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>
-                  The <a>key</a> or <a>key range</a> indicating the records to count.
-                  If null or not given, all records counted.
-                </dd>
-              </dl>
-            </dd>
-
           </dl>
 
           <dl class="idl" title="dictionary IDBObjectStoreParameters">
@@ -2888,86 +2888,6 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>unique</code> attribute's getter must return true if the
               <a>unique flag</a> of this <a>index</a> is set, and false otherwise.
-            </dd>
-
-            <dt>IDBRequest openCursor()</dt>
-            <dd>
-              The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
-              <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
-
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
-
-                <li>Let <var>range</var> be the result of running
-                  the steps to <a>convert a value to a key range</a>
-                  with <var>query</var>.
-                  If this throws an exception, <a title="throw">rethrow</a> it.
-                </li>
-
-                <li>
-                  Let <var>cursor</var> be a new <a>cursor</a>
-                  with an undefined <a>position</a>, <a>direction</a> set to
-                  <var>direction</var>, <a>got value flag</a> unset, and undefined
-                  <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
-                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
-                </li>
-
-                <li>
-                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
-                  created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
-                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
-                </li>
-              </ol>
-
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional IDBCursorDirection direction = "next"</dt>
-                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
-              </dl>
-            </dd>
-            <dt>IDBRequest openKeyCursor()</dt>
-            <dd>
-              The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
-              <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
-
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
-
-                <li>Let <var>range</var> be the result of running
-                  the steps to <a>convert a value to a key range</a>
-                  with <var>query</var>.
-                  If this throws an exception, <a title="throw">rethrow</a> it.
-                </li>
-
-                <li>
-                  Let <var>cursor</var> be a new <a>cursor</a>
-                  with an undefined <a>position</a>, <a>direction</a> set to
-                  <var>direction</var>, <a>got value flag</a> unset, and undefined
-                  <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
-                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
-                  The <a>key only flag</a> of <var>cursor</var> is set.
-                </li>
-
-                <li>
-                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
-                  created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
-                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
-                </li>
-              </ol>
-
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
-                <dt>optional IDBCursorDirection direction = "next"</dt>
-                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
-              </dl>
             </dd>
 
             <dt>IDBRequest get()</dt>
@@ -3146,6 +3066,87 @@ store.put([10]); // will throw DataError
                 </dd>
               </dl>
             </dd>
+
+            <dt>IDBRequest openCursor()</dt>
+            <dd>
+              The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>query</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
+                </li>
+
+                <li>
+                  Let <var>cursor</var> be a new <a>cursor</a>
+                  with an undefined <a>position</a>, <a>direction</a> set to
+                  <var>direction</var>, <a>got value flag</a> unset, and undefined
+                  <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                  of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
+                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
+                  created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
+                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
+                </li>
+              </ol>
+
+              <dl class="parameters">
+                <dt>optional any query</dt>
+                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
+                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+            <dt>IDBRequest openKeyCursor()</dt>
+            <dd>
+              The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>query</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
+                </li>
+
+                <li>
+                  Let <var>cursor</var> be a new <a>cursor</a>
+                  with an undefined <a>position</a>, <a>direction</a> set to
+                  <var>direction</var>, <a>got value flag</a> unset, and undefined
+                  <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
+                  of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
+                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
+                  The <a>key only flag</a> of <var>cursor</var> is set.
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
+                  created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
+                  <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
+                </li>
+              </ol>
+
+              <dl class="parameters">
+                <dt>optional any query</dt>
+                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional IDBCursorDirection direction = "next"</dt>
+                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+
           </dl>
 
           <dl class="idl" title="dictionary IDBIndexParameters">
