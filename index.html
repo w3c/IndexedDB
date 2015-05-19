@@ -1157,6 +1157,38 @@ request.onsuccess = function() {
               </li>
             </ul>
           </aside>
+
+          <p>
+            An <dfn>unbounded key range</dfn> is a <a>key range</a> that has both
+            <a>lower bound</a> and <a>upper bound</a> equal to null. All
+            <a title="key">keys</a> are <a title="in a key range">in</a> an
+            <a>unbounded key range</a>.
+          </p>
+
+          <p>
+            The steps to <dfn>convert a value to a key range</dfn> with <var>value</var>
+            and optional <var>null allowed flag</var> are as follows:
+          </p>
+          <ol>
+            <li>
+              If <var>value</var> is a <a>key range</a>, return <var>value</var>.
+            </li>
+            <li>
+              If <var>value</var> is undefined or is null,
+              then <a>throw</a> a <code>DataError</code> exception if <var>null disallowed flag</var> is set,
+              or return an <a>unbounded key range</a> otherwise.
+            </li>
+            <li>
+              Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>value</var>.
+              If this throws an exception, <a title="throw">rethrow</a> it.
+            </li>
+            <li>
+              If <var>key</var> is invalid, <a>throw</a> a <code>DataError</code> exception.
+            </li>
+            <li>
+              Return a <a>key range</a> <a>containing only</a> <var>key</var>.
+            </li>
+          </ol>
         </section> <!-- key-range-construct -->
 
         <section id="cursor-concept" class="section">
@@ -2351,14 +2383,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-
-                <li>If <var>key</var> is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>key</var> be <var>r</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var> and <var>null disallowed flag</var> set.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2366,7 +2394,7 @@ store.put([10]); // will throw DataError
                   asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
                   The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for deleting
                   records from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
-                  as <var>store</var> and <var>key</var> as <var>key</var>.
+                  as <var>store</var> and <var>range</var>.
                 </li>
               </ol>
 
@@ -2390,13 +2418,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>key</var> be <var>r</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var> and <var>null disallowed flag</var> set.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2404,7 +2429,7 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
                     object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and
-                  <var>key</var> as <var>key</var>.
+                  <var>range</var>.
                 </li>
               </ol>
 
@@ -2423,7 +2448,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAll()</dt>
             <dd>
-              The <code>getAll(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAll(<var>key</var>, count)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2431,13 +2456,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2445,12 +2467,12 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
                     object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var>,
-                  <var>range</var> if given, and <var>count</var> if given.
+                  <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
+                <dt>optional any key</dt>
                 <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
@@ -2461,7 +2483,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAllKeys()</dt>
             <dd>
-              The <code>getAllKeys(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAllKeys(<var>key</var>, count)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2469,13 +2491,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2483,12 +2502,12 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving multiple keys from an
                     object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var>,
-                  <var>range</var> if given, and <var>count</var> if given.
+                  <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
+                <dt>optional any key</dt>
                 <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
@@ -2520,7 +2539,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest openCursor()</dt>
             <dd>
-              The <code>openCursor(<var>range</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+              The <code>openCursor(<var>key</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2528,13 +2547,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2543,7 +2559,7 @@ store.put([10]); // will throw DataError
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
-                  The <a>range</a> of <var>cursor</var> is <var>range</var>, if given.
+                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
                 </li>
 
                 <li>
@@ -2554,15 +2570,15 @@ store.put([10]); // will throw DataError
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
-                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional any key</dt>
+                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
             </dd>
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
-              The <code>openKeyCursor(<var>range</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+              The <code>openKeyCursor(<var>key</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2570,13 +2586,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2585,7 +2598,7 @@ store.put([10]); // will throw DataError
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
-                  The <a>range</a> of <var>cursor</var> is <var>range</var>, if given.
+                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
                   The <a>key only flag</a> of <var>cursor</var> is set.
                 </li>
 
@@ -2597,8 +2610,8 @@ store.put([10]); // will throw DataError
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
-                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional any key</dt>
+                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
@@ -2788,27 +2801,24 @@ store.put([10]); // will throw DataError
                 <li>If the <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>key</var> be <var>r</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
                   The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
-                  with this <a>object store</a> as <var>source</var> and <var>key</var> as <var>key</var> if given.
+                  with this <a>object store</a> as <var>source</var> and <var>range</var>.
                 </li>
               </ol>
 
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>
-                  Key identifying the record to be retrieved.
-                  This can also be an <a>IDBKeyRange</a>.
+                  The <a>key</a> or <a>key range</a> indicating the records to count.
+                  If null or not given, all records counted.
                 </dd>
               </dl>
             </dd>
@@ -2882,7 +2892,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest openCursor()</dt>
             <dd>
-              The <code>openCursor(<var>range</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+              The <code>openCursor(<var>key</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2890,13 +2900,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2905,7 +2912,7 @@ store.put([10]); // will throw DataError
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
-                  The <a>range</a> of <var>cursor</var> is <var>range</var>, if given.
+                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
                 </li>
 
                 <li>
@@ -2916,15 +2923,15 @@ store.put([10]); // will throw DataError
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
-                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional any key</dt>
+                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
             </dd>
             <dt>IDBRequest openKeyCursor()</dt>
             <dd>
-              The <code>openKeyCursor(<var>range</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+              The <code>openKeyCursor(<var>key</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2932,13 +2939,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a new <a>key range</a> <a>containing only</a> <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2947,7 +2951,7 @@ store.put([10]); // will throw DataError
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
                   of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
-                  The <a>range</a> of <var>cursor</var> is <var>range</var>, if given.
+                  The <a>range</a> of <var>cursor</var> is <var>range</var>.
                   The <a>key only flag</a> of <var>cursor</var> is set.
                 </li>
 
@@ -2959,8 +2963,8 @@ store.put([10]); // will throw DataError
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
-                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional any key</dt>
+                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
@@ -2976,13 +2980,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>key</var> be <var>r</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var> and <var>null disallowed flag</var> set.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -2990,7 +2991,7 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
                     index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and
-                  <var>key</var> as <var>key</var>.
+                  <var>range</var>.
                 </li>
               </ol>
 
@@ -3022,13 +3023,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>key</var> be <var>r</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var> and <var>null disallowed flag</var> set.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -3036,7 +3034,7 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving a value from an
                     index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and
-                  <var>key</var> as <var>key</var>.
+                  <var>range</var>.
                 </li>
               </ol>
 
@@ -3049,7 +3047,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAll()</dt>
             <dd>
-              The <code>getAll(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAll(<var>key</var>, count)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -3057,13 +3055,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -3071,12 +3066,12 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving multiple referenced values from an
                     index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var>,
-                  <var>range</var> if given, and <var>count</var> if given.
+                  <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
+                <dt>optional any key</dt>
                 <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
@@ -3087,7 +3082,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAllKeys()</dt>
             <dd>
-              The <code>getAllKeys(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAllKeys(<var>key</var>, count)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -3095,13 +3090,10 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>range</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
@@ -3109,12 +3101,12 @@ store.put([10]); // will throw DataError
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
                   <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
                     index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var>,
-                  <var>range</var> if given, and <var>count</var> if given.
+                  <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
 
               <dl class="parameters">
-                <dt>optional any range</dt>
+                <dt>optional any key</dt>
                 <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
@@ -3133,27 +3125,24 @@ store.put([10]); // will throw DataError
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
 
-                <li>If <var>key</var> is given and is not a <a>key range</a>:
-                  <ol>
-                    <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
-                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
-                    <li>Let <var>key</var> be <var>r</var>.
-                  </ol>
+                <li>Let <var>range</var> be the result of running
+                  the steps to <a>convert a value to a key range</a>
+                  with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.
                 </li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
                   The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
-                  with this <a>index</a> as <var>source</var> and <var>key</var> as <var>key</var> if given.
+                  with this <a>index</a> as <var>source</var> and <var>range</var>.
                 </li>
               </ol>
 
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>
-                  Key identifying the record to be retrieved.
-                  This can also be an <a>IDBKeyRange</a>.
+                  <a>Key</a> or <a>key range</a> identifying the records to be counted.
+                  If null or not given, all records are counted.
                 </dd>
               </dl>
             </dd>
@@ -4329,14 +4318,10 @@ store.put([10]); // will throw DataError
           <h4>Object Store Retrieval Operations</h4>
           <p>
             The <dfn>steps for retrieving a value from an object store</dfn> with
-            <var>store</var> and <var>key</var> are as follows:
+            <var>store</var> and <var>range</var> are as follows:
           </p>
 
           <ol>
-            <li>
-              Let <var>range</var> be a <a>key range</a> <a>containing only</a> <var>key</var>
-              if <var>key</var> is not a <a>key range</a>, and <var>key</var> otherwise.
-            </li>
             <li>
               Let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a title="object store record list">list of records</a>
               whose key is <a title="in a key range">in</a> <var>range</var>,
@@ -4352,7 +4337,7 @@ store.put([10]); // will throw DataError
 
           <p>
             The <dfn>steps for retrieving multiple values from an object store</dfn> with
-            <var>store</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+            <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
           <ol>
@@ -4360,8 +4345,7 @@ store.put([10]); // will throw DataError
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
               in <var>store</var>'s <a title="object store record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
-              all <a title="record">records</a> in <var>store</var>'s <a title="object store record list">list of records</a> otherwise.
+              whose key is <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>Let <var>array</var> be a new <code>Array</code> object.</li>
             <li>Let <var>index</var> be 0.</li>
@@ -4378,7 +4362,7 @@ store.put([10]); // will throw DataError
 
           <p>
             The <dfn>steps for retrieving multiple keys from an object store</dfn> with
-            <var>store</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+            <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
           <ol>
@@ -4386,8 +4370,7 @@ store.put([10]); // will throw DataError
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
               in <var>store</var>'s <a title="object store record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
-              all <a title="record">records</a> in <var>store</var>'s <a title="object store record list">list of records</a> otherwise.
+              whose key is <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>Let <var>array</var> be a new <code>Array</code> object.</li>
             <li>Let <var>index</var> be 0.</li>
@@ -4407,17 +4390,13 @@ store.put([10]); // will throw DataError
           <h4>Index Retrieval Operations</h4>
           <p>
             The <dfn>steps for retrieving a referenced value from an index</dfn> with
-            <var>index</var> and <var>key</var> are as follows.
+            <var>index</var> and <var>range</var> are as follows.
           </p>
           <ol>
             <li>
-              Let <var>range</var> be a <a>key range</a> <a>containing only</a> <var>key</var>
-              if <var>key</var> is not a <a>key range</a>, and <var>key</var> otherwise.
-            </li>
-            <li>
               Let <var>record</var> be the first <a>record</a>
               in <var>index</var>'s <a title="index record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>key</var>,
+              whose key is <a title="in a key range">in</a> <var>range</var>,
               if any.
             </li>
             <li>
@@ -4430,7 +4409,7 @@ store.put([10]); // will throw DataError
 
           <p>
             The <dfn>steps for retrieving multiple referenced values from an index</dfn> with
-            <var>index</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+            <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
           <ol>
@@ -4438,8 +4417,7 @@ store.put([10]); // will throw DataError
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
               in <var>index</var>'s <a title="index record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
-              all <a title="record">records</a> in <var>index</var>'s <a title="index record list">list of records</a> otherwise.
+              whose key is <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>Let <var>array</var> be a new <code>Array</code> object.</li>
             <li>Let <var>index</var> be 0.</li>
@@ -4456,18 +4434,14 @@ store.put([10]); // will throw DataError
 
           <p>
             The <dfn>steps for retrieving a value from an index</dfn> with
-            <var>index</var> and <var>key</var> are as follows.
+            <var>index</var> and <var>range</var> are as follows.
           </p>
 
           <ol>
             <li>
-              Let <var>range</var> be a <a>key range</a> <a>containing only</a> <var>key</var>
-              if <var>key</var> is not a <a>key range</a>, and <var>key</var> otherwise.
-            </li>
-            <li>
               Let <var>record</var> be the first <a>record</a>
               in <var>index</var>'s <a title="index record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>key</var>,
+              whose key is <a title="in a key range">in</a> <var>range</var>,
               if any.
             </li>
             <li>
@@ -4480,7 +4454,7 @@ store.put([10]); // will throw DataError
 
           <p>
             The <dfn>steps for retrieving multiple values from an index</dfn> with
-            <var>index</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+            <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
           <ol>
@@ -4488,8 +4462,7 @@ store.put([10]); // will throw DataError
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
               in <var>index</var>'s <a title="index record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
-              all <a title="record">records</a> in <var>index</var>'s <a title="index record list">list of records</a> otherwise.
+              whose key is <a title="in a key range">in</a> <var>range</var>.
             </li>
             <li>Let <var>array</var> be a new <code>Array</code> object.</li>
             <li>Let <var>index</var> be 0.</li>
@@ -4509,13 +4482,9 @@ store.put([10]); // will throw DataError
           <h4>Object Store Deletion Operation</h4>
           <p>
             The <dfn>steps for deleting records from an object store</dfn>
-            with <var>store</var> and <var>key</var> are as follows.
+            with <var>store</var> and <var>range</var> are as follows.
           </p>
           <ol>
-            <li>
-              Let <var>range</var> be <var>key</var> if it is a <a>key range</a>,
-              or a new <a>key range</a> <a>containing only</a> <var>key</var> otherwise.
-            </li>
             <li>
               Remove all records, if any, from <var>store</var>'s <a title="object store record list">list of records</a>
               with key <a title="in a key range">in</a> <var>range</var>.
@@ -4534,22 +4503,13 @@ store.put([10]); // will throw DataError
         <section class="section">
           <h4>Record Counting Operation</h4>
           <p>
-            The <dfn>steps to count the records in a range</dfn> with <var>source</var> and optional <var>key</var> are as follows:
+            The <dfn>steps to count the records in a range</dfn> with <var>source</var> and <var>range</var> are as follows:
           </p>
           <ol>
-            <li>If <var>key</var> is given:
-              <ol>
-                <li>
-                  Let <var>range</var> be <var>key</var> if it is a <a>key range</a>,
-                  or a new <a>key range</a> <a>containing only</a> <var>key</var> otherwise.
-                </li>
-                <li>
-                  Let <var>count</var> be the number of records, if any,
-                  in <var>source</var>'s list of records with key <a title="in a key range">in</a> <var>range</var>.
-                </li>
-              </ol>
+            <li>
+              Let <var>count</var> be the number of records, if any,
+              in <var>source</var>'s list of records with key <a title="in a key range">in</a> <var>range</var>.
             </li>
-            <li>Otherwise, let <var>count</var> be the total number of records in <var>source</var>.</li>
             <li>
               Return <var>count</var>.
             </li>
@@ -4620,7 +4580,7 @@ store.put([10]); // will throw DataError
                           <var>object store position</var> or the record's key is <a>greater than</a> <var>position</var>.
                         </li>
                         <li>
-                          If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                          The record's key is <a title="in a key range">in</a> <var>range</var>.
                         </li>
                       </ul>
                     </dd>
@@ -4636,7 +4596,7 @@ store.put([10]); // will throw DataError
                           If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
                         </li>
                         <li>
-                          If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                          The record's key is <a title="in a key range">in</a> <var>range</var>.
                         </li>
                       </ul>
                     </dd>
@@ -4658,7 +4618,7 @@ store.put([10]); // will throw DataError
                           <var>object store position</var> or the record's key is <a>less than</a> <var>position</var>.
                         </li>
                         <li>
-                          If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                          The record's key is <a title="in a key range">in</a> <var>range</var>.
                         </li>
                       </ul>
                     </dd>
@@ -4674,7 +4634,7 @@ store.put([10]); // will throw DataError
                           If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
                         </li>
                         <li>
-                          If <var>range</var> is defined, the record's key is <a title="in a key range">in</a> <var>range</var>.
+                          The record's key is <a title="in a key range">in</a> <var>range</var>.
                         </li>
                       </ul>
                       If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
