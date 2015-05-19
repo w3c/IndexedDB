@@ -2421,6 +2421,82 @@ store.put([10]); // will throw DataError
               </dl>
             </dd>
 
+            <dt>IDBRequest getAll()</dt>
+            <dd>
+              The <code>getAll(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>If <var>range</var> is given and is not a <a>key range</a>:
+                  <ol>
+                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
+                  </ol>
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing
+                  a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
+                  <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
+                    object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var>,
+                  <var>range</var> if given, and <var>count</var> if given.
+                </li>
+              </ol>
+
+              <dl class="parameters">
+                <dt>optional any range</dt>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dt>[EnforceRange] optional unsigned long count</dt>
+                <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
+                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
+                all records in range will be retrieved.</dd>
+              </dl>
+            </dd>
+
+            <dt>IDBRequest getAllKeys()</dt>
+            <dd>
+              The <code>getAllKeys(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>If <var>range</var> is given and is not a <a>key range</a>:
+                  <ol>
+                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
+                  </ol>
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing
+                  a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
+                  <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving multiple keys from an
+                    object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var>,
+                  <var>range</var> if given, and <var>count</var> if given.
+                </li>
+              </ol>
+
+              <dl class="parameters">
+                <dt>optional any range</dt>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dt>[EnforceRange] optional unsigned long count</dt>
+                <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
+                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
+                all keys in range will be retrieved.</dd>
+              </dl>
+            </dd>
+
             <dt>IDBRequest clear()</dt>
             <dd>
               The <code>clear()</code> method, when invoked, must run these steps:
@@ -2968,6 +3044,82 @@ store.put([10]); // will throw DataError
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
                 the function retrieves the first existing value in that range.</dd>
+              </dl>
+            </dd>
+
+            <dt>IDBRequest getAll()</dt>
+            <dd>
+              The <code>getAll(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>If <var>range</var> is given and is not a <a>key range</a>:
+                  <ol>
+                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
+                  </ol>
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing
+                  a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
+                  <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving multiple referenced values from an
+                    index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var>,
+                  <var>range</var> if given, and <var>count</var> if given.
+                </li>
+              </ol>
+
+              <dl class="parameters">
+                <dt>optional any range</dt>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dt>[EnforceRange] optional unsigned long count</dt>
+                <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
+                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
+                all records in range will be retrieved.</dd>
+              </dl>
+            </dd>
+
+            <dt>IDBRequest getAllKeys()</dt>
+            <dd>
+              The <code>getAllKeys(<var>range</var>, count)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+
+                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+
+                <li>If <var>range</var> is given and is not a <a>key range</a>:
+                  <ol>
+                    <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>range</var>.
+                      If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                    <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>Let <var>range</var> be a <a>key range</a> containing only <var>key</var>.
+                  </ol>
+                </li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing
+                  a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
+                  <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
+                    index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var>,
+                  <var>range</var> if given, and <var>count</var> if given.
+                </li>
+              </ol>
+
+              <dl class="parameters">
+                <dt>optional any range</dt>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dt>[EnforceRange] optional unsigned long count</dt>
+                <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
+                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
+                all keys in range will be retrieved.</dd>
               </dl>
             </dd>
 
@@ -4174,7 +4326,7 @@ store.put([10]); // will throw DataError
         </section>
 
         <section class="section">
-          <h4>Object Store Retrieval Operation</h4>
+          <h4>Object Store Retrieval Operations</h4>
           <p>
             The <dfn>steps for retrieving a value from an object store</dfn> with
             <var>store</var> and <var>key</var> are as follows:
@@ -4182,16 +4334,12 @@ store.put([10]); // will throw DataError
 
           <ol>
             <li>
-              If <var>key</var> is not a <a>key range</a> then
-              let <var>record</var> be the <a>record</a>
-              in <var>store</var>'s <a title="object store record list">list of records</a>
-              with key <var>key</var>,
-              if any.
+              Let <var>range</var> be a <a>key range</a> <a>containing only</a> <var>key</var>
+              if <var>key</var> is not a <a>key range</a>, and <var>key</var> otherwise.
             </li>
             <li>
-              Otherwise,
-              let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a title="object store record list">list of records</a>
-              whose key is <a title="in a key range">in</a> <var>key</var>,
+              Let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a title="object store record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>range</var>,
               if any.
             </li>
             <li>
@@ -4201,25 +4349,73 @@ store.put([10]); // will throw DataError
               Return a <a>structured clone</a> of <var>record</var>'s value.
             </li>
           </ol>
+
+          <p>
+            The <dfn>steps for retrieving multiple values from an object store</dfn> with
+            <var>store</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+          </p>
+
+          <ol>
+            <li>If <var>count</var> is not given, let <var>count</var> be infinity.</li>
+            <li>
+              Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
+              in <var>store</var>'s <a title="object store record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
+              all <a title="record">records</a> in <var>store</var>'s <a title="object store record list">list of records</a> otherwise.
+            </li>
+            <li>Let <var>array</var> be a new <code>Array</code> object.</li>
+            <li>Let <var>index</var> be 0.</li>
+            <li>For each <var>record</var> in <var>records</var>:
+              <ol>
+                <li>Let <var>entry</var> be a <a>structured clone</a> of <var>record</var>'s value.</li>
+                <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</li>
+                <li>Assert: <var>status</var> is true.</li>
+                <li>Increase <var>index</var> by 1.</li>
+              </ol>
+            </li>
+            <li>Return <var>array</var></li>
+          </ol>
+
+          <p>
+            The <dfn>steps for retrieving multiple keys from an object store</dfn> with
+            <var>store</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+          </p>
+
+          <ol>
+            <li>If <var>count</var> is not given, let <var>count</var> be infinity.</li>
+            <li>
+              Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
+              in <var>store</var>'s <a title="object store record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
+              all <a title="record">records</a> in <var>store</var>'s <a title="object store record list">list of records</a> otherwise.
+            </li>
+            <li>Let <var>array</var> be a new <code>Array</code> object.</li>
+            <li>Let <var>index</var> be 0.</li>
+            <li>For each <var>record</var> in <var>records</var>:
+              <ol>
+                <li>Let <var>entry</var> be the result of running the steps to <a>convert a key to a value</a> with <var>record</var>'s key.</li>
+                <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</li>
+                <li>Assert: <var>status</var> is true.</li>
+                <li>Increase <var>index</var> by 1.</li>
+              </ol>
+            </li>
+            <li>Return <var>array</var></li>
+          </ol>
         </section>
 
         <section class="section">
-          <h4>Index Referenced Value Retrieval Operation</h4>
+          <h4>Index Retrieval Operations</h4>
           <p>
             The <dfn>steps for retrieving a referenced value from an index</dfn> with
             <var>index</var> and <var>key</var> are as follows.
           </p>
           <ol>
             <li>
-              If <var>key</var> is not a <a>key range</a> then
-              let <var>record</var> be the first <a>record</a>
-              in <var>index</var>'s <a title="index record list">list of records</a>,
-              with key <var>key</var>,
-              if any.
+              Let <var>range</var> be a <a>key range</a> <a>containing only</a> <var>key</var>
+              if <var>key</var> is not a <a>key range</a>, and <var>key</var> otherwise.
             </li>
             <li>
-              Otherwise,
-              let <var>record</var> be the first <a>record</a>
+              Let <var>record</var> be the first <a>record</a>
               in <var>index</var>'s <a title="index record list">list of records</a>
               whose key is <a title="in a key range">in</a> <var>key</var>,
               if any.
@@ -4231,10 +4427,33 @@ store.put([10]); // will throw DataError
               Return a <a>structured clone</a> of <var>record</var>'s <a>referenced value</a>.
             </li>
           </ol>
-        </section>
 
-        <section class="section">
-          <h4>Index Value Retrieval Operation</h4>
+          <p>
+            The <dfn>steps for retrieving multiple referenced values from an index</dfn> with
+            <var>index</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+          </p>
+
+          <ol>
+            <li>If <var>count</var> is not given, let <var>count</var> be infinity.</li>
+            <li>
+              Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
+              in <var>index</var>'s <a title="index record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
+              all <a title="record">records</a> in <var>index</var>'s <a title="index record list">list of records</a> otherwise.
+            </li>
+            <li>Let <var>array</var> be a new <code>Array</code> object.</li>
+            <li>Let <var>index</var> be 0.</li>
+            <li>For each <var>record</var> in <var>records</var>:
+              <ol>
+                <li>Let <var>entry</var> be a <a>structured clone</a> of <var>record</var>'s <a>referenced value</a>.</li>
+                <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</li>
+                <li>Assert: <var>status</var> is true.</li>
+                <li>Increase <var>index</var> by 1.</li>
+              </ol>
+            </li>
+            <li>Return <var>array</var></li>
+          </ol>
+
           <p>
             The <dfn>steps for retrieving a value from an index</dfn> with
             <var>index</var> and <var>key</var> are as follows.
@@ -4242,15 +4461,11 @@ store.put([10]); // will throw DataError
 
           <ol>
             <li>
-              If <var>key</var> is not a <a>key range</a> then
-              let <var>record</var> be the first <a>record</a>
-              in <var>index</var>'s <a title="index record list">list of records</a>,
-              with key <var>key</var>,
-              if any.
+              Let <var>range</var> be a <a>key range</a> <a>containing only</a> <var>key</var>
+              if <var>key</var> is not a <a>key range</a>, and <var>key</var> otherwise.
             </li>
             <li>
-              Otherwise,
-              let <var>record</var> be the first <a>record</a>
+              Let <var>record</var> be the first <a>record</a>
               in <var>index</var>'s <a title="index record list">list of records</a>
               whose key is <a title="in a key range">in</a> <var>key</var>,
               if any.
@@ -4261,6 +4476,32 @@ store.put([10]); // will throw DataError
             <li>
               Return <var>record</var>'s <a>value</a>.
             </li>
+          </ol>
+
+          <p>
+            The <dfn>steps for retrieving multiple values from an index</dfn> with
+            <var>index</var>, optional <var>range</var> and optional <var>count</var> are as follows:
+          </p>
+
+          <ol>
+            <li>If <var>count</var> is not given, let <var>count</var> be infinity.</li>
+            <li>
+              Let <var>records</var> be a list containing the first <var>count</var> <a title="record">records</a>
+              in <var>index</var>'s <a title="index record list">list of records</a>
+              whose key is <a title="in a key range">in</a> <var>range</var> if <var>range</var> is given, or
+              all <a title="record">records</a> in <var>index</var>'s <a title="index record list">list of records</a> otherwise.
+            </li>
+            <li>Let <var>array</var> be a new <code>Array</code> object.</li>
+            <li>Let <var>index</var> be 0.</li>
+            <li>For each <var>record</var> in <var>records</var>:
+              <ol>
+                <li>Let <var>entry</var> be the result of running the steps to <a>convert a key to a value</a> with <var>record</var>'s value.</li>
+                <li>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</li>
+                <li>Assert: <var>status</var> is true.</li>
+                <li>Increase <var>index</var> by 1.</li>
+              </ol>
+            </li>
+            <li>Return <var>array</var></li>
           </ol>
         </section>
 
@@ -5032,6 +5273,9 @@ store.put([10]); // will throw DataError
         <li>Converted specification to a more algorithmic style,
           and define abstract types such as <a>key</a> more rigorously.
           (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=17681">bug #17681</a>)</li>
+        <li>Added <code>getAll</code> and <code>getAllKeys</code> to
+          <a>IDBObjectStore</a> and <a>IDBIndex</a>.
+          (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=16595">bug #16595</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
