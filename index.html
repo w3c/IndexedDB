@@ -1964,7 +1964,7 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>version</code> attribute's getter must return the <a>version</a> of the
               <a>database</a> when the <a>connection</a> was created.
-              When a <a>IDBDatabase</a> instance is created,
+              When an <a>IDBDatabase</a> instance is created,
               this is always the number given as the <var>version</var>
               argument given to the <code>open</code>
               call used to create the <a>IDBDatabase</a> instance. This value remains constant for the lifetime of the <a>IDBDatabase</a> object.
@@ -2115,7 +2115,7 @@ store.put([10]); // will throw DataError
                 <li>If this method is called on <a>IDBDatabase</a> object for which an <a>upgrade transaction</a> is still running,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
                 </li>
-                <li>If this method is called on a <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
+                <li>If this method is called on an <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
                   <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
                 </li>
                 <li>
@@ -2404,7 +2404,7 @@ store.put([10]); // will throw DataError
               </p>
               <dl class="parameters">
                 <dt>any query</dt>
-                <dd><a>Key</a> or <a>key range</a> identifying the <a title="record">records</a> to be deleted</dd>
+                <dd><a>Key</a> or <a>IDBKeyRange</a> identifying the <a title="record">records</a> to be deleted.</dd>
               </dl>
             </dd>
 
@@ -2469,7 +2469,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAll()</dt>
             <dd>
-              The <code>getAll(<var>query</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2494,7 +2494,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                  If null or not given, an <a>unbounded key range</a> is used.
+                </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
                 range than are specified, only the first <var>count</var> will be retrieved. If not specified,
@@ -2504,7 +2506,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAllKeys()</dt>
             <dd>
-              The <code>getAllKeys(<var>query</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2529,7 +2531,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                  If null or not given, an <a>unbounded key range</a> is used.
+                </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
                 range than are specified, only the first <var>count</var> will be retrieved. If not specified,
@@ -2563,8 +2567,8 @@ store.put([10]); // will throw DataError
               <dl class="parameters">
                 <dt>optional any query</dt>
                 <dd>
-                  The <a>key</a> or <a>key range</a> indicating the records to count.
-                  If null or not given, all records counted.
+                  The <a>key</a> or <a>IDBKeyRange</a> indicating the records to count.
+                  If null or not given, an <a>unbounded key range</a> is used.
                 </dd>
               </dl>
             </dd>
@@ -2603,7 +2607,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
+                  If null or not given, an <a>unbounded key range</a> is used.
+                </dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
@@ -2643,7 +2649,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
+                  If null or not given, an <a>unbounded key range</a> is used.
+                </dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
@@ -2705,7 +2713,7 @@ store.put([10]); // will throw DataError
                 This method synchronously modifies the
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property
                 on the <a>IDBObjectStore</a> instance on which it was called.
-                Although this method does not return a <a>IDBRequest</a> object, the index creation itself is
+                Although this method does not return an <a>IDBRequest</a> object, the index creation itself is
                 processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
               <p>
@@ -2814,7 +2822,7 @@ store.put([10]); // will throw DataError
                 <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
                 However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
                 property on the <a>IDBObjectStore</a> instance on which it was called.
-                Although this method does not return a <a>IDBRequest</a> object, the index destruction itself is
+                Although this method does not return an <a>IDBRequest</a> object, the index destruction itself is
                 processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
               <dl class="parameters">
@@ -2967,7 +2975,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAll()</dt>
             <dd>
-              The <code>getAll(<var>query</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -2992,7 +3000,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                  If null or not given, an <a>unbounded key range</a> is used.
+                </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
                 range than are specified, only the first <var>count</var> will be retrieved. If not specified,
@@ -3002,7 +3012,7 @@ store.put([10]); // will throw DataError
 
             <dt>IDBRequest getAllKeys()</dt>
             <dd>
-              The <code>getAllKeys(<var>query</var>, count)</code> method, when invoked, must run these steps:
+              The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
                   <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
@@ -3027,7 +3037,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.</dd>
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                  If null or not given, an <a>unbounded key range</a> is used.
+                </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
                 <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
                 range than are specified, only the first <var>count</var> will be retrieved. If not specified,
@@ -3061,8 +3073,8 @@ store.put([10]); // will throw DataError
               <dl class="parameters">
                 <dt>optional any query</dt>
                 <dd>
-                  <a>Key</a> or <a>key range</a> identifying the records to be counted.
-                  If null or not given, all records are counted.
+                  <a>Key</a> or <a>IDBKeyRange</a> identifying the records to be counted.
+                  If null or not given, an <a>unbounded key range</a> is used.
                 </dd>
               </dl>
             </dd>
@@ -3101,7 +3113,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
+                  If null or not given, all records are counted.
+                </dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
@@ -3141,7 +3155,9 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
+                  If null or not given, all records are counted.
+                </dd>
                 <dt>optional IDBCursorDirection direction = "next"</dt>
                 <dd>The <a>cursor</a>'s required <a>direction</a></dd>
               </dl>
