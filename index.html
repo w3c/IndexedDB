@@ -3,6 +3,22 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API (Second Edition)</title>
+
+    <script type="disabled">
+    // flatten out interface members so respec will error check links
+    window.addEventListener('DOMContentLoaded', function() {
+      [].slice.call(document.querySelectorAll('dl.idl > dd')).forEach(function(dd) {
+        var dl = dd.parentNode;
+        var pos = dl.nextSibling;
+        var parent = dl.parentNode;
+        var p = document.createElement('p');
+        p.innerHTML = dd.innerHTML;
+        dd.innerHTML = '';
+        parent.insertBefore(p, pos);
+      });
+    });
+    </script>
+
     <script src='//www.w3.org/Tools/respec/respec-w3c-common' class='remove' async></script>
     <script class='remove'>
       var respecConfig = {
@@ -10,7 +26,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2015-05-18",
+          publishDate:          "2015-05-22",
 
           previousPublishDate:  "2015-01-08",
           previousMaturity:     "TR",
@@ -68,8 +84,8 @@
       pre, pre code { font-size: 14px !important; }
 
       /* Reduce vertical space */
-      .note { padding: 0em 1.2em !important; }
-      .note-title { float: left; min-width: 0 !important; }
+      .note, .issue { padding: 0em 1.2em !important; }
+      .note-title, .issue-title { float: left; min-width: 0 !important; }
 
        /* Switch statement */
       dl.switch dt::before {
@@ -341,8 +357,9 @@ request.onsuccess = function() {
           </dd>
           <dt>DOM4</dt>
           <dd>The types
-            <dfn><code>Event</code></dfn> and
-            <dfn><code>EventTarget</code></dfn>
+            <dfn><code>Event</code></dfn>,
+            <dfn><code>EventTarget</code></dfn> and
+            <dfn><code>DOMStringList</code></dfn>
             are defined by the W3C DOM4 Specification [[!DOM4]].
           </dd>
           <dt>HTML5</dt>
@@ -380,8 +397,15 @@ request.onsuccess = function() {
 
     <section id="database-api" class="section">
       <h2>Indexed Database API</h2>
-      <section id="constructs" class="section">
+      <section id="infrastructure" class="section">
+        <p>
+          A <dfn>sorted list</dfn> is a <a>DOMStringList</a> containing strings sorted in ascending order using the
+          algorithm defined by step 4 of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
+          of the ECMAScript Language Specification [[!ECMA-262]].
+        </p>
+      </section>
 
+      <section id="constructs" class="section">
       <h3>Constructs</h3>
        <section id="database-concept" class="section">
           <h4>Database</h4>
@@ -1977,12 +2001,10 @@ store.put([10]); // will throw DataError
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
               <p>
-                The <code>objectStoreNames</code> attribute's getter must return a list of names of the
+                The <code>objectStoreNames</code> attribute's getter must return a
+                <a>sorted list</a> of the <a title="object store name">names</a> of the
               <a title="object store">object stores</a> currently in the
-              <a title="connection">connected</a> <a>database</a>. The list MUST
-              be sorted in ascending order using the algorithm defined by step 4
-              of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
-              of the ECMAScript Language Specification [[!ECMA-262]].
+              <a title="connection">connected</a> <a>database</a>.
               </p>
               <p>
               Once the <a>close pending flag</a> is set on the <a>connection</a>, this
@@ -2051,7 +2073,7 @@ store.put([10]); // will throw DataError
                 Such implementations MUST still create and return an <a>IDBObjectStore</a> object, and
                 once the implementation determines that creating the <a>object store</a> has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using the appropriate error. For example if
-                creating the <a>object store</a> failed due to quota reasons, <a>QuotaError</a> MUST be used as error.
+                creating the <a>object store</a> failed due to quota reasons, <a>QuotaExceededError</a> MUST be used as error.
               </p>
 
               <dl class="parameters">
@@ -2214,11 +2236,8 @@ store.put([10]); // will throw DataError
             <dd>
               <p>
                 The <code>indexNames</code> attribute's getter must return
-                a list of the names of <a title="index">indexes</a> on
-                objects in this <a>object store</a>. The list MUST
-                be sorted in ascending order using the algorithm defined by step 4
-                of <cite>section 11.8.5, The Abstract Relational Comparison Algorithm</cite>
-                of the ECMAScript Language Specification [[!ECMA-262]].
+                a <a>sorted list</a> of the <a title="index name">names</a> of <a title="index">indexes</a> on
+                objects in this <a>object store</a>.
               </p>
               <p>
                 Once the <a>close pending flag</a> is set on the <a>connection</a>, this
@@ -2498,7 +2517,7 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="record">records</a> to be retrieved.
                   If null or not given, an <a>unbounded key range</a> is used.
                 </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
@@ -2537,7 +2556,7 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="record">records</a> to be retrieved.
                   If null or not given, an <a>unbounded key range</a> is used.
                 </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
@@ -2733,7 +2752,7 @@ store.put([10]); // will throw DataError
                 Such implementations MUST still create and return an <a>IDBIndex</a> object, and
                 once the implementation determines that creating the index has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using an appropriate error as <var>error</var>. For example if
-                creating the <a>index</a> failed due to quota reasons, <a>QuotaError</a> MUST be used as error and if the index
+                creating the <a>index</a> failed due to quota reasons, <a>QuotaExceededError</a> MUST be used as error and if the index
                 can't be created due to <a>unique flag</a> constraints, <a>ConstraintError</a> MUST be used as error.
               </p>
               <aside class="example">
@@ -3010,7 +3029,7 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="record">records</a> to be retrieved.
                   If null or not given, an <a>unbounded key range</a> is used.
                 </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
@@ -3049,7 +3068,7 @@ store.put([10]); // will throw DataError
 
               <dl class="parameters">
                 <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="records">records</a> to be retrieved.
+                <dd>Key or <a>IDBKeyRange</a> identifying the <a title="record">records</a> to be retrieved.
                   If null or not given, an <a>unbounded key range</a> is used.
                 </dd>
                 <dt>[EnforceRange] optional unsigned long count</dt>
@@ -3596,6 +3615,33 @@ store.put([10]); // will throw DataError
             <a title="transaction">Transaction</a> objects implement the following interface:
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBTransaction : EventTarget">
+
+            <dt>readonly attribute DOMStringList objectStoreNames</dt>
+            <dd>
+              <aside class="note">This attribute is new in this edition.</aside>
+
+              The <code>objectStoreNames</code> attribute's getter must run the following steps:
+              <ol>
+                <li>
+                  If this <a>transaction</a> is an <a>upgrade transaction</a>, return a
+                  <a>sorted list</a> of the <a title="object store name">names</a>
+                  of the <a title="object store">object stores</a> in this <a>transaction</a>'s
+                  <a title="connection">connected</a> <a>database</a>.
+                </li>
+                <li>
+                  Otherwise, return a <a>sorted list</a> of the <a title="object store name">names</a>
+                  of the <a title="object store">object stores</a> in this <a>transaction</a>'s <a>scope</a>.
+                </li>
+              </ol>
+
+              <aside class="note">
+                The contents of each list returned by this attribute does not change,
+                but subsequent calls to this attribute during an <a>upgrade transaction</a>
+                may return lists with different contents as <a title="object store">object stores</a>
+                are created and deleted.
+              </aside>
+            </dd>
+
             <dt>readonly attribute IDBTransactionMode mode</dt>
             <dd>
               The <code>mode</code> attribute's getter must return the <a>mode</a> of the <a>transaction</a>.
@@ -5269,6 +5315,8 @@ store.put([10]); // will throw DataError
           (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=16595">bug #16595</a>)</li>
         <li>Replaced <code>DOMError</code> with <code>DOMException</code>.
           (<a href="https://github.com/w3c/IndexedDB/issues/16">bug #16</a>)</li>
+        <li>Added <code>objectStoreNames</code> attribute to <a>IDBTransaction</a>.
+          (<a href="https://github.com/w3c/IndexedDB/issues/18">bug #18</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
