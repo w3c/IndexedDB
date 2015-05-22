@@ -341,8 +341,8 @@ request.onsuccess = function() {
           </dd>
           <dt>DOM4</dt>
           <dd>The types
-            <dfn><code>DOMError</code></dfn>,
-            <dfn><code>Event</code></dfn>
+            <dfn><code>Event</code></dfn> and
+            <dfn><code>EventTarget</code></dfn>
             are defined by the W3C DOM4 Specification [[!DOM4]].
           </dd>
           <dt>HTML5</dt>
@@ -859,7 +859,7 @@ request.onsuccess = function() {
               <a title="request">requests</a> and their order. Requests may be placed against a transaction only while that transaction
               is <a>active</a>. If an attempt is made to place a request against a transaction when that transaction is not
               <a>active</a>, the implementation MUST reject the attempt by
-              throwing a <a><code>TransactionInactiveError</code></a> exception.
+              throwing a <a>TransactionInactiveError</a> exception.
             </li>
             <li>
               Once an implementation is able to enforce the constraints defined for the transaction <a>scope</a> and <a>mode</a>, defined below,
@@ -886,8 +886,8 @@ request.onsuccess = function() {
               when committing the transaction, or due to running into a quota limit where the implementation can't tie
               exceeding the quota to a partcular request. In this case the implementation MUST run the
               <a>steps for aborting a transaction</a> using the transaction as <var>transaction</var> and the appropriate
-              error type as <var>error</var>. For example if quota was exceeded then <code>QuotaExceededError</code> should
-              be used as <var>error</var>, and if an IO error happened, <code>UnknownError</code> should be used as
+              error type as <var>error</var>. For example if quota was exceeded then <a>QuotaExceededError</a> should
+              be used as <var>error</var>, and if an IO error happened, <a>UnknownError</a> should be used as
               <var>error</var>.
             </li>
             <li>
@@ -1061,7 +1061,7 @@ request.onsuccess = function() {
           <p>
             If an error occurs while performing the operation, the
             <a title="request done">done flag</a> is set, the
-            <a title="request error">error</a> is set to a <a><code>DOMError</code></a> type that matches the error,
+            <a title="request error">error</a> is set to the error,
             and an event with type <code>error</code> is fired at the request.
           </p>
 
@@ -1175,7 +1175,7 @@ request.onsuccess = function() {
             </li>
             <li>
               If <var>value</var> is undefined or is null,
-              then <a>throw</a> a <code>DataError</code> exception if <var>null disallowed flag</var> is set,
+              then <a>throw</a> a <a>DataError</a> exception if <var>null disallowed flag</var> is set,
               or return an <a>unbounded key range</a> otherwise.
             </li>
             <li>
@@ -1183,7 +1183,7 @@ request.onsuccess = function() {
               If this throws an exception, <a title="throw">rethrow</a> it.
             </li>
             <li>
-              If <var>key</var> is invalid, <a>throw</a> a <code>DataError</code> exception.
+              If <var>key</var> is invalid, <a>throw</a> a <a>DataError</a> exception.
             </li>
             <li>
               Return a <a>key range</a> <a>containing only</a> <var>key</var>.
@@ -1350,7 +1350,7 @@ request.onsuccess = function() {
             <li>
               When the <a>current number</a> of a key generator reaches above the value 2<sup>53</sup>
               (9007199254740992) any attempts to use the key generator to generate a new
-              <a>key</a> will result in a <code>ConstraintError</code>.
+              <a>key</a> will result in a <a>ConstraintError</a>.
               It is still possible to insert <a title="record">records</a> into the
               object store by specifying an explicit key, however the only way to use a key generator
               again for the object store is to delete the object store and create a new one.
@@ -1664,18 +1664,18 @@ store.put([10]); // will throw DataError
             <dd>
               If the <a title="request done">done flag</a> is unset,
               the <code>result</code> attribute's getter
-              <a title="throw">throws</a> an <a><code>InvalidStateError</code></a> exception.
+              <a title="throw">throws</a> an <a>InvalidStateError</a> exception.
               Otherwise,
               the <code>result</code> attribute's getter
               must return the <a title="request result">result</a> of
               the request, or undefined if the request resulted in an error.
             </dd>
 
-            <dt>readonly attribute DOMError error</dt>
+            <dt>readonly attribute DOMException error</dt>
             <dd>
               If the <a title="request done">done flag</a> is unset,
               the <code>error</code> attribute's getter
-              <a title="throw">throws</a> an <a><code>InvalidStateError</code></a> exception.
+              <a title="throw">throws</a> an <a>InvalidStateError</a> exception.
               Otherwise,
               the <code>error</code> attribute's getter
               must return the <a title="request error">error</a> of the request,
@@ -1913,11 +1913,11 @@ store.put([10]); // will throw DataError
               <ol>
                 <li>Let <var>a</var> be the result of running the steps to <a>convert a value to a key</a> with <var>first</var>.
                   If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>a</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>a</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Let <var>b</var> be the result of running the steps to <a>convert a value to a key</a> with <var>second</var>.
                   If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>b</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>b</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Return the results of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var>.</li>
               </ol>
@@ -2010,23 +2010,23 @@ store.put([10]); // will throw DataError
               The <code>createObjectStore(<var>name</var>, <var>options</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a not an <a>upgrade transaction</a>,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
                 <li>If an <a>object store</a> <a title="object store name">named</a> <var>name</var> already exists in this <a>database</a>,
-                  <a>throw</a> a <a><code>ConstraintError</code></a> exception.
+                  <a>throw</a> a <a>ConstraintError</a> exception.
                 </li>
 
                 <li>Let <var>keyPath</var> be <var>options</var>'s <code>keyPath</code> member if it is not undefined or null, or null otherwise.</li>
                 <li>If <var>keyPath</var> is not null and is not a <a>valid key path</a>,
-                  <a>throw</a> a <a><code>SyntaxError</code></a> exception.
+                  <a>throw</a> a <a>SyntaxError</a> exception.
                 </li>
 
                 <li>Let <var>autoIncrement</var> be set if <var>options</var>'s <code>autoIncrement</code> member is true, or unset otherwise.</li>
                 <li>If <var>autoIncrement</var> is set and <var>keyPath</var> is an empty string or any sequence (empty or otherwise),
-                  <a>throw</a> an <a><code>InvalidAccessError</code></a> exception.
+                  <a>throw</a> an <a>InvalidAccessError</a> exception.
                 </li>
 
                 <li>Create a new <a>object store</a> in the <a title="connection">connected</a> <a>database</a>
@@ -2051,7 +2051,7 @@ store.put([10]); // will throw DataError
                 Such implementations MUST still create and return an <a>IDBObjectStore</a> object, and
                 once the implementation determines that creating the <a>object store</a> has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using the appropriate error. For example if
-                creating the <a>object store</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error.
+                creating the <a>object store</a> failed due to quota reasons, <a>QuotaError</a> MUST be used as error.
               </p>
 
               <dl class="parameters">
@@ -2079,13 +2079,13 @@ store.put([10]); // will throw DataError
               The <code>deleteObjectStore(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a not an <a>upgrade transaction</a>,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
                 <li>If there is no <a>object store</a> <a title="object store name">named</a> <var>name</var> in the <a title="connection">connected</a> <a>database</a>,
-                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                  <a>throw</a> a <a>NotFoundError</a> exception.
                 </li>
 
                 <li>Destroy the <a>object store</a> <a title="object store name">named</a> <var>name</var>
@@ -2113,20 +2113,20 @@ store.put([10]); // will throw DataError
                   <a>throw</a> a <code>TypeError</code>.
                 </li>
                 <li>If this method is called on <a>IDBDatabase</a> object for which an <a>upgrade transaction</a> is still running,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>If this method is called on an <a>IDBDatabase</a> instance where the <a>close pending flag</a> is set,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>
                   Let <var>scope</var> be the set of unique strings in <var>storeNames</var> if it is a sequence,
                   or a set containing one string equal to <var>storeNames</var> otherwise.
                 </li>
                 <li>If any string in <var>scope</var> is not the name of an <a>object store</a> in the <a title="connection">connected</a> <a>database</a>,
-                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                  <a>throw</a> a <a>NotFoundError</a> exception.
                 </li>
                 <li>If <var>scope</var> is empty,
-                  <a>throw</a> an <a><code>InvalidAccessError</code></a> exception.
+                  <a>throw</a> an <a>InvalidAccessError</a> exception.
                 </li>
 
                 <li>Let <var>transaction</var> be a <a title="transaction create">new transaction</a>
@@ -2251,27 +2251,27 @@ store.put([10]); // will throw DataError
               The <code>put(<var>value</var>, <var>key</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+                  <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
 
                 <li>If the <a>object store</a> uses <a>in-line keys</a> and <var>key</var> was given,
-                  <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                  <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>If the <a>object store</a> uses <a>out-of-line keys</a> and has no <a>key generator</a>
                   and <var>key</var> was not given,
-                  <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                  <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>If <var>key</var> was given:
                   <ol>
                     <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>r</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>Let <var>key</var> be <var>r</var>.
                   </ol>
                 </li>
@@ -2284,10 +2284,10 @@ store.put([10]); // will throw DataError
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
                       with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>kpk</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
                     <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                      <a>throw</a> a <a>DataError</a> exception.</li>
                   </ol>
                 </li>
 
@@ -2312,27 +2312,27 @@ store.put([10]); // will throw DataError
               The <code>add(<var>value</var>, <var>key</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+                  <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
 
                 <li>If the <a>object store</a> uses <a>in-line keys</a> and <var>key</var> was given,
-                  <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                  <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>If the <a>object store</a> uses <a>out-of-line keys</a> and has no <a>key generator</a>
                   and <var>key</var> was not given,
-                  <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                  <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>If <var>key</var> was given:
                   <ol>
                     <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>r</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>Let <var>key</var> be <var>r</var>.
                   </ol>
                 </li>
@@ -2345,10 +2345,10 @@ store.put([10]); // will throw DataError
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
                       with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>kpk</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>kpk</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
                     <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                      <a>throw</a> a <a>DataError</a> exception.</li>
                   </ol>
                 </li>
                 <li>
@@ -2377,13 +2377,13 @@ store.put([10]); // will throw DataError
               The <code>delete(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+                  <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2415,13 +2415,13 @@ store.put([10]); // will throw DataError
               The <code>clear()</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+                  <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Run the <a>steps for asynchronously executing a request</a> and return the
                   <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBObjectStore</a> as
@@ -2436,10 +2436,10 @@ store.put([10]); // will throw DataError
               The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2476,10 +2476,10 @@ store.put([10]); // will throw DataError
               The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2515,10 +2515,10 @@ store.put([10]); // will throw DataError
               The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2552,10 +2552,10 @@ store.put([10]); // will throw DataError
               The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2584,10 +2584,10 @@ store.put([10]); // will throw DataError
               The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2627,10 +2627,10 @@ store.put([10]); // will throw DataError
               The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2674,23 +2674,23 @@ store.put([10]); // will throw DataError
               The <code>createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
 
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
 
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
 
                 <li>If an <a>index</a> <a title="index name">named</a> <var>name</var> already exists in this <a>object store</a>,
-                  <a>throw</a> a <a><code>ConstraintError</code></a> exception.
+                  <a>throw</a> a <a>ConstraintError</a> exception.
                 </li>
 
                 <li>If <var>keyPath</var> is not a <a>valid key path</a>,
-                  <a>throw</a> a <a><code>SyntaxError</code></a> exception.
+                  <a>throw</a> a <a>SyntaxError</a> exception.
                 </li>
 
                 <li>Let <var>unique</var> be set if <var>options</var>'s <code>unique</code> member is true, and unset otherwise.</li>
@@ -2698,7 +2698,7 @@ store.put([10]); // will throw DataError
                 <li>Let <var>multiEntry</var> be set if <var>options</var>'s <code>multiEntry</code> member is true, and unset otherwise.</li>
 
                 <li>If <var>keyPath</var> is a sequence and <var>multiEntry</var> is set,
-                  <a>throw</a> an <a><code>InvalidAccessError</code></a> exception.
+                  <a>throw</a> an <a>InvalidAccessError</a> exception.
                 </li>
 
                 <li>Create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
@@ -2733,8 +2733,8 @@ store.put([10]); // will throw DataError
                 Such implementations MUST still create and return an <a>IDBIndex</a> object, and
                 once the implementation determines that creating the index has failed, it MUST abort the transaction
                 using the <a>steps for aborting a transaction</a> using an appropriate error as <var>error</var>. For example if
-                creating the <a>index</a> failed due to quota reasons, <code>QuotaError</code> MUST be used as error and if the index
-                can't be created due to <a>unique flag</a> constraints, <code>ConstraintError</code> MUST be used as error.
+                creating the <a>index</a> failed due to quota reasons, <a>QuotaError</a> MUST be used as error and if the index
+                can't be created due to <a>unique flag</a> constraints, <a>ConstraintError</a> MUST be used as error.
               </p>
               <aside class="example">
                   <p>
@@ -2774,10 +2774,10 @@ store.put([10]); // will throw DataError
               The <code>index(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If there is no <a>index</a> <a title="index name">named</a> <var>name</var> in this <a>object store</a>,
-                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                  <a>throw</a> a <a>NotFoundError</a> exception.
                 </li>
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
 
                 <li>Return an <a>IDBIndex</a> representing the <a>index</a> associated with this <a>object store</a>
@@ -2809,17 +2809,17 @@ store.put([10]); // will throw DataError
               The <code>deleteIndex(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
                 <li>If the <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>
                   If there is no <a>index</a> <a title="index name">named</a> <var>name</var> in the <a>object store</a>,
-                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                  <a>throw</a> a <a>NotFoundError</a> exception.
                 </li>
                 <li>Destroy the <a>index</a> <a title="index name">named</a> <var>name</var> in the <a>object store</a>.
                 </li>
@@ -2911,10 +2911,10 @@ store.put([10]); // will throw DataError
               The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2954,10 +2954,10 @@ store.put([10]); // will throw DataError
               The <code>getKey(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -2988,10 +2988,10 @@ store.put([10]); // will throw DataError
               The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -3027,10 +3027,10 @@ store.put([10]); // will throw DataError
               The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -3064,10 +3064,10 @@ store.put([10]); // will throw DataError
               The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -3096,10 +3096,10 @@ store.put([10]); // will throw DataError
               The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -3137,10 +3137,10 @@ store.put([10]); // will throw DataError
               The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
                   the steps to <a>convert a value to a key range</a>
@@ -3220,7 +3220,7 @@ store.put([10]); // will throw DataError
               <ol>
                 <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>value</var>.
                   If this throws an an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>key</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>key</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Create and return a new <a>key range</a> <a>containing only</a> <var>key</var>.</li>
               </ol>
@@ -3237,7 +3237,7 @@ store.put([10]); // will throw DataError
               <ol>
                 <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>lower</var>.
                   If this throws an an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>lowerKey</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>lowerKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to <var>lowerKey</var>,
@@ -3262,7 +3262,7 @@ store.put([10]); // will throw DataError
               <ol>
                 <li>Let <var>upperKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>upper</var>.
                   If this throws an an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>upperKey</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>upperKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to null,
@@ -3287,13 +3287,13 @@ store.put([10]); // will throw DataError
               <ol>
                 <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>lower</var>.
                   If this throws an an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>lowerKey</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>lowerKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Let <var>upperKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>upper</var>.
                   If this throws an an exception, <a title="throw">rethrow</a> it.</li>
-                <li>If <var>upperKey</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>upperKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
 
-                <li>If <var>lowerKey</var> is <a>greater than</a> <var>upperKey</var>, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                <li>If <var>lowerKey</var> is <a>greater than</a> <var>upperKey</var>, <a>throw</a> a <a>DataError</a> exception.</li>
 
                 <li>Create and return a new <a>key range</a> with
                   <a>lower bound</a> set to <var>lowerKey</var>,
@@ -3369,19 +3369,19 @@ store.put([10]); // will throw DataError
               The <code>update(<var>value</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+                  <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If this cursor's <a>key only flag</a> is set,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>clone</var> be <a>structured clone</a> of <var>value</var>. If this
                   throws an exception, <a title="throw">rethrow</a> the exception.</li>
@@ -3392,7 +3392,7 @@ store.put([10]); // will throw DataError
                       with <var>clone</var> and the <a title="object store key path">key path</a> of the <a>effective object store</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>kpk</var> is failure, invalid, or not <a>equal to</a> the cursor's <a>effective key</a>,
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                      <a>throw</a> a <a>DataError</a> exception.</li>
                   </ol>
                 </li>
 
@@ -3425,13 +3425,13 @@ store.put([10]); // will throw DataError
                   <a>throw</a> a <code>TypeError</code>.
 
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Unset the <a>got value flag</a> on the cursor.</li>
 
@@ -3453,7 +3453,7 @@ store.put([10]); // will throw DataError
               <p class="note">
                 Calling this method more than once before new cursor data has been loaded - for example,
                 calling <code>advance()</code> twice from the same onsuccess handler -
-                results in an <a><code>DOMException</code></a> of type <a><code>InvalidStateError</code></a> being thrown on the second call
+                results in an <a>InvalidStateError</a> exception being thrown on the second call
                 because the cursor's <a>got value flag</a> has been unset.
               </p>
 
@@ -3468,28 +3468,28 @@ store.put([10]); // will throw DataError
               The <code>continue(<var>key</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If <var>key</var> is given:
                   <ol>
                     <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
-                    <li>If <var>r</var> is invalid, <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                    <li>If <var>r</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>Let <var>key</var> be <var>r</var>.</li>
 
                     <li>If <var>key</var> is <a>less than</a> or <a>equal to</a> this cursor's <a>position</a>
                       and this cursor's <a>direction</a> is "<code>next</code>" or "<code>nextunique</code>",
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                      <a>throw</a> a <a>DataError</a> exception.</li>
 
                     <li>If <var>key</var> is <a>greater than</a> or <a>equal to</a> this cursor's <a>position</a>
                       and this cursor's <a>direction</a> is "<code>prev</code>" or "<code>prevunique</code>",
-                      <a>throw</a> a <a><code>DataError</code></a> exception.</li>
+                      <a>throw</a> a <a>DataError</a> exception.</li>
                   </ol>
                 </li>
 
@@ -3513,7 +3513,7 @@ store.put([10]); // will throw DataError
               <p class="note">
                 Calling this method more than once before new cursor data has been loaded -
                 for example, calling <code>continue()</code> twice from the same onsuccess handler -
-                results in a <a><code>DOMException</code></a> of type <a><code>InvalidStateError</code></a> being thrown on the second call
+                results in an <a>InvalidStateError</a> exception being thrown on the second call
                 because the cursor's <a>got value flag</a> has been unset.
               </p>
 
@@ -3528,19 +3528,19 @@ store.put([10]); // will throw DataError
               The <code>delete()</code> method, when invoked, must run these steps:
               <ol>
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is a <a>read-only transaction</a>,
-                  <a>throw</a> a <a><code>ReadOnlyError</code></a> exception.</li>
+                  <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
                 <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
-                  <a>throw</a> a <a><code>TransactionInactiveError</code></a> exception.</li>
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>If this cursor's <a>key only flag</a> is set,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the
@@ -3608,7 +3608,7 @@ store.put([10]); // will throw DataError
               is a part.
             </dd>
 
-            <dt>readonly attribute DOMError error</dt>
+            <dt>readonly attribute DOMException error</dt>
             <dd>
               The <code>error</code> attribute's getter must run these steps:
               <ol>
@@ -3620,14 +3620,13 @@ store.put([10]); // will throw DataError
                 </li>
                 <li>
                   If this <a>transaction</a> was aborted due to a failed <a>request</a>,
-                  return the same
-                  <a><code>DOMError</code></a> as the <a>request</a> which caused this transaction to be aborted.
+                  return the <a>request</a>'s <a title="request error">error</a>.
                 </li>
                 <li>
                   Otherwise, this transaction was aborted due to an error when committing the <a>transaction</a>,
                   and not due to a failed <a>request</a>.
-                  Return a <a><code>DOMError</code></a> which contains the reason for the transaction
-                  failure (e.g. <code>QuotaExceededError</code> or <code>UnknownError</code>).
+                  Return the reason for the transaction
+                  failure (e.g. <a>QuotaExceededError</a> or <a>UnknownError</a>).
                 </li>
               </ol>
             </dd>
@@ -3637,10 +3636,10 @@ store.put([10]); // will throw DataError
               The <code>objectStore(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>If there is no <a>object store</a> <a title="object store name">named</a> <var>name</var> in this <a>transaction</a>'s <a>scope</a>,
-                  <a>throw</a> a <a><code>NotFoundError</code></a> exception.
+                  <a>throw</a> a <a>NotFoundError</a> exception.
                 </li>
                 <li>If the <a>transaction</a> has <a title="transaction finish">finished</a>,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.</li>
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Return an <a>IDBObjectStore</a> representing the <a>object store</a> in this <a>transaction</a>'s <a>scope</a>,
                   <a title="object store name">named</a> <var>name</var>. Every call to this method on the same
@@ -3664,7 +3663,7 @@ store.put([10]); // will throw DataError
               The <code>abort()</code> method, when invoked, must run these steps:
               <ol>
                 <li>If this <a>transaction</a> is <a title="transaction finish">finished</a>,
-                  <a>throw</a> an <a><code>InvalidStateError</code></a> exception.
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
                 <li>Unset the <a>transaction</a>'s <a>active flag</a> and run the
                   <a>steps for aborting a transaction</a> with null as <var>error</var>.
@@ -3761,7 +3760,7 @@ store.put([10]); // will throw DataError
             </li>
             <li>
               If <var>db</var>'s <a>version</a> is greater than <var>version</var>, abort these steps and return
-              a <a><code>DOMError</code></a> of type <a>VersionError</a>.
+              a new <a>VersionError</a>.
             </li>
             <li>
               Let <var>connection</var> be a new <a>connection</a> to <var>db</var>.
@@ -3774,14 +3773,14 @@ store.put([10]); // will throw DataError
                   using <var>connection</var>, <var>version</var> and <var>request</var>.
                 </li>
                 <li>
-                  If <var>connection</var> was <a title="database close">closed</a>, return a
-                  <a><code>DOMError</code></a> of type <a>AbortError</a> and abort these steps.
+                  If <var>connection</var> was <a title="database close">closed</a>,
+                  create and return a new <a>AbortError</a> exception and abort these steps.
                 </li>
                 <li>
                 <li>
                   If the <a>upgrade transaction</a> was aborted,
                   run the <a>steps for closing a database connection</a> with <var>connection</var>,
-                  then return a <a><code>DOMError</code></a> of type <a>AbortError</a> and abort these steps.
+                  create and return a new <a>AbortError</a> exception and abort these steps.
                 </li>
               </ol>
             </li>
@@ -3803,7 +3802,7 @@ store.put([10]); // will throw DataError
             <li>
               If the <var>forced flag</var> is set, then for each <var>transaction</var> <a title="transaction create">created</a>
               using <var>connection</var> run the <a>steps for aborting a transaction</a> with
-              <var>transaction</var> and <code>AbortError</code>.
+              <var>transaction</var> and newly created <a>AbortError</a> exception.
             </li>
             <li>
               Wait for all transactions <a title="transaction create">created</a> using <var>connection</var> to complete.
@@ -3892,7 +3891,7 @@ store.put([10]); // will throw DataError
             <li>
               If an error occurs while writing the changes to the <a>database</a>, abort the transaction by following
               the <a>steps for aborting a transaction</a> with <var>transaction</var>
-              and an appropriate for the error, for example <code>QuotaExceededError</code> or <code>UnknownError</code>.
+              and an appropriate for the error, for example <a>QuotaExceededError</a> or <a>UnknownError</a>.
             </li>
             <li>
               <a>Queue a task</a> to dispatch an event at <a>transaction</a>.
@@ -3915,7 +3914,7 @@ store.put([10]); // will throw DataError
             When taking the <dfn>steps for aborting a transaction</dfn> the implementation MUST
             execute the following algorithm. This algorithm takes two arguments:
             the <var>transaction</var> to abort,
-            and an <var>error</var> name.
+            and <var>error</var>.
           </p>
           <ol>
             <li>
@@ -3925,8 +3924,8 @@ store.put([10]); // will throw DataError
               which reverts changes to all <a>IDBDatabase</a> and <a>IDBObjectStore</a> instances.
             </li>
             <li>
-              Unless <var>error</var> was null, create a <a><code>DOMError</code></a> object and set its <code>name</code>
-              to <var>error</var>. Set <var>transaction</var>'s <code>error</code> property to this newly created <a><code>DOMError</code></a>.
+              If <var>error</var> is not null, set <var>transaction</var>'s <code>error</code> property
+              to <var>error</var>.
             </li>
             <li>
               For each <var>request</var> in <var>transaction</var>'s <a>request list</a>
@@ -3936,7 +3935,7 @@ store.put([10]); // will throw DataError
               <ol>
                 <li>Set the <a title="request done">done flag</a> on <var>request</var>.</li>
                 <li>Set the <a title="request result">result</a> of <var>request</var> to undefined.</li>
-                <li>Set the <a title="request error">error</a> of <var>request</var> to a <a><code>DOMError</code></a> with a type of <a>AbortError</a>.</li>
+                <li>Set the <a title="request error">error</a> of <var>request</var> to a newly created <a>AbortError</a> exception.</li>
                 <li>
                   Dispatch an event at <var>request</var>. The event must use
                   the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>error</code>".
@@ -3978,7 +3977,7 @@ store.put([10]); // will throw DataError
             </li>
             <li>
               If <var>transaction</var> is not <a>active</a>
-              throw a <a><code>TransactionInactiveError</code></a> exception.
+              throw a <a>TransactionInactiveError</a> exception.
             </li>
             <li>
               If <var>request</var> was not given, let <var>request</var> be a new <var>request</var> with
@@ -3995,24 +3994,24 @@ store.put([10]); // will throw DataError
               <a title="request done">done flag</a> set.
             </li>
             <li>
-              Perform <var>operation</var>.
+              Let <var>result</var> be the result of performing <var>operation</var>.
             </li>
             <li>
-              If performing <var>operation</var> succeeded then set the <a title="request done">done flag</a>
-              on the <var>request</var>, set <a title="request result">result</a> of <var>request</var>
-              to the result of the request and set the <a title="request error">error</a> of <var>request</var> to undefined.
-	      Finally <a>fire a success event</a> at <var>request</var>.
-            </li>
-            <li>
-              If performing <var>operation</var> failed then revert all changes made by <var>operation</var>,
+              If <var>result</var> is an error, then revert all changes made by <var>operation</var>,
               set the <a title="request done">done flag</a> on <var>request</var>,
               set <a title="request result">result</a> of <var>request</var>
               to undefined and set the <a title="request error">error</a> on <var>request</var>
-              to a <a><code>DOMError</code></a> with the same error type as the <var>operation</var> that failed.
+              to <var>result</var>.
               Finally <a>fire an error event</a> at <var>request</var>.
-              <p class="note">
+              <aside class="note">
                 This only reverts the changes done by this request, not any other changes made by the transaction.
-              </p>
+              </aside>
+            </li>
+            <li>
+              Otherwise, set the <a title="request done">done flag</a>
+              on the <var>request</var>, set <a title="request result">result</a> of <var>request</var>
+              to <var>result</var> set the <a title="request error">error</a> of <var>request</var> to undefined.
+	      Finally <a>fire a success event</a> at <var>request</var>.
             </li>
           </ol>
         </section>
@@ -4086,7 +4085,7 @@ store.put([10]); // will throw DataError
                 <li>
                   If an exception was propagated out from any event handler while dispatching the event in the previous step, abort
                   the transaction by following the <a>steps for aborting a transaction</a> with the <var>error</var> property set to
-                  <code>AbortError</code>.
+                  a newly created <a>AbortError</a> exception.
                 </li>
               </ol>
             </li>
@@ -4177,7 +4176,7 @@ store.put([10]); // will throw DataError
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
               abort the transaction by following the <a>steps for aborting a transaction</a> with
-              <var>transaction</var> and <code>AbortError</code>.
+              <var>transaction</var> and a newly created <a>AbortError</a> exception.
             </li>
           </ol>
         </section>
@@ -4211,12 +4210,12 @@ store.put([10]); // will throw DataError
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
               abort the transaction by following the <a>steps for aborting a transaction</a> with
-              <var>transaction</var> and <code>AbortError</code>. This is done even if the error event is not
+              <var>transaction</var> and a newly created <a>AbortError</a> exception. This is done even if the error event is not
               canceled.
               <p class="note">
-                This means that if an error event is fired and any of the event handlers throw an exception, the <code>error</code> property
-                on the transaction is set to an <code>AbortError</code> rather than whatever <a><code>DOMError</code></a> the <code>error</code>
-                property on the request was set to, even if <code>preventDefault</code> is never called.
+                This means that if an error event is fired and any of the event handlers throw an exception,
+                <var>transaction</var>'s <code>error</code> property is set to an <a>AbortError</a> exception rather than <var>request</var>'s
+                <a title="request error">error</a>, even if <code>preventDefault</code> is never called.
             </li>
           </ol>
         </section>
@@ -4257,7 +4256,7 @@ store.put([10]); // will throw DataError
                   <ol>
                     <li>
                       If the <a>key generator</a>'s <a>current number</a> is greater than 2<sup>53</sup> (9007199254740992),
-                      then this operation failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking
+                      then this operation failed with a <a>ConstraintError</a>. Abort this algorithm without taking
                       any further steps.
                     </li>
                     <li>Set <var>key</var> to the <a>key generator</a>'s <a>current number</a></li>
@@ -4279,7 +4278,7 @@ store.put([10]); // will throw DataError
             <li>
               If the <var>no-overwrite flag</var> was given to these steps and is set, and
               a <a>record</a> already exists in <var>store</var> with its key <a>equal to</a> <var>key</var>, then
-              this operation failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking
+              this operation failed with a <a>ConstraintError</a>. Abort this algorithm without taking
               any further steps.
             </li>
             <li>
@@ -4307,13 +4306,13 @@ store.put([10]); // will throw DataError
                   If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> <var>index key</var>,
                   and <var>index</var> has its <a>unique flag</a> set, then this operation failed with a
-                  <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
+                  <a>ConstraintError</a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry flag</a> is set and <var>index key</var> is an <a>array key</a>,
                   and if <var>index</var> already contains a <a>record</a> with <a>key</a> <a>equal to</a> any of the
                   <a>subkeys</a> of <var>index key</var>, and <var>index</var> has its <a>unique flag</a> set, then this operation
-                  failed with a <a><code>ConstraintError</code></a>. Abort this algorithm without taking any further steps.
+                  failed with a <a>ConstraintError</a>. Abort this algorithm without taking any further steps.
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>
@@ -4811,7 +4810,7 @@ store.put([10]); // will throw DataError
                 <li>
                   If <var>value</var> is not an <code>Object</code> object or an <code>Array</code>
                   object (see <a>structured clone algorithm</a> [[!HTML5]]), then
-                  throw a <a><code>DataError</code></a> exception.
+                  throw a <a>DataError</a> exception.
                 </li>
                 <li>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</li>
                 <li>ReturnIfAbrupt(<var>hop</var>)</li>
@@ -5268,6 +5267,8 @@ store.put([10]); // will throw DataError
         <li>Added <code>getAll</code> and <code>getAllKeys</code> methods to
           <a>IDBObjectStore</a> and <a>IDBIndex</a>.
           (<a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=16595">bug #16595</a>)</li>
+        <li>Replaced <code>DOMError</code> with <code>DOMException</code>.
+          (<a href="https://github.com/w3c/IndexedDB/issues/16">bug #16</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
