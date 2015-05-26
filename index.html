@@ -417,8 +417,8 @@ request.onsuccess = function() {
 	  </p>
           <p>
             Each <a>origin</a> has an associated set of
-            <a title="database">databases</a>. A <dfn>database</dfn> comprises
-            one or more <a title="object store">object stores</a> which hold the data stored
+            <a title="database">databases</a>. A <dfn>database</dfn> has
+            zero or more <a title="object store">object stores</a> which hold the data stored
             in the database.
           </p>
           <p>
@@ -447,6 +447,7 @@ request.onsuccess = function() {
             to be deleted the flag is set and all attempts at opening the database are stalled until the database
             can be deleted.
           </p>
+
           <p>
             The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple
             <a title="connection">connections</a> to a given <a>database</a> at any given time. Each connection has a
@@ -471,6 +472,12 @@ request.onsuccess = function() {
             occurs the user agent MUST run the <a>steps for closing a
             database connection</a> with the <a>connection</a> and
             with the <var>forced flag</var> set.
+          </p>
+
+          <p>
+            A <a>connection</a> has an <dfn>object store set</dfn>, which is set to the
+            set of <a title="object store">object stores</a> in the associated <a>database</a>
+            when the <a>connection</a> is created.
           </p>
 
         </section>  <!-- Database -->
@@ -521,6 +528,26 @@ request.onsuccess = function() {
               Keys can also be explicitly specified when a <a>value</a> is stored in the object store.
             </li>
           </ol>
+
+          <section>
+            <h5>Object Store Handle</h5>
+            <p>
+              Script does not interact with <a title="object store">object stores</a> directly. Instead,
+              within a <a>transaction</a>, script has indirect access via an <dfn>object store handle</dfn>.
+            </p>
+            <p>
+              An <a>object store handle</a> has an associated <dfn title="handle object store">object store</dfn> and
+              an associated <dfn title="object store handle transaction">transaction</dfn>.
+              Multiple handles may be associated with the same <a>object store</a> in different <a title="transaction">transactions</a>,
+              but only one <a>object store handle</a> may be associated with a particular <a>object store</a> within a <a>transaction</a>.
+            </p>
+            <p>
+              An <a>object store handle</a> has an <dfn>index set</dfn>, which is set to the
+              set of <a title="index">indexes</a> that reference the associated <a title="handle object store">object store</a>
+              when the <a>object store handle</a> is created.
+            </p>
+          </section>
+
         </section> <!-- Object store -->
 
         <section id="value-construct" class="section">
@@ -788,6 +815,23 @@ request.onsuccess = function() {
             a single <a>record</a> whose <a>key</a> is an <a>array key</a> is added to the index. If the <a>multiEntry flag</a> is
             true, then the one <a>record</a> is added to the index for each of the <a>subkeys</a>.
           </p>
+
+          <section>
+            <h5>Index Handle</h5>
+            <p>
+              Script does not interact with <a title="index">indexes</a> directly. Instead,
+              within a <a>transaction</a>, script has indirect access via an <dfn>index handle</dfn>.
+            </p>
+            <p>
+              An <a>index handle</a> has an associated <dfn title="handle index">index</dfn> and
+              an associated <dfn title="index handle object store">object store handle</dfn>.
+              The <dfn title="index handle transaction">transaction</dfn> of an <a>index handle</a> is the
+              <a title="object store handle transaction">transaction</a> of its associated <a>object store handle</a>.
+              Multiple handles may be associated with the same <a>index</a> in different <a title="transaction">transactions</a>,
+              but only one <a>index handle</a> may be associated with a particular <a>index</a> within a <a>transaction</a>.
+            </p>
+          </section>
+
         </section> <!-- index-construct -->
 
         <section id="transaction-concept" class="section">
@@ -2000,25 +2044,17 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
             <dd>
-              <p>
-                The <code>objectStoreNames</code> attribute's getter must return a
-                <a>sorted list</a> of the <a title="object store name">names</a> of the
-              <a title="object store">object stores</a> currently in the
-              <a title="connection">connected</a> <a>database</a>.
-              </p>
-              <p>
-              Once the <a>close pending flag</a> is set on the <a>connection</a>, this
-              attribute MUST return a snapshot of the list of names of the <a title="object store">object
-              stores</a> taken at the time when the
-              <a href="#widl-IDBDatabase-close-void"><code>close</code></a> method was called, even if
-              other <a title="connection">connections</a> are later used to change the set of <a title="object store">object
-              stores</a> that exist in the <a>database</a>. In other words, the
-              value of this attribute stays constant for the lifetime of the
-              <a>IDBDatabase</a> instance, except during an <a>upgrade transaction</a>
-              if <a href="#widl-IDBDatabase-createObjectStore-IDBObjectStore-DOMString-name-IDBObjectStoreParameters-options"><code>createObjectStore</code></a>
-              or <a href="#widl-IDBDatabase-deleteObjectStore-void-DOMString-name"><code>deleteObjectStore</code></a>
-              is called on this <a>IDBDatabase</a> instance itself.
-              </p>
+              The <code>objectStoreNames</code> attribute's getter must return a
+              <a>sorted list</a> of the <a title="object store name">names</a> of the
+              <a title="object store">object stores</a> in this <a>connection</a>'s
+              <a>object store set</a>.
+
+              <aside class="note">
+                Since the <a>object store set</a> is assocaited with a <a>connection</a>,
+                the returned list will not change in response to <a>object store</a> creation
+                or deletion with a different <a>upgrade transaction</a>. Once the <a>connection</a>
+                is <a title="database close">closed</a> the list will not change.
+              </aside>
             </dd>
 
             <dt>IDBObjectStore createObjectStore()</dt>
@@ -2031,13 +2067,15 @@ store.put([10]); // will throw DataError
 
               The <code>createObjectStore(<var>name</var>, <var>options</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a not an <a>upgrade transaction</a>,
-                  <a>throw</a> an <a>InvalidStateError</a> exception.
+                <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
+                <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
+                  <var>database</var>, or <a>throw</a> an <a>InvalidStateError</a> exception if none.
                 </li>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
-                <li>If an <a>object store</a> <a title="object store name">named</a> <var>name</var> already exists in this <a>database</a>,
+                <li>If an <a>object store</a> <a title="object store name">named</a> <var>name</var> already exists in
+                  <var>database</var>
                   <a>throw</a> a <a>ConstraintError</a> exception.
                 </li>
 
@@ -2051,17 +2089,21 @@ store.put([10]); // will throw DataError
                   <a>throw</a> an <a>InvalidAccessError</a> exception.
                 </li>
 
-                <li>Create a new <a>object store</a> in the <a title="connection">connected</a> <a>database</a>
-                  and return an <a>IDBObjectStore</a> object representing it.
+                <li>
+                  Let <var>store</var> be a new <a>object store</a> in <var>database</var>.
                   Set the created <a>object store</a>'s <a title="object store name">name</a> to <var>name</var>.
                   If <var>autoIncrement</var> is set, then the created <a>object store</a> uses a <a>key generator</a>.
                   If <var>keyPath</var> is not null, set the created <a>object store</a>'s <a title="object store key path">key path</a> to <var>keyPath</var>.
+                </li>
+
+                <li>
+                  Return a new <a>object store handle</a> associated with <var>store</var> and <var>transaction</var>.
                 </li>
               </ol>
 
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property
+                <a href="#widl-IDBDatabase-objectStoreNames"><code>objectStoreNames</code></a> property
                 on the <a>IDBDatabase</a> instance on which it was called.
               </p>
 
@@ -2100,24 +2142,27 @@ store.put([10]); // will throw DataError
 
               The <code>deleteObjectStore(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a not an <a>upgrade transaction</a>,
-                  <a>throw</a> an <a>InvalidStateError</a> exception.
+                <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
+                <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
+                  <var>database</var>, or <a>throw</a> an <a>InvalidStateError</a> exception if none.
                 </li>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
-                <li>If there is no <a>object store</a> <a title="object store name">named</a> <var>name</var> in the <a title="connection">connected</a> <a>database</a>,
-                  <a>throw</a> a <a>NotFoundError</a> exception.
+                <li>Let <var>store</var> be the <a>object store</a> <a title="object store name">named</a> <var>name</var> in <var>database</var></a>,
+                  or <a>throw</a> a <a>NotFoundError</a> exception if none.
                 </li>
-
-                <li>Destroy the <a>object store</a> <a title="object store name">named</a> <var>name</var>
-                  in the <a title="connection">connected</a> <a>database</a>.
+                <li>
+                  Remove <var>store</var> from this <a>connection</a>'s <a>object store set</a>.
+                </li>
+                <li>
+                  Destroy <var>store</var>.
                 </li>
               </ol>
 
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> property
+                <a href="#widl-IDBDatabase-objectStoreNames"><code>objectStoreNames</code></a> property
                 on the <a>IDBDatabase</a> instance on which it was called.
               </p>
               <dl class="parameters">
@@ -2202,23 +2247,21 @@ store.put([10]); // will throw DataError
           <h4>The <code>IDBObjectStore</code> interface</h4>
           <p>
             The <a>IDBObjectStore</a>
-            interface represents an <a>object store</a>. Note however that multiple instances of those
-            interfaces representing the same <a>object store</a> can exist.
+            interface represents an <a>object store handle</a>.
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBObjectStore">
             <dt>readonly attribute DOMString name</dt>
             <dd>
-              The <code>name</code> attribute's getter
-              must return the <a title="object store name">name</a> of this
-              object store.
+              The <code>name</code> attribute's getter must return this
+              <a>object store handle</a>'s <a title="handle object store">object store</a>'s <a title="object store name">name</a>.
             </dd>
 
             <dt>readonly attribute any keyPath</dt>
             <dd>
               <p>
-                The <code>keyPath</code> attribute's getter
-                must return the <a title="object store key path">key path</a>
-                of this <a>object store</a>, or null if none.
+                The <code>keyPath</code> attribute's getter must return this
+                <a>object store handle</a>'s <a title="handle object store">object store</a>'s <a title="object store key path">key path</a>,
+                or null if none.
               </p>
               <p>
                 The conversion is done following the normal [[!WEBIDL]] binding logic for
@@ -2232,57 +2275,56 @@ store.put([10]); // will throw DataError
                 the properties of the object has no effect on the <a>object store</a>.
               </p>
             </dd>
+
             <dt>readonly attribute DOMStringList  indexNames</dt>
             <dd>
               <p>
                 The <code>indexNames</code> attribute's getter must return
-                a <a>sorted list</a> of the <a title="index name">names</a> of <a title="index">indexes</a> on
-                objects in this <a>object store</a>.
+                a <a>sorted list</a> of the <a title="index name">names</a> of <a title="index">indexes</a>
+                in this <a>object store handle</a>'s <a>index set</a>.
               </p>
-              <p>
-                Once the <a>close pending flag</a> is set on the <a>connection</a>, this
-                attribute MUST return a snapshot of the list of names of the
-                <a title="index">indexes</a> taken at the time when the
-                <a href="#widl-IDBDatabase-close-void"><code>close</code></a> method was called, even if
-                other <a title="connection">connections</a> are later used to change the set of
-                <a title="index">indexes</a> that exist in the <a>object store</a>. In other words, the
-                value of this attribute stays constant for the lifetime of the
-                <a>IDBObjectStore</a> instance, except during an <a>upgrade transaction</a> if
-                <a href="#widl-IDBObjectStore-createIndex-IDBIndex-DOMString-name-DOMString-sequence-DOMString--keyPath-IDBIndexParameters-options"><code>createIndex</code></a>
-                or
-                <a href="#widl-IDBObjectStore-deleteIndex-void-DOMString-indexName"><code>deleteIndex</code></a>
-                is called on this <a>IDBObjectStore</a> instance itself.
-              </p>
+              <aside class="note">
+                Since the <a>index set</a> is associated with an <a>object store handle</a>, the returned
+                list will not change in response to <a>index</a> creation or deletion with a different
+                <a>upgrade transaction</a>. Once the handle's associated <a>transaction</a> has
+                <a title="transaction finished">finished</a> the list will not change.
+              </aside>
             </dd>
+
             <dt>readonly attribute IDBTransaction transaction</dt>
             <dd>
-              The <code>transaction</code> attribute's getter
-              must return the <a>transaction</a> this <a>object store</a> belongs to.
+              The <code>transaction</code> attribute's getter must return this
+              <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>,
             </dd>
 
             <dt>readonly attribute boolean autoIncrement</dt>
             <dd>
-              The <code>autoIncrement</code> attribute's getter
-              must return true of this <a>object store</a> has a <a>key generator</a>, and false otherwise.</dd>
+              The <code>autoIncrement</code> attribute's getter must return true
+              if this <a>object store handle</a>'s <a title="handle object store">object store</a>
+              has a <a>key generator</a>, and false otherwise.
+            </dd>
 
             <dt>IDBRequest put()</dt>
             <dd>
               The <code>put(<var>value</var>, <var>key</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is a <a>read-only transaction</a>,
                   <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
-
-                <li>If the <a>object store</a> uses <a>in-line keys</a> and <var>key</var> was given,
+                <li>If <var>store</var> uses <a>in-line keys</a> and <var>key</var> was given,
                   <a>throw</a> a <a>DataError</a> exception.</li>
 
-                <li>If the <a>object store</a> uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                <li>If <var>store</var> uses <a>out-of-line keys</a> and has no <a>key generator</a>
                   and <var>key</var> was not given,
                   <a>throw</a> a <a>DataError</a> exception.</li>
 
@@ -2298,22 +2340,22 @@ store.put([10]); // will throw DataError
                 <li>Let <var>clone</var> be <a>structured clone</a> of <var>value</var>. If this
                   throws an exception, <a title="throw">rethrow</a> the exception.</li>
 
-                <li>If the <a>object store</a> uses <a>in-line keys</a>:
+                <li>If <var>store</var> uses <a>in-line keys</a>:
                   <ol>
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
+                      with <var>clone</var> and <var>store</var>'s <a title="object store key path">key path</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>kpk</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
-                    <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
+                    <li>Otherwise, if <var>store</var> does not have a <a>key generator</a>,
                       <a>throw</a> a <a>DataError</a> exception.</li>
                   </ol>
                 </li>
 
                 <li>Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
-                  storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
-                  as <var>store</var>, the <var>clone</var> as <var>value</var>, <var>key</var> as
+                  The steps are run with this <a>object store handle</a> as <var>source</var> and the <a>steps for
+                  storing a record into an object store</a> as <var>operation</var>, using
+                  <var>store</var>, the <var>clone</var> as <var>value</var>,
                   <var>key</var>, and with the <var>no-overwrite flag</var> unset.
                 </li>
               </ol>
@@ -2330,20 +2372,23 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>add(<var>value</var>, <var>key</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is a <a>read-only transaction</a>,
                   <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
-
-                <li>If the <a>object store</a> uses <a>in-line keys</a> and <var>key</var> was given,
+                <li>If <var>store</var> uses <a>in-line keys</a> and <var>key</var> was given,
                   <a>throw</a> a <a>DataError</a> exception.</li>
 
-                <li>If the <a>object store</a> uses <a>out-of-line keys</a> and has no <a>key generator</a>
+                <li>If <var>store</var> uses <a>out-of-line keys</a> and has no <a>key generator</a>
                   and <var>key</var> was not given,
                   <a>throw</a> a <a>DataError</a> exception.</li>
 
@@ -2359,22 +2404,22 @@ store.put([10]); // will throw DataError
                 <li>Let <var>clone</var> be <a>structured clone</a> of <var>value</var>. If this
                   throws an exception, <a title="throw">rethrow</a> the exception.</li>
 
-                <li>If the <a>object store</a> uses <a>in-line keys</a>:
+                <li>If <var>store</var> uses <a>in-line keys</a>:
                   <ol>
                     <li>Let <var>kpk</var> be the result of running the steps to <a>extract a key from a value using a key path</a>
-                      with <var>clone</var> and the <a title="object store key path">object store's key path</a>.
+                      with <var>clone</var> and <var>store</var>'s <a title="object store key path">key path</a>.
                       If this throws an exception, <a title="throw">rethrow</a> it.</li>
                     <li>If <var>kpk</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
                     <li>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</li>
-                    <li>Otherwise, if the <a>object store</a> does not have a <a>key generator</a>,
+                    <li>Otherwise, if <var>store</var> does not have a <a>key generator</a>,
                       <a>throw</a> a <a>DataError</a> exception.</li>
                   </ol>
                 </li>
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for
-                  storing a record into an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
-                  as <var>store</var>, <var>clone</var> as <var>value</var>, <var>key</var> as
+                  The steps are run with this <a>object store handle</a> as <var>source</var> and the <a>steps for
+                  storing a record into an object store</a> as <var>operation</var>, using
+                  <var>store</var>, <var>clone</var> as <var>value</var>,
                   <var>key</var>, and with the <var>no-overwrite flag</var> set.
                 </li>
               </ol>
@@ -2395,13 +2440,17 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>delete(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is a <a>read-only transaction</a>,
                   <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2413,9 +2462,9 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for
                   asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for deleting
-                  records from an object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a>
-                  as <var>store</var> and <var>range</var>.
+                  The steps are run with this <a>object store handle</a> as <var>source</var> and the <a>steps for deleting
+                  records from an object store</a> as <var>operation</var>, using
+                  <var>store</var> and <var>range</var>.
                 </li>
               </ol>
 
@@ -2433,19 +2482,23 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>clear()</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is a <a>read-only transaction</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is a <a>read-only transaction</a>,
                   <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Run the <a>steps for asynchronously executing a request</a> and return the
-                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBObjectStore</a> as
+                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>object store handle</a> as
                   <var>source</var> and the <a>steps for clearing an object store</a> as <var>operation</var>, using
-                  this <a>IDBObjectStore</a> as <var>store</var>.
+                  <var>store</var>.
                 </li>
               </ol>
             </dd>
@@ -2454,10 +2507,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2469,8 +2526,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving a value from an
-                    object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var> and
+                  <a>object store handle</a> as <var>source</var> and the <a>steps for retrieving a value from an
+                    object store</a> as <var>operation</var>, using <var>store</var> and
                   <var>range</var>.
                 </li>
               </ol>
@@ -2494,10 +2551,14 @@ store.put([10]); // will throw DataError
 
               The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2509,8 +2570,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
-                    object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var>,
+                  <a>object store handle</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
+                    object store</a> as <var>operation</var>, using <var>store</var>,
                   <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
@@ -2533,10 +2594,14 @@ store.put([10]); // will throw DataError
 
               The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2548,8 +2613,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBObjectStore</a> as <var>source</var> and the <a>steps for retrieving multiple keys from an
-                    object store</a> as <var>operation</var>, using this <a>IDBObjectStore</a> as <var>store</var>,
+                  <a>object store handle</a> as <var>source</var> and the <a>steps for retrieving multiple keys from an
+                    object store</a> as <var>operation</var>, using <var>store</var>,
                   <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
@@ -2570,10 +2635,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2584,8 +2653,8 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
-                  with this <a>object store</a> as <var>source</var> and <var>range</var>.
+                  The steps are run with this <a>object store handle</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
+                  with <var>source</var> and <var>range</var>.
                 </li>
               </ol>
 
@@ -2602,10 +2671,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2619,13 +2692,13 @@ store.put([10]); // will throw DataError
                   with an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
+                  of <var>cursor</var> is this <a>object store handle</a>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                 </li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
-                  created by these steps. The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the
+                  created by these steps. The steps are run with this <a>object store handle</a> as <var>source</var> and the
                   <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
@@ -2645,10 +2718,14 @@ store.put([10]); // will throw DataError
 
               The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2662,14 +2739,14 @@ store.put([10]); // will throw DataError
                   with an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is the <a>IDBObjectStore</a> this function was called on.
+                  of <var>cursor</var> is this <a>object store handle</a>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                   The <a>key only flag</a> of <var>cursor</var> is set.
                 </li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
-                  created by these steps. The steps are run with this <a>IDBObjectStore</a> as <var>source</var> and the
+                  created by these steps. The steps are run with this <a>object store handle</a> as <var>source</var> and the
                   <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
@@ -2692,19 +2769,23 @@ store.put([10]); // will throw DataError
               </p>
               The <code>createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not an <a>upgrade transaction</a>,
                   <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
 
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
 
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
 
-                <li>If an <a>index</a> <a title="index name">named</a> <var>name</var> already exists in this <a>object store</a>,
+                <li>If an <a>index</a> <a title="index name">named</a> <var>name</var> already exists in <var>store</var>,
                   <a>throw</a> a <a>ConstraintError</a> exception.
                 </li>
 
@@ -2720,10 +2801,19 @@ store.put([10]); // will throw DataError
                   <a>throw</a> an <a>InvalidAccessError</a> exception.
                 </li>
 
-                <li>Create a new <a>index</a> in the <a>object store</a> and return an <a>IDBIndex</a> object representing it.
-                  Set the created <a>index</a>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
-                  If <var>unique</var> is set, set the created <a>index</a>'s <a>unique flag</a>.
-                  If <var>multiEntry</var> is set, set the created <a>index</a>'s <a>multiEntry flag</a>.
+                <li>
+                  Let <var>index</var> be a new <a>index</var> in <var>store</var>.
+                  Set <var>index</var>'s <a title="index name">name</a> to <var>name</var> and <a title="index key path">key path</a> to <var>keyPath</var>.
+                  If <var>unique</var> is set, set <var>index</var>'s <a>unique flag</a>.
+                  If <var>multiEntry</var> is set, set <var>index</var>'s <a>multiEntry flag</a>.
+                </li>
+
+                <li>
+                  Add <var>index</var> to this <a>object store handle</a>'s <a>index set</a>.
+                </li>
+
+                <li>
+                  Return a new <a>index handle</a> associated with <var>index</var> and this <var>object store handle</var>.
                 </li>
               </ol>
 
@@ -2738,7 +2828,7 @@ store.put([10]); // will throw DataError
               </p>
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property
+                <a href="#widl-IDBObjectStore-indexNames"><code>indexNames</code></a> property
                 on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return an <a>IDBRequest</a> object, the index creation itself is
                 processed as an asynchronous request within the <a>upgrade transaction</a>.
@@ -2792,23 +2882,32 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>index(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If there is no <a>index</a> <a title="index name">named</a> <var>name</var> in this <a>object store</a>,
-                  <a>throw</a> a <a>NotFoundError</a> exception.
-                </li>
-                <li>If the <a>object store</a> has been deleted,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
 
-                <li>Return an <a>IDBIndex</a> representing the <a>index</a> associated with this <a>object store</a>
-                  <a title="index name">named</a> <var>name</var>. Every call to this method on the same
-                  <a>IDBObjectStore</a> instance with the same <var>name</var> returns the same <a>IDBIndex</a> instance.
+                <li>
+                  Let <var>index</var> be the <a>index</a> <a title="index name">named</a> <var>name</var> in this
+                  <a>object store handle</a>'s <a>index set</a> if one exists, or <a>throw</a> a <a>NotFoundError</a> exception otherwise.
+                </li>
 
-                  <p class="note">
-                    The retured <a>IDBIndex</a> instance is specific to this <a>IDBObjectStore</a> instance. If this
-                    method is called on a different <a>IDBObjectStore</a> instance, a different <a>IDBIndex</a> instance is
-                    returned. A result of this is that different <a>IDBTransaction</a> instances use different <a>IDBIndex</a> instances
-                    to represent the same <a>index</a>.
-                  </p>
+                <li>
+                  Return an <a>index handle</a> associated with <var>index</var> and this <a>object store handle</a>.
+
+                  <aside class="note">
+                    Each call to this method on the same
+                    <a>IDBObjectStore</a> instance with the same name returns the same <a>IDBIndex</a> instance.
+                  </aside>
+
+                  <aside class="note">
+                    The returned <a>IDBIndex</a> instance is specific to this <a>IDBObjectStore</a> instance. If this
+                    method is called on a different <a>IDBObjectStore</a> instance with the same name, a different <a>IDBIndex</a> instance is
+                    returned.
+                  </aside>
                 </li>
               </ol>
 
@@ -2827,28 +2926,37 @@ store.put([10]); // will throw DataError
 
               The <code>deleteIndex(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If this <a>object store</a>'s <a>database</a> is not running an <a>upgrade transaction</a>,
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not an <a>upgrade transaction</a>,
                   <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
-                <li>If the <a>transaction</a> this <a>IDBObjectStore</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.
                 </li>
-                <li>If the <a>object store</a> has been deleted,
+                <li>If <var>store</var> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.
                 </li>
+
                 <li>
-                  If there is no <a>index</a> <a title="index name">named</a> <var>name</var> in the <a>object store</a>,
-                  <a>throw</a> a <a>NotFoundError</a> exception.
+                  Let <var>index</var> be the <a>index</a> <a title="index name">named</a> <var>name</var> in <var>store</var>
+                  if one exists, or <a>throw</a> a <a>NotFoundError</a> exception otherwise.
                 </li>
-                <li>Destroy the <a>index</a> <a title="index name">named</a> <var>name</var> in the <a>object store</a>.
+
+                <li>
+                  Remove <var>index</var> from this <a>object store handle</a>'s <a>index set</var>.
+                </li>
+
+                <li>Destroy <var>index</var>.
                 </li>
               </ol>
 
               <p>
                 This method synchronously modifies the
-                <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> property.
-                However it only changes the <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a>
-                property on the <a>IDBObjectStore</a> instance on which it was called.
+                <a href="#widl-IDBObjectStore-indexNames"><code>indexNames</code></a> property
+                on the <a>IDBObjectStore</a> instance on which it was called.
                 Although this method does not return an <a>IDBRequest</a> object, the index destruction itself is
                 processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
@@ -2872,33 +2980,28 @@ store.put([10]); // will throw DataError
           <h4>The <code>IDBIndex</code> interface</h4>
           <!-- TODO Add example. Should examples be in a separate section?-->
           <p>
-            The <a>IDBIndex</a> interface
-            provides access to the metadata of an <a>index</a>. Note however that multiple instances of those
-            interfaces representing the same <a>index</a> can exist.
+            The <a>IDBIndex</a> interface represents an <a>index handle</a>.
           </p>
 
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBIndex">
             <dt>readonly attribute DOMString name</dt>
             <dd>
               The <code>name</code> attribute's getter must return
-              the <a title="index name">name</a> of this <a>index</a>.
+              this <a>index handle</a>'s <a title="handle index">index</a>'s <a title="index name">name</a>.
             </dd>
 
             <dt>readonly attribute IDBObjectStore objectStore</dt>
             <dd>
               The <code>objectStore</code> attribute's getter
-              must return a reference to the <a>IDBObjectStore</a> instance for the
-              <a>referenced</a> object store in this <a>IDBIndex</a>'s transaction. This MUST
-              return the same <a>IDBObjectStore</a> instance as was used to get a reference
-              to this <a>IDBIndex</a>.
+              must return this <a>index handle</a>'s
+              <a title="index handle object store">object store handle</a>.
             </dd>
 
             <dt>readonly attribute any keyPath</dt>
             <dd>
               <p>
-                The <code>keyPath</code> attribute's getter
-                must return a value representing the <a title="object store key path">key path</a>
-                of this <a>index</a>, or null if none.
+                The <code>keyPath</code> attribute's getter must return
+                this <a>index handle</a>'s <a title="handle index">index</a>'s <a title="object store key path">key path</a>.
               </p>
               <p>
                 The conversion is done following the normal [[!WEBIDL]] binding logic for
@@ -2915,24 +3018,30 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute boolean multiEntry</dt>
             <dd>
-              The <code>multiEntry</code> attribute's getter must return true if the
-              <a>multiEntry flag</a> of this <a>index</a> is set, and false otherwise.
+              The <code>multiEntry</code> attribute's getter must return true if this
+              <a>index handle</a>'s <a title="handle index">index</a>'s
+              <a>multiEntry flag</a> is set, and false otherwise.
             </dd>
 
             <dt>readonly attribute boolean unique</dt>
             <dd>
-              The <code>unique</code> attribute's getter must return true if the
-              <a>unique flag</a> of this <a>index</a> is set, and false otherwise.
+              The <code>unique</code> attribute's getter must return true if this
+              <a>index handle</a>'s <a title="handle index">index</a>'s
+              <a>unique flag</a> is set, and false otherwise.
             </dd>
 
             <dt>IDBRequest get()</dt>
             <dd>
               The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2944,8 +3053,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
-                    index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and
+                  <a>index handle</a> as <var>source</var> and the <a>steps for retrieving a referenced value from an
+                    index</a> as <var>operation</var>, using <var>index</var> and
                   <var>range</var>.
                 </li>
               </ol>
@@ -2972,10 +3081,14 @@ store.put([10]); // will throw DataError
 
               The <code>getKey(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -2987,8 +3100,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving a value from an
-                    index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var> and
+                  <a>index handle</a> as <var>source</var> and the <a>steps for retrieving a value from an
+                    index</a> as <var>operation</var>, using <var>index</var> and
                   <var>range</var>.
                 </li>
               </ol>
@@ -3006,10 +3119,14 @@ store.put([10]); // will throw DataError
 
               The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -3021,8 +3138,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving multiple referenced values from an
-                    index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var>,
+                  <a>index handle</a> as <var>source</var> and the <a>steps for retrieving multiple referenced values from an
+                    index</a> as <var>operation</var>, using <var>index</var>,
                   <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
@@ -3045,10 +3162,14 @@ store.put([10]); // will throw DataError
 
               The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -3060,8 +3181,8 @@ store.put([10]); // will throw DataError
                 <li>
                   Run the <a>steps for asynchronously executing
                   a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
-                  <a>IDBIndex</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
-                    index</a> as <var>operation</var>, using this <a>IDBIndex</a> as <var>index</var>,
+                  <a>index handle</a> as <var>source</var> and the <a>steps for retrieving multiple values from an
+                    index</a> as <var>operation</var>, using <var>index</var>,
                   <var>range</var>, and <var>count</var> if given.
                 </li>
               </ol>
@@ -3082,10 +3203,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -3096,8 +3221,8 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBIndex</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
-                  with this <a>index</a> as <var>source</var> and <var>range</var>.
+                  The steps are run with this <a>index handle</a> as <var>source</var> and the <a>steps to count the records in a range</a> as <var>operation</var>,
+                  with <a>index</a> as <var>source</var> and <var>range</var>.
                 </li>
               </ol>
 
@@ -3114,10 +3239,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -3131,13 +3260,13 @@ store.put([10]); // will throw DataError
                   with an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
+                  of <var>cursor</var> is this <a>index handle</a>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                 </li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
-                  created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
+                  created by these steps. The steps are run with this <a>index handle</a> as <var>source</var> and the
                   <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
@@ -3155,10 +3284,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBIndex</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
-                <li>If the <a>index</a> or the index's <a>object store</a> has been deleted,
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
                 <li>Let <var>range</var> be the result of running
@@ -3172,14 +3305,14 @@ store.put([10]); // will throw DataError
                   with an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is the <a>IDBIndex</a> this function was called on.
+                  of <var>cursor</var> is this <a>index handle</a>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                   The <a>key only flag</a> of <var>cursor</var> is set.
                 </li>
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the <a>IDBRequest</a>
-                  created by these steps. The steps are run with this <a>IDBIndex</a> as <var>source</var> and the
+                  created by these steps. The steps are run with this <a>index handle</a> as <var>source</var> and the
                   <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
@@ -3681,20 +3814,23 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>objectStore(<var>name</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If there is no <a>object store</a> <a title="object store name">named</a> <var>name</var> in this <a>transaction</a>'s <a>scope</a>,
-                  <a>throw</a> a <a>NotFoundError</a> exception.
+                <li>Let <var>store</var> be the <a>object store</a> <a title="object store name">named</a> <var>name</var> in this <a>transaction</a>'s <a>scope</a>,
+                  or <a>throw</a> a <a>NotFoundError</a> exception if none.
                 </li>
-                <li>If the <a>transaction</a> has <a title="transaction finish">finished</a>,
+                <li>If <var>transaction</var> has <a title="transaction finish">finished</a>,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
-                <li>Return an <a>IDBObjectStore</a> representing the <a>object store</a> in this <a>transaction</a>'s <a>scope</a>,
-                  <a title="object store name">named</a> <var>name</var>. Every call to this method on the same
-                  <a>IDBTransaction</a> instance with the same <var>name</var> returns the same <a>IDBObjectStore</a> instance.
+                <li>Return an <a>object store handle</a> associated with <var>store</var> and this <a>transaction</a>.
 
-                  <p class="note">
+                  <aside class="note">
+                    Each call to this method on the same <a>IDBTransaction</a> instance with the same
+                    name returns the same <a>IDBObjectStore</a> instance.
+                  </aside>
+
+                  <aside class="note">
                     The returned <a>IDBObjectStore</a> instance is specific to this <a>IDBTransaction</a>. If this
                     method is called on a different <a>IDBTransaction</a>, a different <a>IDBObjectStore</a> instance is returned.
-                  </p>
+                  </aside>
                 </li>
               </ol>
 
