@@ -448,37 +448,50 @@ request.onsuccess = function() {
             can be deleted.
           </p>
 
-          <p>
-            The act of opening a <a>database</a> creates a <dfn>connection</dfn>. There MAY be multiple
-            <a title="connection">connections</a> to a given <a>database</a> at any given time. Each connection has a
-            <dfn>close pending flag</dfn> which is initially unset.
-          </p>
-          <p>
-            A <a>connection</a> object can be used to manipulate the
-            objects of that <a>database</a>. It is also the only way to
-            obtain a <a>transaction</a> for that <a>database</a>.
-          </p>
-          <p>
-            When a <a>connection</a> is initially created it is in <dfn>opened</dfn> state. The connection
-            can be <dfn title="database close">closed</dfn> through several means. If the execution context where the <a>connection</a> was created is destroyed (for example due to the
-            user navigating away from that page), the connection is closed. The connection can also be closed
-            explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
-            the <a>close pending flag</a> is always set if it hasn't already been.
-          </p>
-          <p>
-            A <a>connection</a> may be closed by a user agent in
-            exceptional circumstances, for example due to loss of
-            access to the file system or a permission change. If this
-            occurs the user agent MUST run the <a>steps for closing a
-            database connection</a> with the <a>connection</a> and
-            with the <var>forced flag</var> set.
-          </p>
+          <section>
+            <h5>Database Connection</h5>
+            <p>
+              Script does not interact with <a title="database">databases</a> directly. Instead,
+              script has indirect access via a <dfn>connection</dfn>.
 
-          <p>
-            A <a>connection</a> has an <dfn>object store set</dfn>, which is set to the
-            set of <a title="object store">object stores</a> in the associated <a>database</a>
-            when the <a>connection</a> is created.
-          </p>
+              A <a>connection</a> object can be used to manipulate the
+              objects of that <a>database</a>. It is also the only way to
+              obtain a <a>transaction</a> for that <a>database</a>.
+            </p>
+            <p>
+              The act of opening a <a>database</a> creates a <a>connection</a>. There MAY be multiple
+              <a title="connection">connections</a> to a given <a>database</a> at any given time.
+            </p>
+            <p>
+              Each connection has a
+              <dfn>close pending flag</dfn> which is initially unset.
+            </p>
+            <p>
+              When a <a>connection</a> is initially created it is in <dfn>opened</dfn> state. The connection
+              can be <dfn title="database close">closed</dfn> through several means. If the execution context
+              where the <a>connection</a> was created is destroyed (for example due to the
+              user navigating away from that page), the connection is closed. The connection can also be closed
+              explicitly using the <a>steps for closing a database connection</a>. When the connection is closed
+              the <a>close pending flag</a> is always set if it hasn't already been.
+            </p>
+            <p>
+              A <a>connection</a> may be closed by a user agent in
+              exceptional circumstances, for example due to loss of
+              access to the file system or a permission change. If this
+              occurs the user agent MUST run the <a>steps for closing a
+              database connection</a> with the <a>connection</a> and
+              with the <var>forced flag</var> set.
+            </p>
+
+            <p>
+              A <a>connection</a> has an <dfn>object store set</dfn>, which is set to the
+              set of <a title="object store">object stores</a> in the associated <a>database</a>
+              when the <a>connection</a> is created.
+
+              The contents of the set will remain constant except when
+              an <a>upgrade transaction</a> is running.
+            </p>
+          </section>
 
         </section>  <!-- Database -->
 
@@ -538,13 +551,16 @@ request.onsuccess = function() {
             <p>
               An <a>object store handle</a> has an associated <dfn title="handle object store">object store</dfn> and
               an associated <dfn title="object store handle transaction">transaction</dfn>.
-              Multiple handles may be associated with the same <a>object store</a> in different <a title="transaction">transactions</a>,
-              but only one <a>object store handle</a> may be associated with a particular <a>object store</a> within a <a>transaction</a>.
+              Multiple handles MAY be associated with the same <a>object store</a> in different <a title="transaction">transactions</a>,
+              but there MUST be only one <a>object store handle</a> associated with a particular <a>object store</a> within a <a>transaction</a>.
             </p>
             <p>
               An <a>object store handle</a> has an <dfn>index set</dfn>, which is set to the
               set of <a title="index">indexes</a> that reference the associated <a title="handle object store">object store</a>
               when the <a>object store handle</a> is created.
+
+              The contents of the set will remain
+              constant except when an <a>upgrade transaction</a> is running.
             </p>
           </section>
 
@@ -827,8 +843,8 @@ request.onsuccess = function() {
               an associated <dfn title="index handle object store">object store handle</dfn>.
               The <dfn title="index handle transaction">transaction</dfn> of an <a>index handle</a> is the
               <a title="object store handle transaction">transaction</a> of its associated <a>object store handle</a>.
-              Multiple handles may be associated with the same <a>index</a> in different <a title="transaction">transactions</a>,
-              but only one <a>index handle</a> may be associated with a particular <a>index</a> within a <a>transaction</a>.
+              Multiple handles MAY be associated with the same <a>index</a> in different <a title="transaction">transactions</a>,
+              but there MUST be only one <a>index handle</a> associated with a particular <a>index</a> within a <a>transaction</a>.
             </p>
           </section>
 
@@ -3759,7 +3775,7 @@ store.put([10]); // will throw DataError
                   If this <a>transaction</a> is an <a>upgrade transaction</a>, return a
                   <a>sorted list</a> of the <a title="object store name">names</a>
                   of the <a title="object store">object stores</a> in this <a>transaction</a>'s
-                  <a title="connection">connected</a> <a>database</a>.
+                  <a>connection</a>'s <a>object store set</a>.
                 </li>
                 <li>
                   Otherwise, return a <a>sorted list</a> of the <a title="object store name">names</a>
@@ -4290,46 +4306,45 @@ store.put([10]); // will throw DataError
         <section class="section">
         	<h4>Steps for aborting an upgrade transaction</h4>
         	<p>
-        		The <dfn>steps for aborting an upgrade transaction</dfn> are as follows.
+        	  The <dfn>steps for aborting an upgrade transaction</dfn> <var>transaction</var> are as follows.
         	</p>
         	<ol>
-        		<li>
-        			<a href="#widl-IDBDatabase-name"><code>IDBDatabase.name</code></a> is not modified at all.
-        			Even if the <a>transaction</a> is used to create a new database, and thus there is no on-disk database,
-        			<a href="#widl-IDBDatabase-name"><code>IDBDatabase.name</code></a> remains as it was.
-        		</li>
-        		<li>
-        			Revert <a href="#widl-IDBDatabase-version"><code>IDBDatabase.version</code></a> to the version the on-disk database had before the transaction was started.
-        			If the <a>upgrade transaction</a> was started because the database was newly created,
-        			revert <a href="#widl-IDBDatabase-version"><code>IDBDatabase.version</code></a> to version 0;
-        			if the <a>transaction</a> was started in response to a version upgrade,
-        			revert to the version it had before the <a>transaction</a> was started.
-        			Note that the only time that the <a href="#widl-IDBDatabase-version"><code>IDBDatabase.version</code></a> property ever changes value
-        			is during an <a>upgrade transaction</a>.
-        		</li>
-        		<li>
-        			Revert <a href="#widl-IDBDatabase-objectStoreNames"><code>IDBDatabase.objectStoreNames</code></a> to the list of names that it had before the transaction was started.
-        			If the <a>upgrade transaction</a> was started because the database was newly created,
-        			revert it to an empty list.
-        			If the <a>upgrade transaction</a> was started in response to a version upgrade,
-        			revert to the list of <a>object store</a> names it had before the <a>transaction</a> was started.
-        		</li>
-        		<li>
-        			Revert <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> (for each <a>object store</a>)
-        			to the list of names that <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> had before the <a>transaction</a> was started.
-        			For any <a>object store</a> that was created by the <a>transaction</a>, revert the list to an empty list.
-        			For any <a>object store</a> that existed before the <a>transaction</a> was started,
-        			revert to the list of index names it had before the <a>transaction</a> was started.
-        			For any <a>object store</a> that was deleted during the <a>transaction</a>,
-        			revert the list of names to the list it had before the <a>transaction</a> was started, potentially a non-empty list.
-        			<p class="note">
-        				Although you cannot access <a title="object store">object stores</a> by using the
-        				<a href="#widl-IDBTransaction-objectStore-IDBObjectStore-DOMString-name"><code>IDBTransaction.objectStore</code></a> function after a <a>transaction</a> is aborted,
-        				the execution context may still have references to <a>object store</a> instances.
-        				In that case <a href="#widl-IDBObjectStore-indexNames"><code>IDBObjectStore.indexNames</code></a> can still be accessed.
-        			</p>
-        		</li>
+                  <li>
+                    Let <var>connection</var> be <var>transaction</var>'s <a>connection</a>.
+                  </li>
+                  <li>
+                    Let <var>database</var> be <var>connection</var>'s <a>database</a>.
+                  </li>
+        	  <li>
+                    Revert <var>database</var>'s <a>version</a> to the value it had before the transaction was started
+                    if the database previously existed, or 0 (zero) if the database was newly created.
+        	  </li>
+        	  <li>
+                    Revert <var>connection</var>'s <a>object store set</a> to the value it had before the transaction was started
+                    if the database previously existed, or an empty set if the database was newly created.
+        	  </li>
+        	  <li>
+                    For each <a>object store handle</a> <var>store</var> associated with <var>transaction</var>
+                    revert <var>store</var>'s <a>index set</a> to the value it had before the transaction was started
+                    if the object store previously existed, or an empty set if the object store was newly created.
+
+                    <aside class="note">
+                      This includes handles for object stores that were deleted during the transaction.
+                    </aside>
+
+        	    <aside class="note">
+        	      Although you cannot access an <a>object store</a> by using the
+        	      <code>objectStore</code> method on an <a>IDBTransaction</a> instance after
+                      the <a>transaction</a> is aborted, script may still have references to
+                      <a>IDBObjectStore</a> instances where the <code>indexNames</code> property
+                      can be queried.
+        	    </aside>
+        	  </li>
         	</ol>
+        	<aside class="note">
+        	  The <code>name</code> property of the <a>IDBDatabase</a> instance is not modified,
+        	  even if the aborted <a>upgrade transaction</a> was creating a new <a>database</a>.
+                </aside>
         </section>
 
         <section class="section">
