@@ -1981,13 +1981,13 @@ store.put([10]); // will throw DataError
                     <li>
                       Otherwise, set the <a title="request result">result</a> of <var>request</var> to undefined and
                       <a title="fire a version change event">fire a version change event named <code>success</code></a>
-                      at <a>request</a> with <var>database version</var> and null.
+                      at <a>request</a> with <var>result</var> and null.
 
-                      <p class="note">
+                      <aside class="note">
                         The firing of "<code>success</code>" or "<code>error</code>" events do not follow the normal
                         steps to <a>fire a success event</a> or <a>fire an error event</a> as there is no active
                         transaction at the time when they fire.
-                      </p>
+                      </aside>
                     </li>
                   </ol>
                 </li>
@@ -4048,27 +4048,24 @@ store.put([10]); // will throw DataError
           </p>
           <ol>
             <li>
-              If there is already a database with the given name from the origin <var>origin</var>, then
-              let <var>db</var> be that database.
-            </li>
-            <li>
-              If no database was found, then these steps are considered successful. Abort these steps.
+              Let <var>db</var> be the <a>database</a> with the given name from the origin <var>origin</var>,
+              if one exists. Otherwise, return 0 (zero).
             </li>
             <li>
               Set <var>db</var>'s <a>delete pending flag</a>.
             </li>
             <li>
               Let <var>openConnections</var> be the set of all <a title="connection">connections</a>
-              connected to <var>db</var>.
+              associated with <var>db</var>.
             </li>
             <li>
               For each <var>entry</var> in <var>openConnections</var> that does not have its <a>close pending flag</a> set,
               <a title="fire a version change event">fire a version change event named <code>versionchange</code></a>
               at <var>entry</var> with <var>db</var>'s <a>version</a> and null.
-              <p class="note">
+              <aside class="note">
                 Firing this event might cause one or more of the other objects in <var>openConnections</var> to be closed, in which case
                 the <code>versionchange</code> event MUST NOT be fired at those objects if that hasn't yet been done.
-              </p>
+              </aside>
             </li>
             <li>
               If any of the <a title="connection">connections</a> in <var>openConnections</var> are still not closed, and <var>request</var> was given,
@@ -4080,7 +4077,13 @@ store.put([10]); // will throw DataError
               their transactions are <a title="transaction finish">finished</a>.
             </li>
             <li>
+              Let <var>version</var> be <var>db</var>'s <a>version</a>.
+            </li>
+            <li>
               Delete <var>db</var>.
+            </li>
+            <li>
+              Return <var>version</var>.
             </li>
           </ol>
         </section>
