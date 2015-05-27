@@ -928,6 +928,11 @@ request.onsuccess = function() {
             <a title="request">requests</a> which have been made against the transaction.
           </p>
           <p>
+            A <a>transaction</a> has a <dfn title="transaction error">error</dfn> which is set if the
+            <a>transaction</a> is <a title="transaction abort">aborted</a>.
+          </p>
+
+          <p>
             <a title="transaction">Transactions</a> are expected to be short lived. This is encouraged
             by the <a title="transaction commit">automatic committing</a> functionality described below.
           </p>
@@ -3812,25 +3817,19 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute DOMException error</dt>
             <dd>
-              The <code>error</code> attribute's getter must run these steps:
-              <ol>
-                <li>
-                  If this <a>transaction</a> is not <a title="transaction finish">finished</a>, is <a title="transaction finish">finished</a> but was successfully
-                  <a title="transaction commit">committed</a>, or was aborted due to a call to the
-                  <a href="#widl-IDBTransaction-abort-void"><code>abort</code></a> function,
-                  return null.
-                </li>
-                <li>
-                  If this <a>transaction</a> was aborted due to a failed <a>request</a>,
-                  return the <a>request</a>'s <a title="request error">error</a>.
-                </li>
-                <li>
-                  Otherwise, this transaction was aborted due to an error when committing the <a>transaction</a>,
-                  and not due to a failed <a>request</a>.
-                  Return the reason for the transaction
-                  failure (e.g. <a>QuotaExceededError</a> or <a>UnknownError</a>).
-                </li>
-              </ol>
+              The <code>error</code> attribute's getter must return this <a>transaction</a>'s <a title="transaction error">error</a>, or null if none.
+
+              <aside class="note">
+                If this <a>transaction</a> was aborted due to a failed <a>request</a>,
+                this will be the same as the <a>request</a>'s <a title="request error">error</a>.
+
+                If this <a>transaction</a> was aborted due to an uncaught exception in a event
+                handler, the error will be <a>AbortError</a>.
+
+                If the <a>transaction</a> was aborted due to an error while committing,
+                it will reflect the reason for the failure (e.g. <a>QuotaExceededError</a>,
+                <a>ConstraintError</a>, or <a>UnknownError</a>).
+              </aside>
             </dd>
 
             <dt>IDBObjectStore objectStore()</dt>
@@ -4134,7 +4133,7 @@ store.put([10]); // will throw DataError
               which reverts changes to all <a>connection</a> and <a>object store handle</a> instances.
             </li>
             <li>
-              If <var>error</var> is not null, set <var>transaction</var>'s <code>error</code> property
+              If <var>error</var> is not null, set <var>transaction</var>'s <a title="transaction error">error</a>
               to <var>error</var>.
             </li>
             <li>
