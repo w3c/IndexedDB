@@ -1339,6 +1339,10 @@ request.onsuccess = function() {
           </p>
 
           <p>
+            A <a>cursor</a> has a <dfn title="cursor transaction">transaction</dfn>, the <a>transaction</a> that was
+            <a title"transaction active">active</a> when the cursor was created.
+          </p>
+          <p>
             A <a>cursor</a> has a <dfn>range</dfn> of records in either an <a>index</a> or an <a>object store</a>.
           </p>
 
@@ -2758,10 +2762,11 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
-                  with an undefined <a>position</a>, <a>direction</a> set to
+                  with <a title="cursor transaction">transaction</a> set to <var>transaction</var>,
+                  an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is this <a>object store handle</a>.
+                  of <var>cursor</var> is <var>store</var>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                 </li>
 
@@ -2805,10 +2810,11 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
-                  with an undefined <a>position</a>, <a>direction</a> set to
+                  with <a title="cursor transaction">transaction</a> set to <var>transaction</var>,
+                  an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is this <a>object store handle</a>.
+                  of <var>cursor</var> is <var>store</var>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                   The <a>key only flag</a> of <var>cursor</var> is set.
                 </li>
@@ -3326,10 +3332,11 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
-                  with an undefined <a>position</a>, <a>direction</a> set to
+                  with <a title="cursor transaction">transaction</a> set to <var>transaction</var>,
+                  an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is this <a>index handle</a>.
+                  of <var>cursor</var> is <var>index</var>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                 </li>
 
@@ -3371,10 +3378,11 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Let <var>cursor</var> be a new <a>cursor</a>
-                  with an undefined <a>position</a>, <a>direction</a> set to
+                  with <a title="cursor transaction">transaction</a> set to <var>transaction</var>,
+                  an undefined <a>position</a>, <a>direction</a> set to
                   <var>direction</var>, <a>got value flag</a> unset, and undefined
                   <a title="cursor key">key</a> and <a title="cursor value">value</a>. The <a title="cursor source">source</a>
-                  of <var>cursor</var> is this <a>index handle</a>.
+                  of <var>cursor</var> is <var>index</index>.
                   The <a>range</a> of <var>cursor</var> is <var>range</var>.
                   The <a>key only flag</a> of <var>cursor</var> is set.
                 </li>
@@ -3589,10 +3597,12 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>update(<var>value</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is a <a>read-only transaction</a>,
+                <li>Let <var>transaction</var> be this <a>cursor</a>'s <a title="cursor transaction">transaction</a>.</li>
+
+                <li>If <var>transaction</var> is a <a>read-only transaction</a>,
                   <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
@@ -3619,7 +3629,7 @@ store.put([10]); // will throw DataError
 
                 <li>Run <a>steps for asynchronously executing a request</a> and
                   return the <a>IDBRequest</a> created by these steps.
-                  The steps are run with this <a>IDBCursor</a> as <var>source</var> and the <a>steps for
+                  The steps are run with this <a>cursor</a> as <var>source</var> and the <a>steps for
                   storing a record into an object store</a> as <var>operation</var>, using this cursor's
                   <a>effective object store</a> as <var>store</var>, the <var>clone</var> as <var>value</var>,
                   this cursor's <a>effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var>
@@ -3645,7 +3655,9 @@ store.put([10]); // will throw DataError
                 <li>If <var>count</var> is 0 (zero),
                   <a>throw</a> a <code>TypeError</code>.
 
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>cursor</a>'s <a title="cursor transaction">transaction</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
@@ -3688,7 +3700,9 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>continue(<var>key</var>)</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                <li>Let <var>transaction</var> be this <a>cursor</a>'s <a title="cursor transaction">transaction</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
@@ -3748,10 +3762,12 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>delete()</code> method, when invoked, must run these steps:
               <ol>
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is a <a>read-only transaction</a>,
+                <li>Let <var>transaction</var> be this <a>cursor</a>'s <a title="cursor transaction">transaction</a>.</li>
+
+                <li>If <var>transaction</var> is a <a>read-only transaction</a>,
                   <a>throw</a> a <a>ReadOnlyError</a> exception.</li>
 
-                <li>If the <a>transaction</a> this <a>IDBCursor</a> belongs to is not <a>active</a>,
+                <li>If <var>transaction</var> is not <a>active</a>,
                   <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
 
                 <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
@@ -3765,7 +3781,7 @@ store.put([10]); // will throw DataError
 
                 <li>
                   Run the <a>steps for asynchronously executing a request</a> and return the
-                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>IDBCursor</a> as <var>source</var>
+                  <a>IDBRequest</a> created by these steps. The steps are run with this <a>cursor</a> as <var>source</var>
                   and the <a>steps for deleting records from an object store</a> as <var>operation</var>, using this cursor's
                   <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
                 </li>
