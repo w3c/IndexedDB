@@ -377,8 +377,10 @@ request.onsuccess = function() {
           </dd>
           <dt>WebIDL</dt>
           <dd>
-            The terms and types
+            The terms, types, and algorithms
             <dfn>throw</dfn>,
+            <dfn>getting a copy of the bytes held by a buffer source</dfn>,
+            <dfn>octet</dfn>,
             <dfn>unrestricted double</dfn>,
             <dfn>DOMString</dfn>,
             <dfn>sequence&lt;DOMString&gt;</dfn>,
@@ -601,14 +603,17 @@ request.onsuccess = function() {
             <i>number</i>,
             <i>date</i>,
             <i>string</i>,
+            <i>binary</i>,
             or
             <i>array</i>.
           </p>
+          <aside class="note">Support for <i>binary</i> keys is new in this edition.</aside>
           <p>
             A <a>key</a> also has an associated <dfn title="key value">value</dfn>, which will
             be either:
             an <a>unrestricted double</a> if type is <i>number</i> or <i>date</i>,
             a <a>DOMString</a> if type is <i>string</i>,
+            a list of <a title="octet">octets</a> if type is <i>binary</i>,
             or a list of other <a title="key">keys</a> if type is <i>array</i>.
           </p>
           <p>
@@ -620,8 +625,9 @@ request.onsuccess = function() {
             <p>The following ECMAScript types are valid keys:</p>
             <ul>
               <li><code>Number</code> primitive values, except NaN. This includes Infinity and -Infinity.</li>
-              <li><code>Date</code> objects, except where the [<span>[</span>PrimitiveValue]] internal property is NaN</li>
+              <li><code>Date</code> objects, except where the [<span>[</span>PrimitiveValue]] internal slot is NaN</li>
               <li><code>String</code> primitive values.</li>
+              <li><code>ArrayBuffer</code> objects (or views on buffers such as <code>Uint8Array</code>).</li>
               <li><code>Array</code> objects, where every item is defined, is itself a valid key, and does not directly or indirectly contain itself.
                 This includes empty arrays. Arrays may contain other arrays.</li>
             </ul>
@@ -642,9 +648,16 @@ request.onsuccess = function() {
             <li>Let <var>tb</var> be the <a title="key type">type</a> of <var>b</var>.</li>
 
             <li>If <var>ta</var> is <i>array</i> and <var>tb</var> is
-              <i>string</i>, <i>date</i> or <i>number</i>,
+              <i>binary</i>, <i>string</i>, <i>date</i> or <i>number</i>,
               return 1.</li>
             <li>If <var>tb</var> is <i>array</i> and <var>ta</var> is
+              <i>binary</i>, <i>string</i>, <i>date</i> or <i>number</i>,
+              return -1.</li>
+
+            <li>If <var>ta</var> is <i>binary</i> and <var>tb</var> is
+              <i>string</i>, <i>date</i> or <i>number</i>,
+              return 1.</li>
+            <li>If <var>tb</var> is <i>binary</i> and <var>ta</var> is
               <i>string</i>, <i>date</i> or <i>number</i>,
               return -1.</li>
 
@@ -701,6 +714,26 @@ request.onsuccess = function() {
                   </ol>
                 </dd>
 
+                <dt><i>binary</i></dt>
+                <dd>
+                  <ol>
+                    <li>Let <var>length</var> be the lesser of <var>va</var>'s length and <var>vb</var>'s length.</li>
+                    <li>Let <var>i</var> be 0.</li>
+                    <li>While <var>i</var> is less than <var>length</var>:
+                      <ol>
+                        <li>Let <var>u</var> be the <a>octet</a> in <var>va</var> at index <var>i</var></li>
+                        <li>Let <var>v</var> be the <a>octet</a> in <var>vb</var> at index <var>i</var></li>
+                        <li>If <var>u</var> is greater than <var>v</var> then return 1</li>
+                        <li>If <var>u</var> is less than <var>v</var> then return -1</li>
+                        <li>Increase <var>i</var> by 1</li>
+                      </ol>
+                    </li>
+                    <li>If <var>va</var>'s length is greater than <var>vb</var>'s length, then return 1</li>
+                    <li>If <var>va</var>'s length is less than <var>vb</var>'s length, then return -1</li>
+                    <li>Return 0</li>
+                  </ol>
+                </dd>
+
                 <dt><i>array</i></dt>
                 <dd>
                   <ol>
@@ -737,12 +770,20 @@ request.onsuccess = function() {
             of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var> is 0.
           </p>
 
-          <p class="note">
+          <aside class="note">
             As a result of the above rules, negative infinity is the lowest possible value for a <a>key</a>.
-            Numbers are less than dates. Dates are less than strings. Strings are less than arrays.
+            <i>Number</i> keys are less than <i>date</i> keys.
+            <i>Date</i> keys are less than <i>string</i> keys.
+            <i>String</i> keys are less than <i>binary</i> keys.
+            <i>Binary</i> keys are less than <i>array</i> keys.
             There is no highest possible <a>key</a> value.
             This is because an array of any candidate highest <a>key</a> followed by another <a>key</a> is even higher.
-          </p>
+          </aside>
+
+          <aside class="note">
+            Members of <i>binary</i> keys are compared as unsigned octet values (in the range [0, 255])
+            rather than signed bytes (in the range [-128, 127]).
+          </aside>
 
         </section> <!-- key-construct -->
 
@@ -1424,7 +1465,7 @@ request.onsuccess = function() {
               <p class="note">
                 Only specified keys of <a title="key type">type</a> <i>number</i>
                 may affect the <a>current number</a> of the key generator. Keys of <a title="key type">type</a>
-                <i>date</i>, <i>array</i> (regardless of the other keys they contain), or
+                <i>date</i>, <i>array</i> (regardless of the other keys they contain), <i>binary</i>, or
                 <i>string</i> (regardless of whether they could be parsed as numbers) have
                 no effect on the <a>current number</a> of the key generator.
                 Keys of <a title="key type">type</a> <i>number</i> with <a title="key value">value</a>
@@ -5094,6 +5135,17 @@ store.put([10]); // will throw DataError
                   </ol>
                 </dd>
 
+                <dt><i>binary</i></dt>
+                <dd>
+                  <ol>
+                    <li>Let <var>len</var> be the length of <var>value</var>.</li>
+                    <li>Let <var>buffer</var> be the result of executing the ECMAScript ArrayBuffer constructor with <var>len</var>.</li>
+                    <li>Assert: <var>buffer</var> is not an abrupt completion.</li>
+                    <li>Set the entries in <var>buffer</var>'s [<span>[</span>ArrayBufferData]] internal slot to the entries in <var>value</var>.</li>
+                    <li>Return <var>buffer</var></li>
+                  </ol>
+                </dd>
+
                 <dt><i>array</i></dt>
                 <dd>
                   <ol>
@@ -5129,10 +5181,11 @@ store.put([10]); // will throw DataError
           <ol>
             <li>If <var>seen</var> was not given, let <var>seen</var> be a new empty set</li>
             <li>If <var>input</var> is in <var>seen</var> return invalid</li>
-            <li>Switch on Type(<var>input</var>):
+            <li>Jump to the appropriate step below:
               <dl class="switch">
 
-                <dt>Number</dt>
+                <!-- Number -->
+                <dt>If Type(<var>input</var>) is Number</dt>
                 <dd>
                   <ol>
                     <li>If <var>input</var> is <code>NaN</code> then return invalid.</li>
@@ -5141,53 +5194,62 @@ store.put([10]); // will throw DataError
                   </ol>
                 </dd>
 
-                <dt>String</dt>
+                <!-- Date -->
+                <dt>If <var>input</var> has an [<span>[</span>DateValue]] internal slot</dt>
+                <dd>
+                  <ol>
+                    <li>Let <var>ms</var> be the value of <var>input</var>'s [<span>[</span>DateValue]] internal slot.</li>
+                    <li>If <var>ms</var> is <code>NaN</code> then return invalid.</li>
+                    <li>Otherwise, return <a title="key type">type</a> <i>date</i> and <a title="key value">value</a> <var>ms</var>.</li>
+                  </ol>
+                </dd>
+
+                <!-- String -->
+                <dt>If Type(<var>input</var>) is String</dt>
                 <dd>
                   <ol>
                     <li>Return <a title="key type">type</a> <i>string</i> and <a title="key value">value</a> <var>input</var>.</li>
                   </ol>
                 </dd>
 
-                <dt>Object</dt>
+                <!-- Binary -->
+                <dt>If <var>input</var> has an [<span>[</span>ArrayBufferData]] internal slot
+                  or an [<span>[</span>ViewedArrayBuffer]] internal slot</dt>
                 <dd>
-
                   <ol>
-                    <!-- Date -->
-                    <li>If <var>input</var> has an internal [<span>[</span>DateValue]] slot, then:
-                      <ol>
-                        <li>Let <var>ms</var> be the value of <var>input</var>'s [<span>[</span>DateValue]] internal slot.</li>
-                        <li>If <var>ms</var> is <code>NaN</code> then return invalid.</li>
-                        <li>Otherwise, return <a title="key type">type</a> <i>date</i> and <a title="key value">value</a> <var>ms</var>.</li>
-                      </ol>
+                    <li>
+                      Let <var>octets</var> be the result of running the steps for
+                      <a>getting a copy of the bytes held by a buffer source</a> with <var>value</var>.
                     </li>
-
-                    <!-- Array -->
-                    <li>If IsArray(<var>input</var>), then:
-                      <ol>
-                        <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>"))</li>
-                        <li>Assert: <var>len</var> will never an abrupt completion.</li>
-                        <li>Add <var>input</var> to <var>seen</var></li>
-                        <li>Let <var>keys</var> be a new empty list</li>
-                        <li>Let <var>index</var> be 0</li>
-                        <li>While <var>index</var> is less than <var>len</var>:
-                          <ol>
-                            <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]](<var>index</var>, <var>input</var>)</li>
-                            <li>ReturnIfAbrupt(<var>entry</var>)</li>
-                            <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a>
-                              with arguments <var>entry</var> and <var>seen</var></li>
-                            <li>ReturnIfAbrupt(<var>key</var>)</li>
-                            <li>If <var>key</var> is invalid or an exception, then abort these steps and return <var>key</var>.</li>
-                            <li>Append <var>key</var> to <var>keys</var></li>
-                            <li>Increase <var>index</var> by 1</li>
-                          </ol>
-                        </li>
-                        <li>Return a new <a>array key</a> with <a title="key value">value</a> <var>keys</var>.</li>
-                      </ol>
-                    </li>
-
-                    <!-- TODO: BufferSource -->
+                    <li>Return <a title="key type">type</a> <i>binary</i> and <a title="key value">value</a> <var>octets</var>.</li>
                   </ol>
                 </dd>
+
+                <!-- Array -->
+                <dt>If IsArray(<var>input</var>)</dt>
+                <dd>
+                  <ol>
+                    <li>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>"))</li>
+                    <li>Assert: <var>len</var> will never an abrupt completion.</li>
+                    <li>Add <var>input</var> to <var>seen</var></li>
+                    <li>Let <var>keys</var> be a new empty list</li>
+                    <li>Let <var>index</var> be 0</li>
+                    <li>While <var>index</var> is less than <var>len</var>:
+                      <ol>
+                        <li>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]](<var>index</var>, <var>input</var>)</li>
+                        <li>ReturnIfAbrupt(<var>entry</var>)</li>
+                        <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a>
+                          with arguments <var>entry</var> and <var>seen</var></li>
+                        <li>ReturnIfAbrupt(<var>key</var>)</li>
+                        <li>If <var>key</var> is invalid or an exception, then abort these steps and return <var>key</var>.</li>
+                        <li>Append <var>key</var> to <var>keys</var></li>
+                        <li>Increase <var>index</var> by 1</li>
+                      </ol>
+                    </li>
+                    <li>Return a new <a>array key</a> with <a title="key value">value</a> <var>keys</var>.</li>
+                  </ol>
+                </dd>
+
                 <dt>Otherwise</dt>
                 <dd>Return invalid</dd>
               </dl>
@@ -5495,6 +5557,8 @@ store.put([10]); // will throw DataError
           (<a href="https://github.com/w3c/IndexedDB/issues/16">bug #16</a>)</li>
         <li>Added <code>objectStoreNames</code> attribute to <a>IDBTransaction</a>.
           (<a href="https://github.com/w3c/IndexedDB/issues/18">bug #18</a>)</li>
+        <li>Added <i>binary</i> <a title="key">keys</a>, including comparisons and ECMAScript bindings.
+          (<a href="https://github.com/w3c/IndexedDB/issues/21">bug #21</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
