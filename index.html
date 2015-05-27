@@ -463,6 +463,15 @@ request.onsuccess = function() {
               <a title="connection">connections</a> to a given <a>database</a> at any given time.
             </p>
             <p>
+              A <a>connection</a> has a <dfn title="connection version">version</dfn>, which is
+              set when the <a>connection</a> is created. It remains constant
+              for the lifetime of the <a>connection</a> unless an
+              <a title="steps for aborting an upgrade transaction">upgrade is aborted</a>, in
+              which case it is set to the previous version of the <a>database</a>. Once
+              the <a>connection</a> is closed the <a title="connection version">version</a>
+              does not change.
+            </p>
+            <p>
               Each connection has a
               <dfn>close pending flag</dfn> which is initially unset.
             </p>
@@ -484,13 +493,14 @@ request.onsuccess = function() {
             </p>
 
             <p>
-              A <a>connection</a> has an <dfn>object store set</dfn>, which is set to the
+              A <a>connection</a> has an <dfn>object store set</dfn>, which is initialized to the
               set of <a title="object store">object stores</a> in the associated <a>database</a>
               when the <a>connection</a> is created.
 
               The contents of the set will remain constant except when
               an <a>upgrade transaction</a> is running.
             </p>
+
           </section>
 
         </section>  <!-- Database -->
@@ -555,7 +565,7 @@ request.onsuccess = function() {
               but there MUST be only one <a>object store handle</a> associated with a particular <a>object store</a> within a <a>transaction</a>.
             </p>
             <p>
-              An <a>object store handle</a> has an <dfn>index set</dfn>, which is set to the
+              An <a>object store handle</a> has an <dfn>index set</dfn>, which is initialized to the
               set of <a title="index">indexes</a> that reference the associated <a title="handle object store">object store</a>
               when the <a>object store handle</a> is created.
 
@@ -2046,16 +2056,13 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute unsigned long long version</dt>
             <dd>
-              The <code>version</code> attribute's getter must return the <a>version</a> of the
-              <a>database</a> when the <a>connection</a> was created.
-              When an <a>IDBDatabase</a> instance is created,
-              this is always the number given as the <var>version</var>
-              argument given to the <code>open</code>
-              call used to create the <a>IDBDatabase</a> instance. This value remains constant for the lifetime of the <a>IDBDatabase</a> object.
-              If the <a>connection</a> is closed, this attribute represents a
-              snapshot of the version that the <a>database</a> had when the connection
-              was closed. Even if another <a>connection</a> is later used to modify the
-              <a>version</a>, that attribute on closed instances are not changed.
+              The <code>version</code> attribute's getter must return this
+              <a>connection</a>'s <a title="connection version">version</a>.
+              <aside class="note">
+                If the <a>connection</a> is open, this is the same as the <a>database</a>
+                <a>version</a>. Once the <a>connection</a> has
+                <a title="database close">closed</a> it will not reflect later changes.
+              </aside>
             </dd>
 
             <dt>readonly attribute DOMStringList objectStoreNames</dt>
@@ -3964,6 +3971,9 @@ store.put([10]); // will throw DataError
               Let <var>connection</var> be a new <a>connection</a> to <var>db</var>.
             </li>
             <li>
+              Set <var>connection</var>'s <a title="connection version">version</a> to <var>version</var>.
+            </li>
+            <li>
               If <var>db</var>'s <a>version</a> is less than <var>version</var>:
               <ol>
                 <li>
@@ -3974,7 +3984,6 @@ store.put([10]); // will throw DataError
                   If <var>connection</var> was <a title="database close">closed</a>,
                   create and return a new <a>AbortError</a> exception and abort these steps.
                 </li>
-                <li>
                 <li>
                   If the <a>upgrade transaction</a> was aborted,
                   run the <a>steps for closing a database connection</a> with <var>connection</var>,
@@ -4119,7 +4128,7 @@ store.put([10]); // will throw DataError
               All the changes made to the <a>database</a> by the <a>transaction</a> are reverted. For <a title="upgrade transaction">upgrade transactions</a>
               this includes changes to the set of <a title="object store">object stores</a> and <a title="index">indexes</a>, as well
               as the change to the <a>version</a>. Also run the <a>steps for aborting an upgrade transaction</a>
-              which reverts changes to all <a>IDBDatabase</a> and <a>IDBObjectStore</a> instances.
+              which reverts changes to all <a>connection</a> and <a>object store handle</a> instances.
             </li>
             <li>
               If <var>error</var> is not null, set <var>transaction</var>'s <code>error</code> property
@@ -4308,6 +4317,11 @@ store.put([10]); // will throw DataError
         	<p>
         	  The <dfn>steps for aborting an upgrade transaction</dfn> <var>transaction</var> are as follows.
         	</p>
+                <aside class="note">
+                  The steps are run after the normal <a>steps for aborting a transaction</a>, which revert
+                  changes to the <a>database</a> including the set of associated <a title="object store">object stores</a>
+                  and <a title="index">indexes</a>, as well as the change to the <a>version</a>.
+                </aside>
         	<ol>
                   <li>
                     Let <var>connection</var> be <var>transaction</var>'s <a>connection</a>.
@@ -4316,31 +4330,42 @@ store.put([10]); // will throw DataError
                     Let <var>database</var> be <var>connection</var>'s <a>database</a>.
                   </li>
         	  <li>
-                    Revert <var>database</var>'s <a>version</a> to the value it had before the transaction was started
-                    if the database previously existed, or 0 (zero) if the database was newly created.
-        	  </li>
-        	  <li>
-                    Revert <var>connection</var>'s <a>object store set</a> to the value it had before the transaction was started
-                    if the database previously existed, or an empty set if the database was newly created.
-        	  </li>
-        	  <li>
-                    For each <a>object store handle</a> <var>store</var> associated with <var>transaction</var>
-                    revert <var>store</var>'s <a>index set</a> to the value it had before the transaction was started
-                    if the object store previously existed, or an empty set if the object store was newly created.
-
+                    Set <var>connection</var>'s <a title="connection version">version</a> to <var>database</var>'s <a>version</a>
+                    if <var>database</var> previously existed,
+                    or 0 (zero) if <var>database</var> was newly created
                     <aside class="note">
-                      This includes handles for object stores that were deleted during the transaction.
+                      This reverts the value of <code>version</code> returned by the <a>IDBDatabase</a> object.
                     </aside>
+        	  </li>
+        	  <li>
+                    Set <var>connection</var>'s <a>object store set</a> to the
+                    set of <a title="object store">object stores</a> in <var>database</var>
+                    if <var>database</var> previously existed,
+                    or the empty set if <var>database</var> was newly created.
+                    <aside class="note">
+                      This reverts the value of <code>objectStoreNames</code> returned by the <a>IDBDatabase</a> object.
+                    </aside>
+        	  </li>
+        	  <li>
+                    For each <a>object store handle</a> <var>store</var> associated with <var>transaction</var>,
+                    including <a title="object store handle">handles</a> for <a title="object store">stores</a>
+                    that were deleted during <var>transaction</var>,
+                    set <var>store</var>'s <a>index set</a> to the
+                    set of <a title="index">indexes</a> that reference the associated <a title="handle object store">object store</a>.
+                    <aside class="note">
+                      This reverts the value of <code>indexNames</code> returned by related <a>IDBObjectStore</a> objects.
 
-        	    <aside class="note">
+                      <p>
         	      Although you cannot access an <a>object store</a> by using the
         	      <code>objectStore</code> method on an <a>IDBTransaction</a> instance after
                       the <a>transaction</a> is aborted, script may still have references to
                       <a>IDBObjectStore</a> instances where the <code>indexNames</code> property
                       can be queried.
+                      </p>
         	    </aside>
         	  </li>
         	</ol>
+
         	<aside class="note">
         	  The <code>name</code> property of the <a>IDBDatabase</a> instance is not modified,
         	  even if the aborted <a>upgrade transaction</a> was creating a new <a>database</a>.
