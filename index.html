@@ -2085,8 +2085,8 @@ store.put([10]); // will throw DataError
           </p>
 
           <p>
-            An <a>IDBDatabase</a> object must not be garbage collected if its
-            associated connection's <a>close pending flag</a> is unset
+            An <a>IDBDatabase</a> object MUST NOT be garbage collected if its
+            associated <a>connection</a>'s <a>close pending flag</a> is unset
             and it has one or more event listeners registers whose type is one of
             <code>abort</code>, <code>error</code>, or <code>versionchange</code>.
 
@@ -2108,10 +2108,14 @@ store.put([10]); // will throw DataError
             <dd>
               The <code>version</code> attribute's getter must return this
               <a>connection</a>'s <a title="connection version">version</a>.
+
+
               <aside class="note">
-                If the <a>connection</a> is open, this is the same as the <a>database</a>
-                <a>version</a>. Once the <a>connection</a> has
-                <a title="database close">closed</a> it will not reflect later changes.
+                As long as the <a>connection</a> is open, this is the same as the
+                connected <a>database</a>'s <a>version</a>.
+
+                Once the <a>connection</a> has <a title="database close">closed</a>,
+                this attribute will not reflect later changes.
               </aside>
             </dd>
 
@@ -2123,10 +2127,12 @@ store.put([10]); // will throw DataError
               <a>object store set</a>.
 
               <aside class="note">
-                Since the <a>object store set</a> is assocaited with a <a>connection</a>,
-                the returned list will not change in response to <a>object store</a> creation
-                or deletion with a different <a>upgrade transaction</a>. Once the <a>connection</a>
-                is <a title="database close">closed</a> the list will not change.
+                As long as the <a>connection</a> is open, this is the same as the
+                connected <a>database</a>'s <a>object store</a> <a title="object store name">names</a>.
+
+                Once the <a>connection</a> has <a title="database close">closed</a>,
+                this attribute will not reflect later changes, such as those made in response
+                to <a>object store</a> creation or deletion with a different <a>upgrade transaction</a>.
               </aside>
             </dd>
 
@@ -2351,16 +2357,18 @@ store.put([10]); // will throw DataError
 
             <dt>readonly attribute DOMStringList  indexNames</dt>
             <dd>
-              <p>
-                The <code>indexNames</code> attribute's getter must return
-                a <a>sorted list</a> of the <a title="index name">names</a> of <a title="index">indexes</a>
-                in this <a>object store handle</a>'s <a>index set</a>.
-              </p>
+              The <code>indexNames</code> attribute's getter must return
+              a <a>sorted list</a> of the <a title="index name">names</a> of <a title="index">indexes</a>
+              in this <a>object store handle</a>'s <a>index set</a>.
+
               <aside class="note">
-                Since the <a>index set</a> is associated with an <a>object store handle</a>, the returned
-                list will not change in response to <a>index</a> creation or deletion with a different
-                <a>upgrade transaction</a>. Once the handle's associated <a>transaction</a> has
-                <a title="transaction finish">finished</a> the list will not change.
+                As long as the <a>transaction</a> has not <a title="transaction finish">finished</a>,
+                this is the same as the associated
+                <a>object store</a>'s list of <a>index</a> <a title="index name">names</a>.
+
+                Once the <a>transaction</a> has <a title="transaction finish">finished</a>,
+                this attribute will not reflect later changes, such as those made in response
+                to <a>index</a> creation or deletion with a different <a>upgrade transaction</a>.
               </aside>
             </dd>
 
@@ -4415,9 +4423,9 @@ store.put([10]); // will throw DataError
                       This reverts the value of <code>indexNames</code> returned by related <a>IDBObjectStore</a> objects.
 
                       <p>
-        	      Although you cannot access an <a>object store</a> by using the
+        	      Although script cannot access an <a>object store</a> by using the
         	      <code>objectStore()</code> method on an <a>IDBTransaction</a> instance after
-                      the <a>transaction</a> is aborted, script may still have references to
+                      the <a>transaction</a> is aborted, it may still have references to
                       <a>IDBObjectStore</a> instances where the <code>indexNames</code> property
                       can be queried.
                       </p>
@@ -5119,8 +5127,8 @@ store.put([10]); // will throw DataError
 
           <p class="note">
             The <a>key path</a> used here is always a <a>DOMString</a> and never a <a>sequence&lt;DOMString&gt;</a> since it is not
-            possible to create a <a>object store</a> whose <a>multiEntry flag</a> is set and whose
-            <a title="object store key path">key path</a> is an <a>sequence&lt;DOMString&gt;</a>.
+            possible to create a <a>object store</a> which has its <a>multiEntry flag</a> set and
+            also has a <a title="object store key path">key path</a> that is a sequence.
           </p>
 	</section>
 
