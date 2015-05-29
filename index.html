@@ -526,7 +526,7 @@ request.onsuccess = function() {
           </p>
           <p>
             An <a>object store</a> has a <dfn title="object store name">name</dfn>.
-            The name can be any string value, including the empty string, and stays constant for the lifetime of the object store.
+            The name can be any string value, including the empty string.
             At any one time, the name is unique within the <a>database</a> to which it belongs.
             Object store names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
@@ -572,6 +572,14 @@ request.onsuccess = function() {
               when the <a>object store handle</a> is created.
 
               The contents of the set will remain
+              constant except when an <a>upgrade transaction</a> is running.
+            </p>
+            <p>
+              An <a>object store handle</a> has a <dfn title="object store handle name">name</dfn>, which is initialized to the
+              <a title="object store name">name</a> of the associated <a title="handle object store">object store</a>
+              when the <a>object store handle</a> is created.
+
+              The name will remain
               constant except when an <a>upgrade transaction</a> is running.
             </p>
           </section>
@@ -866,7 +874,7 @@ request.onsuccess = function() {
           </p>
           <p>
             An <a>index</a> has a <dfn title="index name">name</dfn>.
-            The name can be any string value, including the empty string, and stays constant for the lifetime of the index.
+            The name can be any string value, including the empty string.
             At any one time, the name is unique within index's <a>referenced</a> <a>object store</a>.
             Index names are always compared in a case-sensitive manner, as opaque sequences of 16-bit code units.
           </p>
@@ -896,6 +904,14 @@ request.onsuccess = function() {
               <a title="object store handle transaction">transaction</a> of its associated <a>object store handle</a>.
               Multiple handles MAY be associated with the same <a>index</a> in different <a title="transaction">transactions</a>,
               but there MUST be only one <a>index handle</a> associated with a particular <a>index</a> within a <a>transaction</a>.
+            </p>
+            <p>
+              An <a>index handle</a> has a <dfn title="index handle name">name</dfn>, which is initialized to the
+              <a title="index name">name</a> of the associated <a title="handle index">index</a>
+              when the <a>index handle</a> is created.
+
+              The name will remain
+              constant except when an <a>upgrade transaction</a> is running.
             </p>
           </section>
 
@@ -2108,13 +2124,12 @@ store.put([10]); // will throw DataError
               The <code>version</code> attribute's getter must return this
               <a>connection</a>'s <a title="connection version">version</a>.
 
-
               <aside class="note">
                 As long as the <a>connection</a> is open, this is the same as the
                 connected <a>database</a>'s <a>version</a>.
 
                 Once the <a>connection</a> has <a title="database close">closed</a>,
-                this attribute will not reflect later changes.
+                this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
               </aside>
             </dd>
 
@@ -2130,8 +2145,7 @@ store.put([10]); // will throw DataError
                 connected <a>database</a>'s <a>object store</a> <a title="object store name">names</a>.
 
                 Once the <a>connection</a> has <a title="database close">closed</a>,
-                this attribute will not reflect later changes, such as those made in response
-                to <a>object store</a> creation or deletion with a different <a>upgrade transaction</a>.
+                this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
               </aside>
             </dd>
 
@@ -2328,10 +2342,59 @@ store.put([10]); // will throw DataError
             interface represents an <a>object store handle</a>.
           </p>
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBObjectStore">
-            <dt>readonly attribute DOMString name</dt>
+            <dt>attribute DOMString name</dt>
             <dd>
-              The <code>name</code> attribute's getter must return this
-              <a>object store handle</a>'s <a title="handle object store">object store</a>'s <a title="object store name">name</a>.
+              <p>
+                The <code>name</code> attribute's getter must return this
+                <a>object store handle</a>'s <a title="handle object store">object store</a>'s <a title="object store name">name</a>.
+
+                <aside class="note">
+                  As long as the <a>transaction</a> has not <a title="transaction finish">finished</a>,
+                  this is the same as the associated <a>object store</a>'s <a title="object store name">name</a>.
+
+                  Once the <a>transaction</a> has <a title="transaction finish">finished</a>,
+                  this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
+                </aside>
+              </p>
+
+              <p>
+                The <code>name</code> attribute's setter must run these steps:
+                <aside class="note">&#9752; This setter is new in this edition. &#9752;</aside>
+              </p>
+              <ol>
+                <li>Let <var>name</var> be the given value.</li>
+
+                <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a title="object store handle transaction">transaction</a>.</li>
+
+                <li>Let <var>store</var> be this <a>object store handle</a>'s <a title="handle object store">object store</a>.</li>
+
+                <li>If <var>transaction</var> is not an <a>upgrade transaction</a>,
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
+                </li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.
+                </li>
+
+                <li>If <var>store</var> has been deleted,
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
+                </li>
+
+                <li>If <var>store</var>'s <a title="object store name">name</a> is equal to <var>name</var>, terminate these steps.</li>
+
+                <li>
+                  If an <a>object store</a> <a title="object store name">named</a> <var>name</var> already exists in
+                  <var>store</var>'s <a>database</a>,
+                  <a>throw</a> a <a>ConstraintError</a> exception.
+                </li>
+
+                <li>
+                  Set <var>store</var>'s <a title="object store name">name</a> to <var>name</var>.
+                </li>
+                <li>
+                  Set this <a>object store handle</a>'s <a title="object store handle name">name</a> to <var>name</var>.
+                </li>
+              </ol>
             </dd>
 
             <dt>readonly attribute any keyPath</dt>
@@ -2366,8 +2429,7 @@ store.put([10]); // will throw DataError
                 <a>object store</a>'s list of <a>index</a> <a title="index name">names</a>.
 
                 Once the <a>transaction</a> has <a title="transaction finish">finished</a>,
-                this attribute will not reflect later changes, such as those made in response
-                to <a>index</a> creation or deletion with a different <a>upgrade transaction</a>.
+                this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
               </aside>
             </dd>
 
@@ -3066,10 +3128,57 @@ store.put([10]); // will throw DataError
           </p>
 
           <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBIndex">
-            <dt>readonly attribute DOMString name</dt>
+            <dt>attribute DOMString name</dt>
             <dd>
-              The <code>name</code> attribute's getter must return
-              this <a>index handle</a>'s <a title="handle index">index</a>'s <a title="index name">name</a>.
+              <p>
+                The <code>name</code> attribute's getter must return
+                this <a>index handle</a>'s <a title="handle index">index</a>'s <a title="index name">name</a>.
+
+                <aside class="note">
+                  As long as the <a>transaction</a> has not <a title="transaction finish">finished</a>,
+                  this is the same as the associated <a>index</a>'s <a title="index name">name</a>.
+
+                  Once the <a>transaction</a> has <a title="transaction finish">finished</a>,
+                  this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
+                </aside>
+              </p>
+              <p>
+                The <code>name</code> attribute's setter must run these steps:
+                <aside class="note">&#9752; This setter is new in this edition. &#9752;</aside>
+              </p>
+              <ol>
+                <li>Let <var>name</var> be the given value.</li>
+
+                <li>Let <var>transaction</var> be this <a>index handle</a>'s <a title="index handle transaction">transaction</a>.</li>
+
+                <li>Let <var>index</var> be this <a>index handle</a>'s <a title="handle index">index</a>.</li>
+
+                <li>If <var>transaction</var> is not an <a>upgrade transaction</a>,
+                  <a>throw</a> an <a>InvalidStateError</a> exception.
+                </li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.
+                </li>
+
+                <li>If <var>index</var> or <var>index</var>'s <a>object store</a> has been deleted,
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
+
+                <li>If <var>index</var>'s <a title="index name">name</a> is equal to <var>name</var>, terminate these steps.</li>
+
+                <li>
+                  If an <a>index</a> <a title="index name">named</a> <var>name</var> already exists in
+                  <var>index</var>'s <a>object store</a>,
+                  <a>throw</a> a <a>ConstraintError</a> exception.
+                </li>
+
+                <li>
+                  Set <var>index</var>'s <a title="index name">name</a> to <var>name</var>.
+                </li>
+                <li>
+                  Set this <a>index handle</a>'s <a title="index handle name">name</a> to <var>name</var>.
+                </li>
+              </ol>
             </dd>
 
             <dt>readonly attribute IDBObjectStore objectStore</dt>
@@ -4413,20 +4522,50 @@ store.put([10]); // will throw DataError
                     </aside>
         	  </li>
         	  <li>
-                    For each <a>object store handle</a> <var>store</var> associated with <var>transaction</var>,
+                    For each <a>object store handle</a> <var>handle</var> associated with <var>transaction</var>,
                     including <a title="object store handle">handles</a> for <a title="object store">stores</a>
-                    that were deleted during <var>transaction</var>,
-                    set <var>store</var>'s <a>index set</a> to the
-                    set of <a title="index">indexes</a> that reference the associated <a title="handle object store">object store</a>.
+                    that were deleted during <var>transaction</var>:
+                    <ol>
+                      <li>
+                        Set <var>handle</var>'s <a title="object store handle name">name</a> to
+                        its <a title="handle object store">object store</a>'s <a title="object store name">name</a>.
+                      </li>
+                      <li>
+                        Set <var>handle</var>'s <a>index set</a> to the
+                        set of <a title="index">indexes</a> that reference its <a title="handle object store">object store</a>.
+                      </li>
+                    </ol>
                     <aside class="note">
-                      This reverts the value of <code>indexNames</code> returned by related <a>IDBObjectStore</a> objects.
+                      This reverts the values of <code>name</code> and <code>indexNames</code> returned by related <a>IDBObjectStore</a> objects.
 
                       <p>
         	      Although script cannot access an <a>object store</a> by using the
         	      <code>objectStore()</code> method on an <a>IDBTransaction</a> instance after
                       the <a>transaction</a> is aborted, it may still have references to
-                      <a>IDBObjectStore</a> instances where the <code>indexNames</code> property
+                      <a>IDBObjectStore</a> instances where the <code>name</code> and <code>indexNames</code> properties
                       can be queried.
+                      </p>
+        	    </aside>
+        	  </li>
+        	  <li>
+                    For each <a>index handle</a> <var>handle</var> associated with <var>transaction</var>,
+                    including <a title="index handle">handles</a> for <a title="index">indexes</a>
+                    that were deleted during <var>transaction</var>:
+                    <ol>
+                      <li>
+                        Set <var>handle</var>'s <a title="index handle name">name</a> to
+                        its <a title="handle index">index</a>'s <a title="index name">name</a>.
+                      </li>
+                    </ol>
+                    <aside class="note">
+                      This reverts the value of <code>name</code> returned by related <a>IDBIndex</a> objects.
+
+                      <p>
+        	        Although script cannot access an <a>index</a> by using the
+        	        <code>index()</code> method on an <a>IDBObjectStore</a> instance after
+                        the <a>transaction</a> is aborted, it may still have references to
+                        <a>IDBIndex</a> instances where the <code>name</code> property
+                        can be queried.
                       </p>
         	    </aside>
         	  </li>
@@ -5588,6 +5727,8 @@ store.put([10]); // will throw DataError
           (<a href="https://github.com/w3c/IndexedDB/issues/18">bug #18</a>)</li>
         <li>Added <i>binary</i> <a title="key">keys</a>, including comparisons and ECMAScript bindings.
           (<a href="https://github.com/w3c/IndexedDB/issues/21">bug #21</a>)</li>
+        <li>Allow renaming stores and indexes.
+          (<a href="https://github.com/w3c/IndexedDB/issues/21">bug #22</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
