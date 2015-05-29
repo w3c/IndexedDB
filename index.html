@@ -4590,6 +4590,9 @@ store.put([10]); // will throw DataError
                 </li>
                 <li>If <var>index key</var> is an exception, or invalid, or failure, take no further actions for this index,
                   and continue these substeps for the next index.
+                  <aside class="note">
+                    An exception thrown in this step is not rethrown.
+                  </aside>
                 </li>
                 <li>
                   If <var>index</var>'s <a>multiEntry flag</a> is unset, or if <var>index key</var> is not an <a>array key</a>,
@@ -5013,14 +5016,16 @@ store.put([10]); // will throw DataError
             or the steps may throw an exception.
           </p>
           <ol>
-            <li>Let <var>r</var> be the result of running the steps to
-              <a>evaluate a key path on a value</a> with <var>value</var> and <var>keyPath</var>.</li>
-            <li>If <var>r</var> is an exception, <a title="throw">rethrow</a> it.</li>
+            <li>
+              Let <var>r</var> be the result of running the steps to
+              <a>evaluate a key path on a value</a> with <var>value</var> and <var>keyPath</var>.
+              If this throws an exception, <a title="throw">rethrow</a> it.
+            </li>
             <li>If <var>r</var> is failure, return failure.</li>
             <li>Let <var>key</var> be
               the result of running the steps to <a>convert a value to a key</a> with <var>r</var> if the <var>multiEntry flag</var> is unset, and
               the result of running the steps to <a>convert a value to a multiEntry key</a> with <var>r</var> otherwise.
-            <li>If <var>key</var> is an exception, <a title="throw">rethrow</a> it.</li>
+              If this throws an exception, <a title="throw">rethrow</a> it.</li>
             <li>If <var>key</var> is invalid, return invalid.</li>
             <li>Return <var>key</var>.</li>
           </ol>
@@ -5127,7 +5132,7 @@ store.put([10]); // will throw DataError
 
           <aside class="note">
             The <a>key path</a> used here is always a string and never a sequence, since it is not
-            possible to create a <a>object store</a> which has its <a>autoIncrement flag</a> set and
+            possible to create a <a>object store</a> which has a <a>key generator</a> and
             also has a <a title="object store key path">key path</a> that is a sequence.
           </aside>
 	</section>
