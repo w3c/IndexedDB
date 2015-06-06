@@ -26,7 +26,7 @@
 
           shortName:            "IndexedDB",
 
-          publishDate:          "2015-06-01",
+          publishDate:          "2015-06-05",
 
           previousPublishDate:  "2015-01-08",
           previousMaturity:     "TR",
@@ -3876,6 +3876,86 @@ store.put([10]); // will throw DataError
               </dl>
             </dd>
 
+            <dt>void continuePrimaryKey()</dt>
+            <dd>
+              <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
+
+              The <code>continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</code> method, when invoked, must run these steps:
+              <ol>
+                <li>Let <var>transaction</var> be this <a>cursor</a>'s <a title="cursor transaction">transaction</a>.</li>
+
+                <li>If <var>transaction</var> is not <a>active</a>,
+                  <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
+
+                <li>If the cursor's <a title="cursor source">source</a> or <a>effective object store</a> has been deleted,
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
+
+                <li>If this cursor's <a title="cursor source">source</a> is not an <a>index</a>
+                  <a>throw</a> an <a>InvalidAccessError</a> exception.</li>
+
+                <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
+                  <a>throw</a> an <a>InvalidStateError</a> exception.</li>
+
+                <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                <li>If <var>r</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
+                <li>Let <var>key</var> be <var>r</var>.</li>
+
+                <li>Let <var>r</var> be the result of running the steps to <a>convert a value to a key</a> with <var>primaryKey</var>.
+                  If this throws an exception, <a title="throw">rethrow</a> it.</li>
+                <li>If <var>r</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
+                <li>Let <var>primaryKey</var> be <var>r</var>.</li>
+
+                <li>If <var>key</var> is <a>less than</a> or <a>equal to</a> this cursor's <a>position</a>
+                  and this cursor's <a>direction</a> is "<code>next</code>" or "<code>nextunique</code>",
+                  <a>throw</a> a <a>DataError</a> exception.</li>
+
+                <li>If <var>key</var> is <a>greater than</a> or <a>equal to</a> this cursor's <a>position</a>
+                  and this cursor's <a>direction</a> is "<code>prev</code>" or "<code>prevunique</code>",
+                  <a>throw</a> a <a>DataError</a> exception.</li>
+
+                <li>If <var>key</var> is <a>equal to</a> this cursor's <a>position</a>
+                  and <var>primaryKey</var> is <a>less than</a> or <a>equal to</a> this cursor's <a>object store position</a>
+                  and this cursor's <a>direction</a> is "<code>next</code>" or "<code>nextunique</code>",
+                  <a>throw</a> a <a>DataError</a> exception.</li>
+
+                <li>If <var>key</var> is <a>equal to</a> this cursor's <a>position</a>
+                  and <var>primaryKey</var> is <a>greater than</a> or <a>equal to</a> this cursor's <a>object store position</a>
+                  and this cursor's <a>direction</a> is "<code>prev</code>" or "<code>prevunique</code>",
+                  <a>throw</a> a <a>DataError</a> exception.</li>
+
+                <li>Unset the <a>got value flag</a> on the cursor.</li>
+
+                <li>
+                  Let <var>request</var> be the <a>request</a> created when this <a>cursor</a> was created.
+                </li>
+
+                <li>Unset the <a title="request done">done flag</a> on <var>request</var>.</li>
+
+                <li>
+                  Run the <a>steps for asynchronously executing a request</a>
+                  with the cursor's
+                  <a title="cursor source">source</a> as <var>source</var> and
+                  the <a>steps for iterating a cursor</a> with this <a>cursor</a>, <var>key</var>,
+                  <var>primaryKey</var>, and <var>request</var>.
+                </li>
+              </ol>
+
+              <aside class="note">
+                Calling this method more than once before new cursor data has been loaded -
+                for example, calling <code>continuePrimaryKey()</code> twice from the same onsuccess handler -
+                results in an <a>InvalidStateError</a> exception being thrown on the second call
+                because the cursor's <a>got value flag</a> has been unset.
+              </aside>
+
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>The next key to position this <a>cursor</a> at</dd>
+                <dt>any primaryKey</dt>
+                <dd>The next primary key to position this <a>cursor</a> at</dd>
+              </dl>
+            </dd>
+
             <dt>IDBRequest delete()</dt>
             <dd>
               The <code>delete()</code> method, when invoked, must run these steps:
@@ -5003,10 +5083,11 @@ store.put([10]); // will throw DataError
           <h4>Cursor Iteration Operation</h4>
           <p>
             The <dfn>steps for iterating a cursor</dfn> with <var>cursor</var>, an optional
-            <var>key</var> to iterate to, and an optional <var>count</var> are as follows.
+            <var>key</var> and <var>primaryKey</var> to iterate to, and an optional <var>count</var> are as follows.
           </p>
           <ol>
             <li>Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>.</li>
+            <li>Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a>index</a>.</li>
             <li>Let <var>records</var> be the list of <a title="record">records</a> in <var>source</var>.
               <aside class="note">
                 <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
@@ -5035,6 +5116,12 @@ store.put([10]); // will throw DataError
                           If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
                         </li>
                         <li>
+                          If <var>primaryKey</var> is defined,
+                          the record's key is <a>equal to</a> <var>key</var>
+                          and the record's value is <a>greater than</a> or <a>equal to</a> <var>primaryKey</var>, or
+                          the record's key is <a>greater than</a> <var>key</var>.
+                        </li>
+                        <li>
                           If <var>position</var> is defined, and <var>source</var> is an <a>object store</a>, the record's
                           key is <a>greater than</a> <var>position</var>.
                         </li>
@@ -5057,6 +5144,12 @@ store.put([10]); // will throw DataError
                           If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
                         </li>
                         <li>
+                          If <var>primaryKey</var> is defined,
+                          the record's key is <a>equal to</a> <var>key</var>
+                          and the record's value is <a>greater than</a> or <a>equal to</a> <var>primaryKey</var>, or
+                          the record's key is <a>greater than</a> <var>key</var>.
+                        </li>
+                        <li>
                           If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
                         </li>
                         <li>
@@ -5071,6 +5164,12 @@ store.put([10]); // will throw DataError
                       <ul>
                         <li>
                           If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
+                        </li>
+                        <li>
+                          If <var>primaryKey</var> is defined,
+                          the record's key is <a>equal to</a> <var>key</var>
+                          and the record's value is <a>less than</a> or <a>equal to</a> <var>primaryKey</var>, or
+                          the record's key is <a>less than</a> <var>key</var>.
                         </li>
                         <li>
                           If <var>position</var> is defined, and <var>source</var> is an <a>object store</a>, the record's
@@ -5095,6 +5194,12 @@ store.put([10]); // will throw DataError
                           If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
                         </li>
                         <li>
+                          If <var>primaryKey</var> is defined,
+                          the record's key is <a>equal to</a> <var>key</var>
+                          and the record's value is <a>less than</a> or <a>equal to</a> <var>primaryKey</var>, or
+                          the record's key is <a>less than</a> <var>key</var>.
+                        </li>
+                        <li>
                           If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
                         </li>
                         <li>
@@ -5103,6 +5208,11 @@ store.put([10]); // will throw DataError
                       </ul>
                       If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
                       whose key is <a>equal to</a> <var>temp record</var>'s key.
+
+                      <aside class="issue">
+                        If <var>primaryKey</var> is specified, this last requirement no longer makes sense.
+                        See <a href="https://github.com/w3c/IndexedDB/issues/14">#14</a>.
+                      </aside>
                     </dd>
                   </dl>
                 </li>
@@ -5732,6 +5842,8 @@ store.put([10]); // will throw DataError
           (<a href="https://github.com/w3c/IndexedDB/issues/21">bug #21</a>)</li>
         <li>Allow renaming stores and indexes.
           (<a href="https://github.com/w3c/IndexedDB/issues/21">bug #22</a>)</li>
+        <li>Add <code>continuePrimaryKey</code> to <a>IDBCursor</a>
+          (<a href="https://github.com/w3c/IndexedDB/issues/14">bug #14</a>)</li>
       </ul>
     </section>
     <section class="section appendix" id="acknowledgements">
