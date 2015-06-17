@@ -3893,6 +3893,10 @@ store.put([10]); // will throw DataError
                 <li>If this cursor's <a title="cursor source">source</a> is not an <a>index</a>
                   <a>throw</a> an <a>InvalidAccessError</a> exception.</li>
 
+                <li>If this cursor's <a>direction</a> is not
+                  <a>direction</a> is "<code>next</code>" or "<code>prev</code>",
+                  <a>throw</a> an <a>InvalidAccessError</a> exception.</li>
+
                 <li>If this cursor's <a>got value flag</a> is unset, indicating that the cursor is being iterated or has iterated past its end,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
@@ -5087,7 +5091,10 @@ store.put([10]); // will throw DataError
           </p>
           <ol>
             <li>Let <var>source</var> be <var>cursor</var>'s <a title="cursor source">source</a>.</li>
-            <li>Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a>index</a>.</li>
+            <li>Let <var>direction</var> be <var>cursor</var>'s <a>direction</a>.</li>
+            <li>Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a>index</a> and
+              <var>direction</var> is "<code>next</code>" or "<code>prev</code>".
+            </li>
             <li>Let <var>records</var> be the list of <a title="record">records</a> in <var>source</var>.
               <aside class="note">
                 <var>records</var> is always sorted in ascending <a>key</a> order. In the case of
@@ -5096,7 +5103,6 @@ store.put([10]); // will throw DataError
               </aside>
             </li>
             <li>Let <var>range</var> be <var>cursor</var>'s <a>range</a>.</li>
-            <li>Let <var>direction</var> be <var>cursor</var>'s <a>direction</a>.</li>
 
             <li>Let <var>position</var> be <var>cursor</var>'s <a>position</a>.</li>
             <li>Let <var>object store position</var> be <var>cursor</var>'s <a>object store position</a>.</li>
@@ -5144,12 +5150,6 @@ store.put([10]); // will throw DataError
                           If <var>key</var> is defined, the record's key is <a>greater than</a> or <a>equal to</a> <var>key</var>.
                         </li>
                         <li>
-                          If <var>primaryKey</var> is defined,
-                          the record's key is <a>equal to</a> <var>key</var>
-                          and the record's value is <a>greater than</a> or <a>equal to</a> <var>primaryKey</var>, or
-                          the record's key is <a>greater than</a> <var>key</var>.
-                        </li>
-                        <li>
                           If <var>position</var> is defined, the record's key is <a>greater than</a> <var>position</var>.
                         </li>
                         <li>
@@ -5194,12 +5194,6 @@ store.put([10]); // will throw DataError
                           If <var>key</var> is defined, the record's key is <a>less than</a> or <a>equal to</a> <var>key</var>.
                         </li>
                         <li>
-                          If <var>primaryKey</var> is defined,
-                          the record's key is <a>equal to</a> <var>key</var>
-                          and the record's value is <a>less than</a> or <a>equal to</a> <var>primaryKey</var>, or
-                          the record's key is <a>less than</a> <var>key</var>.
-                        </li>
-                        <li>
                           If <var>position</var> is defined, the record's key is <a>less than</a> <var>position</var>.
                         </li>
                         <li>
@@ -5208,11 +5202,6 @@ store.put([10]); // will throw DataError
                       </ul>
                       If <var>temp record</var> is defined, let <var>found record</var> be the first record in <var>records</var>
                       whose key is <a>equal to</a> <var>temp record</var>'s key.
-
-                      <aside class="issue">
-                        If <var>primaryKey</var> is specified, this last requirement no longer makes sense.
-                        See <a href="https://github.com/w3c/IndexedDB/issues/14">#14</a>.
-                      </aside>
                     </dd>
                   </dl>
                 </li>
