@@ -370,11 +370,12 @@ request.onsuccess = function() {
           <dt>HTML5</dt>
           <dd>The terms and algorithms
             <dfn>document</dfn>,
-            <dfn><code>Window</code></dfn>
+            <dfn><code>Window</code></dfn>,
+            <dfn><code>EventHandler</code></dfn>,
+            <dfn><code>Function</code></dfn>,
             <dfn id="document-base-url">document base URL</dfn>,
             <dfn id="event-handler-attributes">event handler attributes</dfn>,
             <dfn id="event-handler-event-type">event handler event type</dfn>,
-            <dfn><code>Function</code></dfn>,
             <dfn>strictly split a string</dfn>,
             <dfn lt="origin|origins">origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
             <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>,
@@ -2110,19 +2111,33 @@ interface IDBFactory {
             associated <a>connection</a> must be <a lt="database close">closed</a>.
           </p>
 
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBDatabase : EventTarget">
-            <dt>readonly attribute DOMString name</dt>
-            <dd>
-              The <code>name</code> attribute's getter must return the <a lt="database name">name</a>
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBDatabase : EventTarget {
+    readonly    attribute DOMString          name;
+    readonly    attribute unsigned long long version;
+    readonly    attribute DOMStringList      objectStoreNames;
+    IDBObjectStore createObjectStore (DOMString name, optional IDBObjectStoreParameters options);
+    void           deleteObjectStore (DOMString name);
+    IDBTransaction transaction ((DOMString or sequence<DOMString>) storeNames, optional IDBTransactionMode mode = "readonly");
+    void           close ();
+                attribute EventHandler       onabort;
+                attribute EventHandler       onclose;
+                attribute EventHandler       onerror;
+                attribute EventHandler       onversionchange;
+};
+          </pre>
+
+            <p>
+              The <dfn lt="IDBDatabase.name">name</dfn> attribute's getter must return the <a lt="database name">name</a>
               of the <a lt="connection">connected</a> <a>database</a>. The attribute MUST
               return this name even if the <a>close pending flag</a> is set on the <a>connection</a>.
               In other words, the value of this attribute
               stays constant for the lifetime of the <a>IDBDatabase</a> instance.
-            </dd>
+            </p>
 
-            <dt>readonly attribute unsigned long long version</dt>
-            <dd>
-              The <code>version</code> attribute's getter must return this
+            <p>
+              The <dfn lt="IDBDatabase.version">version</dfn> attribute's getter must return this
               <a>connection</a>'s <a lt="connection version">version</a>.
 
               <aside class="note">
@@ -2132,11 +2147,10 @@ interface IDBFactory {
                 Once the <a>connection</a> has <a lt="database close">closed</a>,
                 this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
               </aside>
-            </dd>
+            </p>
 
-            <dt>readonly attribute DOMStringList objectStoreNames</dt>
-            <dd>
-              The <code>objectStoreNames</code> attribute's getter must return a
+            <p>
+              The <dfn lt="IDBDatabase.objectStoreNames">objectStoreNames</dfn> attribute's getter must return a
               <a>sorted list</a> of the <a lt="object store name">names</a> of the
               <a>object stores</a> in this <a>connection</a>'s
               <a>object store set</a>.
@@ -2148,17 +2162,10 @@ interface IDBFactory {
                 Once the <a>connection</a> has <a lt="database close">closed</a>,
                 this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
               </aside>
-            </dd>
+            </p>
 
-            <dt>IDBObjectStore createObjectStore()</dt>
-            <dd>
-              <p>
-                This method creates and returns a new <a>object store</a> with the given name in the
-                <a lt="connection">connected</a> <a>database</a>.
-                Note that this method must only be called from within an <a>upgrade transaction</a>.
-              </p>
-
-              The <code>createObjectStore(<var>name</var>, <var>options</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBDatabase.createObjectStore">createObjectStore(<var>name</var>, <var>options</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
                 <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
@@ -2210,30 +2217,10 @@ interface IDBFactory {
                 using the <a>steps for aborting a transaction</a> using the appropriate error. For example if
                 creating the <a>object store</a> failed due to quota reasons, <a>QuotaExceededError</a> MUST be used as error.
               </p>
+            </p>
 
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                  <dd>The <a lt="object store name">name</a> of a new <a>object store</a></dd>
-                <dt>optional IDBObjectStoreParameters options</dt>
-                  <dd>A dictionary of optional parameters to this method.
-                    <code>keyPath</code> specifies the <a lt="object store key path">key path</a> of the new
-                    <a>object store</a>. If the attribute is null,
-                    no <a lt="object store key path">key path</a> is
-                    specified and thus keys are <a lt="out-of-line keys">out-of-line</a>.
-                    <code>autoIncrement</code> specifies whether the <a>object store</a>
-                    created should have a <a>key generator</a>.</dd>
-              </dl>
-            </dd>
-
-            <dt>void deleteObjectStore()</dt>
-            <dd>
-              <p>
-                This method destroys the <a>object store</a> with the given name in the
-                <a lt="connection">connected</a> <a>database</a>.
-                Note that this method must only be called from within an <a>upgrade transaction</a>.
-              </p>
-
-              The <code>deleteObjectStore(<var>name</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBDatabase.deleteObjectStore">deleteObjectStore(<var>name</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
                 <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
@@ -2258,16 +2245,10 @@ interface IDBFactory {
                 <a href="#widl-IDBDatabase-objectStoreNames"><code>objectStoreNames</code></a> property
                 on the <a>IDBDatabase</a> instance on which it was called.
               </p>
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The <a lt="object store name">name</a> of an existing
-                <a>object store</a></dd>
-              </dl>
-            </dd>
+            </p>
 
-            <dt>IDBTransaction transaction()</dt>
-            <dd>
-              The <code>transaction(<var>storeNames</var>, <var>mode</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBDatabase.transaction">transaction(<var>storeNames</var>, <var>mode</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>If <var>mode</var> parameter is not "<code>readonly</code>" or "<code>readwrite</code>",
                   <a>throw</a> a <code>TypeError</code>.
@@ -2304,36 +2285,15 @@ interface IDBFactory {
               <aside class="note">
                 The created <var>transaction</var> will follow the <a>transaction lifetime</a> rules.
               </aside>
+            </p>
 
-              <dl class="parameters">
-                <dt>(DOMString or sequence&lt;DOMString&gt;) storeNames</dt>
-                <dd>The names of <a>object stores</a> in the <a>scope</a> of the new
-                <a>transaction</a></dd>
-                <dt>optional IDBTransactionMode mode = "readonly"</dt>
-                <dd> The <a>mode</a> for isolating access to data inside the given
-                <a>object stores</a>. If this parameter is not given, the default
-                access <a>mode</a> is "<code>readonly</code>".</dd>
-              </dl>
-            </dd>
-
-            <dt>void close()</dt>
-            <dd>
-              The <code>close()</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBDatabase.close">close()</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Run the <a>steps for closing a database connection</a> with this <a>connection</a>.</li>
               </ol>
-            </dd>
-            <dt>attribute EventHandler onabort</dt>
-            <dd>The event handler for the <code>abort</code> event.</dd>
-            <dt>attribute EventHandler onclose</dt>
-            <dd>The event handler for the <code>close</code> event.
-              <aside class="note">&#9752; This attribute is new in this edition. &#9752;</aside>
-            </dd>
-            <dt>attribute EventHandler onerror</dt>
-            <dd>The event handler for the <code>error</code> event.</dd>
-            <dt>attribute EventHandler onversionchange</dt>
-            <dd>The event handler for the <code>versionchange</code> event.</dd>
-          </dl>
+            </p>
+
         </section>
 
         <section class="section" id="object-store">
