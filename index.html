@@ -87,10 +87,15 @@
       .note, .issue { padding: 0em 1.2em !important; }
       .note-title, .issue-title { float: left; min-width: 0 !important; }
 
-       /* Switch statement */
+      /* Switch statement */
       dl.switch dt::before {
         content: "↪ ";
         margin-left: 1em;
+      }
+
+      /* Reduce noise, allow var to shine through */
+      dfn code {
+        font-style: normal;
       }
     </style>
   </head>
@@ -3538,32 +3543,44 @@ store.put([10]); // will throw DataError
             The <a>IDBKeyRange</a> interface represents a
             <a>key range</a>.
           </p>
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBKeyRange">
-            <dt>readonly attribute any lower</dt>
-            <dd>
-              The <code>lower</code> attribute's getter must return
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBKeyRange {
+    readonly    attribute any     lower;
+    readonly    attribute any     upper;
+    readonly    attribute boolean lowerOpen;
+    readonly    attribute boolean upperOpen;
+    static IDBKeyRange only (any value);
+    static IDBKeyRange lowerBound (any lower, optional boolean open = false);
+    static IDBKeyRange upperBound (any upper, optional boolean open = false);
+    static IDBKeyRange bound (any lower, any upper, optional boolean lowerOpen = false, optional boolean upperOpen = false);
+};
+          </pre>
+
+            <p>
+              The <dfn lt="IDBKeyRange.lower">lower</dfn> attribute's getter must return
               result of running the steps to <a>convert a key to a value</a>
-              with the <a>lower bound</a> if it is not null, or undefined otherwise.</dd>
+              with the <a>lower bound</a> if it is not null, or undefined otherwise.
+            </p>
 
-            <dt>readonly attribute any upper</dt>
-            <dd>
-              The <code>upper</code> attribute's getter must return
+            <p>
+              The <dfn lt="IDBKeyRange.upper">upper</dfn> attribute's getter must return
               the result of running the steps to <a>convert a key to a value</a>
-              with the <a>upper bound</a> if it is not null, or undefined otherwise.</dd>
+              with the <a>upper bound</a> if it is not null, or undefined otherwise.
+            </p>
 
-            <dt>readonly attribute boolean lowerOpen</dt>
-            <dd>
-              The <code>lowerOpen</code> attribute's getter must return
-              true if the <a>lower open flag</a> is set, and false otherwise.</dd>
+            <p>
+              The <dfn lt="IDBKeyRange.lowerOpen">lowerOpen</dfn> attribute's getter must return
+              true if the <a>lower open flag</a> is set, and false otherwise.
+            </p>
 
-            <dt>readonly attribute boolean upperOpen</dt>
-            <dd>
-              The <code>upperOpen</code> attribute's getter must return
-              true if the <a>upper open flag</a> is set, and false otherwise.</dd>
+            <p>
+              The <dfn lt="IDBKeyRange.upperOpen">upperOpen</dfn> attribute's getter must return
+              true if the <a>upper open flag</a> is set, and false otherwise.
+            </p>
 
-            <dt>static IDBKeyRange only()</dt>
-            <dd>
-              The <code>only(<var>value</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBKeyRange.only">only(<var>value</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>value</var>.
                   If this throws an an exception, <a>rethrow</a> it.</li>
@@ -3571,16 +3588,10 @@ store.put([10]); // will throw DataError
 
                 <li>Create and return a new <a>key range</a> <a>containing only</a> <var>key</var>.</li>
               </ol>
+            </p>
 
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The only value</dd>
-              </dl>
-            </dd>
-
-            <dt>static IDBKeyRange lowerBound()</dt>
-            <dd>
-              The <code>lowerBound(<var>lower</var>, <var>lowerOpen</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBKeyRange.lowerBound">lowerBound(<var>lower</var>, <var>lowerOpen</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>lower</var>.
                   If this throws an an exception, <a>rethrow</a> it.</li>
@@ -3594,18 +3605,10 @@ store.put([10]); // will throw DataError
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>any lower</dt>
-                <dd>The lower bound value</dd>
-                <dt>optional boolean open = false</dt>
-                <dd>Specify false if the lower-bound should be included in the <a>key range</a>. Specify true if the lower-bound value should
-                be excluded from the <a>key range</a>. Defaults to false (lower-bound value is included).</dd>
-              </dl>
-            </dd>
+            </p>
 
-            <dt>static IDBKeyRange upperBound()</dt>
-            <dd>
-              The <code>upperBound(<var>upper</var>, <var>upperOpen</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBKeyRange.upperBound">upperBound(<var>upper</var>, <var>upperOpen</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>upperKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>upper</var>.
                   If this throws an an exception, <a>rethrow</a> it.</li>
@@ -3618,19 +3621,10 @@ store.put([10]); // will throw DataError
                   <a>upper open flag</a> set to <var>upperOpen</var>.
                 </li>
               </ol>
+            </p>
 
-              <dl class="parameters">
-                <dt>any upper</dt>
-                <dd>The upper bound value</dd>
-                <dt>optional boolean open = false</dt>
-                <dd>Specify false if the upper-bound should be included in the <a>key range</a>. Specify true if the upper-bound value should
-                be excluded from the <a>key range</a>. Defaults to false (upper-bound value is included).</dd>
-              </dl>
-            </dd>
-
-            <dt>static IDBKeyRange bound()</dt>
-            <dd>
-              The <code>bound(<var>lower</var>, <var>upper</var>, <var>lowerOpen</var>, <var>upperOpen</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBKeyRange.bound">bound(<var>lower</var>, <var>upper</var>, <var>lowerOpen</var>, <var>upperOpen</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>lower</var>.
                   If this throws an an exception, <a>rethrow</a> it.</li>
@@ -3649,20 +3643,8 @@ store.put([10]); // will throw DataError
                   <a>upper open flag</a> set if <var>upperOpen</var> is true.
                 </li>
               </ol>
-              <dl class="parameters">
-                <dt>any lower</dt>
-                <dd>The lower-bound value</dd>
-                <dt>any upper</dt>
-                <dd>The upper-bound value</dd>
-                <dt>optional boolean lowerOpen = false</dt>
-                <dd>Specify false if the lower-bound should be included in the <a>key range</a>. Specify true if the lower-bound value should
-                be excluded from the <a>key range</a>. Defaults to false (lower-bound value is included).</dd>
-                <dt>optional boolean upperOpen = false</dt>
-                <dd>Specify false if the upper-bound should be included in the <a>key range</a>. Specify true if the upper-bound value should
-                be excluded from the <a>key range</a>. Defaults to false (upper-bound value is included).</dd>
-              </dl>
-            </dd>
-          </dl>
+            </p>
+
         </section>
 
         <section class="section" id="cursor">
