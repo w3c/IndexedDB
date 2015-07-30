@@ -1826,74 +1826,83 @@ store.put([10]); // will throw DataError
  request.onerror = function(evt) {...};
             </pre>
           </aside>
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBRequest : EventTarget">
-            <dt>readonly attribute any result</dt>
-            <dd>
-              If the <a lt="request done">done flag</a> is unset,
-              the <code>result</code> attribute's getter
-              <a>throws</a> an <a>InvalidStateError</a> exception.
-              Otherwise,
-              the <code>result</code> attribute's getter
+
+          <pre class="idl">
+enum IDBRequestReadyState {
+    "pending",
+    "done"
+};
+
+[Exposed=(Window,Worker)]
+interface IDBRequest : EventTarget {
+    readonly    attribute any                                        result;
+    readonly    attribute DOMException                               error;
+    readonly    attribute (IDBObjectStore or IDBIndex or IDBCursor)? source;
+    readonly    attribute IDBTransaction                             transaction;
+    readonly    attribute IDBRequestReadyState                       readyState;
+                attribute EventHandler                               onsuccess;
+                attribute EventHandler                               onerror;
+};
+          </pre>
+
+            <p>
+              The <dfn lt="IDBRequest.result">result</dfn> attribute's getter must
+              <a>throw</a> an <a>InvalidStateError</a> exception
+              if the <a lt="request done">done flag</a> is unset.
+              Otherwise, the attribute's getter
               must return the <a lt="request result">result</a> of
               the request, or undefined if the request resulted in an error.
-            </dd>
+            </p>
 
-            <dt>readonly attribute DOMException error</dt>
-            <dd>
-              If the <a lt="request done">done flag</a> is unset,
-              the <code>error</code> attribute's getter
-              <a>throws</a> an <a>InvalidStateError</a> exception.
-              Otherwise,
-              the <code>error</code> attribute's getter
+            <p>
+              The <dfn lt="IDBRequest.error">error</dfn> attribute's getter must
+              <a>throw</a> an <a>InvalidStateError</a> exception
+              if the <a lt="request done">done flag</a> is unset.
+              Otherwise, the attribute's getter
               must return the <a lt="request error">error</a> of the request,
               or null if no error occurred.
-            </dd>
+            </p>
 
-            <dt>readonly attribute (IDBObjectStore or IDBIndex or IDBCursor)? source</dt>
-            <dd>
-              The <code>source</code> attribute's getter
+            <p>
+              The <dfn lt="IDBRequest.source">source</dfn> attribute's getter
               must return the <a lt="request source">source</a> of the <a>request</a>, or
               null if no <a lt="request source">source</a> is set.
-            </dd>
+            </p>
 
-            <dt>readonly attribute IDBTransaction transaction</dt>
-            <dd>
-              The <code>transaction</code> attribute's getter
+            <p>
+              The <dfn lt="IDBRequest.transaction">transaction</dfn> attribute's getter
               must return the <a lt="request transaction">transaction</a> of the <a>request</a>.
               This property can be null for certain requests, such as for <a>request</a>
               returned from <a href="#widl-IDBFactory-open-IDBOpenDBRequest-DOMString-name-unsigned-long-long-version"><code>IDBFactory.open</code></a>.
-            </dd>
+            </p>
 
-            <dt>readonly attribute IDBRequestReadyState readyState</dt>
-            <dd>
-              The <code>readyState</code> attribute's getter
+            <p>
+              The <dfn lt="IDBRequest.readyState">readyState</dfn> attribute's getter
               must return "<code>pending</code>" if the <a lt="request done">done flag</a> is unset,
-              and "<code>done</code>" otherwise.</dd>
+              and "<code>done</code>" otherwise.
+            </p>
 
-            <dt>attribute EventHandler onsuccess</dt>
-            <dd>The event handler for the <code>success</code> event.</dd>
-            <dt>attribute EventHandler onerror</dt>
-            <dd>The event handler for the <code>error</code> event.</dd>
-          </dl>
+          <p>The <dfn lt="IDBRequest.onsuccess">onsuccess</dfn> attribute is the event handler for the <code>success</code> event.</p>
+          <p>The <dfn lt="IDBRequest.onerror">onerror</dfn> attribute is the event handler for the <code>error</code> event.</p>
+
           <p>
             Methods on <a>IDBFactory</a> that return a <a>open request</a> use
             an extended interface to allow listening to the
             <code>blocked</code> event and <code>upgradeneeded</code> event.
           </p>
 
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBOpenDBRequest : IDBRequest">
-            <dt>attribute EventHandler onblocked</dt>
-            <dd>The event handler for the <code>blocked</code> event.</dd>
-            <dt>attribute EventHandler onupgradeneeded</dt>
-            <dd>The event handler for the <code>upgradeneeded</code> event.</dd>
-          </dl>
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBOpenDBRequest : IDBRequest {
+                attribute EventHandler onblocked;
+                attribute EventHandler onupgradeneeded;
+};
+          </pre>
 
-          <dl class="idl" title="enum IDBRequestReadyState">
-            <dt>pending</dt>
-            <dd>The <a lt="request done">done flag</a> of the <a>request</a> is unset.</dd>
-            <dt>done</dt>
-            <dd>The <a lt="request done">done flag</a> of the <a>request</a> is set.</dd>
-          </dl>
+
+          <p>The <dfn lt="IDBOpenDBRequest.onblocked">onblocked</dfn> attribute is the event handler for the <code>blocked</code> event.</p>
+          <p>The <dfn lt="IDBOpenDBRequest.onupgradeneeded">onupgradeneeded</dfn> attribute is the event handler for the <code>upgradeneeded</code> event.</p>
+
         </section>
 
         <section class="section" id="events">
@@ -2293,6 +2302,15 @@ interface IDBDatabase : EventTarget {
                 <li>Run the <a>steps for closing a database connection</a> with this <a>connection</a>.</li>
               </ol>
             </p>
+
+          <p>The <dfn lt="IDBDatabase.onabort">onabort</dfn> attribute is the event handler for the <code>abort</code> event.</p>
+          <p>
+            The <dfn lt="IDBDatabase.onclose">onclose</dfn> attribute is the event handler for the <code>close</code> event.
+            <aside class="note">&#9752; This attribute is new in this edition. &#9752;</aside>
+          </p>
+          <p>The <dfn lt="IDBDatabase.onerror">onerror</dfn> attribute is the event handler for the <code>error</code> event.</p>
+          <p>The <dfn lt="IDBDatabase.onversionchange">onversionchange</dfn> attribute is the event handler for the <code>versionchange</code> event.</p>
+
 
         </section>
 
