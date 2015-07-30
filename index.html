@@ -3630,46 +3630,63 @@ interface IDBKeyRange {
             There is no limit on how many cursors can be used at the same time.
           </p>
 
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursor">
-            <dt>readonly attribute (IDBObjectStore or IDBIndex) source</dt>
-            <dd>
-              The <code>source</code> attribute's getter must return the <a lt="cursor source">source</a> of this <a>cursor</a>.
+          <pre class="idl">
+enum IDBCursorDirection {
+    "next",
+    "nextunique",
+    "prev",
+    "prevunique"
+};
+
+[Exposed=(Window,Worker)]
+interface IDBCursor {
+    readonly    attribute (IDBObjectStore or IDBIndex) source;
+    readonly    attribute IDBCursorDirection           direction;
+    readonly    attribute any                          key;
+    readonly    attribute any                          primaryKey;
+    IDBRequest update (any value);
+    void       advance ([EnforceRange] unsigned long count);
+    void       continue (optional any key);
+    void       continuePrimaryKey (any key, any primaryKey);
+    IDBRequest delete ();
+};
+          </pre>
+
+
+            <p>
+              The <dfn lt="IDBCursor.source">source</dfn> attribute's getter must return the <a lt="cursor source">source</a> of this <a>cursor</a>.
               This attribute
               never returns null or throws an exception, even if the cursor is currently being iterated, has iterated past its end,
               or its <a>transaction</a> is not <a>active</a>.
-            </dd>
+            </p>
 
-            <dt>readonly attribute IDBCursorDirection direction</dt>
-            <dd>
-              The <code>direction</code> attribute's getter must return the
+            <p>
+              The <dfn lt="IDBCursor.direction">direction</dfn> attribute's getter must return the
               <a>direction</a> of the <a>cursor</a>.
-            </dd>
+            </p>
 
-            <dt>readonly attribute any key</dt>
-            <dd>
-              The <code>key</code> attribute's getter must return
+            <p>
+              The <dfn lt="IDBCursor.key">key</dfn> attribute's getter must return
               the result of running the steps to <a>convert a key to a value</a>
               with the cursor's current <a lt="cursor key">key</a>.
             Note that if this property returns an object (e.g. a <code>Date</code> or <code>Array</code>), it returns the same
             object instance every time it is inspected, until the cursor's <a lt="cursor key">key</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</dd>
+            does not modify the contents of the database.</p>
 
-            <dt>readonly attribute any primaryKey</dt>
-            <dd>
-              The <code>primaryKey</code> attribute's getter must return
+            <p>
+              The <dfn lt="IDBCursor.primaryKey">primaryKey</dfn> attribute's getter must return
               the result of running the steps to <a>convert a key to a value</a>
               with the cursor's current <a>effective key</a>.
             Note that if this property returns an object (e.g. a <code>Date</code> or <code>Array</code>), it returns the same
             object instance every time it is inspected, until the cursor's <a>effective key</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</dd>
+            does not modify the contents of the database.</p>
 
-            <dt>IDBRequest update()</dt>
-            <dd>
-              The <code>update(<var>value</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBCursor.update">update(<var>value</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>cursor</a>'s <a lt="cursor transaction">transaction</a>.</li>
 
@@ -3715,16 +3732,10 @@ interface IDBKeyRange {
                 A result of running the <a>steps for storing a record into an object store</a> is that if the record
                 has been deleted since the cursor moved to it, a new record will be created.
               </aside>
+            </p>
 
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The new value to store at the current position.</dd>
-              </dl>
-            </dd>
-
-            <dt>void advance()</dt>
-            <dd>
-              The <code>advance(<var>count</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBCursor.advance">advance(<var>count</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>If <var>count</var> is 0 (zero),
                   <a>throw</a> a <code>TypeError</code>.
@@ -3763,16 +3774,10 @@ interface IDBKeyRange {
                 results in an <a>InvalidStateError</a> exception being thrown on the second call
                 because the cursor's <a>got value flag</a> has been unset.
               </aside>
+            </p>
 
-              <dl class="parameters">
-                <dt>[EnforceRange] unsigned long count</dt>
-                <dd>The number of advances forward the cursor should make.</dd>
-              </dl>
-            </dd>
-
-            <dt>void continue()</dt>
-            <dd>
-              The <code>continue(<var>key</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBCursor.continue">continue(<var>key</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>cursor</a>'s <a lt="cursor transaction">transaction</a>.</li>
 
@@ -3825,18 +3830,12 @@ interface IDBKeyRange {
                 results in an <a>InvalidStateError</a> exception being thrown on the second call
                 because the cursor's <a>got value flag</a> has been unset.
               </aside>
+            </p>
 
-              <dl class="parameters">
-                <dt>optional any key</dt>
-                <dd>The next key to position this <a>cursor</a> at</dd>
-              </dl>
-            </dd>
-
-            <dt>void continuePrimaryKey()</dt>
-            <dd>
+            <p>
+              The <dfn lt="IDBCursor.continuePrimaryKey">continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</dfn> method, when invoked, must run these steps:
               <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
 
-              The <code>continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>cursor</a>'s <a lt="cursor transaction">transaction</a>.</li>
 
@@ -3907,18 +3906,10 @@ interface IDBKeyRange {
                 results in an <a>InvalidStateError</a> exception being thrown on the second call
                 because the cursor's <a>got value flag</a> has been unset.
               </aside>
+            </p>
 
-              <dl class="parameters">
-                <dt>any key</dt>
-                <dd>The next key to position this <a>cursor</a> at</dd>
-                <dt>any primaryKey</dt>
-                <dd>The next primary key to position this <a>cursor</a> at</dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest delete()</dt>
-            <dd>
-              The <code>delete()</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBCursor.delete">delete()</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>cursor</a>'s <a lt="cursor transaction">transaction</a>.</li>
 
@@ -3944,43 +3935,28 @@ interface IDBKeyRange {
                   <a>effective object store</a> and <a>effective key</a> as <var>store</var> and <var>key</var> respectively.
                 </li>
               </ol>
-            </dd>
-          </dl>
+            </p>
 
           <p>
             A <a>cursor</a> that has the <a>key only flag</a> unset implements the <a>IDBCursorWithValue</a> interface as well.
           </p>
 
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBCursorWithValue : IDBCursor">
-            <dt>readonly attribute any value</dt>
-            <dd>
-              The <code>value</code> attribute's getter must return
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBCursorWithValue : IDBCursor {
+    readonly    attribute any value;
+};
+          </pre>
+
+            <p>
+              The <dfn lt="IDBCursorWithValue.value">value</dfn> attribute's getter must return
               the cursor's current <a lt="cursor value">value</a>.
 
             Note that if this property returns an object, it returns the same
             object instance every time it is inspected, until the cursor's <a lt="cursor value">value</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</dd>
-          </dl>
-
-          <p>
-            The <a>direction</a> of an <a>IDBCursor</a> is represented by the <a>IDBCursorDirection</a> enumeration:
-          </p>
-
-          <dl class="idl" title="enum IDBCursorDirection">
-            <dt>next</dt>
-            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>next</code>"</dd>
-
-            <dt>nextunique</dt>
-            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>nextunique</code>"</dd>
-
-            <dt>prev</dt>
-            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>prev</code>"</dd>
-
-            <dt>prevunique</dt>
-            <dd>The <a>direction</a> of the <a>cursor</a> is "<code>prevunique</code>"</dd>
-          </dl>
+            does not modify the contents of the database.</p>
 
         </section>
 
