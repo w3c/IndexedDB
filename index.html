@@ -3966,13 +3966,31 @@ interface IDBCursorWithValue : IDBCursor {
           <p>
             <a>Transaction</a> objects implement the following interface:
           </p>
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBTransaction : EventTarget">
 
-            <dt>readonly attribute DOMStringList objectStoreNames</dt>
-            <dd>
+          <pre class="idl">
+enum IDBTransactionMode {
+    "readonly",
+    "readwrite",
+    "versionchange"
+};
+
+[Exposed=(Window,Worker)]
+interface IDBTransaction : EventTarget {
+    readonly    attribute DOMStringList      objectStoreNames;
+    readonly    attribute IDBTransactionMode mode;
+    readonly    attribute IDBDatabase        db;
+    readonly    attribute DOMException       error;
+    IDBObjectStore objectStore (DOMString name);
+    void           abort ();
+                attribute EventHandler       onabort;
+                attribute EventHandler       oncomplete;
+                attribute EventHandler       onerror;
+};
+          </pre>
+
+            <p>
+              The <dfn lt="IDBTransaction.objectStoreNames">objectStoreNames</dfn> attribute's getter must run the following steps:
               <aside class="note">&#9752; This attribute is new in this edition. &#9752;</aside>
-
-              The <code>objectStoreNames</code> attribute's getter must run the following steps:
               <ol>
                 <li>
                   If this <a>transaction</a> is an <a>upgrade transaction</a>, return a
@@ -3992,23 +4010,20 @@ interface IDBCursorWithValue : IDBCursor {
                 may return lists with different contents as <a>object stores</a>
                 are created and deleted.
               </aside>
-            </dd>
+            </p>
 
-            <dt>readonly attribute IDBTransactionMode mode</dt>
-            <dd>
-              The <code>mode</code> attribute's getter must return the <a>mode</a> of the <a>transaction</a>.
-            </dd>
+            <p>
+              The <dfn lt="IDBTransaction.mode">mode</dfn> attribute's getter must return the <a>mode</a> of the <a>transaction</a>.
+            </p>
 
-            <dt>readonly attribute IDBDatabase db</dt>
-            <dd>
-              The <code>db</code> attribute's getter must return the
+            <p>
+              The <dfn lt="IDBTransaction.db">db</dfn> attribute's getter must return the
               <a>database</a> <a>connection</a> of which this <a>transaction</a>
               is a part.
-            </dd>
+            </p>
 
-            <dt>readonly attribute DOMException error</dt>
-            <dd>
-              The <code>error</code> attribute's getter must return this <a>transaction</a>'s <a lt="transaction error">error</a>, or null if none.
+            <p>
+              The <dfn lt="IDBTransaction.error">error</dfn> attribute's getter must return this <a>transaction</a>'s <a lt="transaction error">error</a>, or null if none.
 
               <aside class="note">
                 If this <a>transaction</a> was aborted due to a failed <a>request</a>,
@@ -4021,11 +4036,10 @@ interface IDBCursorWithValue : IDBCursor {
                 it will reflect the reason for the failure (e.g. <a>QuotaExceededError</a>,
                 <a>ConstraintError</a>, or <a>UnknownError</a>).
               </aside>
-            </dd>
+            </p>
 
-            <dt>IDBObjectStore objectStore()</dt>
-            <dd>
-              The <code>objectStore(<var>name</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBTransaction.objectStore">objectStore(<var>name</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>If <var>transaction</var> has <a lt="transaction finish">finished</a>,
                   <a>throw</a> an <a>InvalidStateError</a> exception.</li>
@@ -4047,16 +4061,10 @@ interface IDBCursorWithValue : IDBCursor {
                   </aside>
                 </li>
               </ol>
+            </p>
 
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The requested <a>object store</a></dd>
-              </dl>
-            </dd>
-
-            <dt>void abort()</dt>
-            <dd>
-              The <code>abort()</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBTransaction.abort">abort()</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>If this <a>transaction</a> is <a lt="transaction finish">finished</a>,
                   <a>throw</a> an <a>InvalidStateError</a> exception.
@@ -4065,35 +4073,17 @@ interface IDBCursorWithValue : IDBCursor {
                   <a>steps for aborting a transaction</a> with null as <var>error</var>.
                 </li>
               </ol>
-            </dd>
+            </p>
 
-            <dt>attribute EventHandler onabort</dt>
-            <dd>The event handler for the <code>abort</code> event.</dd>
-            <dt>attribute EventHandler oncomplete</dt>
-            <dd>The event handler for the <code>complete</code> event.
+          <p>The <dfn lt="IDBTransaction.onabort">onabort</dfn> attribute is the event handler for the <code>abort</code> event.</p>
+          <p>The <dfn lt="IDBTransaction.oncomplete">oncomplete</dfn> attribute is the event handler for the <code>complete</code> event.</p>
+          <p>The <dfn lt="IDBTransaction.onerror">onerror</dfn> attribute is the event handler for the <code>error</code> event.</p>
+
             <aside class="note">
             	To determine if a <a>transaction</a> has completed successfully,
             	listen to the <a>transaction</a>'s <code>complete</code> event rather than the <code>success</code> event of a particular <a>request</a>,
             	because the <a>transaction</a> may still fail after the <code>success</code> event fires.
             </aside>
-            </dd>
-            <dt>attribute EventHandler onerror</dt>
-            <dd>The event handler for the <code>error</code> event.</dd>
-          </dl>
-
-          <p>
-            The <a>mode</a> of an <a>IDBTransaction</a> is represented by the <a>IDBTransactionMode</a> enumeration:
-          </p>
-
-          <dl class="idl" title="enum IDBTransactionMode">
-            <dt>readonly</dt>
-            <dd>A <a>read-only transaction</a>.</dd>
-            <dt>readwrite</dt>
-            <dd>A <a>read/write transaction</a>.</dd>
-            <dt>versionchange</dt>
-            <dd>An <a>upgrade transaction</a>.</dd>
-          </dl>
-
 
 
         </section>
