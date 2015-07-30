@@ -1962,10 +1962,17 @@ WorkerUtils implements IDBEnvironment;
           </p>
 
 
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBFactory">
-            <dt>IDBOpenDBRequest open()</dt>
-            <dd>
-              The <code>open(<var>name</var>, <var>version</var>)</code> method, when invoked, must run these steps:
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBFactory {
+    IDBOpenDBRequest open (DOMString name, [EnforceRange] optional unsigned long long version);
+    IDBOpenDBRequest deleteDatabase (DOMString name);
+    short            cmp (any first, any second);
+};
+          </pre>
+
+            <p>
+              The <dfn lt="IDBFactory.open">open(<var>name</var>, <var>version</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>
                   If <var>version</var> is 0 (zero), <a>throw</a> a <code>TypeError</code>.
@@ -2024,17 +2031,10 @@ WorkerUtils implements IDBEnvironment;
                   Return a new <a>IDBOpenDBRequest</a> object for <var>request</var>.
                 </li>
               </ol>
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The <a lt="database name">name</a> for the <a>database</a></dd>
-                <dt>[EnforceRange] optional unsigned long long version</dt>
-                <dd>The <a>version</a> for the <a>database</a></dd>
-              </dl>
-            </dd>
+            </p>
 
-            <dt>IDBOpenDBRequest deleteDatabase()</dt>
-            <dd>
-              The <code>deleteDatabase(<var>name</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBFactory.deleteDatabase">deleteDatabase(<var>name</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>
                   Let <var>request</var> be a new <a>open request</a>.
@@ -2072,15 +2072,10 @@ WorkerUtils implements IDBEnvironment;
                   Return a new <a>IDBOpenDBRequest</a> object for <var>request</var>.
                 </li>
               </ol>
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The <a lt="database name">name</a> of the <a>database</a> to delete</dd>
-              </dl>
-            </dd>
+            </p>
 
-            <dt>short cmp()</dt>
-            <dd>
-              The <code>cmp(<var>first</var>, <var>second</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBFactory.cmp">cmp(<var>first</var>, <var>second</var>)</dfn> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>a</var> be the result of running the steps to <a>convert a value to a key</a> with <var>first</var>.
                   If this throws an exception, <a>rethrow</a> it.</li>
@@ -2093,14 +2088,8 @@ WorkerUtils implements IDBEnvironment;
                 <li>Return the results of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var>.</li>
               </ol>
 
-              <dl class="parameters">
-                <dt>any first</dt>
-                <dd>The first <a>key</a> to compare.</dd>
-                <dt>any second</dt>
-                <dd>The second <a>key</a> to compare.</dd>
-              </dl>
-            </dd>
-          </dl>
+            </p>
+
         </section>
 
         <section id="database-interface" class="section">
