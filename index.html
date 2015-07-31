@@ -408,7 +408,7 @@ request.onsuccess = function() {
             Each <a>origin</a> has an associated set of databases.
           </p>
           <aside class="note">The database origin is not affected by changes to <code>document.domain</code>.
-	  </aside>
+          </aside>
           <p>
             Each <a>origin</a> has an associated set of
             <a>databases</a>. A <dfn data-lt="database|databases">database</dfn> has
@@ -1540,8 +1540,10 @@ store1.put("b"); // Will get key 2
 store2.put("b"); // Will get key 2
             </pre>
 
-            <p>If an insertion fails due to constraint violations or IO error, the
-              key generator is not updated.</p>
+            <p>
+              If an insertion fails due to constraint violations or IO error, the
+              key generator is not updated.
+            </p>
             <pre class="example highlight">
 transaction.onerror = function(e) { e.preventDefault() };
 store = db.createObjectStore("store1", { autoIncrement: true });
@@ -1551,8 +1553,10 @@ store.put({ ix: "a"}); // Will fail
 store.put({ ix: "b"}); // Will get key 2
             </pre>
 
-            <p>Removing items from an objectStore never affects the key generator.
-              Including when .clear() is called.</p>
+            <p>
+              Removing items from an objectStore never affects the key generator.
+              Including when .clear() is called.
+            </p>
             <pre class="example highlight">
 store = db.createObjectStore("store1", { autoIncrement: true });
 store.put("a"); // Will get key 1
@@ -1564,9 +1568,11 @@ store.delete(IDBKeyRange.lowerBound(0));
 store.put("d"); // Will get key 4
             </pre>
 
-            <p>Inserting an item with an explicit key affects the key generator if,
+            <p>
+              Inserting an item with an explicit key affects the key generator if,
               and only if, the key is numeric and higher than the last generated
-              key.</p>
+              key.
+            </p>
             <pre class="example highlight">
 store = db.createObjectStore("store1", { autoIncrement: true });
 store.put("a"); // Will get key 1
@@ -1586,10 +1592,12 @@ store.put("k"); // Will get key 11
 keyPath and the explicit key was passed inline in the object
             </pre>
 
-            <p>Aborting a transaction rolls back any increases to the key generator
+            <p>
+              Aborting a transaction rolls back any increases to the key generator
               which happened during the transaction. This is to make all rollbacks
               consistent since rollbacks that happen due to crash never has a chance
-              to commit the increased key generator value.</p>
+              to commit the increased key generator value.
+            </p>
             <pre class="example highlight">
 db.createObjectStore("store", { autoIncrement: true });
 trans1 = db.transaction(["store"], "readwrite");
@@ -1700,57 +1708,57 @@ store.put([10]); // will throw DataError
               <th>Type</th>
               <th>Description</th>
             </tr>
-	    <tr>
-	      <td><code><dfn>AbortError</dfn></code></td>
-	      <td>A request was aborted.</td>
-	    </tr>
+            <tr>
+              <td><code><dfn>AbortError</dfn></code></td>
+              <td>A request was aborted.</td>
+            </tr>
             <tr>
               <td><code><dfn>ConstraintError</dfn></code></td>
-	      <td>A mutation operation in the transaction failed because a constraint was not satisfied.</td>
+              <td>A mutation operation in the transaction failed because a constraint was not satisfied.</td>
             </tr>
             <tr>
               <td><code><dfn>DataCloneError</dfn></code></td>
-	      <td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
+              <td>The data being stored could not be cloned by the internal structured cloning algorithm.</td>
             </tr>
             <tr>
               <td><code><dfn>DataError</dfn></code></td>
-	      <td>Data provided to an operation does not meet requirements.</td>
+              <td>Data provided to an operation does not meet requirements.</td>
             </tr>
-	    <tr>
-	      <td><code><dfn>InvalidAccessError</dfn></code></td>
-	      <td>An invalid operation was performed on an object.</td>
-	    </tr>
-	    <tr>
-	      <td><code><dfn>InvalidStateError</dfn></code></td>
-	      <td>
-		An operation was called on an object on which it is not allowed or at a time when it is not allowed,
+            <tr>
+              <td><code><dfn>InvalidAccessError</dfn></code></td>
+              <td>An invalid operation was performed on an object.</td>
+            </tr>
+            <tr>
+              <td><code><dfn>InvalidStateError</dfn></code></td>
+              <td>
+                An operation was called on an object on which it is not allowed or at a time when it is not allowed,
                 or if a request is made on a source object that has been deleted or removed.
-	      </td>
-	    </tr>
-	    <tr>
-	      <td><code><dfn>NotFoundError</dfn></code></td>
-	      <td>
-		The operation failed because the requested database object could not be found.
-	      </td>
-	    </tr>
-	    <tr>
-	      <td><code><dfn>QuotaExceededError</dfn></code></td>
-	      <td>
-		The operation failed because there was not enough remaining storage space,
-		or the storage quota was reached and the user declined to give more space to the database.
-	      </td>
-	    </tr>
-	    <tr>
-	      <td><code><dfn>SyntaxError</dfn></code></td>
-	      <td>The keyPath argument contains an invalid key path.</td>
-	    </tr>
+              </td>
+            </tr>
+            <tr>
+              <td><code><dfn>NotFoundError</dfn></code></td>
+              <td>
+                The operation failed because the requested database object could not be found.
+              </td>
+            </tr>
+            <tr>
+              <td><code><dfn>QuotaExceededError</dfn></code></td>
+              <td>
+                The operation failed because there was not enough remaining storage space,
+                or the storage quota was reached and the user declined to give more space to the database.
+              </td>
+            </tr>
+            <tr>
+              <td><code><dfn>SyntaxError</dfn></code></td>
+              <td>The keyPath argument contains an invalid key path.</td>
+            </tr>
             <tr>
               <td><code><dfn>ReadOnlyError</dfn></code></td>
-	      <td>The mutating operation was attempted in a read-only transaction.</td>
+              <td>The mutating operation was attempted in a read-only transaction.</td>
             </tr>
             <tr>
               <td><code><dfn>TransactionInactiveError</dfn></code></td>
-	      <td>A request was placed against a transaction which is currently not active, or which is finished.</td>
+              <td>A request was placed against a transaction which is currently not active, or which is finished.</td>
             </tr>
             <tr>
               <td><code><dfn>UnknownError</dfn></code></td>
@@ -1758,9 +1766,9 @@ store.put([10]); // will throw DataError
             </tr>
             <tr>
               <td><code><dfn>VersionError</dfn></code></td>
-	      <td>An attempt was made to open a database using a lower version than the existing version.</td>
+              <td>An attempt was made to open a database using a lower version than the existing version.</td>
             </tr>
-	  </table>
+          </table>
 
           <aside class="note">
             Given that multiple Indexed DB operations can throw the same type of error, and that
@@ -3600,7 +3608,8 @@ enum IDBCursorDirection {
             object instance every time it is inspected, until the cursor's <a data-lt="cursor key">key</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</p>
+            does not modify the contents of the database.
+          </p>
 
           <p>
             The <dfn data-lt="IDBCursor.primaryKey">primaryKey</dfn> attribute's getter must return
@@ -3610,7 +3619,8 @@ enum IDBCursorDirection {
             object instance every time it is inspected, until the cursor's <a>effective key</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</p>
+            does not modify the contents of the database.
+          </p>
 
           <p>
             The <dfn data-lt="IDBCursor.update">update(<var>value</var>)</dfn> method, when invoked, must run these steps:
@@ -3882,7 +3892,8 @@ interface IDBCursorWithValue : IDBCursor {
             object instance every time it is inspected, until the cursor's <a data-lt="cursor value">value</a> is changed.
             This means that if the object is modified,
             those modifications will be seen by anyone inspecting the value of the cursor. However modifying such an object
-            does not modify the contents of the database.</p>
+            does not modify the contents of the database.
+          </p>
 
         </section>
 
@@ -4327,7 +4338,7 @@ enum IDBTransactionMode {
               Otherwise, set the <a data-lt="request done">done flag</a>
               on the <var>request</var>, set <a data-lt="request result">result</a> of <var>request</var>
               to <var>result</var> set the <a data-lt="request error">error</a> of <var>request</var> to undefined.
-	      Finally <a>fire a success event</a> at <var>request</var>.
+              Finally <a>fire a success event</a> at <var>request</var>.
             </li>
           </ol>
         </section>
@@ -4473,8 +4484,8 @@ enum IDBTransactionMode {
                 This reverts the values of <code>name</code> and <code>indexNames</code> returned by related <a>IDBObjectStore</a> objects.
 
                 <p>
-        	  Although script cannot access an <a>object store</a> by using the
-        	  <code>objectStore()</code> method on an <a>IDBTransaction</a> instance after
+                  Although script cannot access an <a>object store</a> by using the
+                  <code>objectStore()</code> method on an <a>IDBTransaction</a> instance after
                   the <a>transaction</a> is aborted, it may still have references to
                   <a>IDBObjectStore</a> instances where the <code>name</code> and <code>indexNames</code> properties
                   can be queried.
@@ -4495,8 +4506,8 @@ enum IDBTransactionMode {
                 This reverts the value of <code>name</code> returned by related <a>IDBIndex</a> objects.
 
                 <p>
-        	  Although script cannot access an <a>index</a> by using the
-        	  <code>index()</code> method on an <a>IDBObjectStore</a> instance after
+                  Although script cannot access an <a>index</a> by using the
+                  <code>index()</code> method on an <a>IDBObjectStore</a> instance after
                   the <a>transaction</a> is aborted, it may still have references to
                   <a>IDBIndex</a> instances where the <code>name</code> property
                   can be queried.
@@ -5228,7 +5239,7 @@ enum IDBTransactionMode {
             possible to create a <a>object store</a> which has a <a>key generator</a> and
             also has a <a data-lt="object store key path">key path</a> that is a sequence.
           </aside>
-	</section>
+        </section>
 
         <section class="section">
           <h4>Steps to convert a key to a value</h4>
@@ -5468,54 +5479,72 @@ enum IDBTransactionMode {
 
           <dt>Expiring stored data</dt>
           <dd>
-            <p>User agents MAY automatically delete stored data after a period
-              of time.</p>
+            <p>
+              User agents MAY automatically delete stored data after a period
+              of time.
+            </p>
 
-            <p>This can restrict the ability of a site to track a user, as the
+            <p>
+              This can restrict the ability of a site to track a user, as the
               site would then only be able to track the user across multiple
-              sessions when he authenticates with the site itself (e.g. by
-              making a purchase or logging in to a service).</p>
+              sessions when she authenticates with the site itself (e.g. by
+              making a purchase or logging in to a service).
+            </p>
 
             <p>However, this also puts the user's data at risk.</p>
           </dd>
 
           <dt>Treating persistent storage as cookies</dt>
           <dd>
-            <p>User agents should present the database feature
+            <p>
+              User agents should present the database feature
               to the user in a way that associates them strongly with HTTP
-              session cookies. [[COOKIES]]</p>
+              session cookies. [[COOKIES]]
+            </p>
 
-            <p>This might encourage users to view such storage with healthy
-              suspicion.</p>
+            <p>
+              This might encourage users to view such storage with healthy
+              suspicion.
+            </p>
           </dd>
 
           <dt>Site-specific white-listing of access to databases</dt>
           <dd>
-            <p>User agents MAY require the user to authorize access to
-              databases before a site can use the feature.</p>
+            <p>
+              User agents MAY require the user to authorize access to
+              databases before a site can use the feature.
+            </p>
           </dd>
 
           <dt>Origin-tracking of stored data</dt>
           <dd>
-            <p>User agents MAY record the <a>origins</a>
+            <p>
+              User agents MAY record the <a>origins</a>
               of sites that contained content from third-party origins that
-              caused data to be stored.</p>
+              caused data to be stored.
+            </p>
 
-            <p>If this information is then used to present the view of data
+            <p>
+              If this information is then used to present the view of data
               currently in persistent storage, it would allow the user to make
               informed decisions about which parts of the persistent storage to
               prune. Combined with a blacklist ("delete this data and prevent
               this domain from ever storing data again"), the user can restrict
-              the use of persistent storage to sites that he trusts.</p>
+              the use of persistent storage to sites that she trusts.
+            </p>
           </dd>
 
           <dt>Shared blacklists</dt>
           <dd>
-            <p>User agents MAY allow users to share their persistent storage
-              domain blacklists.</p>
+            <p>
+              User agents MAY allow users to share their persistent storage
+              domain blacklists.
+            </p>
 
-            <p>This would allow communities to act together to protect their
-              privacy.</p>
+            <p>
+              This would allow communities to act together to protect their
+              privacy.
+            </p>
           </dd>
         </dl>
 
@@ -5613,27 +5642,35 @@ enum IDBTransactionMode {
       <section id="implementation-risks" class="section">
         <h3>Implementation risks</h3>
 
-        <p>The two primary risks when implementing these persistent storage
+        <p>
+          The two primary risks when implementing these persistent storage
           features are letting hostile sites read information from other
           domains, and letting hostile sites write information that is then
-          read from other domains.</p>
+          read from other domains.
+        </p>
 
-        <p>Letting third-party sites read data that is not supposed to be
+        <p>
+          Letting third-party sites read data that is not supposed to be
           read from their domain causes <em>information leakage</em>, For
           example, a user's shopping wish list on one domain could be used by
           another domain for targeted advertising; or a user's
           work-in-progress confidential documents stored by a word-processing
-          site could be examined by the site of a competing company.</p>
+          site could be examined by the site of a competing company.
+        </p>
 
-        <p>Letting third-party sites write data to the persistent storage of
+        <p>
+          Letting third-party sites write data to the persistent storage of
           other domains can result in <em>information spoofing</em>, which is
           equally dangerous. For example, a hostile site could add records to a
           user's wish list; or a hostile site could set a user's session
           identifier to a known ID that the hostile site can then use to track
-          the user's actions on the victim site.</p>
+          the user's actions on the victim site.
+        </p>
 
-        <p>Thus, strictly following the <span>origin</span> model described
-          in this specification is important for user security.</p>
+        <p>
+          Thus, strictly following the <span>origin</span> model described
+          in this specification is important for user security.
+        </p>
       </section>
     </section> <!-- authorization -->
 
@@ -5707,16 +5744,16 @@ enum IDBTransactionMode {
     <section class="section appendix" id="acknowledgements">
       <h2>Acknowledgements</h2>
       <div>
-      	<p>
-      	  Special thanks to Nikunj Mehta, the original author of
+        <p>
+          Special thanks to Nikunj Mehta, the original author of
           the first edition, and Jonas Sicking, Eliot Graff, Andrei Popescu,
           and Jeremy Orlow, additional editors of the First Edition.
-      	</p>
-	<p>
-	  Garret Swart was extremely influential in the design of this specification.
-	</p>
-	<p>
-	  Special thanks to
+        </p>
+        <p>
+          Garret Swart was extremely influential in the design of this specification.
+        </p>
+        <p>
+          Special thanks to
           Chris Anderson,
           Pablo Castro,
           Kristof Degrave,
@@ -5752,8 +5789,8 @@ enum IDBTransactionMode {
           Zhiqiang Zhang,
           and
           Kris Zyp,
-	  all of whose feedback and suggestions have led to improvements to this specification.
-	</p>
+          all of whose feedback and suggestions have led to improvements to this specification.
+        </p>
       </div>
     </section>
   </body>
