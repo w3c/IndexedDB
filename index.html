@@ -1973,6 +1973,7 @@ interface IDBFactory {
 
             <p>
               The <dfn lt="IDBFactory.open">open(<var>name</var>, <var>version</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>
                   If <var>version</var> is 0 (zero), <a>throw</a> a <code>TypeError</code>.
@@ -2031,10 +2032,10 @@ interface IDBFactory {
                   Return a new <a>IDBOpenDBRequest</a> object for <var>request</var>.
                 </li>
               </ol>
-            </p>
 
             <p>
               The <dfn lt="IDBFactory.deleteDatabase">deleteDatabase(<var>name</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>
                   Let <var>request</var> be a new <a>open request</a>.
@@ -2072,10 +2073,11 @@ interface IDBFactory {
                   Return a new <a>IDBOpenDBRequest</a> object for <var>request</var>.
                 </li>
               </ol>
-            </p>
+
 
             <p>
               The <dfn lt="IDBFactory.cmp">cmp(<var>first</var>, <var>second</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>a</var> be the result of running the steps to <a>convert a value to a key</a> with <var>first</var>.
                   If this throws an exception, <a>rethrow</a> it.</li>
@@ -2088,7 +2090,6 @@ interface IDBFactory {
                 <li>Return the results of running the steps to <a>compare two keys</a> with <var>a</var> and <var>b</var>.</li>
               </ol>
 
-            </p>
 
         </section>
 
@@ -2111,6 +2112,11 @@ interface IDBFactory {
           </p>
 
           <pre class="idl">
+dictionary IDBObjectStoreParameters {
+             (DOMString or sequence<DOMString>)? keyPath = null;
+             boolean                             autoIncrement = false;
+};
+
 [Exposed=(Window,Worker)]
 interface IDBDatabase : EventTarget {
     readonly    attribute DOMString          name;
@@ -2118,7 +2124,7 @@ interface IDBDatabase : EventTarget {
     readonly    attribute DOMStringList      objectStoreNames;
     IDBObjectStore createObjectStore (DOMString name, optional IDBObjectStoreParameters options);
     void           deleteObjectStore (DOMString name);
-    IDBTransaction transaction ((DOMString or sequence<DOMString>) storeNames, optional IDBTransactionMode mode = "readonly");
+    IDBTransaction transaction ((DOMString or sequence&lt;DOMString&gt;) storeNames, optional IDBTransactionMode mode = "readonly");
     void           close ();
                 attribute EventHandler       onabort;
                 attribute EventHandler       onclose;
@@ -2165,6 +2171,7 @@ interface IDBDatabase : EventTarget {
 
             <p>
               The <dfn lt="IDBDatabase.createObjectStore">createObjectStore(<var>name</var>, <var>options</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
                 <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
@@ -2248,6 +2255,7 @@ interface IDBDatabase : EventTarget {
 
             <p>
               The <dfn lt="IDBDatabase.transaction">transaction(<var>storeNames</var>, <var>mode</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>If <var>mode</var> parameter is not "<code>readonly</code>" or "<code>readwrite</code>",
                   <a>throw</a> a <code>TypeError</code>.
@@ -2284,14 +2292,13 @@ interface IDBDatabase : EventTarget {
               <aside class="note">
                 The created <var>transaction</var> will follow the <a>transaction lifetime</a> rules.
               </aside>
-            </p>
 
             <p>
               The <dfn lt="IDBDatabase.close">close()</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Run the <a>steps for closing a database connection</a> with this <a>connection</a>.</li>
               </ol>
-            </p>
 
           <p>The <dfn lt="IDBDatabase.onabort">onabort</dfn> attribute is the event handler for the <code>abort</code> event.</p>
           <p>
@@ -2310,11 +2317,33 @@ interface IDBDatabase : EventTarget {
             The <a>IDBObjectStore</a>
             interface represents an <a>object store handle</a>.
           </p>
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBObjectStore">
-            <dt>attribute DOMString name</dt>
-            <dd>
+
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBObjectStore {
+                attribute DOMString      name;
+    readonly    attribute any            keyPath;
+    readonly    attribute DOMStringList  indexNames;
+    readonly    attribute IDBTransaction transaction;
+    readonly    attribute boolean        autoIncrement;
+    IDBRequest put (any value, optional any key);
+    IDBRequest add (any value, optional any key);
+    IDBRequest delete (any query);
+    IDBRequest clear ();
+    IDBRequest get (any query);
+    IDBRequest getAll (optional any query, [EnforceRange] optional unsigned long count);
+    IDBRequest getAllKeys (optional any query, [EnforceRange] optional unsigned long count);
+    IDBRequest count (optional any query);
+    IDBRequest openCursor (optional any query, optional IDBCursorDirection direction = "next");
+    IDBRequest openKeyCursor (optional any query, optional IDBCursorDirection direction = "next");
+    IDBIndex   createIndex (DOMString name, (DOMString or sequence&lt;DOMString&gt;) keyPath, optional IDBIndexParameters options);
+    IDBIndex   index (DOMString name);
+    void       deleteIndex (DOMString indexName);
+};
+          </pre>
+
               <p>
-                The <code>name</code> attribute's getter must return this
+                The <dfn lt="IDBObjectStore.name">name</dfn> attribute's getter must return this
                 <a>object store handle</a>'s <a lt="handle object store">object store</a>'s <a lt="object store name">name</a>.
 
                 <aside class="note">
@@ -2364,12 +2393,10 @@ interface IDBDatabase : EventTarget {
                   Set this <a>object store handle</a>'s <a lt="object store handle name">name</a> to <var>name</var>.
                 </li>
               </ol>
-            </dd>
 
-            <dt>readonly attribute any keyPath</dt>
-            <dd>
+
               <p>
-                The <code>keyPath</code> attribute's getter must return this
+                The <dfn lt="IDBObjectStore.keyPath">keyPath</dfn> attribute's getter must return this
                 <a>object store handle</a>'s <a lt="handle object store">object store</a>'s <a lt="object store key path">key path</a>,
                 or null if none.
               </p>
@@ -2384,11 +2411,10 @@ interface IDBDatabase : EventTarget {
                 it returns the same object instance every time it is inspected. Changing
                 the properties of the object has no effect on the <a>object store</a>.
               </p>
-            </dd>
 
-            <dt>readonly attribute DOMStringList  indexNames</dt>
-            <dd>
-              The <code>indexNames</code> attribute's getter must return
+
+              <p>
+              The <dfn lt="IDBObjectStore.indexNames">indexNames</dfn> attribute's getter must return
               a <a>sorted list</a> of the <a lt="index name">names</a> of <a>indexes</a>
               in this <a>object store handle</a>'s <a>index set</a>.
 
@@ -2400,24 +2426,22 @@ interface IDBDatabase : EventTarget {
                 Once the <a>transaction</a> has <a lt="transaction finish">finished</a>,
                 this attribute will not reflect changes made with a later <a>upgrade transaction</a>.
               </aside>
-            </dd>
+            </p>
 
-            <dt>readonly attribute IDBTransaction transaction</dt>
-            <dd>
-              The <code>transaction</code> attribute's getter must return this
+            <p>
+              The <dfn lt="IDBObjectStore.transaction">transaction</dfn> attribute's getter must return this
               <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>,
-            </dd>
+            </p>
 
-            <dt>readonly attribute boolean autoIncrement</dt>
-            <dd>
-              The <code>autoIncrement</code> attribute's getter must return true
+            <p>
+              The <dfn lt="IDBObjectStore.autoIncrement">autoIncrement</dfn> attribute's getter must return true
               if this <a>object store handle</a>'s <a lt="handle object store">object store</a>
               has a <a>key generator</a>, and false otherwise.
-            </dd>
+            </p>
 
-            <dt>IDBRequest put()</dt>
-            <dd>
-              The <code>put(<var>value</var>, <var>key</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBObjectStore.put">put(<var>value</var>, <var>key</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2470,18 +2494,11 @@ interface IDBDatabase : EventTarget {
                   <var>key</var>, and with the <var>no-overwrite flag</var> unset.
                 </li>
               </ol>
-
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The value to be stored in the <a>record</a></dd>
-                <dt>optional any key</dt>
-                <dd>The key used to identify the <a>record</a></dd>
-              </dl>
             </dd>
 
-            <dt>IDBRequest add()</dt>
-            <dd>
-              The <code>add(<var>value</var>, <var>key</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBObjectStore.add">add(<var>value</var>, <var>key</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2534,22 +2551,11 @@ interface IDBDatabase : EventTarget {
                   <var>key</var>, and with the <var>no-overwrite flag</var> set.
                 </li>
               </ol>
-              <aside class="note">
-            	To determine if a <a>transaction</a> has completed successfully,
-            	listen to the <a>transaction<a>'s <code>complete</code> event rather than the <a>request</a>’s <code>success</code> event,
-            	because the <a>transaction</a> may still fail after the <code>success</code> event fires.
-              </aside>
-              <dl class="parameters">
-                <dt>any value</dt>
-                <dd>The value to be stored in the <a>record</a></dd>
-                <dt>optional any key</dt>
-                <dd>The key used to identify the <a>record</a></dd>
-              </dl>
-            </dd>
 
-            <dt>IDBRequest delete()</dt>
-            <dd>
-              The <code>delete(<var>query</var>)</code> method, when invoked, must run these steps:
+
+            <p>
+              The <dfn lt="IDBObjectStore.delete">delete(<var>query</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2583,15 +2589,11 @@ interface IDBDatabase : EventTarget {
                 Unlike other methods which take keys or key ranges, this method does <strong>not</strong> allow null to
                 be given as key. This is to reduce the risk that a small bug would clear a whole object store.
               </aside>
-              <dl class="parameters">
-                <dt>any query</dt>
-                <dd><a>Key</a> or <a>IDBKeyRange</a> identifying the <a>records</a> to be deleted.</dd>
-              </dl>
-            </dd>
 
-            <dt>IDBRequest clear()</dt>
-            <dd>
-              The <code>clear()</code> method, when invoked, must run these steps:
+
+              <p>
+              The <dfn lt="IDBObjectStore.clear">clear()</dfn> method, when invoked, must run these steps:
+              </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2612,11 +2614,11 @@ interface IDBDatabase : EventTarget {
                   <var>store</var>.
                 </li>
               </ol>
-            </dd>
 
-            <dt>IDBRequest get()</dt>
-            <dd>
-              The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
+
+              <p>
+              The <dfn lt="IDBObjectStore.get">get(<var>query</var>)</dfn> method, when invoked, must run these steps:
+              </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2649,18 +2651,12 @@ interface IDBDatabase : EventTarget {
                 <a href="#widl-IDBObjectStore-openCursor-IDBRequest-any-range-IDBCursorDirection-direction"><code>openCursor</code></a> with the same key. This will return a cursor with
                 undefined as value if a record exists, or no cursor if no such record exists.
               </aside>
-              <dl class="parameters">
-                <dt>any query</dt>
-                <dd>Key identifying the <a>record</a> to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
-                the method retrieves the first existing value in that range.</dd>
-              </dl>
-            </dd>
 
-            <dt>IDBRequest getAll()</dt>
-            <dd>
+
+            <p>
+              The <dfn lt="IDBObjectStore.getAll">getAll(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
-
-              The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2687,23 +2683,11 @@ interface IDBDatabase : EventTarget {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a>records</a> to be retrieved.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-                <dt>[EnforceRange] optional unsigned long count</dt>
-                <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
-                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
-                all records in range will be retrieved.</dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest getAllKeys()</dt>
-            <dd>
+              <p>
+              The <dfn lt="IDBObjectStore.getAllKeys">getAllKeys(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
+              </p>
               <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
 
-              The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2730,21 +2714,10 @@ interface IDBDatabase : EventTarget {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a>records</a> to be retrieved.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-                <dt>[EnforceRange] optional unsigned long count</dt>
-                <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
-                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
-                all keys in range will be retrieved.</dd>
-              </dl>
-            </dd>
 
-            <dt>IDBRequest count()</dt>
-            <dd>
-              The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBObjectStore.count">count(<var>query</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2769,18 +2742,10 @@ interface IDBDatabase : EventTarget {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>
-                  The <a>key</a> or <a>IDBKeyRange</a> indicating the records to count.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-              </dl>
-            </dd>
 
-            <dt>IDBRequest openCursor()</dt>
-            <dd>
-              The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBObjectStore.openCursor">openCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2815,20 +2780,11 @@ interface IDBDatabase : EventTarget {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-                <dt>optional IDBCursorDirection direction = "next"</dt>
-                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
-              </dl>
-            </dd>
-            <dt>IDBRequest openKeyCursor()</dt>
-            <dd>
-              <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
 
-              The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBObjectStore.openKeyCursor">openKeyCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
+            </p>
+              <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2864,23 +2820,9 @@ interface IDBDatabase : EventTarget {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-                <dt>optional IDBCursorDirection direction = "next"</dt>
-                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
-              </dl>
-            </dd>
-
-            <dt>IDBIndex createIndex()</dt>
-            <dd>
               <p>
-                This method creates and returns a new <a>index</a> with the given name in the <a>object store</a>.
-                Note that this method must only be called from within an <a>upgrade transaction</a>.
+              The <dfn lt="IDBObjectStore.createIndex">createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</dfn> method, when invoked, must run these steps:
               </p>
-              The <code>createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -2975,25 +2917,11 @@ interface IDBDatabase : EventTarget {
                       <a lt="transaction abort">aborted</a> when the index is created and the constraint fails.
                   </p>
               </aside>
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                  <dd>The <a lt="index name">name</a> of a new <a>index</a></dd>
-                <dt>(DOMString or sequence&lt;DOMString&gt;) keyPath</dt>
-                  <dd>The <a lt="index key path">key path</a> used by the new
-                  <a>index</a>.</dd>
-                <dt>optional IDBIndexParameters options</dt>
-                  <dd>A dictionary of optional parameters to this method.
-                    <code>unique</code> specifies whether the <a>index</a>'s <a>unique flag</a> is
-                    set.
-                    <code>multiEntry</code> specifies whether the <a>index</a>'s <a>multiEntry flag</a> is
-                    set.
-                  </dd>
-              </dl>
-            </dd>
 
-            <dt>IDBIndex index()</dt>
-            <dd>
-              The <code>index(<var>name</var>)</code> method, when invoked, must run these steps:
+
+            <p>
+              The <dfn lt="IDBObjectStore.index">index(<var>name</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -3024,20 +2952,10 @@ interface IDBDatabase : EventTarget {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd>The <a lt="index name">name</a> of an existing <a>index</a></dd>
-              </dl>
-            </dd>
 
-            <dt>void deleteIndex()</dt>
-            <dd>
-              <p>
-                This method destroys the <a>index</a> with the given name in the <a>object store</a>.
-                Note that this method must only be called from within an <a>upgrade transaction</a>.
-              </p>
-
-              The <code>deleteIndex(<var>name</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn lt="IDBObjectStore.deleteIndex">deleteIndex(<var>name</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a lt="object store handle transaction">transaction</a>.</li>
 
@@ -3075,20 +2993,8 @@ interface IDBDatabase : EventTarget {
                 Although this method does not return an <a>IDBRequest</a> object, the index destruction itself is
                 processed as an asynchronous request within the <a>upgrade transaction</a>.
               </p>
-              <dl class="parameters">
-                <dt>DOMString indexName</dt>
-                <dd>The <a lt="index name">name</a> of an existing <a>index</a></dd>
-              </dl>
-            </dd>
 
-          </dl>
 
-          <dl class="idl" title="dictionary IDBObjectStoreParameters">
-            <dt>(DOMString or sequence&lt;DOMString&gt;)? keyPath = null
-            <dd>
-            <dt>boolean autoIncrement = false
-            <dd>
-          </dl>
         </section>
 
         <section class="section" id="index">
