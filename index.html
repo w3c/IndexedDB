@@ -1896,29 +1896,34 @@ interface IDBOpenDBRequest : IDBRequest {
             This specification fires events with the following custom interfaces:
           </p>
 
-          <dl class="idl" title="[Exposed=(Window,Worker), Constructor(DOMString type, optional IDBVersionChangeEventInit eventInitDict)] interface IDBVersionChangeEvent : Event">
-            <dt>readonly attribute unsigned long long oldVersion</dt>
-            <dd>The previous version of the database.
-            <dt>readonly attribute unsigned long long? newVersion</dt>
-            <dd>The new version of the database, or null if the database is being deleted.
-            See the <a>steps for running an upgrade transaction</a>.</dd>
-          </dl>
+          <pre class="idl">
+dictionary IDBVersionChangeEventInit : EventInit {
+             unsigned long long  oldVersion = 0;
+             unsigned long long? newVersion = null;
+};
+
+[Exposed=(Window,Worker), Constructor(DOMString type, optional IDBVersionChangeEventInit eventInitDict)]
+interface IDBVersionChangeEvent : Event {
+    readonly    attribute unsigned long long  oldVersion;
+    readonly    attribute unsigned long long? newVersion;
+};
+          </pre>
+
           <p>
-            The
-            <a href="#widl-IDBVersionChangeEvent-oldVersion"><code>oldVersion</code></a>
-            and <a href="#widl-IDBVersionChangeEvent-newVersion"><code>newVersion</code></a> attributes
-            must return the value they were initialized to.
+            The <dfn lt="IDBVersionChangeEvent.oldVersion">oldVersion</dfn>
+            attribute getter returns the previous version of the database.
           </p>
+          <p>
+            The <dfn lt="IDBVersionChangeEvent.newVersion">newVersion</dfn>
+            attribute getter returns the new version of the database,
+            or null if the database is being deleted.
+            See the <a>steps for running an upgrade transaction</a>.
+          </p>
+
           <p>
           	Events are constructed as defined in <a href="http://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#constructing-events">Constructing events</a>,
           	in [[!DOM4]].
           </p>
-          <dl class="idl" title="dictionary IDBVersionChangeEventInit : EventInit">
-            <dt>unsigned long long oldVersion = 0
-            <dd>
-            <dt>unsigned long long? newVersion = null
-            <dd>
-          </dl>
 
           <p>
             To <dfn lt="fire a version change event">fire a version change event named <var>e</var></dfn> at <var>target</var>
