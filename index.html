@@ -1897,15 +1897,15 @@ interface IDBOpenDBRequest : IDBRequest {
           </p>
 
           <pre class="idl">
-dictionary IDBVersionChangeEventInit : EventInit {
-             unsigned long long  oldVersion = 0;
-             unsigned long long? newVersion = null;
-};
-
 [Exposed=(Window,Worker), Constructor(DOMString type, optional IDBVersionChangeEventInit eventInitDict)]
 interface IDBVersionChangeEvent : Event {
     readonly    attribute unsigned long long  oldVersion;
     readonly    attribute unsigned long long? newVersion;
+};
+
+dictionary IDBVersionChangeEventInit : EventInit {
+             unsigned long long  oldVersion = 0;
+             unsigned long long? newVersion = null;
 };
           </pre>
 
@@ -2112,11 +2112,6 @@ interface IDBFactory {
           </p>
 
           <pre class="idl">
-dictionary IDBObjectStoreParameters {
-             (DOMString or sequence&lt;DOMString&gt;)? keyPath = null;
-             boolean                             autoIncrement = false;
-};
-
 [Exposed=(Window,Worker)]
 interface IDBDatabase : EventTarget {
     readonly    attribute DOMString          name;
@@ -2130,6 +2125,11 @@ interface IDBDatabase : EventTarget {
                 attribute EventHandler       onclose;
                 attribute EventHandler       onerror;
                 attribute EventHandler       onversionchange;
+};
+
+dictionary IDBObjectStoreParameters {
+             (DOMString or sequence&lt;DOMString&gt;)? keyPath = null;
+             boolean                             autoIncrement = false;
 };
           </pre>
 
@@ -2338,6 +2338,11 @@ interface IDBObjectStore {
     IDBIndex   createIndex (DOMString name, (DOMString or sequence&lt;DOMString&gt;) keyPath, optional IDBIndexParameters options);
     IDBIndex   index (DOMString name);
     void       deleteIndex (DOMString indexName);
+};
+
+dictionary IDBIndexParameters {
+             boolean unique = false;
+             boolean multiEntry = false;
 };
           </pre>
 
@@ -3395,13 +3400,6 @@ interface IDBObjectStore {
               </dl>
             </dd>
 
-          </dl>
-
-          <dl class="idl" title="dictionary IDBIndexParameters">
-            <dt>boolean unique = false
-            <dd>
-            <dt>boolean multiEntry = false
-            <dd>
           </dl>
         </section>
 
