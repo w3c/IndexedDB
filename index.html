@@ -1348,7 +1348,7 @@ request.onsuccess = function() {
 
           <p>
             A <a>cursor</a> has a <dfn data-lt="cursor transaction">transaction</dfn>, the <a>transaction</a> that was
-            <a data-lt="transaction active">active</a> when the cursor was created.
+            <a>active</a> when the cursor was created.
           </p>
           <p>
             A <a>cursor</a> has a <dfn>range</dfn> of records in either an <a>index</a> or an <a>object store</a>.
@@ -3007,11 +3007,26 @@ dictionary IDBIndexParameters {
             The <a>IDBIndex</a> interface represents an <a>index handle</a>.
           </p>
 
-          <dl class="idl" title="[Exposed=(Window,Worker)] interface IDBIndex">
-            <dt>attribute DOMString name</dt>
-            <dd>
+          <pre class="idl">
+[Exposed=(Window,Worker)]
+interface IDBIndex {
+                attribute DOMString      name;
+    readonly    attribute IDBObjectStore objectStore;
+    readonly    attribute any            keyPath;
+    readonly    attribute boolean        multiEntry;
+    readonly    attribute boolean        unique;
+    IDBRequest get (any query);
+    IDBRequest getKey (any query);
+    IDBRequest getAll (optional any query, [EnforceRange] optional unsigned long count);
+    IDBRequest getAllKeys (optional any query, [EnforceRange] optional unsigned long count);
+    IDBRequest count (optional any query);
+    IDBRequest openCursor (optional any query, optional IDBCursorDirection direction = "next");
+    IDBRequest openKeyCursor (optional any query, optional IDBCursorDirection direction = "next");
+};
+          </pre>
+
               <p>
-                The <code>name</code> attribute's getter must return
+                The <dfn data-lt="IDBIndex.name">name</dfn> attribute's getter must return
                 this <a>index handle</a>'s <a data-lt="handle index">index</a>'s <a data-lt="index name">name</a>.
               </p>
 
@@ -3059,19 +3074,15 @@ dictionary IDBIndexParameters {
                   Set this <a>index handle</a>'s <a data-lt="index handle name">name</a> to <var>name</var>.
                 </li>
               </ol>
-            </dd>
 
-            <dt>readonly attribute IDBObjectStore objectStore</dt>
-            <dd>
-              The <code>objectStore</code> attribute's getter
+            <p>
+              The <dfn data-lt="IDBIndex.objectStore">objectStore</dfn> attribute's getter
               must return this <a>index handle</a>'s
               <a data-lt="index handle object store">object store handle</a>.
-            </dd>
+            </p>
 
-            <dt>readonly attribute any keyPath</dt>
-            <dd>
               <p>
-                The <code>keyPath</code> attribute's getter must return
+                The <dfn data-lt="IDBIndex.keyPath">keyPath</dfn> attribute's getter must return
                 this <a>index handle</a>'s <a data-lt="handle index">index</a>'s <a data-lt="object store key path">key path</a>.
               </p>
               <p>
@@ -3085,25 +3096,23 @@ dictionary IDBIndexParameters {
                 it returns the same object instance every time it is inspected. Changing
                 the properties of the object has no effect on the <a>index</a>.
               </p>
-            </dd>
 
-            <dt>readonly attribute boolean multiEntry</dt>
-            <dd>
-              The <code>multiEntry</code> attribute's getter must return true if this
+
+            <p>
+              The <dfn data-lt="IDBIndex.multiEntry">multiEntry</dfn> attribute's getter must return true if this
               <a>index handle</a>'s <a data-lt="handle index">index</a>'s
               <a>multiEntry flag</a> is set, and false otherwise.
-            </dd>
+            </p>
 
-            <dt>readonly attribute boolean unique</dt>
-            <dd>
-              The <code>unique</code> attribute's getter must return true if this
+            <p>
+              The <dfn data-lt="IDBIndex.unique">unique</dfn> attribute's getter must return true if this
               <a>index handle</a>'s <a data-lt="handle index">index</a>'s
               <a>unique flag</a> is set, and false otherwise.
-            </dd>
+            </p>
 
-            <dt>IDBRequest get()</dt>
-            <dd>
-              The <code>get(<var>query</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn data-lt="IDBIndex.get">get(<var>query</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3137,20 +3146,9 @@ dictionary IDBIndexParameters {
                 undefined as value if a record exists, or no cursor if no such record exists.
               </aside>
 
-              <dl class="parameters">
-                <dt>any query</dt>
-                <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
-                the method retrieves the first existing value in that range.</dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest getKey()</dt>
-            <dd>
               <p>
-                Gets the <a>key</a> of the <a>record</a> from the referenced <a>object store</a> entry.
+              The <dfn data-lt="IDBIndex.getKey">getKey(<var>query</var>)</dfn> method, when invoked, must run these steps:
               </p>
-
-              The <code>getKey(<var>query</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3177,18 +3175,10 @@ dictionary IDBIndexParameters {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>any query</dt>
-                <dd>Key identifying the record to be retrieved. This can also be an <a>IDBKeyRange</a> in which case
-                the method retrieves the first existing value in that range.</dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest getAll()</dt>
-            <dd>
+              <p>
+              The <dfn data-lt="IDBIndex.getAll">getAll(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
+              </p>
               <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
-
-              The <code>getAll(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3215,23 +3205,10 @@ dictionary IDBIndexParameters {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a>records</a> to be retrieved.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-                <dt>[EnforceRange] optional unsigned long count</dt>
-                <dd>The maximum number of <a>record</a> values to be retrieved. If more records are in
-                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
-                all records in range will be retrieved.</dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest getAllKeys()</dt>
-            <dd>
+            <p>
+              The <dfn data-lt="IDBIndex.getAllKeys">getAllKeys(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <aside class="note">&#9752; This method is new in this edition. &#9752;</aside>
-
-              The <code>getAllKeys(<var>query</var>, <var>count</var>)</code> method, when invoked, must run these steps:
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3258,21 +3235,9 @@ dictionary IDBIndexParameters {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>Key or <a>IDBKeyRange</a> identifying the <a>records</a> to be retrieved.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-                <dt>[EnforceRange] optional unsigned long count</dt>
-                <dd>The maximum number of <a>record</a> keys to be retrieved. If more keys are in
-                range than are specified, only the first <var>count</var> will be retrieved. If not specified,
-                all keys in range will be retrieved.</dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest count()</dt>
-            <dd>
-              The <code>count(<var>query</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn data-lt="IDBIndex.count">count(<var>query</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3297,18 +3262,9 @@ dictionary IDBIndexParameters {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>
-                  <a>Key</a> or <a>IDBKeyRange</a> identifying the records to be counted.
-                  If null or not given, an <a>unbounded key range</a> is used.
-                </dd>
-              </dl>
-            </dd>
-
-            <dt>IDBRequest openCursor()</dt>
-            <dd>
-              The <code>openCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+            <p>
+              The <dfn data-lt="IDBIndex.openCursor">openCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3343,18 +3299,10 @@ dictionary IDBIndexParameters {
                 </li>
               </ol>
 
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
-                  If null or not given, all records are counted.
-                </dd>
-                <dt>optional IDBCursorDirection direction = "next"</dt>
-                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
-              </dl>
-            </dd>
-            <dt>IDBRequest openKeyCursor()</dt>
-            <dd>
-              The <code>openKeyCursor(<var>query</var>, <var>direction</var>)</code> method, when invoked, must run these steps:
+
+            <p>
+              The <dfn data-lt="IDBIndex.openKeyCursor">openKeyCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
+            </p>
               <ol>
                 <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="index handle transaction">transaction</a>.</li>
 
@@ -3389,18 +3337,6 @@ dictionary IDBIndexParameters {
                   <a>steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.
                 </li>
               </ol>
-
-              <dl class="parameters">
-                <dt>optional any query</dt>
-                <dd>The <a>key</a> or <a>IDBKeyRange</a> to use as the <a>cursor</a>'s <a>range</a>.
-                  If null or not given, all records are counted.
-                </dd>
-                <dt>optional IDBCursorDirection direction = "next"</dt>
-                <dd>The <a>cursor</a>'s required <a>direction</a></dd>
-              </dl>
-            </dd>
-
-          </dl>
         </section>
 
         <section class="section" id="keyrange">
