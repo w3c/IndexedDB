@@ -1830,6 +1830,8 @@ interface IDBRequest : EventTarget {
     readonly    attribute (IDBObjectStore or IDBIndex or IDBCursor)? source;
     readonly    attribute IDBTransaction                             transaction;
     readonly    attribute IDBRequestReadyState                       readyState;
+
+    // Event handlers:
                 attribute EventHandler                               onsuccess;
                 attribute EventHandler                               onerror;
 };
@@ -1889,6 +1891,7 @@ enum IDBRequestReadyState {
           <pre class="idl">
 [Exposed=(Window,Worker)]
 interface IDBOpenDBRequest : IDBRequest {
+    // Event handlers:
                 attribute EventHandler onblocked;
                 attribute EventHandler onupgradeneeded;
 };
@@ -1914,8 +1917,8 @@ interface IDBVersionChangeEvent : Event {
 };
 
 dictionary IDBVersionChangeEventInit : EventInit {
-             unsigned long long  oldVersion = 0;
-             unsigned long long? newVersion = null;
+    unsigned long long  oldVersion = 0;
+    unsigned long long? newVersion = null;
 };
           </pre>
 
@@ -1977,6 +1980,7 @@ WorkerUtils implements IDBEnvironment;
 interface IDBFactory {
     IDBOpenDBRequest open(DOMString name, [EnforceRange] optional unsigned long long version);
     IDBOpenDBRequest deleteDatabase(DOMString name);
+
     short            cmp(any first, any second);
 };
           </pre>
@@ -2127,10 +2131,14 @@ interface IDBDatabase : EventTarget {
     readonly    attribute DOMString          name;
     readonly    attribute unsigned long long version;
     readonly    attribute DOMStringList      objectStoreNames;
-    IDBObjectStore createObjectStore(DOMString name, optional IDBObjectStoreParameters options);
-    void           deleteObjectStore(DOMString name);
+
     IDBTransaction transaction((DOMString or sequence&lt;DOMString&gt;) storeNames, optional IDBTransactionMode mode = "readonly");
     void           close();
+
+    IDBObjectStore createObjectStore(DOMString name, optional IDBObjectStoreParameters options);
+    void           deleteObjectStore(DOMString name);
+
+    // Event handlers:
                 attribute EventHandler       onabort;
                 attribute EventHandler       onclose;
                 attribute EventHandler       onerror;
@@ -2138,8 +2146,8 @@ interface IDBDatabase : EventTarget {
 };
 
 dictionary IDBObjectStoreParameters {
-             (DOMString or sequence&lt;DOMString&gt;)? keyPath = null;
-             boolean                             autoIncrement = false;
+    (DOMString or sequence&lt;DOMString&gt;)? keyPath = null;
+    boolean                             autoIncrement = false;
 };
           </pre>
 
@@ -2344,6 +2352,7 @@ interface IDBObjectStore {
     readonly    attribute DOMStringList  indexNames;
     readonly    attribute IDBTransaction transaction;
     readonly    attribute boolean        autoIncrement;
+
     IDBRequest put(any value, optional any key);
     IDBRequest add(any value, optional any key);
     IDBRequest delete(any query);
@@ -2352,16 +2361,19 @@ interface IDBObjectStore {
     IDBRequest getAll(optional any query, [EnforceRange] optional unsigned long count);
     IDBRequest getAllKeys(optional any query, [EnforceRange] optional unsigned long count);
     IDBRequest count(optional any query);
+
     IDBRequest openCursor(optional any query, optional IDBCursorDirection direction = "next");
     IDBRequest openKeyCursor(optional any query, optional IDBCursorDirection direction = "next");
-    IDBIndex   createIndex(DOMString name, (DOMString or sequence&lt;DOMString&gt;) keyPath, optional IDBIndexParameters options);
+
     IDBIndex   index(DOMString name);
+
+    IDBIndex   createIndex(DOMString name, (DOMString or sequence&lt;DOMString&gt;) keyPath, optional IDBIndexParameters options);
     void       deleteIndex(DOMString indexName);
 };
 
 dictionary IDBIndexParameters {
-             boolean unique = false;
-             boolean multiEntry = false;
+    boolean unique = false;
+    boolean multiEntry = false;
 };
           </pre>
 
@@ -3079,11 +3091,13 @@ interface IDBIndex {
     readonly    attribute any            keyPath;
     readonly    attribute boolean        multiEntry;
     readonly    attribute boolean        unique;
+
     IDBRequest get(any query);
     IDBRequest getKey(any query);
     IDBRequest getAll(optional any query, [EnforceRange] optional unsigned long count);
     IDBRequest getAllKeys(optional any query, [EnforceRange] optional unsigned long count);
     IDBRequest count(optional any query);
+
     IDBRequest openCursor(optional any query, optional IDBCursorDirection direction = "next");
     IDBRequest openKeyCursor(optional any query, optional IDBCursorDirection direction = "next");
 };
@@ -3459,6 +3473,8 @@ interface IDBKeyRange {
     readonly    attribute any     upper;
     readonly    attribute boolean lowerOpen;
     readonly    attribute boolean upperOpen;
+
+    // Static construction methods:
     static IDBKeyRange only(any value);
     static IDBKeyRange lowerBound(any lower, optional boolean open = false);
     static IDBKeyRange upperBound(any upper, optional boolean open = false);
@@ -3572,10 +3588,12 @@ interface IDBCursor {
     readonly    attribute IDBCursorDirection           direction;
     readonly    attribute any                          key;
     readonly    attribute any                          primaryKey;
-    IDBRequest update(any value);
+
     void       advance([EnforceRange] unsigned long count);
     void       continue(optional any key);
     void       continuePrimaryKey(any key, any primaryKey);
+
+    IDBRequest update(any value);
     IDBRequest delete();
 };
 
@@ -3911,8 +3929,11 @@ interface IDBTransaction : EventTarget {
     readonly    attribute IDBTransactionMode mode;
     readonly    attribute IDBDatabase        db;
     readonly    attribute DOMException       error;
+
     IDBObjectStore objectStore(DOMString name);
     void           abort();
+
+    // Event handlers:
                 attribute EventHandler       onabort;
                 attribute EventHandler       oncomplete;
                 attribute EventHandler       onerror;
