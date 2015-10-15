@@ -2356,6 +2356,7 @@ interface IDBObjectStore {
     IDBRequest delete(any query);
     IDBRequest clear();
     IDBRequest get(any query);
+    IDBRequest getKey(any query);
     IDBRequest getAll(optional any query, [EnforceRange] optional unsigned long count);
     IDBRequest getAllKeys(optional any query, [EnforceRange] optional unsigned long count);
     IDBRequest count(optional any query);
@@ -2693,6 +2694,42 @@ dictionary IDBIndexParameters {
             undefined as value if a record exists, or no cursor if no such record exists.
           </aside>
 
+
+          <p>
+            The <dfn data-lt-noDefault data-lt="IDBObjectStore.getKey">getKey(<var>query</var>)</dfn> method, when invoked, must run these steps:
+          </p>
+          <ol>
+            <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
+
+            <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
+
+            <li>If <var>store</var> has been deleted,
+              <a>throw</a> an <a>InvalidStateError</a> exception.</li>
+
+            <li>If <var>transaction</var> is not <a>active</a>,
+              <a>throw</a> a <a>TransactionInactiveError</a> exception.</li>
+
+            <li>Let <var>range</var> be the result of running
+              the steps to <a>convert a value to a key range</a>
+              with <var>query</var> and <var>null disallowed flag</var> set.
+              If this throws an exception, <a>rethrow</a> it.
+            </li>
+
+            <li>
+              Run the <a>steps for asynchronously executing
+              a request</a> and return the <a>IDBRequest</a> created by these steps. The steps are run with this
+              <a>object store handle</a> as <var>source</var> and the <a>steps for retrieving a key from an
+                object store</a> as <var>operation</var>, using <var>store</var> and
+              <var>range</var>.
+            </li>
+          </ol>
+          <p>
+            The <var>query</var> parameter may be a <a>key</a> or an
+            <a>IDBKeyRange</a> identifying the <a>record</a> key to be
+            retrieved. If a range is specified, the method retrieves
+            the first existing key in that range.
+          </p>
+          <aside class="note">&#9752; The <a>IDBObjectStore.getKey</a> method is new in this edition. &#9752;</aside>
 
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.getAll">getAll(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
@@ -4801,6 +4838,26 @@ enum IDBTransactionMode {
           </ol>
 
           <p>
+            The <dfn>steps for retrieving a key from an object store</dfn> with
+            <var>store</var> and <var>range</var> are as follows:
+          </p>
+
+          <ol>
+            <li>
+              Let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a data-lt="object store record list">list of records</a>
+              whose key is <a data-lt="in a key range">in</a> <var>range</var>,
+              if any.
+            </li>
+            <li>
+              If <var>record</var> was not found, return undefined.
+            </li>
+            <li>
+              Return <var>record</var>'s key.
+            </li>
+          </ol>
+
+
+          <p>
             The <dfn>steps for retrieving multiple keys from an object store</dfn> with
             <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
@@ -5775,6 +5832,9 @@ enum IDBTransactionMode {
         </li>
         <li>Added <a>IDBKeyRange.includes</a>.
           (<a href="https://github.com/w3c/IndexedDB/issues/41">bug #41</a>)
+        </li>
+        <li>Added <a>IDBObjectStore.getKey</a>.
+          (<a href="https://github.com/w3c/IndexedDB/issues/26">bug #26</a>)
         </li>
       </ul>
     </section>
