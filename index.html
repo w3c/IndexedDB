@@ -11,7 +11,7 @@
 
       shortName:            "IndexedDB",
 
-      publishDate:          "2015-10-08",
+      publishDate:          "2015-12-01",
 
       previousPublishDate:  "2015-01-08",
       previousMaturity:     "TR",
@@ -73,11 +73,41 @@
     .note, .issue { padding: 0em 1.2em !important; }
     .note-title, .issue-title { float: left; min-width: 0 !important; }
 
-    /* Switch statement */
-    dl.switch dt::before {
-      content: "↪ ";
+    /* Style for algorithms */
+    ol.algorithm ol {
+      border-left: 1px solid #90b8de;
       margin-left: 1em;
     }
+    ol.algorithm ol.algorithm {
+      border-left: none;
+      margin-left: 0;
+    }
+
+    /* Style for switch/case <dl>s */
+    dl.switch > dd > ol.only {
+       margin-left: 0;
+      }
+    dl.switch > dd > ol.algorithm {
+       margin-left: -2em;
+      }
+    dl.switch {
+       padding-left: 2em;
+      }
+    dl.switch > dt {
+       text-indent: -1.5em;
+       margin-top: 1em;
+      }
+    dl.switch > dt + dt {
+       margin-top: 0;
+      }
+    dl.switch > dt::before {
+       content: '\21AA';
+       padding: 0 0.5em 0 0;
+       display: inline-block;
+       width: 1em;
+       text-align: right;
+       line-height: 0.5em;
+      }
 
     /* Reduce noise, allow var to shine through */
     dfn code {
@@ -644,7 +674,7 @@ request.onsuccess = function() {
             To <dfn>compare two keys</dfn> <var>a</var> and <var>b</var>, run these steps:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>ta</var> be the <a data-lt="key.type">type</a> of <var>a</var>.</li>
             <li>Let <var>tb</var> be the <a data-lt="key.type">type</a> of <var>b</var>.</li>
 
@@ -1318,7 +1348,7 @@ request.onsuccess = function() {
             The steps to <dfn>convert a value to a key range</dfn> with <var>value</var>
             and optional <var>null allowed flag</var> are as follows:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               If <var>value</var> is a <a>key range</a>, return <var>value</var>.
             </li>
@@ -1987,7 +2017,7 @@ interface IDBFactory {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBFactory.open">open(<var>name</var>, <var>version</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               If <var>version</var> is 0 (zero), <a>throw</a> a <code>TypeError</code>.
             </li>
@@ -2049,7 +2079,7 @@ interface IDBFactory {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBFactory.deleteDatabase">deleteDatabase(<var>name</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>request</var> be a new <a>open request</a>.
             </li>
@@ -2091,7 +2121,7 @@ interface IDBFactory {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBFactory.cmp">cmp(<var>first</var>, <var>second</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>a</var> be the result of running the steps to <a>convert a value to a key</a> with <var>first</var>.
               If this throws an exception, <a>rethrow</a> it.</li>
             <li>If <var>a</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
@@ -2189,7 +2219,7 @@ dictionary IDBObjectStoreParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBDatabase.createObjectStore">createObjectStore(<var>name</var>, <var>options</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
               <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
                 <var>database</var>, or <a>throw</a> an <a>InvalidStateError</a> exception if none.
@@ -2248,7 +2278,7 @@ dictionary IDBObjectStoreParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBDatabase.deleteObjectStore">deleteObjectStore(<var>name</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>database</var> be the <a>database</a> associated with this <a>connection</a>.
               <li>Let <var>transaction</var> be the currently running <a>upgrade transaction</a> associated with
                 <var>database</var>, or <a>throw</a> an <a>InvalidStateError</a> exception if none.
@@ -2280,7 +2310,7 @@ dictionary IDBObjectStoreParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBDatabase.transaction">transaction(<var>storeNames</var>, <var>mode</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>If <var>mode</var> parameter is not "<code>readonly</code>" or "<code>readwrite</code>",
               <a>throw</a> a <code>TypeError</code>.
             </li>
@@ -2320,7 +2350,7 @@ dictionary IDBObjectStoreParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBDatabase.close">close()</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Run the <a>steps for closing a database connection</a> with this <a>connection</a>.</li>
           </ol>
 
@@ -2393,7 +2423,7 @@ dictionary IDBIndexParameters {
           <p>
             The <code>name</code> attribute's setter must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>name</var> be the given value.</li>
 
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
@@ -2477,7 +2507,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.put">put(<var>value</var>, <var>key</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2533,7 +2563,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.add">add(<var>value</var>, <var>key</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2590,7 +2620,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.delete">delete(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2632,7 +2662,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.clear">clear()</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2657,7 +2687,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.get">get(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2699,7 +2729,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.getKey">getKey(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2735,7 +2765,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.getAll">getAll(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2773,7 +2803,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.getAllKeys">getAllKeys(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2812,7 +2842,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.count">count(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2846,7 +2876,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.openCursor">openCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2889,7 +2919,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.openKeyCursor">openKeyCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -2933,7 +2963,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.createIndex">createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -3034,7 +3064,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.index">index(<var>name</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -3072,7 +3102,7 @@ dictionary IDBIndexParameters {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBObjectStore.deleteIndex">deleteIndex(<var>name</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>store</var> be this <a>object store handle</a>'s <a data-lt="objectStoreHandle.objectStore">object store</a>.</li>
@@ -3158,7 +3188,7 @@ interface IDBIndex {
           <p>
             The <code>name</code> attribute's setter must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>name</var> be the given value.</li>
 
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
@@ -3231,7 +3261,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.get">get(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3273,7 +3303,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.getKey">getKey(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3308,7 +3338,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.getAll">getAll(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3346,7 +3376,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.getAllKeys">getAllKeys(<var>query</var>, <var>count</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3384,7 +3414,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.count">count(<var>query</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3417,7 +3447,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.openCursor">openCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3459,7 +3489,7 @@ interface IDBIndex {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBIndex.openKeyCursor">openKeyCursor(<var>query</var>, <var>direction</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>index handle</a>'s <a data-lt="indexHandle.transaction">transaction</a>.</li>
 
             <li>Let <var>index</var> be this <a>index handle</a>'s <a data-lt="indexHandle.index">index</a>.</li>
@@ -3549,7 +3579,7 @@ interface IDBKeyRange {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBKeyRange.only">only(<var>value</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>key</var> be the result of running the steps to <a>convert a value to a key</a> with <var>value</var>.
               If this throws an an exception, <a>rethrow</a> it.</li>
             <li>If <var>key</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
@@ -3560,7 +3590,7 @@ interface IDBKeyRange {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBKeyRange.lowerBound">lowerBound(<var>lower</var>, <var>lowerOpen</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>lower</var>.
               If this throws an an exception, <a>rethrow</a> it.</li>
             <li>If <var>lowerKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
@@ -3577,7 +3607,7 @@ interface IDBKeyRange {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBKeyRange.upperBound">upperBound(<var>upper</var>, <var>upperOpen</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>upperKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>upper</var>.
               If this throws an an exception, <a>rethrow</a> it.</li>
             <li>If <var>upperKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
@@ -3593,7 +3623,7 @@ interface IDBKeyRange {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBKeyRange.bound">bound(<var>lower</var>, <var>upper</var>, <var>lowerOpen</var>, <var>upperOpen</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>lowerKey</var> be the result of running the steps to <a>convert a value to a key</a> with <var>lower</var>.
               If this throws an an exception, <a>rethrow</a> it.</li>
             <li>If <var>lowerKey</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
@@ -3615,7 +3645,7 @@ interface IDBKeyRange {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBKeyRange.includes">includes(<var>key</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>k</var> be the result of running the steps to <a>convert a value to a key</a> with <var>key</var>.
               If this throws an an exception, <a>rethrow</a> it.</li>
             <li>If <var>k</var> is invalid, <a>throw</a> a <a>DataError</a> exception.</li>
@@ -3695,7 +3725,7 @@ enum IDBCursorDirection {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBCursor.update">update(<var>value</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>cursor</a>'s <a data-lt="cursor.transaction">transaction</a>.</li>
 
             <li>If <var>transaction</var> is not <a>active</a>,
@@ -3744,7 +3774,7 @@ enum IDBCursorDirection {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBCursor.advance">advance(<var>count</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>If <var>count</var> is 0 (zero),
               <a>throw</a> a <code>TypeError</code>.
 
@@ -3786,7 +3816,7 @@ enum IDBCursorDirection {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBCursor.continue">continue(<var>key</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>cursor</a>'s <a data-lt="cursor.transaction">transaction</a>.</li>
 
             <li>If <var>transaction</var> is not <a>active</a>,
@@ -3842,7 +3872,7 @@ enum IDBCursorDirection {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBCursor.continuePrimaryKey">continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>cursor</a>'s <a data-lt="cursor.transaction">transaction</a>.</li>
 
             <li>If <var>transaction</var> is not <a>active</a>,
@@ -3917,7 +3947,7 @@ enum IDBCursorDirection {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBCursor.delete">delete()</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>transaction</var> be this <a>cursor</a>'s <a data-lt="cursor.transaction">transaction</a>.</li>
 
             <li>If <var>transaction</var> is not <a>active</a>,
@@ -4001,7 +4031,7 @@ enum IDBTransactionMode {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBTransaction.objectStoreNames">objectStoreNames</dfn> attribute's getter must run the following steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               If this <a>transaction</a> is an <a>upgrade transaction</a>, return a
               <a>sorted list</a> of the <a data-lt="objectStore.name">names</a>
@@ -4050,7 +4080,7 @@ enum IDBTransactionMode {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBTransaction.objectStore">objectStore(<var>name</var>)</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>If <var>transaction</var> has <a data-lt="transaction finish">finished</a>,
               <a>throw</a> an <a>InvalidStateError</a> exception.</li>
 
@@ -4075,7 +4105,7 @@ enum IDBTransactionMode {
           <p>
             The <dfn data-lt-noDefault data-lt="IDBTransaction.abort">abort()</dfn> method, when invoked, must run these steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>If this <a>transaction</a> is <a data-lt="transaction finish">finished</a>,
               <a>throw</a> an <a>InvalidStateError</a> exception.
             </li>
@@ -4112,7 +4142,7 @@ enum IDBTransactionMode {
             and a <var>request</var>.
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>db</var> be the <a>database</a> <a data-lt="database.name">named</a> <var>name</var> in the
               origin <var>origin</var>, or null otherwise.
@@ -4192,39 +4222,40 @@ enum IDBTransactionMode {
           <p>The <dfn>steps for closing a database connection</dfn> are as follows.
             These steps take two arguments, a <var>connection</var> object, and an
             optional <var>forced flag</var>.
-            <ol>
-              <li>
-                Set the <a>close pending flag</a> of <var>connection</var>.
-              </li>
-              <li>
-                If the <var>forced flag</var> is set, then for each <var>transaction</var> <a data-lt="transaction create">created</a>
-                using <var>connection</var> run the <a>steps for aborting a transaction</a> with
-                <var>transaction</var> and newly created <a>AbortError</a> exception.
-              </li>
-              <li>
-                Wait for all transactions <a data-lt="transaction create">created</a> using <var>connection</var> to complete.
-                Once they are complete, <var>connection</var> is <a data-lt="database close">closed</a>.
-              </li>
-              <li>
-                If the <var>forced flag</var> is set, then fire a <code>close</code> event at
-                <var>connection</var>. The event MUST use the <a>Event</a> interface and have its
-                type set to "<code>close</code>". The event MUST NOT bubble or be cancelable.
+          </p>
+          <ol class=algorithm>
+            <li>
+              Set the <a>close pending flag</a> of <var>connection</var>.
+            </li>
+            <li>
+              If the <var>forced flag</var> is set, then for each <var>transaction</var> <a data-lt="transaction create">created</a>
+              using <var>connection</var> run the <a>steps for aborting a transaction</a> with
+              <var>transaction</var> and newly created <a>AbortError</a> exception.
+            </li>
+            <li>
+              Wait for all transactions <a data-lt="transaction create">created</a> using <var>connection</var> to complete.
+              Once they are complete, <var>connection</var> is <a data-lt="database close">closed</a>.
+            </li>
+            <li>
+              If the <var>forced flag</var> is set, then fire a <code>close</code> event at
+              <var>connection</var>. The event MUST use the <a>Event</a> interface and have its
+              type set to "<code>close</code>". The event MUST NOT bubble or be cancelable.
 
-                <aside class="note">&#9752; This behavior is new in this edition. &#9752;</aside>
-              </li>
-            </ol>
-            <aside class="note">
-              Once the <a>close pending flag</a> has been set no new transactions can be
-              <a data-lt="transaction create">created</a> using <var>connection</var>. All methods that
-              <a data-lt="transaction create">create</a> transactions first check the <a>close pending flag</a> first and
-              throw an exception if it is set.
-            </aside>
-            <aside class="note">
-              Once the <a>connection</a> is closed, this can unblock the <a>steps for running an upgrade
-              transaction</a>, and the <a>steps for deleting a database</a>, which <a href="#delete-close-block">both</a>
-              <a href="#version-change-close-block">wait</a> for <a>connections</a> to a given <a>database</a> to be closed
-              before continuing.
-            </aside>
+              <aside class="note">&#9752; This behavior is new in this edition. &#9752;</aside>
+            </li>
+          </ol>
+          <aside class="note">
+            Once the <a>close pending flag</a> has been set no new transactions can be
+            <a data-lt="transaction create">created</a> using <var>connection</var>. All methods that
+            <a data-lt="transaction create">create</a> transactions first check the <a>close pending flag</a> first and
+            throw an exception if it is set.
+          </aside>
+          <aside class="note">
+            Once the <a>connection</a> is closed, this can unblock the <a>steps for running an upgrade
+            transaction</a>, and the <a>steps for deleting a database</a>, which <a href="#delete-close-block">both</a>
+            <a href="#version-change-close-block">wait</a> for <a>connections</a> to a given <a>database</a> to be closed
+            before continuing.
+          </aside>
         </section>
 
         <section class="section">
@@ -4236,7 +4267,7 @@ enum IDBTransactionMode {
             a database <var>name</var>,
             and a <var>request</var>.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>db</var> be the <a>database</a> with the given name from the origin <var>origin</var>,
               if one exists. Otherwise, return 0 (zero).
@@ -4284,7 +4315,7 @@ enum IDBTransactionMode {
             When taking the <dfn>steps for committing a transaction</dfn> the implementation MUST
             execute the following algorithm. This algorithm takes one argument, the <var>transaction</var> to commit.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               All the changes made to the <a>database</a> by the <a>transaction</a> are written to the <a>database</a>.
             </li>
@@ -4316,7 +4347,7 @@ enum IDBTransactionMode {
             the <var>transaction</var> to abort,
             and <var>error</var>.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               All the changes made to the <a>database</a> by the <a>transaction</a> are reverted. For <a>upgrade transactions</a>
               this includes changes to the set of <a>object stores</a> and <a>indexes</a>, as well
@@ -4371,7 +4402,7 @@ enum IDBTransactionMode {
             These steps can be aborted at any point if the <a>transaction</a> the created <a>request</a> belongs
             to is <a data-lt="transaction abort">aborted</a> using the <a>steps for aborting a transaction</a>
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>transaction</var> be the <a>transaction</a> associated with <var>source</var>.
             </li>
@@ -4425,7 +4456,7 @@ enum IDBTransactionMode {
             a new <var>version</var> to be set for the <a>database</a>,
             and a <var>request</var>.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>openConnections</var> be the set of all <a>connections</a>,
               except <var>connection</var>, connected to the same <a>database</a> as <var>connection</var>.
@@ -4515,7 +4546,7 @@ enum IDBTransactionMode {
             changes to the <a>database</a> including the set of associated <a>object stores</a>
             and <a>indexes</a>, as well as the change to the <a>version</a>.
           </aside>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>connection</var> be <var>transaction</var>'s <a>connection</a>.
             </li>
@@ -4601,7 +4632,7 @@ enum IDBTransactionMode {
             To <dfn>fire a success event</dfn> at a <a>request</a>,
             the implementation MUST run the following steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Set <var>transaction</var> to the <a>transaction</a> associated with the <a data-lt="request.source">source</a>.
             </li>
@@ -4632,7 +4663,7 @@ enum IDBTransactionMode {
             To <dfn>fire an error event</dfn> at a <a><var>request</var></a>,
             the implementation MUST run the following steps:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Set <var>transaction</var> to the <a>transaction</a> associated with the <a data-lt="request.source">source</a>.
             </li>
@@ -4683,7 +4714,7 @@ enum IDBTransactionMode {
             and a <var>no-overwrite flag</var>
             are as follows.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               If <var>store</var> uses <a>in-line keys</a>, run these substeps:
               <ol>
@@ -4799,7 +4830,7 @@ enum IDBTransactionMode {
             <var>store</var> and <var>range</var> are as follows:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a data-lt="object store record list">list of records</a>
               whose key is <a data-lt="in a key range">in</a> <var>range</var>,
@@ -4818,7 +4849,7 @@ enum IDBTransactionMode {
             <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>If <var>count</var> is not given or is 0 (zero), let <var>count</var> be infinity.</li>
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a>records</a>
@@ -4843,7 +4874,7 @@ enum IDBTransactionMode {
             <var>store</var> and <var>range</var> are as follows:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>record</var> be the first <a>record</a> in <var>store</var>'s <a data-lt="object store record list">list of records</a>
               whose key is <a data-lt="in a key range">in</a> <var>range</var>,
@@ -4863,7 +4894,7 @@ enum IDBTransactionMode {
             <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>If <var>count</var> is not given or is 0 (zero), let <var>count</var> be infinity.</li>
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a>records</a>
@@ -4890,7 +4921,7 @@ enum IDBTransactionMode {
             The <dfn>steps for retrieving a referenced value from an index</dfn> with
             <var>index</var> and <var>range</var> are as follows.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>record</var> be the first <a>record</a>
               in <var>index</var>'s <a data-lt="index record list">list of records</a>
@@ -4910,7 +4941,7 @@ enum IDBTransactionMode {
             <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>If <var>count</var> is not given or is 0 (zero), let <var>count</var> be infinity.</li>
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a>records</a>
@@ -4935,7 +4966,7 @@ enum IDBTransactionMode {
             <var>index</var> and <var>range</var> are as follows.
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>record</var> be the first <a>record</a>
               in <var>index</var>'s <a data-lt="index record list">list of records</a>
@@ -4955,7 +4986,7 @@ enum IDBTransactionMode {
             <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:
           </p>
 
-          <ol>
+          <ol class=algorithm>
             <li>If <var>count</var> is not given or is 0 (zero), let <var>count</var> be infinity.</li>
             <li>
               Let <var>records</var> be a list containing the first <var>count</var> <a>records</a>
@@ -4982,7 +5013,7 @@ enum IDBTransactionMode {
             The <dfn>steps for deleting records from an object store</dfn>
             with <var>store</var> and <var>range</var> are as follows.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Remove all records, if any, from <var>store</var>'s <a data-lt="object store record list">list of records</a>
               with key <a data-lt="in a key range">in</a> <var>range</var>.
@@ -5003,7 +5034,7 @@ enum IDBTransactionMode {
           <p>
             The <dfn>steps to count the records in a range</dfn> with <var>source</var> and <var>range</var> are as follows:
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>count</var> be the number of records, if any,
               in <var>source</var>'s list of records with key <a data-lt="in a key range">in</a> <var>range</var>.
@@ -5019,7 +5050,7 @@ enum IDBTransactionMode {
           <p>
             The <dfn>steps for clearing an object store</dfn> with <var>store</var> are as follows.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Remove all records from <var>store</var>.
             </li>
@@ -5039,7 +5070,7 @@ enum IDBTransactionMode {
             The <dfn>steps for iterating a cursor</dfn> with <var>cursor</var>, an optional
             <var>key</var> and <var>primaryKey</var> to iterate to, and an optional <var>count</var> are as follows.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>source</var> be <var>cursor</var>'s <a data-lt="cursor.source">source</a>.</li>
             <li>Let <var>direction</var> be <var>cursor</var>'s <a>direction</a>.</li>
             <li>Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a>index</a> and
@@ -5211,7 +5242,7 @@ enum IDBTransactionMode {
             The result of these steps is a <a>key</a>, invalid, or failure,
             or the steps may throw an exception.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>r</var> be the result of running the steps to
               <a>evaluate a key path on a value</a> with <var>value</var> and <var>keyPath</var>.
@@ -5232,7 +5263,7 @@ enum IDBTransactionMode {
             The result of these steps is an ECMAScript value
             or failure, or the steps may throw an exception.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               If <var>keyPath</var> is a <a>sequence&lt;DOMString&gt;</a>, run these substeps:
               <ol>
@@ -5284,7 +5315,7 @@ enum IDBTransactionMode {
             The steps to <dfn>inject a key into a value using a key path</dfn> are as follows.
             The algorithm takes a <var>value</var>, a <var>key</var> and a <var>keyPath</var>.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>
               Let <var>identifiers</var> be the result of
               <a data-lt="strictly split a string">strictly splitting the string</a>
@@ -5339,7 +5370,7 @@ enum IDBTransactionMode {
             The steps to <dfn>convert a key to a value</dfn> are as follows. These
             steps take one argument, <var>key</var>, and return an ECMAScript value.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>Let <var>type</var> be <var>key</var>'s <a data-lt="key.type">type</a>.</li>
             <li>Let <var>value</var> be <var>key</var>'s <a data-lt="key.value">value</a>.</li>
             <li>Switch on <var>type</var>:
@@ -5403,7 +5434,7 @@ enum IDBTransactionMode {
             an optional set <var>seen</var>. The result of these steps is a <a>key</a> or invalid,
             or the steps may throw an exception.
           </p>
-          <ol>
+          <ol class=algorithm>
             <li>If <var>seen</var> was not given, let <var>seen</var> be a new empty set</li>
             <li>If <var>input</var> is in <var>seen</var> return invalid</li>
             <li>Jump to the appropriate step below:
@@ -5487,7 +5518,7 @@ enum IDBTransactionMode {
             steps take one argument, an ECMAScript value <var>input</var>.
             The result of these steps is a <a>key</a> or invalid, or the steps may throw an exception.
           </p>
-          <ol>
+          <ol class=algorithm>
             <!-- Array -->
             <li>If IsArray(<var>input</var>), then:
               <ol>
