@@ -369,31 +369,32 @@ request.onsuccess = function() {
           This specification relies on several other underlying specifications.
         </p>
         <dl>
-          <dt>DOM4</dt>
-          <dd>The types
+          <dt>DOM</dt>
+          <dd>The types and algorithms
             <dfn><code>Event</code></dfn>,
-            <dfn><code>EventTarget</code></dfn> and
-            <dfn><code>DOMStringList</code></dfn>
-            are defined by the W3C DOM4 Specification [[!DOM4]].
+            <dfn><code>EventTarget</code></dfn>,
+            <dfn><code>DOMStringList</code></dfn>, and
+            <dfn>get the parent</dfn>
+            are defined by the DOM Standard [[!WHATWG-DOM]].
           </dd>
-          <dt>HTML5</dt>
+          <dt>HTML</dt>
           <dd>The terms and algorithms
             <dfn>document</dfn>,
             <dfn><code>Window</code></dfn>,
             <dfn><code>EventHandler</code></dfn>,
             <dfn><code>Function</code></dfn>,
             <dfn id="document-base-url">document base URL</dfn>,
-            <dfn id="event-handler-attributes">event handler attributes</dfn>,
+            <dfn id="event-handler-attributes">event handler IDL attributes</dfn>,
             <dfn id="event-handler-event-type">event handler event type</dfn>,
             <dfn>strictly split a string</dfn>,
             <dfn data-lt="origins">origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
             <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>,
-            and <dfn>queue a task</dfn> are defined by the HTML 5
-            specification [[!HTML5]].
+            and <dfn>queue a task</dfn>
+            are defined by the HTML Standard [[!HTML]].
           </dd>
           <dt>UI-EVENTS</dt>
-          <dd>The terms <dfn>default action</dfn> and <dfn>propagation path</dfn>
-            are defined by the
+          <dd>The term <dfn>default action</dfn>
+            is defined by the
             Document Object Model (DOM) Level 3 Events Specification [[!UI-EVENTS]].
           </dd>
           <dt>WebIDL</dt>
@@ -524,6 +525,10 @@ request.onsuccess = function() {
               an <a>upgrade transaction</a> is running.
             </p>
 
+            <p>
+              A <a>connection</a>'s <a>get the parent</a> algorithm returns null.
+            </p>
+
           </section>
 
         </section>  <!-- Database -->
@@ -612,7 +617,7 @@ request.onsuccess = function() {
           <p>
             Each record is associated with a <dfn data-lt="values">value</dfn>. <a data-lt="conforming user agent">Conforming user agents</a> MUST support
             any ECMAScript [[!ECMA-262]] value supported by the <a>structured clone algorithm</a>
-            [[!HTML5]]. This includes simple types such as <code>String</code> primitive values
+            [[!HTML]]. This includes simple types such as <code>String</code> primitive values
             and <code>Date</code> objects as well as <code>Object</code> and <code>Array</code>
             instances, <code>File</code> objects, <code>Blob</code> objects, <code>ImageData</code>
             objects, and so on. Record <a>values</a> are stored and retrieved
@@ -1013,7 +1018,12 @@ request.onsuccess = function() {
           </p>
 
           <p>
-            <a>transactions</a> are expected to be short lived. This is encouraged
+            A <a>transaction</a>'s <a>get the parent</a> algorithm returns the
+            transaction's <a data-lt="transaction.connection">connection</a>.
+          </p>
+
+          <p>
+            Transactions are expected to be short lived. This is encouraged
             by the <a data-lt="transaction commit">automatic committing</a> functionality described below.
           </p>
           <aside class="note">
@@ -1245,6 +1255,11 @@ request.onsuccess = function() {
           </p>
 
           <p>
+            A <a>request</a>'s <a>get the parent</a> algorithm
+            returns the request's <a data-lt="request.transaction">transaction</a>.
+          </p>
+
+          <p>
             An <dfn>open request</dfn> is a special type of <a>request</a> used when opening a <a>connection</a>
             or deleting a <a>database</a>. In addition to <code>success</code> and <code>error</code> events,
             <code>blocked</code> and <code>upgradeneeded</code> may be fired at an <a>open request</a> to indicate progress.
@@ -1256,6 +1271,11 @@ request.onsuccess = function() {
             The <a data-lt="request.transaction">transaction</a> of an <a>open request</a> is null unless an <a><code>upgradeneeded</code></a>
             event has been fired.
           </p>
+
+          <p>
+            An <a>open request</a>'s <a>get the parent</a> algorithm returns null.
+          </p>
+
 
           <aside class="note">
             Requests are not typically re-used, but there are exceptions. When a <a>cursor</a> is iterated,
@@ -1828,7 +1848,7 @@ store.put([10]); // will throw DataError
           <p>
             The <a>IDBRequest</a> interface provides the means to access results of
             asynchronous requests to <a>databases</a> and <a>database</a>
-            objects using <a>event handler attributes</a> [[!HTML5]].
+            objects using <a>event handler IDL attributes</a> [[!HTML]].
           </p>
 
           <p>
@@ -1963,8 +1983,8 @@ dictionary IDBVersionChangeEventInit : EventInit {
           </p>
 
           <p>
-            Events are constructed as defined in <a href="https://www.w3.org/TR/domcore/#constructing-events">Constructing events</a>,
-            in [[!DOM4]].
+            Events are constructed as defined in <a href="https://dom.spec.whatwg.org/#constructing-events">Constructing events</a>,
+            in [[!WHATWG-DOM]].
           </p>
 
           <p>
@@ -1976,7 +1996,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
             with its <code>type</code> set to <var>e</var>,
             its <a data-lt="IDBVersionChangeEvent.oldVersion">oldVersion</a> attribute set to <var>oldVersion</var>, and
             its <a data-lt="IDBVersionChangeEvent.newVersion">newVersion</a> attribute set to <var>newVersion</var>.
-            This event MUST NOT bubble or be cancelable. The propagation path for the event is just <var>target</var>.
+            This event MUST NOT bubble or be cancelable.
           </p>
         </section>
 
@@ -2044,15 +2064,13 @@ interface IDBFactory {
                   <a data-lt="request.error">error</a> of <var>request</var> to <var>result</var>
                   and dispatch an event at <var>request</var>.
                   The event must use the <code>Event</code> interface and set the <code>type</code> attribute
-                  to "<code>error</code>". The event does bubble but is not cancelable. The <a>propagation path</a>
-                  of the event is just <var>request</var>.
+                  to "<code>error</code>". The event does bubble but is not cancelable.
                 </li>
                 <li>
                   Otherwise, set the <a data-lt="request.result">result</a> of <var>request</var> to
                   <var>result</var> and dispatch an event at <var>request</var>.
                   The event must use the <code>Event</code> interface and set the <code>type</code> attribute
-                  to "<code>success</code>". The event does not bubble and is not cancelable. The <a>propagation path</a>
-                  of the event is just <var>request</var>.
+                  to "<code>success</code>". The event does not bubble and is not cancelable.
 
                   If the steps above resulted in an <a>upgrade transaction</a> being
                   run, then firing the "<code>success</code>" event MUST be done after the <a>upgrade transaction</a> completes.
@@ -2096,8 +2114,7 @@ interface IDBFactory {
                   set the <a data-lt="request.error">error</a> of <var>request</var> to <var>result</var>
                   and dispatch an event at <var>request</var>.
                   The event must use the <code>Event</code> interface and set the <code>type</code> attribute
-                  to "<code>error</code>". The event does bubble but is not cancelable. The <a>propagation
-                  path</a> of the event is just <var>request</var>.
+                  to "<code>error</code>". The event does bubble but is not cancelable.
                 </li>
                 <li>
                   Otherwise, set the <a data-lt="request.result">result</a> of <var>request</var> to undefined and
@@ -4317,7 +4334,7 @@ enum IDBTransactionMode {
           </p>
           <ol class=algorithm>
             <li>
-              All the changes made to the <a>database</a> by the <a>transaction</a> are written to the <a>database</a>.
+              All the changes made to the <a>database</a> by <var>transaction</var> are written to the <a>database</a>.
             </li>
             <li>
               If an error occurs while writing the changes to the <a>database</a>, abort the transaction by following
@@ -4325,11 +4342,10 @@ enum IDBTransactionMode {
               and an appropriate for the error, for example <a>QuotaExceededError</a> or <a>UnknownError</a>.
             </li>
             <li>
-              <a>Queue a task</a> to dispatch an event at <a>transaction</a>.
+              <a>Queue a task</a> to dispatch an event at <var>transaction</var>.
               The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>complete</code>".
-              The event does not bubble and is not cancelable. The
-              <a>propagation path</a> for the event is <var>transaction</var>'s <a data-lt="transaction.connection">connection</a> and
-              then <var>transaction</var>.
+              The event does not bubble and is not cancelable.
+
               <aside class="note">
                 Even if an exception is thrown from one of the event handlers of this event, the transaction is still
                 committed since writing the database changes happens before the event takes places. Only after the transaction
@@ -4384,9 +4400,7 @@ enum IDBTransactionMode {
                 <li>
                   Dispatch an event at <var>request</var>. The event must use
                   the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>error</code>".
-                  The event bubbles and is cancelable. The
-                  <a>propagation path</a> for the event is <var>transaction</var>'s <a data-lt="transaction.connection">connection</a>,
-                  then <var>transaction</var> and finally the <a>request</a>. There is no <a>default action</a> for the event.
+                  The event bubbles and is cancelable. There is no <a>default action</a> for the event.
                 </li>
               </ol>
               <aside class="note">
@@ -4399,8 +4413,6 @@ enum IDBTransactionMode {
               <a>Queue a task</a> to dispatch an event at <var>transaction</var>.
               The event must use the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>abort</code>".
               The event does bubble but is not cancelable.
-              The <a>propagation path</a> for the event is <var>transaction</var>'s <a data-lt="transaction.connection">connection</a> and
-              then <var>transaction</var>.
             </li>
           </ol>
         </section>
@@ -4656,9 +4668,7 @@ enum IDBTransactionMode {
             <li>
               Dispatch an event at <a>request</a>. The event must use
               the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>success</code>".
-              The event does not bubble and is not cancelable. The
-              <a>propagation path</a> for the event is the <var>transaction</var>'s <a data-lt="transaction.connection">connection</a>,
-              then <var>transaction</var> and finally <var>request</var>.
+              The event does not bubble and is not cancelable.
             </li>
             <li>
               Unset the <a>active flag</a> of <var>transaction</var>.
@@ -4687,9 +4697,9 @@ enum IDBTransactionMode {
             <li>
               Dispatch an event at <var>request</var>. The event must use
               the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>error</code>".
-              The event bubbles and is cancelable. The
-              <a>propagation path</a> for the event is the <var>transaction</var>'s <a data-lt="transaction.connection">connection</a>,
-              then <var>transaction</var> and finally <var>request</var>. The event's <a>default action</a> is to abort the
+              The event bubbles and is cancelable.
+
+              The event's <a>default action</a> is to abort the
               <var>transaction</var> by running the <a>steps for aborting a transaction</a> using <var>transaction</var>
               and <a>request</a>'s <a data-lt="request.error">error</a>. However the <a>default action</a> is
               not taken if any of the event handlers threw an exception.
@@ -5344,7 +5354,7 @@ enum IDBTransactionMode {
               <ol>
                 <li>
                   If <var>value</var> is not an <code>Object</code> object or an <code>Array</code>
-                  object (see <a>structured clone algorithm</a> [[!HTML5]]), then
+                  object (see <a>structured clone algorithm</a> [[!HTML]]), then
                   throw a <a>DataError</a> exception.
                 </li>
                 <li>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</li>
