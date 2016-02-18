@@ -370,34 +370,30 @@ request.onsuccess = function() {
         </p>
         <dl>
           <dt>DOM</dt>
-          <dd>The types and algorithms
+          <dd>
+            The terms, types, and algorithms
             <dfn><code>Event</code></dfn>,
+            <dfn>canceled flag</dfn>,
             <dfn><code>EventTarget</code></dfn>,
-            <dfn><code>DOMStringList</code></dfn>, and
-            <dfn>get the parent</dfn>
+            <dfn>get the parent</dfn>, and
+            <dfn><code>DOMStringList</code></dfn>
             are defined by the DOM Standard [[!WHATWG-DOM]].
           </dd>
           <dt>HTML</dt>
-          <dd>The terms and algorithms
+          <dd>
+            The terms, types and algorithms
             <dfn>document</dfn>,
             <dfn><code>Window</code></dfn>,
             <dfn><code>EventHandler</code></dfn>,
             <dfn><code>Function</code></dfn>,
-            <dfn>Worker</dfn>,
-            <dfn><code>WorkerGlobalScope</code></dfn>
-            <dfn id="document-base-url">document base URL</dfn>,
-            <dfn id="event-handler-attributes">event handler IDL attributes</dfn>,
-            <dfn id="event-handler-event-type">event handler event type</dfn>,
+            <dfn>worker</dfn>,
+            <dfn><code>WorkerGlobalScope</code></dfn>,
+            <dfn>event handler IDL attributes</dfn>,
             <dfn>strictly split a string</dfn>,
             <dfn data-lt="origins">origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
             <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>,
             and <dfn>queue a task</dfn>
             are defined by the HTML Standard [[!HTML]].
-          </dd>
-          <dt>UI-EVENTS</dt>
-          <dd>The term <dfn>default action</dfn>
-            is defined by the
-            Document Object Model (DOM) Level 3 Events Specification [[!UI-EVENTS]].
           </dd>
           <dt>WebIDL</dt>
           <dd>
@@ -410,7 +406,7 @@ request.onsuccess = function() {
             <dfn>sequence&lt;DOMString&gt;</dfn>,
             <dfn><code>DOMException</code></dfn> and
             and the interface definition language used in this spec
-            are defined by [[!WEBIDL]].</dd>
+            are defined by Web IDL [[!WEBIDL]].</dd>
         </dl>
       </section>
     </section>
@@ -4397,7 +4393,7 @@ enum IDBTransactionMode {
                 <li>
                   Dispatch an event at <var>request</var>. The event must use
                   the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>error</code>".
-                  The event bubbles and is cancelable. There is no <a>default action</a> for the event.
+                  The event bubbles and is cancelable.
                 </li>
               </ol>
               <aside class="note">
@@ -4695,11 +4691,6 @@ enum IDBTransactionMode {
               Dispatch an event at <var>request</var>. The event must use
               the <a><code>Event</code></a> interface and have its <code>type</code> set to "<code>error</code>".
               The event bubbles and is cancelable.
-
-              The event's <a>default action</a> is to abort the
-              <var>transaction</var> by running the <a>steps for aborting a transaction</a> using <var>transaction</var>
-              and <a>request</a>'s <a data-lt="request.error">error</a>. However the <a>default action</a> is
-              not taken if any of the event handlers threw an exception.
             </li>
             <li>
               Unset the <a>active flag</a> of <var>transaction</var>.
@@ -4707,13 +4698,18 @@ enum IDBTransactionMode {
             <li>
               If an exception was propagated out from any event handler while dispatching the event in step 3,
               abort the transaction by following the <a>steps for aborting a transaction</a> with
-              <var>transaction</var> and a newly created <a>AbortError</a> exception. This is done even if the error event is not
-              canceled.
+              <var>transaction</var> and a newly created <a>AbortError</a> exception and terminate these steps.
+              This is done even if the event's <a>canceled flag</a> is not set.
               <aside class="note">
                 This means that if an error event is fired and any of the event handlers throw an exception,
                 <var>transaction</var>'s <code>error</code> property is set to an <a>AbortError</a> exception rather than <var>request</var>'s
                 <a data-lt="request.error">error</a>, even if <code>preventDefault()</code> is never called.
               </aside>
+            </li>
+            <li>
+              If the event's <a>canceled flag</a> is not set,
+              run the <a>steps for aborting a transaction</a>
+              using <var>transaction</var> and <a>request</a>'s <a data-lt="request.error">error</a>.
             </li>
           </ol>
         </section>
