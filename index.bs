@@ -880,6 +880,17 @@ A <a for=/>transaction</a> has a <dfn>error</dfn> which is set if the
 A <a for=/>transaction</a>'s <a>get the parent</a> algorithm returns the
 transaction's <a for=transaction>connection</a>.
 
+A <dfn>read-only transaction</dfn> is
+a <a for=/>transaction</a> with <a>mode</a> {{"readonly"}}.
+
+A <dfn>read/write transaction</dfn>
+is a <a for=/>transaction</a> with <a>mode</a> {{"readwrite"}}.
+
+
+<!-- ============================================================ -->
+<h4 id=transaction-lifetime-concept>Transaction Lifetime</h4>
+<!-- ============================================================ -->
+
 Transactions are expected to be short lived. This is encouraged by the
 <a for=transaction lt=commit>automatic committing</a> functionality
 described below.
@@ -944,9 +955,10 @@ The <dfn>lifetime</dfn> of a
     if an IO error happened, {{UnknownError}} should be used as
     |error|.
 
-7. When a transaction can no longer become <a>active</a>, the
-    implementation must attempt to <dfn lt="commit|committing|committed">commit</dfn> it, as long as the transaction has not been
-    <a>aborted</a>. This usually happens
+7. When a transaction has been started and it can no longer become
+    <a>active</a>, the implementation must attempt to <dfn
+    lt="commit|committing|committed">commit</dfn> it, as long as the
+    transaction has not been <a>aborted</a>. This usually happens
     after all requests placed against the transaction have been
     executed and their returned results handled, and no new requests
     have been placed against the transaction. When a transaction is
@@ -955,10 +967,11 @@ The <dfn>lifetime</dfn> of a
     transaction. That is, either all of the changes must be written,
     or if an error occurs, such as a disk write error, the
     implementation must not write any of the changes to the database.
-    If such an error occurs, the implementation must <a>abort</a> the transaction by following
-    the <a>steps for aborting a transaction</a>, otherwise it must <a
-    for=transaction>commit</a> the transaction by
-    following the <a>steps for committing a transaction</a>.
+    If such an error occurs, the implementation must <a>abort</a> the
+    transaction by following the <a>steps for aborting a
+    transaction</a>, otherwise it must <a for=transaction>commit</a>
+    the transaction by following the <a>steps for committing a
+    transaction</a>.
 
 8. When a transaction is <a for=transaction>committed</a>
     or <a>aborted</a>, it is said to be
@@ -967,12 +980,6 @@ The <dfn>lifetime</dfn> of a
     or the user taking some explicit action to cancel it, the
     implementation must <a>abort</a> the
     transaction.
-
-A <dfn>read-only transaction</dfn> is
-a <a for=/>transaction</a> with <a>mode</a> {{"readonly"}}.
-
-A <dfn>read/write transaction</dfn>
-is a <a for=/>transaction</a> with <a>mode</a> {{"readwrite"}}.
 
 The following constraints define when a <a for=/>transaction</a> can be <a>started</a>:
 
@@ -5913,6 +5920,8 @@ document's Revision History</a>.
 * Added {{IDBObjectStore/getKey()}} on {{IDBObjectStore}}.
     (<a href="https://github.com/w3c/IndexedDB/issues/26">bug #26</a>)
 
+* Clarified when a transaction can attempt to commit.
+    (<a href="https://github.com/w3c/IndexedDB/issues/77">bug #77</a>)
 
 <!-- ============================================================ -->
 <h2 id=acknowledgements>Acknowledgements</h2>

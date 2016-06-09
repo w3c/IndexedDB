@@ -1419,7 +1419,7 @@ table.props td, table.props th {
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API (Second Edition)</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-05-31">31 May 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-06-09">9 June 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1504,7 +1504,8 @@ persistent B-tree data structure.</p>
       <li>
        <a href="#transaction-construct"><span class="secno">2.7</span> <span class="content">Transactions</span></a>
        <ol class="toc">
-        <li><a href="#upgrade-transaction-construct"><span class="secno">2.7.1</span> <span class="content">Upgrade Transactions</span></a>
+        <li><a href="#transaction-lifetime-concept"><span class="secno">2.7.1</span> <span class="content">Transaction Lifetime</span></a>
+        <li><a href="#upgrade-transaction-construct"><span class="secno">2.7.2</span> <span class="content">Upgrade Transactions</span></a>
        </ol>
       <li><a href="#request-construct"><span class="secno">2.8</span> <span class="content">Requests</span></a>
       <li><a href="#range-construct"><span class="secno">2.9</span> <span class="content">Key Range</span></a>
@@ -2197,15 +2198,19 @@ transaction is said to be <dfn class="dfn-paneled" data-dfn-for="transaction" da
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-17">transaction</a> has a <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-error">error</dfn> which is set if the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-18">transaction</a> is <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-1">aborted</a>.</p>
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-19">transaction</a>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#get-the-parent">get the parent</a> algorithm returns the
 transaction’s <a data-link-type="dfn" href="#transaction-connection" id="ref-for-transaction-connection-1">connection</a>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-read-only-transaction">read-only transaction</dfn> is
+a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-20">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-3">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly-2">"readonly"</a></code>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-read-write-transaction">read/write transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-21">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-4">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite-3">"readwrite"</a></code>.</p>
+    <h4 class="heading settled" data-level="2.7.1" id="transaction-lifetime-concept"><span class="secno">2.7.1. </span><span class="content">Transaction Lifetime</span><a class="self-link" href="#transaction-lifetime-concept"></a></h4>
     <p>Transactions are expected to be short lived. This is encouraged by the <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit-1">automatic committing</a> functionality
 described below.</p>
     <aside class="note" role="note"> Authors can still cause transactions to run for a long time; however,
   this usage pattern is not generally recommended as it can lead to a
   bad user experience. </aside>
-    <p>The <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-lifetime">lifetime</dfn> of a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-20">transaction</a> is as follows:</p>
+    <p>The <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-lifetime">lifetime</dfn> of a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-22">transaction</a> is as follows:</p>
     <ol>
      <li data-md="">
-      <p>A transaction is <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-created">created</dfn> with a <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope-3">scope</a> and a <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-3">mode</a>.
+      <p>A transaction is <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-created">created</dfn> with a <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope-3">scope</a> and a <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-5">mode</a>.
 When a transaction is created its <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-2">active flag</a> is initially set.</p>
      <li data-md="">
       <p>The implementation must allow <a data-link-type="dfn" href="#request" id="ref-for-request-3">requests</a> to be <a data-link-type="dfn" href="#request-placed" id="ref-for-request-placed-1">placed</a> against the transaction
@@ -2218,7 +2223,7 @@ transaction when that transaction is not <a data-link-type="dfn" href="#transact
 implementation must reject the attempt by throwing a <code class="idl"><a data-link-type="idl" href="#exceptiondef-transactioninactiveerror" id="ref-for-exceptiondef-transactioninactiveerror-1">TransactionInactiveError</a></code>.</p>
      <li data-md="">
       <p>Once an implementation is able to enforce the constraints defined
-for the transaction <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope-4">scope</a> and <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-4">mode</a>, defined below,
+for the transaction <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope-4">scope</a> and <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-6">mode</a>, defined below,
 the implementation must <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-lt="start|started" data-noexport="" id="transaction-start">start</dfn> the transaction
 asynchronously.</p>
      <li data-md="">
@@ -2228,7 +2233,7 @@ made against the transaction. Likewise, their results must be
 returned in the order the requests were placed against a specific
 transaction. There is no guarantee about the order that results
 from requests in different transactions are returned. Similarly,
-the transaction <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-5">modes</a> ensure that two requests placed
+the transaction <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-7">modes</a> ensure that two requests placed
 against different transactions can execute in any order without
 affecting what resulting data is stored in the database.</p>
      <li data-md="">
@@ -2245,8 +2250,8 @@ request. In this case the implementation must run the <a data-link-type="dfn" hr
 aborting a transaction</a> using the transaction as <var>transaction</var> and the appropriate error type as <var>error</var>. For example if quota was exceeded then <code class="idl"><a data-link-type="idl" href="#exceptiondef-quotaexceedederror" id="ref-for-exceptiondef-quotaexceedederror-1">QuotaExceededError</a></code> should be used as <var>error</var>, and
 if an IO error happened, <code class="idl"><a data-link-type="idl" href="#exceptiondef-unknownerror" id="ref-for-exceptiondef-unknownerror-1">UnknownError</a></code> should be used as <var>error</var>.</p>
      <li data-md="">
-      <p>When a transaction can no longer become <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active-4">active</a>, the
-implementation must attempt to <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-lt="commit|committing|committed" data-noexport="" id="transaction-commit">commit</dfn> it, as long as the transaction has not been <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-2">aborted</a>. This usually happens
+      <p>When a transaction has been started and it can no longer become <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active-4">active</a>, the implementation must attempt to <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-lt="commit|committing|committed" data-noexport="" id="transaction-commit">commit</dfn> it, as long as the
+transaction has not been <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-2">aborted</a>. This usually happens
 after all requests placed against the transaction have been
 executed and their returned results handled, and no new requests
 have been placed against the transaction. When a transaction is
@@ -2255,9 +2260,10 @@ the <a data-link-type="dfn" href="#database" id="ref-for-database-17">database</
 transaction. That is, either all of the changes must be written,
 or if an error occurs, such as a disk write error, the
 implementation must not write any of the changes to the database.
-If such an error occurs, the implementation must <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-3">abort</a> the transaction by following
-the <a data-link-type="dfn" href="#steps-for-aborting-a-transaction" id="ref-for-steps-for-aborting-a-transaction-2">steps for aborting a transaction</a>, otherwise it must <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit-2">commit</a> the transaction by
-following the <a data-link-type="dfn" href="#steps-for-committing-a-transaction" id="ref-for-steps-for-committing-a-transaction-1">steps for committing a transaction</a>.</p>
+If such an error occurs, the implementation must <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-3">abort</a> the
+transaction by following the <a data-link-type="dfn" href="#steps-for-aborting-a-transaction" id="ref-for-steps-for-aborting-a-transaction-2">steps for aborting a
+transaction</a>, otherwise it must <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit-2">commit</a> the transaction by following the <a data-link-type="dfn" href="#steps-for-committing-a-transaction" id="ref-for-steps-for-committing-a-transaction-1">steps for committing a
+transaction</a>.</p>
      <li data-md="">
       <p>When a transaction is <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit-3">committed</a> or <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-4">aborted</a>, it is said to be <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-lt="finish|finished" data-noexport="" id="transaction-finish">finished</dfn>. If a transaction
 can’t be finished, for example due to the implementation crashing
@@ -2265,9 +2271,6 @@ or the user taking some explicit action to cancel it, the
 implementation must <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort-5">abort</a> the
 transaction.</p>
     </ol>
-    <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-read-only-transaction">read-only transaction</dfn> is
-a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-21">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-6">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly-2">"readonly"</a></code>.</p>
-    <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-read-write-transaction">read/write transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-22">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-7">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite-3">"readwrite"</a></code>.</p>
     <p>The following constraints define when a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-23">transaction</a> can be <a data-link-type="dfn" href="#transaction-start" id="ref-for-transaction-start-5">started</a>:</p>
     <ul>
      <li data-md="">
@@ -2320,7 +2323,7 @@ transactions to prevent starvation. For example, if multiple <a data-link-type="
 implementation must not indefinitely prevent a pending <a data-link-type="dfn" href="#transaction-read-write-transaction" id="ref-for-transaction-read-write-transaction-12">read/write transaction</a> from <a data-link-type="dfn" href="#transaction-start" id="ref-for-transaction-start-6">starting</a>.</p>
     </ul>
    </div>
-   <h4 class="heading settled" data-level="2.7.1" id="upgrade-transaction-construct"><span class="secno">2.7.1. </span><span class="content">Upgrade Transactions</span><a class="self-link" href="#upgrade-transaction-construct"></a></h4>
+   <h4 class="heading settled" data-level="2.7.2" id="upgrade-transaction-construct"><span class="secno">2.7.2. </span><span class="content">Upgrade Transactions</span><a class="self-link" href="#upgrade-transaction-construct"></a></h4>
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="upgrade-transaction">upgrade transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-24">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode-8">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange-2">"versionchange"</a></code>.</p>
    <p>An <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-7">upgrade transaction</a> is automatically created when running <a data-link-type="dfn" href="#steps-for-running-an-upgrade-transaction" id="ref-for-steps-for-running-an-upgrade-transaction-1">steps for running an upgrade transaction</a> after a <a data-link-type="dfn" href="#connection" id="ref-for-connection-16">connection</a> is opened to a <a data-link-type="dfn" href="#database" id="ref-for-database-19">database</a> giving a greater <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-2">version</a> than the current <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-3">version</a>.
 This <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-25">transaction</a> will be active inside the <a data-link-type="dfn" href="#upgradeneeded" id="ref-for-upgradeneeded-3">upgradeneeded</a> event handler, allowing the creation of new <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-30">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-11">indexes</a>.</p>
@@ -5770,6 +5773,9 @@ and define abstract types such as <a data-link-type="dfn" href="#key" id="ref-fo
     <li data-md="">
      <p>Added <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-getkey" id="ref-for-dom-idbobjectstore-getkey-3">getKey()</a></code> on <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-23">IDBObjectStore</a></code>.
 (<a href="https://github.com/w3c/IndexedDB/issues/26">bug #26</a>)</p>
+    <li data-md="">
+     <p>Clarified when a transaction can attempt to commit.
+(<a href="https://github.com/w3c/IndexedDB/issues/77">bug #77</a>)</p>
    </ul>
    <h2 class="heading settled" data-level="11" id="acknowledgements"><span class="secno">11. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
    <p>Special thanks to Nikunj Mehta, the original author of
@@ -5855,10 +5861,10 @@ specification.</p>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
    <li><a href="#dom-idbtransaction-abort">abort()</a><span>, in §4.9</span>
-   <li><a href="#transaction-abort">abort</a><span>, in §2.7</span>
-   <li><a href="#transaction-abort">aborted</a><span>, in §2.7</span>
+   <li><a href="#transaction-abort">abort</a><span>, in §2.7.1</span>
+   <li><a href="#transaction-abort">aborted</a><span>, in §2.7.1</span>
    <li><a href="#exceptiondef-aborterror">AbortError</a><span>, in §3</span>
-   <li><a href="#transaction-abort">aborting</a><span>, in §2.7</span>
+   <li><a href="#transaction-abort">aborting</a><span>, in §2.7.1</span>
    <li><a href="#transaction-active">active</a><span>, in §2.7</span>
    <li><a href="#transaction-active-flag">active flag</a><span>, in §2.7</span>
    <li><a href="#dom-idbobjectstore-add">add(value)</a><span>, in §4.5</span>
@@ -5880,9 +5886,9 @@ specification.</p>
    <li><a href="#connection-closed">closed</a><span>, in §2.1.1</span>
    <li><a href="#connection-close-pending-flag">close pending flag</a><span>, in §2.1.1</span>
    <li><a href="#dom-idbfactory-cmp">cmp(first, second)</a><span>, in §4.3</span>
-   <li><a href="#transaction-commit">commit</a><span>, in §2.7</span>
-   <li><a href="#transaction-commit">committed</a><span>, in §2.7</span>
-   <li><a href="#transaction-commit">committing</a><span>, in §2.7</span>
+   <li><a href="#transaction-commit">commit</a><span>, in §2.7.1</span>
+   <li><a href="#transaction-commit">committed</a><span>, in §2.7.1</span>
+   <li><a href="#transaction-commit">committing</a><span>, in §2.7.1</span>
    <li><a href="#compare-two-keys">compare two keys</a><span>, in §2.4</span>
    <li><a href="#connection">connected</a><span>, in §2.1.1</span>
    <li>
@@ -5912,7 +5918,7 @@ specification.</p>
      <li><a href="#dom-idbobjectstore-count">method for IDBObjectStore</a><span>, in §4.5</span>
      <li><a href="#dom-idbindex-count">method for IDBIndex</a><span>, in §4.6</span>
     </ul>
-   <li><a href="#transaction-created">created</a><span>, in §2.7</span>
+   <li><a href="#transaction-created">created</a><span>, in §2.7.1</span>
    <li><a href="#dom-idbobjectstore-createindex">createIndex(name, keyPath)</a><span>, in §4.5</span>
    <li><a href="#dom-idbobjectstore-createindex">createIndex(name, keyPath, options)</a><span>, in §4.5</span>
    <li><a href="#dom-idbdatabase-createobjectstore">createObjectStore(name)</a><span>, in §4.4</span>
@@ -5952,8 +5958,8 @@ specification.</p>
     </ul>
    <li><a href="#evaluate-a-key-path-on-a-value">evaluate a key path on a value</a><span>, in §7.1</span>
    <li><a href="#extract-a-key-from-a-value-using-a-key-path">extract a key from a value using a key path</a><span>, in §7.1</span>
-   <li><a href="#transaction-finish">finish</a><span>, in §2.7</span>
-   <li><a href="#transaction-finish">finished</a><span>, in §2.7</span>
+   <li><a href="#transaction-finish">finish</a><span>, in §2.7.1</span>
+   <li><a href="#transaction-finish">finished</a><span>, in §2.7.1</span>
    <li><a href="#fire-an-error-event">fire an error event</a><span>, in §5.10</span>
    <li><a href="#fire-a-success-event">fire a success event</a><span>, in §5.9</span>
    <li><a href="#fire-a-version-change-event">fire a version change event</a><span>, in §4.2</span>
@@ -6070,7 +6076,7 @@ specification.</p>
     </ul>
    <li><a href="#key-range">key range</a><span>, in §2.9</span>
    <li><a href="#less-than">less than</a><span>, in §2.4</span>
-   <li><a href="#transaction-lifetime">lifetime</a><span>, in §2.7</span>
+   <li><a href="#transaction-lifetime">lifetime</a><span>, in §2.7.1</span>
    <li>
     list of records
     <ul>
@@ -6251,8 +6257,8 @@ specification.</p>
      <li><a href="#dom-idbrequest-source">attribute for IDBRequest</a><span>, in §4.1</span>
      <li><a href="#dom-idbcursor-source">attribute for IDBCursor</a><span>, in §4.8</span>
     </ul>
-   <li><a href="#transaction-start">start</a><span>, in §2.7</span>
-   <li><a href="#transaction-start">started</a><span>, in §2.7</span>
+   <li><a href="#transaction-start">start</a><span>, in §2.7.1</span>
+   <li><a href="#transaction-start">started</a><span>, in §2.7.1</span>
    <li><a href="#steps-for-aborting-an-upgrade-transaction">steps for aborting an upgrade transaction</a><span>, in §5.8</span>
    <li><a href="#steps-for-aborting-a-transaction">steps for aborting a transaction</a><span>, in §5.5</span>
    <li><a href="#steps-for-asynchronously-executing-a-request">steps for asynchronously executing a request</a><span>, in §5.6</span>
@@ -6302,7 +6308,7 @@ specification.</p>
    <li><a href="#exceptiondef-unknownerror">UnknownError</a><span>, in §3</span>
    <li><a href="#dom-idbcursor-update">update(value)</a><span>, in §4.8</span>
    <li><a href="#upgradeneeded">upgradeneeded</a><span>, in §5.7</span>
-   <li><a href="#upgrade-transaction">upgrade transaction</a><span>, in §2.7.1</span>
+   <li><a href="#upgrade-transaction">upgrade transaction</a><span>, in §2.7.2</span>
    <li><a href="#dom-idbkeyrange-upper">upper</a><span>, in §4.7</span>
    <li><a href="#upper-bound">upper bound</a><span>, in §2.9</span>
    <li><a href="#dom-idbkeyrange-upperbound">upperBound(upper)</a><span>, in §4.7</span>
@@ -6651,8 +6657,9 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
     <li><a href="#ref-for-database-1">2.1. Database</a> <a href="#ref-for-database-2">(2)</a> <a href="#ref-for-database-3">(3)</a> <a href="#ref-for-database-4">(4)</a> <a href="#ref-for-database-5">(5)</a>
     <li><a href="#ref-for-database-6">2.1.1. Database Connection</a> <a href="#ref-for-database-7">(2)</a> <a href="#ref-for-database-8">(3)</a> <a href="#ref-for-database-9">(4)</a> <a href="#ref-for-database-10">(5)</a> <a href="#ref-for-database-11">(6)</a> <a href="#ref-for-database-12">(7)</a>
     <li><a href="#ref-for-database-13">2.2. Object Store</a> <a href="#ref-for-database-14">(2)</a>
-    <li><a href="#ref-for-database-15">2.7. Transactions</a> <a href="#ref-for-database-16">(2)</a> <a href="#ref-for-database-17">(3)</a> <a href="#ref-for-database-18">(4)</a>
-    <li><a href="#ref-for-database-19">2.7.1. Upgrade Transactions</a> <a href="#ref-for-database-20">(2)</a> <a href="#ref-for-database-21">(3)</a> <a href="#ref-for-database-22">(4)</a>
+    <li><a href="#ref-for-database-15">2.7. Transactions</a>
+    <li><a href="#ref-for-database-16">2.7.1. Transaction Lifetime</a> <a href="#ref-for-database-17">(2)</a> <a href="#ref-for-database-18">(3)</a>
+    <li><a href="#ref-for-database-19">2.7.2. Upgrade Transactions</a> <a href="#ref-for-database-20">(2)</a> <a href="#ref-for-database-21">(3)</a> <a href="#ref-for-database-22">(4)</a>
     <li><a href="#ref-for-database-23">2.8. Requests</a> <a href="#ref-for-database-24">(2)</a>
     <li><a href="#ref-for-database-25">4.1. The IDBRequest interface</a> <a href="#ref-for-database-26">(2)</a> <a href="#ref-for-database-27">(3)</a> <a href="#ref-for-database-28">(4)</a>
     <li><a href="#ref-for-database-29">4.3. The IDBFactory interface</a> <a href="#ref-for-database-30">(2)</a> <a href="#ref-for-database-31">(3)</a> <a href="#ref-for-database-32">(4)</a>
@@ -6680,7 +6687,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
    <b><a href="#database-version">#database-version</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-database-version-1">2.1. Database</a>
-    <li><a href="#ref-for-database-version-2">2.7.1. Upgrade Transactions</a> <a href="#ref-for-database-version-3">(2)</a> <a href="#ref-for-database-version-4">(3)</a> <a href="#ref-for-database-version-5">(4)</a>
+    <li><a href="#ref-for-database-version-2">2.7.2. Upgrade Transactions</a> <a href="#ref-for-database-version-3">(2)</a> <a href="#ref-for-database-version-4">(3)</a> <a href="#ref-for-database-version-5">(4)</a>
     <li><a href="#ref-for-database-version-6">4.3. The IDBFactory interface</a> <a href="#ref-for-database-version-7">(2)</a>
     <li><a href="#ref-for-database-version-8">4.4. The IDBDatabase interface</a>
     <li><a href="#ref-for-database-version-9">5.1. Opening a database</a> <a href="#ref-for-database-version-10">(2)</a> <a href="#ref-for-database-version-11">(3)</a> <a href="#ref-for-database-version-12">(4)</a> <a href="#ref-for-database-version-13">(5)</a>
@@ -6702,7 +6709,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
    <ul>
     <li><a href="#ref-for-connection-1">2.1.1. Database Connection</a> <a href="#ref-for-connection-2">(2)</a> <a href="#ref-for-connection-3">(3)</a> <a href="#ref-for-connection-4">(4)</a> <a href="#ref-for-connection-5">(5)</a> <a href="#ref-for-connection-6">(6)</a> <a href="#ref-for-connection-7">(7)</a> <a href="#ref-for-connection-8">(8)</a> <a href="#ref-for-connection-9">(9)</a> <a href="#ref-for-connection-10">(10)</a> <a href="#ref-for-connection-11">(11)</a> <a href="#ref-for-connection-12">(12)</a> <a href="#ref-for-connection-13">(13)</a> <a href="#ref-for-connection-14">(14)</a>
     <li><a href="#ref-for-connection-15">2.7. Transactions</a>
-    <li><a href="#ref-for-connection-16">2.7.1. Upgrade Transactions</a> <a href="#ref-for-connection-17">(2)</a> <a href="#ref-for-connection-18">(3)</a> <a href="#ref-for-connection-19">(4)</a>
+    <li><a href="#ref-for-connection-16">2.7.2. Upgrade Transactions</a> <a href="#ref-for-connection-17">(2)</a> <a href="#ref-for-connection-18">(3)</a> <a href="#ref-for-connection-19">(4)</a>
     <li><a href="#ref-for-connection-20">2.8. Requests</a>
     <li><a href="#ref-for-connection-21">4.4. The IDBDatabase interface</a> <a href="#ref-for-connection-22">(2)</a> <a href="#ref-for-connection-23">(3)</a> <a href="#ref-for-connection-24">(4)</a> <a href="#ref-for-connection-25">(5)</a> <a href="#ref-for-connection-26">(6)</a> <a href="#ref-for-connection-27">(7)</a> <a href="#ref-for-connection-28">(8)</a> <a href="#ref-for-connection-29">(9)</a> <a href="#ref-for-connection-30">(10)</a> <a href="#ref-for-connection-31">(11)</a> <a href="#ref-for-connection-32">(12)</a> <a href="#ref-for-connection-33">(13)</a> <a href="#ref-for-connection-34">(14)</a> <a href="#ref-for-connection-35">(15)</a> <a href="#ref-for-connection-36">(16)</a> <a href="#ref-for-connection-37">(17)</a> <a href="#ref-for-connection-38">(18)</a>
     <li><a href="#ref-for-connection-39">4.9. The IDBTransaction interface</a> <a href="#ref-for-connection-40">(2)</a>
@@ -6759,8 +6766,9 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
     <li><a href="#ref-for-object-store-3">2.2. Object Store</a> <a href="#ref-for-object-store-4">(2)</a> <a href="#ref-for-object-store-5">(3)</a> <a href="#ref-for-object-store-6">(4)</a> <a href="#ref-for-object-store-7">(5)</a> <a href="#ref-for-object-store-8">(6)</a> <a href="#ref-for-object-store-9">(7)</a>
     <li><a href="#ref-for-object-store-10">2.2.1. Object Store Handle</a> <a href="#ref-for-object-store-11">(2)</a> <a href="#ref-for-object-store-12">(3)</a>
     <li><a href="#ref-for-object-store-13">2.6. Index</a> <a href="#ref-for-object-store-14">(2)</a> <a href="#ref-for-object-store-15">(3)</a> <a href="#ref-for-object-store-16">(4)</a> <a href="#ref-for-object-store-17">(5)</a> <a href="#ref-for-object-store-18">(6)</a> <a href="#ref-for-object-store-19">(7)</a>
-    <li><a href="#ref-for-object-store-20">2.7. Transactions</a> <a href="#ref-for-object-store-21">(2)</a> <a href="#ref-for-object-store-22">(3)</a> <a href="#ref-for-object-store-23">(4)</a> <a href="#ref-for-object-store-24">(5)</a> <a href="#ref-for-object-store-25">(6)</a> <a href="#ref-for-object-store-26">(7)</a> <a href="#ref-for-object-store-27">(8)</a> <a href="#ref-for-object-store-28">(9)</a> <a href="#ref-for-object-store-29">(10)</a>
-    <li><a href="#ref-for-object-store-30">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-object-store-20">2.7. Transactions</a>
+    <li><a href="#ref-for-object-store-21">2.7.1. Transaction Lifetime</a> <a href="#ref-for-object-store-22">(2)</a> <a href="#ref-for-object-store-23">(3)</a> <a href="#ref-for-object-store-24">(4)</a> <a href="#ref-for-object-store-25">(5)</a> <a href="#ref-for-object-store-26">(6)</a> <a href="#ref-for-object-store-27">(7)</a> <a href="#ref-for-object-store-28">(8)</a> <a href="#ref-for-object-store-29">(9)</a>
+    <li><a href="#ref-for-object-store-30">2.7.2. Upgrade Transactions</a>
     <li><a href="#ref-for-object-store-31">2.9. Key Range</a>
     <li><a href="#ref-for-object-store-32">2.10. Cursor</a> <a href="#ref-for-object-store-33">(2)</a> <a href="#ref-for-object-store-34">(3)</a> <a href="#ref-for-object-store-35">(4)</a> <a href="#ref-for-object-store-36">(5)</a> <a href="#ref-for-object-store-37">(6)</a>
     <li><a href="#ref-for-object-store-38">2.11. Key Generators</a> <a href="#ref-for-object-store-39">(2)</a> <a href="#ref-for-object-store-40">(3)</a> <a href="#ref-for-object-store-41">(4)</a> <a href="#ref-for-object-store-42">(5)</a> <a href="#ref-for-object-store-43">(6)</a> <a href="#ref-for-object-store-44">(7)</a> <a href="#ref-for-object-store-45">(8)</a> <a href="#ref-for-object-store-46">(9)</a> <a href="#ref-for-object-store-47">(10)</a> <a href="#ref-for-object-store-48">(11)</a> <a href="#ref-for-object-store-49">(12)</a> <a href="#ref-for-object-store-50">(13)</a>
@@ -7017,8 +7025,8 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
     <li><a href="#ref-for-index-concept-1">2.2.1. Object Store Handle</a>
     <li><a href="#ref-for-index-concept-2">2.6. Index</a> <a href="#ref-for-index-concept-3">(2)</a> <a href="#ref-for-index-concept-4">(3)</a> <a href="#ref-for-index-concept-5">(4)</a> <a href="#ref-for-index-concept-6">(5)</a>
     <li><a href="#ref-for-index-concept-7">2.6.1. Index Handle</a> <a href="#ref-for-index-concept-8">(2)</a> <a href="#ref-for-index-concept-9">(3)</a>
-    <li><a href="#ref-for-index-concept-10">2.7. Transactions</a>
-    <li><a href="#ref-for-index-concept-11">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-index-concept-10">2.7.1. Transaction Lifetime</a>
+    <li><a href="#ref-for-index-concept-11">2.7.2. Upgrade Transactions</a>
     <li><a href="#ref-for-index-concept-12">2.9. Key Range</a>
     <li><a href="#ref-for-index-concept-13">2.10. Cursor</a> <a href="#ref-for-index-concept-14">(2)</a> <a href="#ref-for-index-concept-15">(3)</a> <a href="#ref-for-index-concept-16">(4)</a> <a href="#ref-for-index-concept-17">(5)</a> <a href="#ref-for-index-concept-18">(6)</a>
     <li><a href="#ref-for-index-concept-19">4.5. The IDBObjectStore interface</a> <a href="#ref-for-index-concept-20">(2)</a> <a href="#ref-for-index-concept-21">(3)</a> <a href="#ref-for-index-concept-22">(4)</a> <a href="#ref-for-index-concept-23">(5)</a> <a href="#ref-for-index-concept-24">(6)</a> <a href="#ref-for-index-concept-25">(7)</a> <a href="#ref-for-index-concept-26">(8)</a> <a href="#ref-for-index-concept-27">(9)</a>
@@ -7137,8 +7145,9 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
     <li><a href="#ref-for-transaction-concept-1">2.1.1. Database Connection</a>
     <li><a href="#ref-for-transaction-concept-2">2.2.1. Object Store Handle</a> <a href="#ref-for-transaction-concept-3">(2)</a> <a href="#ref-for-transaction-concept-4">(3)</a>
     <li><a href="#ref-for-transaction-concept-5">2.6.1. Index Handle</a> <a href="#ref-for-transaction-concept-6">(2)</a> <a href="#ref-for-transaction-concept-7">(3)</a>
-    <li><a href="#ref-for-transaction-concept-8">2.7. Transactions</a> <a href="#ref-for-transaction-concept-9">(2)</a> <a href="#ref-for-transaction-concept-10">(3)</a> <a href="#ref-for-transaction-concept-11">(4)</a> <a href="#ref-for-transaction-concept-12">(5)</a> <a href="#ref-for-transaction-concept-13">(6)</a> <a href="#ref-for-transaction-concept-14">(7)</a> <a href="#ref-for-transaction-concept-15">(8)</a> <a href="#ref-for-transaction-concept-16">(9)</a> <a href="#ref-for-transaction-concept-17">(10)</a> <a href="#ref-for-transaction-concept-18">(11)</a> <a href="#ref-for-transaction-concept-19">(12)</a> <a href="#ref-for-transaction-concept-20">(13)</a> <a href="#ref-for-transaction-concept-21">(14)</a> <a href="#ref-for-transaction-concept-22">(15)</a> <a href="#ref-for-transaction-concept-23">(16)</a>
-    <li><a href="#ref-for-transaction-concept-24">2.7.1. Upgrade Transactions</a> <a href="#ref-for-transaction-concept-25">(2)</a>
+    <li><a href="#ref-for-transaction-concept-8">2.7. Transactions</a> <a href="#ref-for-transaction-concept-9">(2)</a> <a href="#ref-for-transaction-concept-10">(3)</a> <a href="#ref-for-transaction-concept-11">(4)</a> <a href="#ref-for-transaction-concept-12">(5)</a> <a href="#ref-for-transaction-concept-13">(6)</a> <a href="#ref-for-transaction-concept-14">(7)</a> <a href="#ref-for-transaction-concept-15">(8)</a> <a href="#ref-for-transaction-concept-16">(9)</a> <a href="#ref-for-transaction-concept-17">(10)</a> <a href="#ref-for-transaction-concept-18">(11)</a> <a href="#ref-for-transaction-concept-19">(12)</a> <a href="#ref-for-transaction-concept-20">(13)</a> <a href="#ref-for-transaction-concept-21">(14)</a>
+    <li><a href="#ref-for-transaction-concept-22">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-concept-23">(2)</a>
+    <li><a href="#ref-for-transaction-concept-24">2.7.2. Upgrade Transactions</a> <a href="#ref-for-transaction-concept-25">(2)</a>
     <li><a href="#ref-for-transaction-concept-26">2.8. Requests</a>
     <li><a href="#ref-for-transaction-concept-27">2.10. Cursor</a>
     <li><a href="#ref-for-transaction-concept-28">2.11. Key Generators</a> <a href="#ref-for-transaction-concept-29">(2)</a>
@@ -7164,7 +7173,8 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="transaction-scope">
    <b><a href="#transaction-scope">#transaction-scope</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-scope-1">2.7. Transactions</a> <a href="#ref-for-transaction-scope-2">(2)</a> <a href="#ref-for-transaction-scope-3">(3)</a> <a href="#ref-for-transaction-scope-4">(4)</a> <a href="#ref-for-transaction-scope-5">(5)</a> <a href="#ref-for-transaction-scope-6">(6)</a> <a href="#ref-for-transaction-scope-7">(7)</a> <a href="#ref-for-transaction-scope-8">(8)</a> <a href="#ref-for-transaction-scope-9">(9)</a> <a href="#ref-for-transaction-scope-10">(10)</a>
+    <li><a href="#ref-for-transaction-scope-1">2.7. Transactions</a> <a href="#ref-for-transaction-scope-2">(2)</a>
+    <li><a href="#ref-for-transaction-scope-3">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-scope-4">(2)</a> <a href="#ref-for-transaction-scope-5">(3)</a> <a href="#ref-for-transaction-scope-6">(4)</a> <a href="#ref-for-transaction-scope-7">(5)</a> <a href="#ref-for-transaction-scope-8">(6)</a> <a href="#ref-for-transaction-scope-9">(7)</a> <a href="#ref-for-transaction-scope-10">(8)</a>
     <li><a href="#ref-for-transaction-scope-11">2.11. Key Generators</a>
     <li><a href="#ref-for-transaction-scope-12">4.9. The IDBTransaction interface</a> <a href="#ref-for-transaction-scope-13">(2)</a>
     <li><a href="#ref-for-transaction-scope-14">5.7. Upgrade transaction steps</a>
@@ -7173,15 +7183,17 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="transaction-mode">
    <b><a href="#transaction-mode">#transaction-mode</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-mode-1">2.7. Transactions</a> <a href="#ref-for-transaction-mode-2">(2)</a> <a href="#ref-for-transaction-mode-3">(3)</a> <a href="#ref-for-transaction-mode-4">(4)</a> <a href="#ref-for-transaction-mode-5">(5)</a> <a href="#ref-for-transaction-mode-6">(6)</a> <a href="#ref-for-transaction-mode-7">(7)</a>
-    <li><a href="#ref-for-transaction-mode-8">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-transaction-mode-1">2.7. Transactions</a> <a href="#ref-for-transaction-mode-2">(2)</a> <a href="#ref-for-transaction-mode-3">(3)</a> <a href="#ref-for-transaction-mode-4">(4)</a>
+    <li><a href="#ref-for-transaction-mode-5">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-mode-6">(2)</a> <a href="#ref-for-transaction-mode-7">(3)</a>
+    <li><a href="#ref-for-transaction-mode-8">2.7.2. Upgrade Transactions</a>
     <li><a href="#ref-for-transaction-mode-9">4.9. The IDBTransaction interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="transaction-active-flag">
    <b><a href="#transaction-active-flag">#transaction-active-flag</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-active-flag-1">2.7. Transactions</a> <a href="#ref-for-transaction-active-flag-2">(2)</a> <a href="#ref-for-transaction-active-flag-3">(3)</a>
+    <li><a href="#ref-for-transaction-active-flag-1">2.7. Transactions</a>
+    <li><a href="#ref-for-transaction-active-flag-2">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-active-flag-3">(2)</a>
     <li><a href="#ref-for-transaction-active-flag-4">4.4. The IDBDatabase interface</a>
     <li><a href="#ref-for-transaction-active-flag-5">4.9. The IDBTransaction interface</a>
     <li><a href="#ref-for-transaction-active-flag-6">5.7. Upgrade transaction steps</a>
@@ -7192,7 +7204,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="transaction-active">
    <b><a href="#transaction-active">#transaction-active</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-active-1">2.7. Transactions</a> <a href="#ref-for-transaction-active-2">(2)</a> <a href="#ref-for-transaction-active-3">(3)</a> <a href="#ref-for-transaction-active-4">(4)</a>
+    <li><a href="#ref-for-transaction-active-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-active-2">(2)</a> <a href="#ref-for-transaction-active-3">(3)</a> <a href="#ref-for-transaction-active-4">(4)</a>
     <li><a href="#ref-for-transaction-active-5">2.10. Cursor</a>
     <li><a href="#ref-for-transaction-active-6">4.4. The IDBDatabase interface</a> <a href="#ref-for-transaction-active-7">(2)</a>
     <li><a href="#ref-for-transaction-active-8">4.5. The IDBObjectStore interface</a> <a href="#ref-for-transaction-active-9">(2)</a> <a href="#ref-for-transaction-active-10">(3)</a> <a href="#ref-for-transaction-active-11">(4)</a> <a href="#ref-for-transaction-active-12">(5)</a> <a href="#ref-for-transaction-active-13">(6)</a> <a href="#ref-for-transaction-active-14">(7)</a> <a href="#ref-for-transaction-active-15">(8)</a> <a href="#ref-for-transaction-active-16">(9)</a> <a href="#ref-for-transaction-active-17">(10)</a> <a href="#ref-for-transaction-active-18">(11)</a> <a href="#ref-for-transaction-active-19">(12)</a> <a href="#ref-for-transaction-active-20">(13)</a> <a href="#ref-for-transaction-active-21">(14)</a>
@@ -7215,6 +7227,21 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
     <li><a href="#ref-for-transaction-error-2">5.5. Steps for aborting a transaction</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="transaction-read-only-transaction">
+   <b><a href="#transaction-read-only-transaction">#transaction-read-only-transaction</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-transaction-read-only-transaction-1">2.7. Transactions</a>
+    <li><a href="#ref-for-transaction-read-only-transaction-2">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-read-only-transaction-3">(2)</a> <a href="#ref-for-transaction-read-only-transaction-4">(3)</a> <a href="#ref-for-transaction-read-only-transaction-5">(4)</a> <a href="#ref-for-transaction-read-only-transaction-6">(5)</a> <a href="#ref-for-transaction-read-only-transaction-7">(6)</a> <a href="#ref-for-transaction-read-only-transaction-8">(7)</a>
+    <li><a href="#ref-for-transaction-read-only-transaction-9">4.5. The IDBObjectStore interface</a> <a href="#ref-for-transaction-read-only-transaction-10">(2)</a> <a href="#ref-for-transaction-read-only-transaction-11">(3)</a> <a href="#ref-for-transaction-read-only-transaction-12">(4)</a>
+    <li><a href="#ref-for-transaction-read-only-transaction-13">4.8. The IDBCursor interface</a> <a href="#ref-for-transaction-read-only-transaction-14">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="transaction-read-write-transaction">
+   <b><a href="#transaction-read-write-transaction">#transaction-read-write-transaction</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-transaction-read-write-transaction-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-read-write-transaction-2">(2)</a> <a href="#ref-for-transaction-read-write-transaction-3">(3)</a> <a href="#ref-for-transaction-read-write-transaction-4">(4)</a> <a href="#ref-for-transaction-read-write-transaction-5">(5)</a> <a href="#ref-for-transaction-read-write-transaction-6">(6)</a> <a href="#ref-for-transaction-read-write-transaction-7">(7)</a> <a href="#ref-for-transaction-read-write-transaction-8">(8)</a> <a href="#ref-for-transaction-read-write-transaction-9">(9)</a> <a href="#ref-for-transaction-read-write-transaction-10">(10)</a> <a href="#ref-for-transaction-read-write-transaction-11">(11)</a> <a href="#ref-for-transaction-read-write-transaction-12">(12)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="transaction-lifetime">
    <b><a href="#transaction-lifetime">#transaction-lifetime</a></b><b>Referenced in:</b>
    <ul>
@@ -7224,7 +7251,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="transaction-created">
    <b><a href="#transaction-created">#transaction-created</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-created-1">2.7. Transactions</a> <a href="#ref-for-transaction-created-2">(2)</a>
+    <li><a href="#ref-for-transaction-created-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-created-2">(2)</a>
     <li><a href="#ref-for-transaction-created-3">4.4. The IDBDatabase interface</a>
     <li><a href="#ref-for-transaction-created-4">5.2. Closing a database</a> <a href="#ref-for-transaction-created-5">(2)</a> <a href="#ref-for-transaction-created-6">(3)</a> <a href="#ref-for-transaction-created-7">(4)</a>
    </ul>
@@ -7232,13 +7259,14 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="transaction-start">
    <b><a href="#transaction-start">#transaction-start</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-start-1">2.7. Transactions</a> <a href="#ref-for-transaction-start-2">(2)</a> <a href="#ref-for-transaction-start-3">(3)</a> <a href="#ref-for-transaction-start-4">(4)</a> <a href="#ref-for-transaction-start-5">(5)</a> <a href="#ref-for-transaction-start-6">(6)</a>
+    <li><a href="#ref-for-transaction-start-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-start-2">(2)</a> <a href="#ref-for-transaction-start-3">(3)</a> <a href="#ref-for-transaction-start-4">(4)</a> <a href="#ref-for-transaction-start-5">(5)</a> <a href="#ref-for-transaction-start-6">(6)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="transaction-abort">
    <b><a href="#transaction-abort">#transaction-abort</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-abort-1">2.7. Transactions</a> <a href="#ref-for-transaction-abort-2">(2)</a> <a href="#ref-for-transaction-abort-3">(3)</a> <a href="#ref-for-transaction-abort-4">(4)</a> <a href="#ref-for-transaction-abort-5">(5)</a>
+    <li><a href="#ref-for-transaction-abort-1">2.7. Transactions</a>
+    <li><a href="#ref-for-transaction-abort-2">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-abort-3">(2)</a> <a href="#ref-for-transaction-abort-4">(3)</a> <a href="#ref-for-transaction-abort-5">(4)</a>
     <li><a href="#ref-for-transaction-abort-6">4.5. The IDBObjectStore interface</a>
     <li><a href="#ref-for-transaction-abort-7">5.6. Steps for asynchronously executing a request</a>
     <li><a href="#ref-for-transaction-abort-8">5.7. Upgrade transaction steps</a>
@@ -7247,35 +7275,21 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="transaction-commit">
    <b><a href="#transaction-commit">#transaction-commit</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-commit-1">2.7. Transactions</a> <a href="#ref-for-transaction-commit-2">(2)</a> <a href="#ref-for-transaction-commit-3">(3)</a>
+    <li><a href="#ref-for-transaction-commit-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-commit-2">(2)</a> <a href="#ref-for-transaction-commit-3">(3)</a>
     <li><a href="#ref-for-transaction-commit-4">5.5. Steps for aborting a transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="transaction-finish">
    <b><a href="#transaction-finish">#transaction-finish</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-transaction-finish-1">2.7. Transactions</a> <a href="#ref-for-transaction-finish-2">(2)</a> <a href="#ref-for-transaction-finish-3">(3)</a>
-    <li><a href="#ref-for-transaction-finish-4">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-transaction-finish-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-transaction-finish-2">(2)</a> <a href="#ref-for-transaction-finish-3">(3)</a>
+    <li><a href="#ref-for-transaction-finish-4">2.7.2. Upgrade Transactions</a>
     <li><a href="#ref-for-transaction-finish-5">4.5. The IDBObjectStore interface</a> <a href="#ref-for-transaction-finish-6">(2)</a> <a href="#ref-for-transaction-finish-7">(3)</a> <a href="#ref-for-transaction-finish-8">(4)</a> <a href="#ref-for-transaction-finish-9">(5)</a>
     <li><a href="#ref-for-transaction-finish-10">4.6. The IDBIndex interface</a> <a href="#ref-for-transaction-finish-11">(2)</a>
     <li><a href="#ref-for-transaction-finish-12">4.9. The IDBTransaction interface</a> <a href="#ref-for-transaction-finish-13">(2)</a>
     <li><a href="#ref-for-transaction-finish-14">5.1. Opening a database</a>
     <li><a href="#ref-for-transaction-finish-15">5.3. Deleting a database</a>
     <li><a href="#ref-for-transaction-finish-16">5.7. Upgrade transaction steps</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="transaction-read-only-transaction">
-   <b><a href="#transaction-read-only-transaction">#transaction-read-only-transaction</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-transaction-read-only-transaction-1">2.7. Transactions</a> <a href="#ref-for-transaction-read-only-transaction-2">(2)</a> <a href="#ref-for-transaction-read-only-transaction-3">(3)</a> <a href="#ref-for-transaction-read-only-transaction-4">(4)</a> <a href="#ref-for-transaction-read-only-transaction-5">(5)</a> <a href="#ref-for-transaction-read-only-transaction-6">(6)</a> <a href="#ref-for-transaction-read-only-transaction-7">(7)</a> <a href="#ref-for-transaction-read-only-transaction-8">(8)</a>
-    <li><a href="#ref-for-transaction-read-only-transaction-9">4.5. The IDBObjectStore interface</a> <a href="#ref-for-transaction-read-only-transaction-10">(2)</a> <a href="#ref-for-transaction-read-only-transaction-11">(3)</a> <a href="#ref-for-transaction-read-only-transaction-12">(4)</a>
-    <li><a href="#ref-for-transaction-read-only-transaction-13">4.8. The IDBCursor interface</a> <a href="#ref-for-transaction-read-only-transaction-14">(2)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="transaction-read-write-transaction">
-   <b><a href="#transaction-read-write-transaction">#transaction-read-write-transaction</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-transaction-read-write-transaction-1">2.7. Transactions</a> <a href="#ref-for-transaction-read-write-transaction-2">(2)</a> <a href="#ref-for-transaction-read-write-transaction-3">(3)</a> <a href="#ref-for-transaction-read-write-transaction-4">(4)</a> <a href="#ref-for-transaction-read-write-transaction-5">(5)</a> <a href="#ref-for-transaction-read-write-transaction-6">(6)</a> <a href="#ref-for-transaction-read-write-transaction-7">(7)</a> <a href="#ref-for-transaction-read-write-transaction-8">(8)</a> <a href="#ref-for-transaction-read-write-transaction-9">(9)</a> <a href="#ref-for-transaction-read-write-transaction-10">(10)</a> <a href="#ref-for-transaction-read-write-transaction-11">(11)</a> <a href="#ref-for-transaction-read-write-transaction-12">(12)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="upgrade-transaction">
@@ -7286,7 +7300,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
     <li><a href="#ref-for-upgrade-transaction-3">2.2. Object Store</a>
     <li><a href="#ref-for-upgrade-transaction-4">2.2.1. Object Store Handle</a> <a href="#ref-for-upgrade-transaction-5">(2)</a>
     <li><a href="#ref-for-upgrade-transaction-6">2.6.1. Index Handle</a>
-    <li><a href="#ref-for-upgrade-transaction-7">2.7.1. Upgrade Transactions</a> <a href="#ref-for-upgrade-transaction-8">(2)</a> <a href="#ref-for-upgrade-transaction-9">(3)</a> <a href="#ref-for-upgrade-transaction-10">(4)</a> <a href="#ref-for-upgrade-transaction-11">(5)</a> <a href="#ref-for-upgrade-transaction-12">(6)</a>
+    <li><a href="#ref-for-upgrade-transaction-7">2.7.2. Upgrade Transactions</a> <a href="#ref-for-upgrade-transaction-8">(2)</a> <a href="#ref-for-upgrade-transaction-9">(3)</a> <a href="#ref-for-upgrade-transaction-10">(4)</a> <a href="#ref-for-upgrade-transaction-11">(5)</a> <a href="#ref-for-upgrade-transaction-12">(6)</a>
     <li><a href="#ref-for-upgrade-transaction-13">2.8. Requests</a>
     <li><a href="#ref-for-upgrade-transaction-14">4.3. The IDBFactory interface</a> <a href="#ref-for-upgrade-transaction-15">(2)</a>
     <li><a href="#ref-for-upgrade-transaction-16">4.4. The IDBDatabase interface</a> <a href="#ref-for-upgrade-transaction-17">(2)</a> <a href="#ref-for-upgrade-transaction-18">(3)</a> <a href="#ref-for-upgrade-transaction-19">(4)</a> <a href="#ref-for-upgrade-transaction-20">(5)</a> <a href="#ref-for-upgrade-transaction-21">(6)</a> <a href="#ref-for-upgrade-transaction-22">(7)</a>
@@ -7302,7 +7316,8 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="request">
    <b><a href="#request">#request</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-request-1">2.7. Transactions</a> <a href="#ref-for-request-2">(2)</a> <a href="#ref-for-request-3">(3)</a> <a href="#ref-for-request-4">(4)</a> <a href="#ref-for-request-5">(5)</a> <a href="#ref-for-request-6">(6)</a> <a href="#ref-for-request-7">(7)</a>
+    <li><a href="#ref-for-request-1">2.7. Transactions</a> <a href="#ref-for-request-2">(2)</a>
+    <li><a href="#ref-for-request-3">2.7.1. Transaction Lifetime</a> <a href="#ref-for-request-4">(2)</a> <a href="#ref-for-request-5">(3)</a> <a href="#ref-for-request-6">(4)</a> <a href="#ref-for-request-7">(5)</a>
     <li><a href="#ref-for-request-8">2.8. Requests</a> <a href="#ref-for-request-9">(2)</a> <a href="#ref-for-request-10">(3)</a> <a href="#ref-for-request-11">(4)</a> <a href="#ref-for-request-12">(5)</a> <a href="#ref-for-request-13">(6)</a> <a href="#ref-for-request-14">(7)</a> <a href="#ref-for-request-15">(8)</a> <a href="#ref-for-request-16">(9)</a>
     <li><a href="#ref-for-request-17">4.1. The IDBRequest interface</a> <a href="#ref-for-request-18">(2)</a> <a href="#ref-for-request-19">(3)</a>
     <li><a href="#ref-for-request-20">4.3. The IDBFactory interface</a>
@@ -7370,13 +7385,13 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="request-placed">
    <b><a href="#request-placed">#request-placed</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-request-placed-1">2.7. Transactions</a>
+    <li><a href="#ref-for-request-placed-1">2.7.1. Transaction Lifetime</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-open-request">
    <b><a href="#request-open-request">#request-open-request</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-request-open-request-1">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-request-open-request-1">2.7.2. Upgrade Transactions</a>
     <li><a href="#ref-for-request-open-request-2">2.8. Requests</a> <a href="#ref-for-request-open-request-3">(2)</a> <a href="#ref-for-request-open-request-4">(3)</a> <a href="#ref-for-request-open-request-5">(4)</a> <a href="#ref-for-request-open-request-6">(5)</a>
     <li><a href="#ref-for-request-open-request-7">4.1. The IDBRequest interface</a>
     <li><a href="#ref-for-request-open-request-8">4.3. The IDBFactory interface</a> <a href="#ref-for-request-open-request-9">(2)</a>
@@ -7649,7 +7664,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="exceptiondef-quotaexceedederror">
    <b><a href="#exceptiondef-quotaexceedederror">#exceptiondef-quotaexceedederror</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-exceptiondef-quotaexceedederror-1">2.7. Transactions</a>
+    <li><a href="#ref-for-exceptiondef-quotaexceedederror-1">2.7.1. Transaction Lifetime</a>
     <li><a href="#ref-for-exceptiondef-quotaexceedederror-2">4.4. The IDBDatabase interface</a>
     <li><a href="#ref-for-exceptiondef-quotaexceedederror-3">4.5. The IDBObjectStore interface</a>
     <li><a href="#ref-for-exceptiondef-quotaexceedederror-4">4.9. The IDBTransaction interface</a>
@@ -7673,7 +7688,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="exceptiondef-transactioninactiveerror">
    <b><a href="#exceptiondef-transactioninactiveerror">#exceptiondef-transactioninactiveerror</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-exceptiondef-transactioninactiveerror-1">2.7. Transactions</a>
+    <li><a href="#ref-for-exceptiondef-transactioninactiveerror-1">2.7.1. Transaction Lifetime</a>
     <li><a href="#ref-for-exceptiondef-transactioninactiveerror-2">4.4. The IDBDatabase interface</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-3">(2)</a>
     <li><a href="#ref-for-exceptiondef-transactioninactiveerror-4">4.5. The IDBObjectStore interface</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-5">(2)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-6">(3)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-7">(4)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-8">(5)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-9">(6)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-10">(7)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-11">(8)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-12">(9)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-13">(10)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-14">(11)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-15">(12)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-16">(13)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-17">(14)</a>
     <li><a href="#ref-for-exceptiondef-transactioninactiveerror-18">4.6. The IDBIndex interface</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-19">(2)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-20">(3)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-21">(4)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-22">(5)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-23">(6)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-24">(7)</a> <a href="#ref-for-exceptiondef-transactioninactiveerror-25">(8)</a>
@@ -7684,7 +7699,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="exceptiondef-unknownerror">
    <b><a href="#exceptiondef-unknownerror">#exceptiondef-unknownerror</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-exceptiondef-unknownerror-1">2.7. Transactions</a>
+    <li><a href="#ref-for-exceptiondef-unknownerror-1">2.7.1. Transaction Lifetime</a>
     <li><a href="#ref-for-exceptiondef-unknownerror-2">4.9. The IDBTransaction interface</a>
     <li><a href="#ref-for-exceptiondef-unknownerror-3">5.4. Steps for committing a transaction</a>
    </ul>
@@ -8453,7 +8468,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
    <b><a href="#dom-idbtransactionmode-versionchange">#dom-idbtransactionmode-versionchange</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-idbtransactionmode-versionchange-1">2.7. Transactions</a>
-    <li><a href="#ref-for-dom-idbtransactionmode-versionchange-2">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-dom-idbtransactionmode-versionchange-2">2.7.2. Upgrade Transactions</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbtransaction-objectstore">
@@ -8494,13 +8509,13 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="steps-for-committing-a-transaction">
    <b><a href="#steps-for-committing-a-transaction">#steps-for-committing-a-transaction</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-steps-for-committing-a-transaction-1">2.7. Transactions</a>
+    <li><a href="#ref-for-steps-for-committing-a-transaction-1">2.7.1. Transaction Lifetime</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="steps-for-aborting-a-transaction">
    <b><a href="#steps-for-aborting-a-transaction">#steps-for-aborting-a-transaction</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-steps-for-aborting-a-transaction-1">2.7. Transactions</a> <a href="#ref-for-steps-for-aborting-a-transaction-2">(2)</a>
+    <li><a href="#ref-for-steps-for-aborting-a-transaction-1">2.7.1. Transaction Lifetime</a> <a href="#ref-for-steps-for-aborting-a-transaction-2">(2)</a>
     <li><a href="#ref-for-steps-for-aborting-a-transaction-3">4.4. The IDBDatabase interface</a>
     <li><a href="#ref-for-steps-for-aborting-a-transaction-4">4.5. The IDBObjectStore interface</a>
     <li><a href="#ref-for-steps-for-aborting-a-transaction-5">4.9. The IDBTransaction interface</a>
@@ -8527,7 +8542,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
   <aside class="dfn-panel" data-for="steps-for-running-an-upgrade-transaction">
    <b><a href="#steps-for-running-an-upgrade-transaction">#steps-for-running-an-upgrade-transaction</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-steps-for-running-an-upgrade-transaction-1">2.7.1. Upgrade Transactions</a>
+    <li><a href="#ref-for-steps-for-running-an-upgrade-transaction-1">2.7.2. Upgrade Transactions</a>
     <li><a href="#ref-for-steps-for-running-an-upgrade-transaction-2">4.2. Event interfaces</a>
     <li><a href="#ref-for-steps-for-running-an-upgrade-transaction-3">5.1. Opening a database</a>
     <li><a href="#ref-for-steps-for-running-an-upgrade-transaction-4">5.2. Closing a database</a>
@@ -8545,7 +8560,7 @@ enum <a href="#enumdef-idbtransactionmode">IDBTransactionMode</a> {
    <ul>
     <li><a href="#ref-for-upgradeneeded-1">2.2. Object Store</a>
     <li><a href="#ref-for-upgradeneeded-2">2.7. Transactions</a>
-    <li><a href="#ref-for-upgradeneeded-3">2.7.1. Upgrade Transactions</a> <a href="#ref-for-upgradeneeded-4">(2)</a> <a href="#ref-for-upgradeneeded-5">(3)</a>
+    <li><a href="#ref-for-upgradeneeded-3">2.7.2. Upgrade Transactions</a> <a href="#ref-for-upgradeneeded-4">(2)</a> <a href="#ref-for-upgradeneeded-5">(3)</a>
     <li><a href="#ref-for-upgradeneeded-6">2.8. Requests</a> <a href="#ref-for-upgradeneeded-7">(2)</a> <a href="#ref-for-upgradeneeded-8">(3)</a>
     <li><a href="#ref-for-upgradeneeded-9">4.1. The IDBRequest interface</a> <a href="#ref-for-upgradeneeded-10">(2)</a>
    </ul>
