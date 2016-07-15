@@ -1974,37 +1974,38 @@ when invoked, must run these steps:
           <a for=database>version</a> equal to 1.
         </aside>
 
-    2. If |result| is an error, set the <a
-        for=request>error</a> of |request| to
-        |result| and dispatch an event at |request|.
-        The event must use the <a>Event</a> interface and set the
-        {{Event/type}} attribute to "<code>error</code>". The event
-        does bubble but is not cancelable.
+    2. <a>Queue a task</a> to run these substeps:
 
-    3. Otherwise, set the <a for=request>result</a> of
-        |request| to |result| and dispatch an event
-        at |request|. The event must use the <a>Event</a>
-        interface and set the {{Event/type}} attribute to
-        "<code>success</code>". The event does not bubble and is not
-        cancelable. If the steps above resulted in an <a>upgrade
-        transaction</a> being run, then firing the
-        "<code>success</code>" event must be done after the <a>upgrade
-        transaction</a> completes.
+        1. If |result| is an error, set the <a for=request>error</a>
+            of |request| to |result| and dispatch an event at
+            |request|. The event must use the <a>Event</a> interface
+            and set the {{Event/type}} attribute to
+            "<code>error</code>". The event does bubble but is not
+            cancelable.
 
-        <aside class=note>
-          The last requirement is to ensure that in case another
-          version upgrade is about to happen, the success event is
-          fired on the connection first so that the script gets a
-          chance to register a listener for the
-          <code>versionchange</code> event.
-        </aside>
+        2. Otherwise, set the <a for=request>result</a> of |request|
+            to |result| and dispatch an event at |request|. The event
+            must use the <a>Event</a> interface and set the
+            {{Event/type}} attribute to "<code>success</code>". The
+            event does not bubble and is not cancelable. If the steps
+            above resulted in an <a>upgrade transaction</a> being run,
+            then firing the "<code>success</code>" event must be done
+            after the <a>upgrade transaction</a> completes.
 
-        <aside class=note>
-          The firing of "<code>success</code>" or "<code>error</code>"
-          events do not follow the normal steps to <a>fire a success
-          event</a> or <a>fire an error event</a> as there is no
-          active transaction at the time when they fire.
-        </aside>
+            <aside class=note>
+              The last requirement is to ensure that in case another
+              version upgrade is about to happen, the success event is
+              fired on the connection first so that the script gets a
+              chance to register a listener for the
+              <code>versionchange</code> event.
+            </aside>
+
+            <aside class=note>
+              The firing of "<code>success</code>" or "<code>error</code>"
+              events do not follow the normal steps to <a>fire a success
+              event</a> or <a>fire an error event</a> as there is no
+              active transaction at the time when they fire.
+            </aside>
 
 4. Return a new {{IDBOpenDBRequest}} object for |request|.
 
@@ -2017,31 +2018,31 @@ when invoked, must run these steps:
 
 1. Let |request| be a new <a>open request</a>.
 
-2. <a>Queue a task</a> to run these substeps:
+3. Run the following substeps in parallel:
 
     1. Let |result| be the result of running the <a>steps for
         deleting a database</a>, with the origin of the
         {{IDBEnvironment}} used to access this {{IDBFactory}},
         |name|, and |request|.
 
-    2. If |result| is an error set the <a
-        for=request>error</a> of |request| to
-        |result| and dispatch an event at |request|.
-        The event must use the <a>Event</a> interface and set the
-        {{Event/type}} attribute to "<code>error</code>". The event
-        does bubble but is not cancelable.
+    2. <a>Queue a task</a> to run these substeps:
+        1. If |result| is an error set the <a for=request>error</a> of
+            |request| to |result| and dispatch an event at |request|.
+            The event must use the <a>Event</a> interface and set the
+            {{Event/type}} attribute to "<code>error</code>". The
+            event does bubble but is not cancelable.
 
-    3. Otherwise, set the <a for=request>result</a> of
-        |request| to undefined and <a>fire a version change
-        event</a> named <code>success</code> at <a>request</a> with
-        |result| and null.
+        2. Otherwise, set the <a for=request>result</a> of |request|
+            to undefined and <a>fire a version change event</a> named
+            <code>success</code> at <a>request</a> with |result| and
+            null.
 
-        <aside class=note>
-          The firing of "<code>success</code>" or "<code>error</code>"
-          events do not follow the normal steps to <a>fire a success
-          event</a> or <a>fire an error event</a> as there is no
-          active transaction at the time when they fire.
-        </aside>
+            <aside class=note>
+              The firing of "<code>success</code>" or "<code>error</code>"
+              events do not follow the normal steps to <a>fire a success
+              event</a> or <a>fire an error event</a> as there is no
+              active transaction at the time when they fire.
+            </aside>
 
 3. Return a new {{IDBOpenDBRequest}} object for |request|.
 

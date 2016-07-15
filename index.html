@@ -2917,25 +2917,29 @@ otherwise, and <var>request</var>.</p>
   without changing the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-6">version</a>. If <var>version</var> is not given and no <a data-link-type="dfn" href="#database" id="ref-for-database-31">database</a> with
   that name exists, a new <a data-link-type="dfn" href="#database" id="ref-for-database-32">database</a> will be created with <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-7">version</a> equal to 1. </aside>
         <li data-md="">
-         <p>If <var>result</var> is an error, set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-3">error</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>.
-The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>error</code>". The event
-does bubble but is not cancelable.</p>
-        <li data-md="">
-         <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-4">result</a> of <var>request</var> to <var>result</var> and dispatch an event
-at <var>request</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to
-"<code>success</code>". The event does not bubble and is not
-cancelable. If the steps above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-14">upgrade
-transaction</a> being run, then firing the
-"<code>success</code>" event must be done after the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-15">upgrade
-transaction</a> completes.</p>
-         <aside class="note" role="note"> The last requirement is to ensure that in case another
+         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
+         <ol>
+          <li data-md="">
+           <p>If <var>result</var> is an error, set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-3">error</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface
+and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to
+"<code>error</code>". The event does bubble but is not
+cancelable.</p>
+          <li data-md="">
+           <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-4">result</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>. The event
+must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>success</code>". The
+event does not bubble and is not cancelable. If the steps
+above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-14">upgrade transaction</a> being run,
+then firing the "<code>success</code>" event must be done
+after the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-15">upgrade transaction</a> completes.</p>
+           <aside class="note" role="note"> The last requirement is to ensure that in case another
   version upgrade is about to happen, the success event is
   fired on the connection first so that the script gets a
   chance to register a listener for the <code>versionchange</code> event. </aside>
-         <aside class="note" role="note"> The firing of "<code>success</code>" or "<code>error</code>"
+           <aside class="note" role="note"> The firing of "<code>success</code>" or "<code>error</code>"
   events do not follow the normal steps to <a data-link-type="dfn" href="#request-fire-a-success-event" id="ref-for-request-fire-a-success-event-1">fire a success
   event</a> or <a data-link-type="dfn" href="#request-fire-an-error-event" id="ref-for-request-fire-an-error-event-1">fire an error event</a> as there is no
   active transaction at the time when they fire. </aside>
+         </ol>
        </ol>
       <li data-md="">
        <p>Return a new <code class="idl"><a data-link-type="idl" href="#request-idbopendbrequest" id="ref-for-request-idbopendbrequest-3">IDBOpenDBRequest</a></code> object for <var>request</var>.</p>
@@ -2948,22 +2952,26 @@ when invoked, must run these steps:</p>
       <li data-md="">
        <p>Let <var>request</var> be a new <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request-12">open request</a>.</p>
       <li data-md="">
-       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
+       <p>Run the following substeps in parallel:</p>
        <ol>
         <li data-md="">
          <p>Let <var>result</var> be the result of running the <a data-link-type="dfn" href="#request-steps-for-deleting-a-database" id="ref-for-request-steps-for-deleting-a-database-1">steps for
 deleting a database</a>, with the origin of the <code class="idl"><a data-link-type="idl" href="#request-idbenvironment" id="ref-for-request-idbenvironment-4">IDBEnvironment</a></code> used to access this <code class="idl"><a data-link-type="idl" href="#request-idbfactory" id="ref-for-request-idbfactory-5">IDBFactory</a></code>, <var>name</var>, and <var>request</var>.</p>
         <li data-md="">
-         <p>If <var>result</var> is an error set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-4">error</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>.
-The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>error</code>". The event
-does bubble but is not cancelable.</p>
-        <li data-md="">
-         <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-5">result</a> of <var>request</var> to undefined and <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-1">fire a version change
-event</a> named <code>success</code> at <a data-link-type="dfn" href="#request" id="ref-for-request-20">request</a> with <var>result</var> and null.</p>
-         <aside class="note" role="note"> The firing of "<code>success</code>" or "<code>error</code>"
+         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
+         <ol>
+          <li data-md="">
+           <p>If <var>result</var> is an error set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-4">error</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>.
+The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>error</code>". The
+event does bubble but is not cancelable.</p>
+          <li data-md="">
+           <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-5">result</a> of <var>request</var> to undefined and <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-1">fire a version change event</a> named <code>success</code> at <a data-link-type="dfn" href="#request" id="ref-for-request-20">request</a> with <var>result</var> and
+null.</p>
+           <aside class="note" role="note"> The firing of "<code>success</code>" or "<code>error</code>"
   events do not follow the normal steps to <a data-link-type="dfn" href="#request-fire-a-success-event" id="ref-for-request-fire-a-success-event-2">fire a success
   event</a> or <a data-link-type="dfn" href="#request-fire-an-error-event" id="ref-for-request-fire-an-error-event-2">fire an error event</a> as there is no
   active transaction at the time when they fire. </aside>
+         </ol>
        </ol>
       <li data-md="">
        <p>Return a new <code class="idl"><a data-link-type="idl" href="#request-idbopendbrequest" id="ref-for-request-idbopendbrequest-4">IDBOpenDBRequest</a></code> object for <var>request</var>.</p>
