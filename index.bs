@@ -37,6 +37,9 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     urlPrefix: webappapis.html
         type: dfn
             text: queue a task; url: #queue-a-task
+            text: task queue; url: #task-queue
+            text: browsing context; url: #browsing-context
+            text: event loop; url: #event-loop
             text: event handler idl attributes; url: #event-handler-idl-attributes
 spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
     type: dfn
@@ -307,11 +310,6 @@ created, its <a for=database>version</a> is 0 (zero).
   version is using an <a>upgrade transaction</a>.
 </aside>
 
-A database has a <dfn>delete pending flag</dfn> which is used during
-deletion. When a database is requested to be deleted the flag is set
-and all attempts at opening the database are stalled until the
-database can be deleted.
-
 </div>
 
 <!-- ============================================================ -->
@@ -367,6 +365,7 @@ null.
 
 </div>
 
+
 <!-- ============================================================ -->
 <h3 id=object-store-construct>Object Store</h3>
 <!-- ============================================================ -->
@@ -378,9 +377,9 @@ storage mechanism for storing data in a <a>database</a>.
 
 Each database has a set of <a for=/>object stores</a>. The set of <a
 for=/>object stores</a> can be changed, but only using an <a>upgrade
-transaction</a>, i.e. in response to an <a>upgradeneeded</a> event.
-When a new database is created it doesn't contain any <a for=/>object
-stores</a>.
+transaction</a>, i.e. in response to an
+<a><code>upgradeneeded</code></a> event. When a new database is
+created it doesn't contain any <a for=/>object stores</a>.
 
 An <a for=/>object store</a> has a <dfn>list of records</dfn> which
 hold the data stored in the object store. Each <dfn>record</dfn>
@@ -861,8 +860,8 @@ and remains fixed for the life of the transaction. A
     existing object stores, and can also create and remove object
     stores and indexes. It is the only type of transaction that can do
     so. This type of transaction can't be manually created, but
-    instead is created automatically when an <a>upgradeneeded</a>
-    event is fired.
+    instead is created automatically when an
+    <a><code>upgradeneeded</code></a> event is fired.
   </dd>
 </dl>
 
@@ -1059,23 +1058,24 @@ An <dfn>upgrade transaction</dfn> is a
 <a for=/>transaction</a> with <a>mode</a> {{"versionchange"}}.
 
 An <a>upgrade transaction</a> is automatically created when running
-<a>steps for running an upgrade transaction</a> after a
-<a for=/>connection</a> is opened to a <a>database</a> giving a greater <a
-for=database>version</a> than the current <a for=database>version</a>.
-This <a for=/>transaction</a> will be active inside the <a>upgradeneeded</a>
-event handler, allowing the creation of new <a for=/>object stores</a> and
-<a for=/>indexes</a>.
+<a>steps for running an upgrade transaction</a> after a <a
+for=/>connection</a> is opened to a <a>database</a> giving a greater
+<a for=database>version</a> than the current <a
+for=database>version</a>. This <a for=/>transaction</a> will be active
+inside the <a><code>upgradeneeded</code></a> event handler, allowing
+the creation of new <a for=/>object stores</a> and <a
+for=/>indexes</a>.
 
 An <a>upgrade transaction</a> is never run concurrently with other
 transactions. When a database is opened with a <a
 for=database>version</a> number higher than the current <a
 for=database>version</a>, a new <a>upgrade transaction</a> is
 automatically created and made available through the <a>open
-request</a> when the <a>upgradeneeded</a> event is fired. The
-<a>upgradeneeded</a> event isn't fired, and thus the <a>upgrade
-transaction</a> isn't started, until all other <a for=/>connections</a> to
-the same <a>database</a> are closed. This ensures that all other
-transactions are <a>finished</a>.
+request</a> when the <a><code>upgradeneeded</code></a> event is fired.
+The <a><code>upgradeneeded</code></a> event isn't fired, and thus the
+<a>upgrade transaction</a> isn't started, until all other <a
+for=/>connections</a> to the same <a>database</a> are closed. This
+ensures that all other transactions are <a>finished</a>.
 
 As long as an <a>upgrade transaction</a> is running, attempts to open
 more <a for=/>connections</a> to the same <a>database</a> are delayed, and
@@ -1122,32 +1122,52 @@ request.
 A <a>request</a>'s <a>get the parent</a> algorithm
 returns the request's <a for=request>transaction</a>.
 
-An <dfn>open request</dfn> is a special type of <a>request</a> used
-when opening a <a for=/>connection</a> or deleting a <a>database</a>. In
-addition to <code>success</code> and <code>error</code> events,
-<a>blocked</a> and <a>upgradeneeded</a> may be fired at an <a>open
-request</a> to indicate progress.
-
-The <a for=request>source</a> of an <a>open request</a>
-is always null.
-
-The <a for=request>transaction</a> of an <a>open
-request</a> is null unless an <a>upgradeneeded</a> event has been
-fired.
-
-An <a>open request</a>'s <a>get the parent</a> algorithm returns null.
-
 <aside class=note>
   Requests are not typically re-used, but there are exceptions. When a
   <a>cursor</a> is iterated, the success of the iteration is reported
   on the same <a>request</a> object used to open the cursor. And when
   an <a>upgrade transaction</a> is necessary, the same <a>open
-  request</a> is used for both the <a>upgradeneeded</a> event and
-  final result of the open operation itself. In both cases, the
-  request's <a>done flag</a> will be unset then set again, and the <a
-  for=request>result</a> may change.
+  request</a> is used for both the <a><code>upgradeneeded</code></a>
+  event and final result of the open operation itself. In both cases,
+  the request's <a>done flag</a> will be unset then set again, and the
+  <a for=request>result</a> may change.
 </aside>
 
+<!-- ============================================================ -->
+<h4 id=open-requests>Open Requests</h4>
+<!-- ============================================================ -->
+
+An <dfn>open request</dfn> is a special type of <a>request</a> used
+when opening a <a for=/>connection</a> or deleting a <a>database</a>.
+In addition to <code>success</code> and <code>error</code> events,
+<dfn><code>blocked</code></dfn> and
+<dfn><code>upgradeneeded</code></dfn> may be fired at an <a>open
+request</a> to indicate progress.
+
+The <a for=request>source</a> of an <a>open request</a>
+is always null.
+
+The <a for=request>transaction</a> of an <a>open request</a> is null
+unless an <a><code>upgradeneeded</code></a> event has been fired.
+
+An <a>open request</a>'s <a>get the parent</a> algorithm returns null.
+
+<a>Open requests</a> are processed in a <dfn>connection queue</dfn>.
+The queue contains all <a>open requests</a> associated with an
+<a>origin</a> and a <a for=database>name</a>. Requests added to the
+<a>connection queue</a> processed in order and each request must run
+to completion before the next request is processed. An open request
+may be blocked on other <a for=/>connections</a>, requiring those
+connections to <a>close</a> before the request can complete and allow
+further requests to be processed.
+
+<div class=note>
+  A <a>connection queue</a> is not a <a>task queue</a> associated with
+  an <a>event loop</a>, as the requests are processed outside any
+  specific <a>browsing context</a>. The delivery of events to
+  completed <a>open request</a> still goes through a <a>task queue</a>
+  associated with the <a>event loop</a> of the context where the
+  request was made.
 </div>
 
 <!-- ============================================================ -->
@@ -1830,9 +1850,10 @@ The <dfn attribute for=IDBRequest>onerror</dfn> attribute is the event
 handler for the <code>error</code> event.
 
 
-Methods on {{IDBDatabase}} that return a <a>open request</a> use
-an extended interface to allow listening to the
-<a>blocked</a> event and <a>upgradeneeded</a> event.
+Methods on {{IDBDatabase}} that return a <a>open request</a> use an
+extended interface to allow listening to the
+<a><code>blocked</code></a> event and
+<a><code>upgradeneeded</code></a> event.
 
 <pre class=idl>
 [Exposed=(Window,Worker)]
@@ -1844,10 +1865,11 @@ interface IDBOpenDBRequest : IDBRequest {
 </pre>
 
 The <dfn attribute for=IDBOpenDBRequest>onblocked</dfn> attribute is
-the event handler for the <a>blocked</a> event.
+the event handler for the <a><code>blocked</code></a> event.
 
 The <dfn attribute for=IDBOpenDBRequest>onupgradeneeded</dfn>
-attribute is the event handler for the <a>upgradeneeded</a> event.
+attribute is the event handler for the
+<a><code>upgradeneeded</code></a> event.
 
 
 <!-- ============================================================ -->
@@ -1935,7 +1957,7 @@ when invoked, must run these steps:
 
 2. Let |request| be a new <a>open request</a>.
 
-3. <a>Queue a task</a> to run these substeps:
+3. Run the following substeps in parallel:
 
     1. Let |result| be the result of running the <a>steps for
         opening a database</a>, with the origin of the
@@ -4177,62 +4199,69 @@ database |name|, a database |version|, and a |request|.
 
 <div class=algorithm>
 
-1. Let |db| be the <a>database</a> <a for=database>named</a> |name| in the
-    origin |origin|, or null otherwise.
+1. Let |queue| be the <a>connection queue</a> for |origin| and |name|.
 
-2. If |db| is not null, run these substeps:
+2. Add |request| to |queue|.
 
-    1. Wait until the following conditions are all fulfilled:
+3. Wait until all previous requests in |queue| have been processed.
 
-        * No already existing <a for=/>connections</a> to |db|, have
-            non-<a>finished</a> <a>upgrade transaction</a>.
+4. Let |db| be the <a>database</a> <a for=database>named</a> |name| in
+    |origin|, or null otherwise.
 
-        * If |db| has its <a>delete pending flag</a> set, wait until
-            |db| has been deleted.
-
-        <aside class=note>
-          If several requests with the same |origin| and |name| are
-          waiting due to the above conditions, and those connections
-          have a higher version than the database's current version,
-          then once any of those connections can proceed to the next
-          step in this algorithm it will immediately start an
-          <a>upgrade transaction</a>. This prevents the other
-          connections from proceeding until that <a>upgrade
-          transaction</a> is finished.
-        </aside>
-
-    2. If |db| was deleted, let |db| be null.
-
-3. If |version| is undefined, let |version| be 1 if |db| is null, or
+5. If |version| is undefined, let |version| be 1 if |db| is null, or
     |db|'s <a for=database>version</a> otherwise.
 
-4. If |db| is null, let |db| be a new <a>database</a> with <a
+6. If |db| is null, let |db| be a new <a>database</a> with <a
     for=database>name</a> |name|, <a for=database>version</a> 0
     (zero), and with no <a for=/>object stores</a>.
 
-5. If |db|'s <a for=database>version</a> is greater than |version|,
+7. If |db|'s <a for=database>version</a> is greater than |version|,
     abort these steps and return a new {{VersionError}}.
 
-6. Let |connection| be a new <a for=/>connection</a> to |db|.
+8. Let |connection| be a new <a for=/>connection</a> to |db|.
 
-7. Set |connection|'s <a for=connection>version</a> to |version|.
+9. Set |connection|'s <a for=connection>version</a> to |version|.
 
-8. If |db|'s <a for=database>version</a> is less than |version|, run
+10. If |db|'s <a for=database>version</a> is less than |version|, run
     these substeps:
 
-    1. Run the <a>steps for running an upgrade transaction</a>
+    1. Let |openConnections| be the set of all <a for=/>connections</a>,
+        except |connection|, associated with |db|.
+
+    2. For each |entry| in |openConnections| that does not have its
+        <a>close pending flag</a> set, <a>fire a version change event</a>
+        named <code>versionchange</code> at |entry| with |db|'s <a
+        for=database>version</a> and |version|.
+
+        <aside class=note>
+          Firing this event might cause one or more of the other objects
+          in |openConnections| to be closed, in which case the
+          <code>versionchange</code> event must not be fired at those
+          objects if that hasn't yet been done.
+        </aside>
+
+    3. If any of the <a for=/>connections</a> in |openConnections| are
+        still not closed, <a>fire a version change event</a> named
+        <a><code>blocked</code></a> at |request| with |db|'s
+        <a for=database>version</a> and |version|.
+
+    4. <span id="version-change-close-block">Wait</span> until all
+        <a for=/>connections</a> in |openConnections| are
+        <a for=connection>closed</a>.
+
+    5. Run the <a>steps for running an upgrade transaction</a>
         using |connection|, |version| and |request|.
 
-    2. If |connection| was <a for=connection>closed</a>, create and
+    6. If |connection| was <a for=connection>closed</a>, create and
         return a newly <a lt="create exception">created</a>
         {{AbortError}} and abort these steps.
 
-    3. If the <a>upgrade transaction</a> was aborted, run the <a>steps
+    7. If the <a>upgrade transaction</a> was aborted, run the <a>steps
         for closing a database connection</a> with |connection|,
         create and return a newly <a lt="create exception">created</a>
         {{AbortError}} and abort these steps.
 
-9. Return |connection|.
+11. Return |connection|.
 
 </div>
 
@@ -4289,23 +4318,26 @@ optional |forced flag|.
 <h3 id=deleting-a-database>Deleting a database</h3>
 <!-- ============================================================ -->
 
-The <dfn>steps for deleting a database</dfn> are as follows.
-The algorithm in these steps takes three arguments:
-the |origin| that requested the <a>database</a> to be deleted,
-a database |name|,
-and a |request|.
+The <dfn>steps for deleting a database</dfn> are as follows. The
+algorithm in these steps takes three arguments: the |origin| that
+requested the <a>database</a> to be deleted, a database |name|, and a
+|request|.
 
 <div class=algorithm>
 
-1. Let |db| be the <a>database</a> with the given name from the origin
+1. Let |queue| be the <a>connection queue</a> for |origin| and |name|.
+
+2. Add |request| to |queue|.
+
+3. Wait until all previous requests in |queue| have been processed.
+
+4. Let |db| be the <a>database</a> <a for=database>named</a> |name| in
     |origin|, if one exists. Otherwise, return 0 (zero).
 
-2. Set |db|'s <a>delete pending flag</a>.
-
-3. Let |openConnections| be the set of all <a for=/>connections</a>
+5. Let |openConnections| be the set of all <a for=/>connections</a>
     associated with |db|.
 
-4. For each |entry| in |openConnections| that does not have its
+6. For each |entry| in |openConnections| that does not have its
     <a>close pending flag</a> set, <a>fire a version change event</a>
     named <code>versionchange</code> at |entry| with |db|'s <a
     for=database>version</a> and null.
@@ -4317,27 +4349,26 @@ and a |request|.
       objects if that hasn't yet been done.
     </aside>
 
-5. If any of the <a for=/>connections</a> in |openConnections| are
+7. If any of the <a for=/>connections</a> in |openConnections| are
     still not closed, <a>fire a version change event</a> named
-    <code>blocked</code> at |request| with |db|'s <a
+    <a><code>blocked</code></a> at |request| with |db|'s <a
     for=database>version</a> and null.
 
-6. <span id="delete-close-block">Wait</span> until all <a
+8. <span id="delete-close-block">Wait</span> until all <a
     for=/>connections</a> in |openConnections| are <a
-    for=connection>closed</a> and all of their transactions are
-    <a>finished</a>.
+    for=connection>closed</a>.
 
-7. Let |version| be |db|'s <a for=database>version</a>.
+9. Let |version| be |db|'s <a for=database>version</a>.
 
-8. Delete |db|.
+10. Delete |db|.
 
-9. Return |version|.
+11. Return |version|.
 
 </div>
 
 
 <!-- ============================================================ -->
-<h3 id=commit-transaction>Steps for committing a transaction</h3>
+<h3 id=commit-transaction>Committing a transaction</h3>
 <!-- ============================================================ -->
 
 When taking the <dfn>steps for committing a transaction</dfn> the
@@ -4372,7 +4403,7 @@ takes one argument, the |transaction| to commit.
 
 
 <!-- ============================================================ -->
-<h3 id=abort-transaction>Steps for aborting a transaction</h3>
+<h3 id=abort-transaction>Aborting a transaction</h3>
 <!-- ============================================================ -->
 
 When taking the <dfn>steps for aborting a transaction</dfn> the
@@ -4428,7 +4459,7 @@ takes two arguments: the |transaction| to abort, and |error|.
 
 
 <!-- ============================================================ -->
-<h3 id=async-execute-request>Steps for asynchronously executing a <a>request</a></h3>
+<h3 id=async-execute-request>Asynchronously executing a <a>request</a></h3>
 <!-- ============================================================ -->
 
 When taking the <dfn>steps for asynchronously executing a
@@ -4481,7 +4512,7 @@ for=/>transaction</a> the created <a>request</a> belongs to is
 
 
 <!-- ============================================================ -->
-<h3 id=upgrade-transaction-steps>Upgrade transaction steps</h3>
+<h3 id=upgrade-transaction-steps>Running an upgrade transaction</h3>
 <!-- ============================================================ -->
 
 The <dfn>steps for running an upgrade transaction</dfn> are as
@@ -4491,56 +4522,36 @@ for the <a>database</a>, and a |request|.
 
 <div class=algorithm>
 
-1. Let |openConnections| be the set of all <a for=/>connections</a>,
-    except |connection|, connected to the same <a>database</a> as
-    |connection|.
+1. Let |db| be |connection|'s <a>database</a>.
 
-2. For each |entry| in |openConnections| that does not have its
-    <a>close pending flag</a> set, <a>fire a version change event</a>
-    named <code>versionchange</code> at |entry| with |db|'s <a
-    for=database>version</a> and |version|.
-
-    <aside class=note>
-      Firing this event might cause one or more of the other objects
-      in |openConnections| to be closed, in which case the
-      <code>versionchange</code> event must not be fired at those
-      objects if that hasn't yet been done.
-    </aside>
-
-3. If any of the <a for=/>connections</a> in |openConnections| are
-    still not closed, <a>fire a version change event</a> named
-    <dfn><code>blocked</code></dfn> at |request| with |db|'s <a
-    for=database>version</a> and |version|.
-
-4. <span id="version-change-close-block">Wait</span> until all <a
-    for=/>connections</a> in |openConnections| are <a
-    for=connection>closed</a> and all of their transactions are
-    <a>finished</a>.
-
-5. Let |transaction| be a new <a>upgrade transaction</a> with
+2. Let |transaction| be a new <a>upgrade transaction</a> with
     |connection| used as <a for=/>connection</a>. The <a>scope</a> of
     |transaction| includes every <a for=/>object store</a> in
     |connection|.
 
-6. Unset |transaction|'s <a>active flag</a>.
+3. Unset |transaction|'s <a>active flag</a>.
 
-7. Start |transaction|. Note that until this <a for=/>transaction</a>
-    is finished, no other <a for=/>connections</a> can be opened to
-    the same <a>database</a>.
+4. Start |transaction|.
 
-8. Let |old version| be |database|'s <a for=database>version</a>.
+    <div class=note>
+      Note that until this <a for=/>transaction</a> is finished, no
+      other <a for=/>connections</a> can be opened to the same
+      <a>database</a>.
+    </div>
 
-9. Set the version of |database| to |version|. This change is
+5. Let |old version| be |db|'s <a for=database>version</a>.
+
+6. Set the version of |db| to |version|. This change is
     considered part of the <a for=/>transaction</a>, and so if the
     transaction is <a>aborted</a>, this change is reverted.
 
-10. <a>Queue a task</a> to run the following steps:
+7. <a>Queue a task</a> to run the following steps:
 
     1. Set |request|'s <a for=request>result</a> to |connection|.
     2. Set |request|'s <a for=request>transaction</a> to |transaction|.
     3. Set the <a>done flag</a> on the <a>request</a>.
     4. <a>Fire a version change event</a> named
-        <dfn><code>upgradeneeded</code></dfn> at |request| with |old
+        <a><code>upgradeneeded</code></a> at |request| with |old
         version| and |version|.
     5. If an exception was propagated out from any event handler while
         dispatching the event in the previous step, abort the
@@ -4548,12 +4559,12 @@ for the <a>database</a>, and a |request|.
         transaction</a> with the |error| property set to a newly
         <a lt="create exception">created</a> {{AbortError}}.
 
-11. Execute transaction.
+8. Wait for |transaction| to <a>finish</a>.
 
-12. If |transaction| is aborted for any reason, the <a>steps for
+9. If |transaction| is aborted for any reason, the <a>steps for
     aborting a transaction</a> must be run.
 
-13. When |transaction| is finished, immediately set |request|'s <a
+10. When |transaction| is finished, immediately set |request|'s <a
     for=request>transaction</a> to null. This must be done in the same
     task as the task firing the <code>complete</code> or
     <code>abort</code> event, but after the event has been fired.
@@ -4562,7 +4573,7 @@ for the <a>database</a>, and a |request|.
 
 
 <!-- ============================================================ -->
-<h3 id=abort-upgrade-transaction>Steps for aborting an upgrade transaction</h3>
+<h3 id=abort-upgrade-transaction>Aborting an upgrade transaction</h3>
 <!-- ============================================================ -->
 
 The <dfn>steps for aborting an upgrade transaction</dfn> |transaction|
@@ -4653,7 +4664,7 @@ are as follows.
 
 
 <!-- ============================================================ -->
-<h3 id=fire-success-event>Fire a success event</h3>
+<h3 id=fire-success-event>Firing a success event</h3>
 <!-- ============================================================ -->
 
 To <dfn>fire a success event</dfn> at a <a>request</a>,
@@ -4683,7 +4694,7 @@ the implementation must run the following steps:
 
 
 <!-- ============================================================ -->
-<h3 id=fire-error-event>Fire an error event</h3>
+<h3 id=fire-error-event>Firing an error event</h3>
 <!-- ============================================================ -->
 
 To <dfn>fire an error event</dfn> at a <a>|request|</a>,
@@ -5289,7 +5300,7 @@ types and algorithms from the ECMAScript Language Specification. [[!ECMA-262]]
 </aside>
 
 <!-- ============================================================ -->
-<h3 id=extract-key-from-value>Steps to extract a key from a value using a <a for=/>key path</a></h3>
+<h3 id=extract-key-from-value>Extract a key from a value</h3>
 <!-- ============================================================ -->
 
 
@@ -5373,7 +5384,7 @@ ECMAScript value or failure, or the steps may throw an exception.
 
 
 <!-- ============================================================ -->
-<h3 id=inject-key-into-value>Steps to inject a key into a value using a key path</h3>
+<h3 id=inject-key-into-value>Inject a key into a value</h3>
 <!-- ============================================================ -->
 
 The steps to <dfn>inject a key into a value using a key path</dfn> are
@@ -5440,7 +5451,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 
 
 <!-- ============================================================ -->
-<h3 id=convert-key-to-value>Steps to convert a key to a value</h3>
+<h3 id=convert-key-to-value>Convert a key to a value</h3>
 <!-- ============================================================ -->
 
 The steps to <dfn>convert a key to a value</dfn> are as follows. These
@@ -5509,7 +5520,7 @@ steps take one argument, |key|, and return an ECMAScript value.
 
 
 <!-- ============================================================ -->
-<h3 id=convert-value-to-key>Steps to convert a value to a key</h3>
+<h3 id=convert-value-to-key>Convert a value to a key</h3>
 <!-- ============================================================ -->
 
 The steps to <dfn>convert a value to a key</dfn> are as follows. These
@@ -5661,9 +5672,6 @@ steps may throw an exception.
 </aside>
 
 
-
-
-
 <!-- ============================================================ -->
 <h2 id=privacy>Privacy Considerations</h2>
 <!-- ============================================================ -->
@@ -5797,7 +5805,7 @@ it is promptly deleted from the underlying storage.
 
 
 <!-- ============================================================ -->
-<h2 id=authorization>Authorization</h2>
+<h2 id=security>Security Considerations</h2>
 <!-- ============================================================ -->
 
 <h3 id=dns-spoofing-attacks>DNS spoofing attacks</h3>
@@ -5921,6 +5929,12 @@ document's Revision History</a>.
 
 * Clarified when a transaction can attempt to commit.
     (<a href="https://github.com/w3c/IndexedDB/issues/77">bug #77</a>)
+
+* Clarified <a>open request</a> / <a>connection queue</a> processing.
+    (<a href="https://github.com/w3c/IndexedDB/issues/9">bug #9</a>,
+    <a href="https://github.com/w3c/IndexedDB/issues/77">bug #78</a>,
+    <a href="https://github.com/w3c/IndexedDB/issues/77">bug #79</a>,
+    <a href="https://github.com/w3c/IndexedDB/issues/77">bug #81</a>)
 
 <!-- ============================================================ -->
 <h2 id=acknowledgements>Acknowledgements</h2>
