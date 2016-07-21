@@ -1416,7 +1416,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API (Second Edition)</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-07-18">18 July 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-07-21">21 July 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -4462,13 +4462,17 @@ these substeps:</p>
          <p>Let <var>openConnections</var> be the set of all <a data-link-type="dfn" href="#connection" id="ref-for-connection-43">connections</a>,
 except <var>connection</var>, associated with <var>db</var>.</p>
         <li data-md="">
-         <p>For each <var>entry</var> in <var>openConnections</var> that does not have its <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-5">close pending flag</a> set, <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-2">fire a version change event</a> named <code>versionchange</code> at <var>entry</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-13">version</a> and <var>version</var>.</p>
+         <p>For each <var>entry</var> in <var>openConnections</var> that does not have its <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-5">close pending flag</a> set, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-2">fire a
+version change event</a> named <code>versionchange</code> at <var>entry</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-13">version</a> and <var>version</var>.</p>
          <aside class="note" role="note"> Firing this event might cause one or more of the other
   objects in <var>openConnections</var> to be closed, in which case the <code>versionchange</code> event must not be fired at those
   objects if that hasn’t yet been done. </aside>
         <li data-md="">
-         <p>If any of the <a data-link-type="dfn" href="#connection" id="ref-for-connection-44">connections</a> in <var>openConnections</var> are
-still not closed, <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-3">fire a version change event</a> named <code><a data-link-type="dfn" href="#request-blocked" id="ref-for-request-blocked-3">blocked</a></code> at <var>request</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-14">version</a> and <var>version</var>.</p>
+         <p>Wait for all of the events to be fired.</p>
+        <li data-md="">
+         <p>If any of the <a data-link-type="dfn" href="#connection" id="ref-for-connection-44">connections</a> in <var>openConnections</var> are still
+not closed, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>= to <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-3">fire a version change
+event</a> named <code><a data-link-type="dfn" href="#request-blocked" id="ref-for-request-blocked-3">blocked</a></code> at <var>request</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-14">version</a> and <var>version</var>.</p>
         <li data-md="">
          <p><span id="version-change-close-block">Wait</span> until all <a data-link-type="dfn" href="#connection" id="ref-for-connection-45">connections</a> in <var>openConnections</var> are <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed-5">closed</a>.</p>
         <li data-md="">
@@ -4530,10 +4534,13 @@ requested the <a data-link-type="dfn" href="#database" id="ref-for-database-48">
       <li data-md="">
        <p>Let <var>openConnections</var> be the set of all <a data-link-type="dfn" href="#connection" id="ref-for-connection-48">connections</a> associated with <var>db</var>.</p>
       <li data-md="">
-       <p>For each <var>entry</var> in <var>openConnections</var> that does not have its <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-9">close pending flag</a> set, <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-4">fire a version change event</a> named <code>versionchange</code> at <var>entry</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-15">version</a> and null.</p>
+       <p>For each <var>entry</var> in <var>openConnections</var> that does not have its <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-9">close pending flag</a> set, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-4">fire a version
+change event</a> named <code>versionchange</code> at <var>entry</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-15">version</a> and null.</p>
        <aside class="note" role="note"> Firing this event might cause one or more of the other objects
   in <var>openConnections</var> to be closed, in which case the <code>versionchange</code> event must not be fired at those
   objects if that hasn’t yet been done. </aside>
+      <li data-md="">
+       <p>Wait for all of the events to be fired.</p>
       <li data-md="">
        <p>If any of the <a data-link-type="dfn" href="#connection" id="ref-for-connection-49">connections</a> in <var>openConnections</var> are
 still not closed, <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-5">fire a version change event</a> named <code><a data-link-type="dfn" href="#request-blocked" id="ref-for-request-blocked-4">blocked</a></code> at <var>request</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-16">version</a> and null.</p>
@@ -4641,13 +4648,35 @@ in this algorithm.</p>
       <li data-md="">
        <p>Let <var>result</var> be the result of performing <var>operation</var>.</p>
       <li data-md="">
-       <p>If <var>result</var> is an error, then revert all changes made by <var>operation</var>, set the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-15">done flag</a> on <var>request</var>, set <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-7">result</a> of <var>request</var> to undefined and set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-7">error</a> on <var>request</var> to <var>result</var>. Finally <a data-link-type="dfn" href="#request-fire-an-error-event" id="ref-for-request-fire-an-error-event-3">fire an
-error event</a> at <var>request</var>.</p>
+       <p>If <var>result</var> is an error, then revert all changes made by <var>operation</var>.</p>
        <aside class="note" role="note"> This only reverts the changes done by this request, not any
   other changes made by the transaction. </aside>
       <li data-md="">
-       <p>Otherwise, set the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-16">done flag</a> on the <var>request</var>, set <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-8">result</a> of <var>request</var> to <var>result</var> set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-8">error</a> of <var>request</var> to undefined. Finally <a data-link-type="dfn" href="#request-fire-a-success-event" id="ref-for-request-fire-a-success-event-3">fire a
-success event</a> at <var>request</var>.</p>
+       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
+       <ol>
+        <li data-md="">
+         <p>Set the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-15">done flag</a> on <var>request</var>.</p>
+        <li data-md="">
+         <p>If <var>result</var> is an error, then run these substeps:</p>
+         <ol>
+          <li data-md="">
+           <p>Set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-7">result</a> of <var>request</var> to undefined.</p>
+          <li data-md="">
+           <p>Set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-7">error</a> of <var>request</var> to <var>result</var>.</p>
+          <li data-md="">
+           <p><a data-link-type="dfn" href="#request-fire-an-error-event" id="ref-for-request-fire-an-error-event-3">Fire an error event</a> at <var>request</var>.</p>
+         </ol>
+        <li data-md="">
+         <p>Otherwise, run these substeps:</p>
+         <ol>
+          <li data-md="">
+           <p>Set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-8">result</a> of <var>request</var> to <var>result</var>.</p>
+          <li data-md="">
+           <p>Set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-8">error</a> of <var>request</var> to undefined.</p>
+          <li data-md="">
+           <p><a data-link-type="dfn" href="#request-fire-a-success-event" id="ref-for-request-fire-a-success-event-3">Fire a success event</a> at <var>request</var>.</p>
+         </ol>
+       </ol>
      </ol>
     </div>
     <h3 class="heading settled" data-level="5.7" id="upgrade-transaction-steps"><span class="secno">5.7. </span><span class="content">Running an upgrade transaction</span><a class="self-link" href="#upgrade-transaction-steps"></a></h3>
@@ -4681,7 +4710,7 @@ transaction is <a data-link-type="dfn" href="#transaction-abort" id="ref-for-tra
         <li data-md="">
          <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction-4">transaction</a> to <var>transaction</var>.</p>
         <li data-md="">
-         <p>Set the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-17">done flag</a> on the <a data-link-type="dfn" href="#request" id="ref-for-request-33">request</a>.</p>
+         <p>Set the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-16">done flag</a> on the <a data-link-type="dfn" href="#request" id="ref-for-request-33">request</a>.</p>
         <li data-md="">
          <p><a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-6">Fire a version change event</a> named <code><a data-link-type="dfn" href="#request-upgradeneeded" id="ref-for-request-upgradeneeded-10">upgradeneeded</a></code> at <var>request</var> with <var>old
 version</var> and <var>version</var>.</p>
@@ -7327,8 +7356,8 @@ specification.</p>
     <li><a href="#ref-for-request-done-flag-6">4.1. The IDBRequest interface</a> <a href="#ref-for-request-done-flag-7">(2)</a> <a href="#ref-for-request-done-flag-8">(3)</a>
     <li><a href="#ref-for-request-done-flag-9">4.8. The IDBCursor interface</a> <a href="#ref-for-request-done-flag-10">(2)</a> <a href="#ref-for-request-done-flag-11">(3)</a>
     <li><a href="#ref-for-request-done-flag-12">5.5. Aborting a transaction</a> <a href="#ref-for-request-done-flag-13">(2)</a>
-    <li><a href="#ref-for-request-done-flag-14">5.6. Asynchronously executing a request</a> <a href="#ref-for-request-done-flag-15">(2)</a> <a href="#ref-for-request-done-flag-16">(3)</a>
-    <li><a href="#ref-for-request-done-flag-17">5.7. Running an upgrade transaction</a>
+    <li><a href="#ref-for-request-done-flag-14">5.6. Asynchronously executing a request</a> <a href="#ref-for-request-done-flag-15">(2)</a>
+    <li><a href="#ref-for-request-done-flag-16">5.7. Running an upgrade transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-source">

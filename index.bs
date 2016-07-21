@@ -4195,9 +4195,9 @@ database |name|, a database |version|, and a |request|.
         except |connection|, associated with |db|.
 
     2. For each |entry| in |openConnections| that does not have its
-        [=close pending flag=] set, [=fire a version change event=]
-        named <code>versionchange</code> at |entry| with |db|'s
-        [=database/version=] and |version|.
+        [=close pending flag=] set, [=queue a task=] to [=fire a
+        version change event=] named <code>versionchange</code> at
+        |entry| with |db|'s [=database/version=] and |version|.
 
         <aside class=note>
           Firing this event might cause one or more of the other
@@ -4206,23 +4206,25 @@ database |name|, a database |version|, and a |request|.
           objects if that hasn't yet been done.
         </aside>
 
-    3. If any of the [=/connections=] in |openConnections| are
-        still not closed, [=fire a version change event=] named
-        <code>[=blocked=]</code> at |request| with |db|'s
-        [=database/version=] and |version|.
+    3. Wait for all of the events to be fired.
 
-    4. <span id="version-change-close-block">Wait</span> until all
+    4. If any of the [=/connections=] in |openConnections| are still
+        not closed, [=queue a task=]= to [=fire a version change
+        event=] named <code>[=blocked=]</code> at |request| with
+        |db|'s [=database/version=] and |version|.
+
+    5. <span id="version-change-close-block">Wait</span> until all
         [=/connections=] in |openConnections| are
         [=connection/closed=].
 
-    5. Run the [=steps for running an upgrade transaction=]
+    6. Run the [=steps for running an upgrade transaction=]
         using |connection|, |version| and |request|.
 
-    6. If |connection| was [=connection/closed=], create and
+    7. If |connection| was [=connection/closed=], create and
         return a newly <a lt="create exception">created</a>
         {{AbortError}} and abort these steps.
 
-    7. If the [=upgrade transaction=] was aborted, run the [=steps
+    8. If the [=upgrade transaction=] was aborted, run the [=steps
         for closing a database connection=] with |connection|,
         create and return a newly <a lt="create exception">created</a>
         {{AbortError}} and abort these steps.
@@ -4302,9 +4304,9 @@ requested the [=database=] to be deleted, a database |name|, and a
     associated with |db|.
 
 6. For each |entry| in |openConnections| that does not have its
-    [=close pending flag=] set, [=fire a version change event=]
-    named <code>versionchange</code> at |entry| with |db|'s
-    [=database/version=] and null.
+    [=close pending flag=] set, [=queue a task=] to [=fire a version
+    change event=] named <code>versionchange</code> at |entry| with
+    |db|'s [=database/version=] and null.
 
     <aside class=note>
       Firing this event might cause one or more of the other objects
@@ -4313,20 +4315,22 @@ requested the [=database=] to be deleted, a database |name|, and a
       objects if that hasn't yet been done.
     </aside>
 
-7. If any of the [=/connections=] in |openConnections| are
+7. Wait for all of the events to be fired.
+
+8. If any of the [=/connections=] in |openConnections| are
     still not closed, [=fire a version change event=] named
     <code>[=blocked=]</code> at |request| with |db|'s
     [=database/version=] and null.
 
-8. <span id="delete-close-block">Wait</span> until all
+9. <span id="delete-close-block">Wait</span> until all
     [=/connections=] in |openConnections| are
     [=connection/closed=].
 
-9. Let |version| be |db|'s [=database/version=].
+10. Let |version| be |db|'s [=database/version=].
 
-10. Delete |db|.
+11. Delete |db|.
 
-11. Return |version|.
+12. Return |version|.
 
 </div>
 
@@ -4454,20 +4458,28 @@ aborting a transaction=]
 7. Let |result| be the result of performing |operation|.
 
 8. If |result| is an error, then revert all changes made by
-    |operation|, set the [=done flag=] on |request|, set
-    [=request/result=] of |request| to undefined and set the
-    [=request/error=] on |request| to |result|. Finally [=fire an
-    error event=] at |request|.
+    |operation|.
 
     <aside class=note>
       This only reverts the changes done by this request, not any
       other changes made by the transaction.
     </aside>
 
-9. Otherwise, set the [=done flag=] on the |request|, set
-    [=request/result=] of |request| to |result| set the
-    [=request/error=] of |request| to undefined. Finally [=fire a
-    success event=] at |request|.
+9. [=Queue a task=] to run these substeps:
+
+    1. Set the [=done flag=] on |request|.
+
+    2. If |result| is an error, then run these substeps:
+
+        1. Set the [=request/result=] of |request| to undefined.
+        2. Set the [=request/error=] of |request| to |result|.
+        3. [=Fire an error event=] at |request|.
+
+    3. Otherwise, run these substeps:
+
+        1. Set the [=request/result=] of |request| to |result|.
+        2. Set the [=request/error=] of |request| to undefined.
+        3. [=Fire a success event=] at |request|.
 
 </div>
 
