@@ -35,6 +35,7 @@
  *   - .note       for informative notes             (div, p, span, aside, details)
  *   - .example    for informative examples          (div, p, pre, span)
  *   - .issue      for issues                        (div, p, span)
+ *   - .assertion  for assertions                    (div, p, span)
  *   - .advisement for loud normative statements     (div, p, strong)
  *   - .annoying-warning for spec obsoletion notices (div, aside, details)
  *
@@ -598,7 +599,7 @@
 /*                             Colored Boxes                                  */
 /******************************************************************************/
 
-	.issue, .note, .example, .advisement, blockquote {
+	.issue, .note, .example, .assertion, .advisement, blockquote {
 		padding: .5em;
 		border: .5em;
 		border-left-style: solid;
@@ -613,6 +614,7 @@
 	.note,
 	.example,
 	.advisement,
+	.assertion,
 	blockquote {
 		margin: 1em auto;
 	}
@@ -690,6 +692,14 @@
 	}
 	details.note[open] > summary {
 		border-bottom: 1px silver solid;
+	}
+
+/** Assertion Box *************************************************************/
+	/*  for assertions in algorithms */
+
+	.assertion {
+		border-color: #AAA;
+		background: #EEE;
 	}
 
 /** Advisement Box ************************************************************/
@@ -1253,7 +1263,7 @@ table.props td, table.props th {
                 counter-increment: figure;
             }
             figcaption:not(.no-marker)::before {
-                content: "Figure " counter(figure);
+                content: "Figure " counter(figure) " ";
             }</style>
 <style>/* style-autolinks */
 
@@ -1416,7 +1426,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API (Second Edition)</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-07-21">21 July 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-08-01">1 August 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1452,6 +1462,24 @@ persistent B-tree data structure.</p>
   </div>
   <h2 class="no-num no-toc no-ref heading settled" id="status"><span class="content">Status of this document</span></h2>
   <div data-fill-with="status">
+   <p> This is a public copy of the editors’ draft.
+  It is provided for discussion only and may change at any moment.
+  Its publication here does not imply endorsement of its contents by W3C.
+  Don’t cite this document other than as work in progress. </p>
+   <p> <strong>Changes to this document may be tracked at <a href="https://github.com/w3c/IndexedDB">https://github.com/w3c/IndexedDB</a>.</strong> </p>
+   <p> The (<a href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>) public mailing list <a href="mailto:public-webapps@w3.org?Subject=%5BIndexedDB%5D%20PUT%20SUBJECT%20HERE">public-webapps@w3.org</a> (see <a href="http://www.w3.org/Mail/Request">instructions</a>)
+  is preferred for discussion of this specification.
+  When sending e-mail,
+  please put the text “IndexedDB” in the subject,
+  preferably like this:
+  “[IndexedDB] <em>…summary of comment…</em>” </p>
+   <p> This document was produced by the <a href="https://www.w3.org/WebPlatform/WG/">Web Platform Working Group</a>. </p>
+   <p> This document was produced by a group operating under
+  the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 W3C Patent Policy</a>.
+  W3C maintains a <a href="http://www.w3.org/2004/01/pp-impl/83482/status" rel="disclosure">public list of any patent disclosures</a> made in connection with the deliverables of the group;
+  that page also includes instructions for disclosing a patent.
+  An individual who has actual knowledge of a patent which the individual believes contains <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential Claim(s)</a> must disclose the information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6 of the W3C Patent Policy</a>. </p>
+   <p> This document is governed by the <a href="http://www.w3.org/2015/Process-20150901/" id="w3c_process_revision">1 September 2015 W3C Process Document</a>. </p>
    <p></p>
   </div>
   <div data-fill-with="at-risk"></div>
@@ -1902,7 +1930,7 @@ return -1.</p>
      <li data-md="">
       <p>If <var>tb</var> is <i>date</i> and <var>ta</var> is <i>number</i>, return -1.</p>
      <li data-md="">
-      <p>Assert: <var>ta</var> and <var>tb</var> are equal.</p>
+      <p class="assertion">Assert: <var>ta</var> and <var>tb</var> are equal.</p>
      <li data-md="">
       <p>Let <var>va</var> be the <a data-link-type="dfn" href="#key-value" id="ref-for-key-value-2">value</a> of <var>a</var>.</p>
      <li data-md="">
@@ -3215,8 +3243,8 @@ terminate these steps.</p>
        <p>Set this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-13">object store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-name" id="ref-for-object-store-handle-name-1">name</a> to <var>name</var>.</p>
      </ol>
     </div>
-    <aside class="advisement"> ♠ The <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-3">name</a></code> attribute’s setter is new in
-  this edition, but not yet shipping in any browsers. ♠ </aside>
+    <aside class="note" role="note"> ☘ The <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-3">name</a></code> attribute’s setter is new in
+  this edition. ☘ </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export="" id="dom-idbobjectstore-keypath">keyPath</dfn> attribute’s getter
 must return this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-14">object store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store-4">object store</a>'s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-12">key
 path</a>, or null if none.</p>
@@ -3761,8 +3789,8 @@ store</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-th
        <p>Set this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-13">index handle</a>'s <a data-link-type="dfn" href="#index-handle-name" id="ref-for-index-handle-name-1">name</a> to <var>name</var>.</p>
      </ol>
     </div>
-    <aside class="advisement"> ♠ The <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-3">name</a></code> attribute’s setter is new in this
-  edition, but not yet shipping in any browsers. ♠ </aside>
+    <aside class="note" role="note"> ☘ The <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-3">name</a></code> attribute’s setter is new in this
+  edition. ☘ </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export="" id="dom-idbindex-objectstore">objectStore</dfn> attribute’s getter
 must return this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-14">index handle</a>'s <a data-link-type="dfn" href="#index-handle-object-store-handle" id="ref-for-index-handle-object-store-handle-1">object
 store handle</a>.</p>
@@ -4848,7 +4876,7 @@ follows.</p>
          <p>Let <var>kpk</var> be the result of running the steps to <a data-link-type="dfn" href="#request-extract-a-key-from-a-value-using-a-key-path" id="ref-for-request-extract-a-key-from-a-value-using-a-key-path-5">extract a
 key from a value using a key path</a> with <var>value</var> and <var>store</var>’s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-17">key path</a>.</p>
         <li data-md="">
-         <p>Assert: <var>kpk</var> will not be invalid or an exception.</p>
+         <p class="assertion">Assert: <var>kpk</var> will not be invalid or an exception.</p>
         <li data-md="">
          <p>If <var>kpk</var> is not failure, let <var>key</var> be <var>kpk</var>.</p>
        </ol>
@@ -4960,7 +4988,7 @@ store</dfn> with <var>store</var>, <var>range</var> and optional <var>count</var
         <li data-md="">
          <p>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</p>
         <li data-md="">
-         <p>Assert: <var>status</var> is true.</p>
+         <p class="assertion">Assert: <var>status</var> is true.</p>
         <li data-md="">
          <p>Increase <var>index</var> by 1.</p>
        </ol>
@@ -5000,7 +5028,7 @@ key to a value</a> with <var>record</var>’s key.</p>
         <li data-md="">
          <p>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</p>
         <li data-md="">
-         <p>Assert: <var>status</var> is true.</p>
+         <p class="assertion">Assert: <var>status</var> is true.</p>
         <li data-md="">
          <p>Increase <var>index</var> by 1.</p>
        </ol>
@@ -5042,7 +5070,7 @@ index</dfn> with <var>index</var>, <var>range</var> and optional <var>count</var
         <li data-md="">
          <p>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</p>
         <li data-md="">
-         <p>Assert: <var>status</var> is true.</p>
+         <p class="assertion">Assert: <var>status</var> is true.</p>
         <li data-md="">
          <p>Increase <var>index</var> by 1.</p>
        </ol>
@@ -5082,7 +5110,7 @@ key to a value</a> with <var>record</var>’s value.</p>
         <li data-md="">
          <p>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</p>
         <li data-md="">
-         <p>Assert: <var>status</var> is true.</p>
+         <p class="assertion">Assert: <var>status</var> is true.</p>
         <li data-md="">
          <p>Increase <var>index</var> by 1.</p>
        </ol>
@@ -5136,7 +5164,7 @@ follows.</p>
       <li data-md="">
        <p>Let <var>direction</var> be <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction-14">direction</a>.</p>
       <li data-md="">
-       <p>Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-42">index</a> and <var>direction</var> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next-7">"next"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev-7">"prev"</a></code>.</p>
+       <p class="assertion">Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-42">index</a> and <var>direction</var> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next-7">"next"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev-7">"prev"</a></code>.</p>
       <li data-md="">
        <p>Let <var>records</var> be the list of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-51">records</a> in <var>source</var>.</p>
        <aside class="note" role="note"> <var>records</var> is always sorted in ascending <a data-link-type="dfn" href="#key" id="ref-for-key-63">key</a> order.
@@ -5355,7 +5383,7 @@ as follows. The algorithm takes a <var>value</var>, a <var>key</var> and a <var>
        <p>Let <var>identifiers</var> be the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#strictly-split-a-string">strictly splitting the
 string</a> <var>keyPath</var> on U+002E FULL STOP characters (.).</p>
       <li data-md="">
-       <p>Assert: <var>identifiers</var> is not empty.</p>
+       <p class="assertion">Assert: <var>identifiers</var> is not empty.</p>
       <li data-md="">
        <p>Let <var>last</var> be the last member of <var>identifiers</var> and remove it from
 the list.</p>
@@ -5368,7 +5396,7 @@ substeps:</p>
         <li data-md="">
          <p>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</p>
         <li data-md="">
-         <p>Assert: <var>hop</var> is not an abrupt completion.</p>
+         <p class="assertion">Assert: <var>hop</var> is not an abrupt completion.</p>
         <li data-md="">
          <p>If <var>hop</var> is false, run these substeps:</p>
          <ol>
@@ -5377,22 +5405,22 @@ substeps:</p>
           <li data-md="">
            <p>Let <var>status</var> be CreateDataProperty(<var>value</var>, <var>identifier</var>, <var>o</var>)</p>
           <li data-md="">
-           <p>Assert: <var>status</var> is true</p>
+           <p class="assertion">Assert: <var>status</var> is true</p>
          </ol>
         <li data-md="">
          <p>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</p>
         <li data-md="">
-         <p>Assert: <var>value</var> is not an abrupt completion.</p>
+         <p class="assertion">Assert: <var>value</var> is not an abrupt completion.</p>
        </ol>
       <li data-md="">
-       <p>Assert: <var>value</var> is an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> or an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a>.</p>
+       <p class="assertion">Assert: <var>value</var> is an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> or an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a>.</p>
       <li data-md="">
        <p>Let <var>keyValue</var> be the result of running the steps to <a data-link-type="dfn" href="#request-convert-a-key-to-a-value" id="ref-for-request-convert-a-key-to-a-value-7">convert a
 key to a value</a>.</p>
       <li data-md="">
        <p>Let <var>status</var> be CreateDataProperty(<var>value</var>, <var>last</var>, <var>keyValue</var>)</p>
       <li data-md="">
-       <p>Assert: <var>status</var> is true</p>
+       <p class="assertion">Assert: <var>status</var> is true</p>
      </ol>
     </div>
     <aside class="note" role="note"> The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-4">key path</a> used here is always a string and never a sequence,
@@ -5424,7 +5452,7 @@ steps take one argument, <var>key</var>, and return an ECMAScript value.</p>
            <p>Let <var>date</var> be the result of executing the ECMAScript Date
 constructor with the single argument <var>value</var></p>
           <li data-md="">
-           <p>Assert: <var>date</var> is not an abrupt completion.</p>
+           <p class="assertion">Assert: <var>date</var> is not an abrupt completion.</p>
           <li data-md="">
            <p>Return <var>date</var></p>
          </ol>
@@ -5437,7 +5465,7 @@ constructor with the single argument <var>value</var></p>
            <p>Let <var>buffer</var> be the result of executing the ECMAScript
 ArrayBuffer constructor with <var>len</var>.</p>
           <li data-md="">
-           <p>Assert: <var>buffer</var> is not an abrupt completion.</p>
+           <p class="assertion">Assert: <var>buffer</var> is not an abrupt completion.</p>
           <li data-md="">
            <p>Set the entries in <var>buffer</var>’s
 [<span>[</span>ArrayBufferData]] internal slot to the entries
@@ -5452,7 +5480,7 @@ in <var>value</var>.</p>
            <p>Let <var>array</var> be the result of executing the ECMAScript Array
 constructor with no arguments.</p>
           <li data-md="">
-           <p>Assert: <var>array</var> is not an abrupt completion.</p>
+           <p class="assertion">Assert: <var>array</var> is not an abrupt completion.</p>
           <li data-md="">
            <p>Let <var>len</var> be the length of <var>value</var>.</p>
           <li data-md="">
@@ -5466,7 +5494,7 @@ entry of <var>value</var> as input.</p>
             <li data-md="">
              <p>Let <var>status</var> be CreateDataProperty(<var>array</var>, <var>index</var>, <var>entry</var>).</p>
             <li data-md="">
-             <p>Assert: <var>status</var> is true.</p>
+             <p class="assertion">Assert: <var>status</var> is true.</p>
             <li data-md="">
              <p>Increase <var>index</var> by 1.</p>
            </ol>
@@ -5531,7 +5559,7 @@ steps may throw an exception.</p>
            <p>Let <var>len</var> be the ToLength(Get(<var>input</var>,
 "<code>length</code>"))</p>
           <li data-md="">
-           <p>Assert: <var>len</var> will never an abrupt completion.</p>
+           <p class="assertion">Assert: <var>len</var> will never an abrupt completion.</p>
           <li data-md="">
            <p>Add <var>input</var> to <var>seen</var></p>
           <li data-md="">
@@ -5577,7 +5605,7 @@ steps may throw an exception.</p>
         <li data-md="">
          <p>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>")).</p>
         <li data-md="">
-         <p>Assert: <var>len</var> will never an abrupt completion.</p>
+         <p class="assertion">Assert: <var>len</var> will never an abrupt completion.</p>
         <li data-md="">
          <p>Let <var>seen</var> be a new set containing only <var>input</var>.</p>
         <li data-md="">
