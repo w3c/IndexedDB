@@ -5359,7 +5359,7 @@ ECMAScript value or failure, or the steps may throw an exception.
             [=extract a key from a value using a key path=] using
             |item| as |keyPath| and |value| as |value|.
 
-        2. ReturnIfAbrupt(|key|)
+        2. Assert: |key| is not an abrupt completion.
 
         3. If |key| is failure, abort the overall algorithm and return
             failure.
@@ -5379,22 +5379,62 @@ ECMAScript value or failure, or the steps may throw an exception.
 3. Let |identifiers| be the result of [=strictly splitting the
     string=] |keyPath| on U+002E FULL STOP characters (.).
 
-4. For each |identifier| in |identifiers|, run these substeps:
+4. For each |identifier| in |identifiers|, jump to the appropriate step below:
 
-    1. If Type(|value|) is String, and |identifier| is the last item
-        in |identifiers|, and |identifier| is "<code>length</code>",
-        return a Number equal to the number of elements in |value|.
-    2. If Type(|value|) is not Object, return failure.
+    <dl class=switch>
+      <dt>If Type(|value|) is String, and |identifier| is "<code>length</code>"</dt>
+      <dd>Let |value| be a Number equal to the number of elements in |value|.</dd>
 
-    3. Let |value| be |value|.[<span>[</span>Get]](|identifier|,
-        |value|)
-    4. ReturnIfAbrupt(|value|)
+      <dt>If |value| is an [=Array=] and |identifier| is "<code>length</code>"</dt>
+      <dd>Let |value| be ToLength(Get(|value|, "length")).</dd>
 
-    5. If |value| is Undefined, return failure.
+      <dt>If |value| is a {{Blob}} and |identifier| is "<code>size</code>"</dt>
+      <dd>Let |value| be a Number equal to |value|'s {{Blob/size}}.</dd>
 
-5. Return |value|.
+      <dt>If |value| is a {{Blob}} and |identifier| is "<code>type</code>"</dt>
+      <dd>Let |value| be a String equal to |value|'s {{Blob/type}}.</dd>
+
+      <dt>If |value| is a {{File}} and |identifier| is "<code>name</code>"</dt>
+      <dd>Let |value| be a String equal to |value|'s {{File/name}}.</dd>
+
+      <dt>If |value| is a {{File}} and |identifier| is "<code>lastModified</code>"</dt>
+      <dd>Let |value| be a Number equal to |value|'s {{File/lastModified}}.</dd>
+
+      <dt>If |value| is a {{File}} and |identifier| is "<code>lastModifiedDate</code>"</dt>
+      <dd>Let |value| be a new [=Date=] object with [<span>[</span>DateValue]]
+        equal to |value|'s {{File/lastModified}}.</dd>
+
+      <dt>Otherwise</dt>
+      <dd>
+        1. If Type(|value|) is not Object, return failure.
+
+        2. Let |hop| be HasOwnProperty(|value|, |identifier|)
+
+        3. Assert: |hop| is not an abrupt completion.
+
+        4. If |hop| is false, return failure.
+
+        5. Let |value| be |value|.[<span>[</span>Get]](|identifier|,
+            |value|)
+
+        6. Assert: |value| is not an abrupt completion.
+
+        7. If |value| is Undefined, return failure.
+      </dd>
+
+    </dl>
+
+5. Assert: |value| is not an abrupt completion.
+
+6. Return |value|.
 
 </div>
+
+<aside class=note>
+  Assertions can be made in the above steps because this algorithm is
+  only applied to values that are the output of the [=structured clone
+  algorithm=] and only access "own" properties.
+</aside>
 
 
 <!-- ============================================================ -->
@@ -5610,17 +5650,31 @@ steps may throw an exception.
         4. Let |keys| be a new empty list
         5. Let |index| be 0
         6. While |index| is less than |len|, run these substeps:
-            1. Let |entry| be |input|.[<span>[</span>Get]](|index|,
+
+            1. Let |hop| be HasOwnProperty(|input|, |index|)
+
+            2. Assert: |hop| is not an abrupt completion.
+
+            3. If |hop| is false, return invalid.
+
+            4. Let |entry| be |input|.[<span>[</span>Get]](|index|,
                 |input|)
-            2. ReturnIfAbrupt(|entry|)
-            3. Let |key| be the result of running the steps to
+
+            5. ReturnIfAbrupt(|entry|)
+
+            6. Let |key| be the result of running the steps to
                 [=convert a value to a key=] with arguments |entry|
                 and |seen|
-            4. ReturnIfAbrupt(|key|)
-            5. If |key| is invalid or an exception, then abort these
+
+            7. ReturnIfAbrupt(|key|)
+
+            8. If |key| is invalid or an exception, then abort these
                 steps and return |key|.
-            6. Append |key| to |keys|
-            7. Increase |index| by 1
+
+            9. Append |key| to |keys|
+
+            10. Increase |index| by 1
+
         7. Return a new [=array key=] with [=key/value=]
             |keys|.
 
