@@ -4656,9 +4656,11 @@ are as follows.
 
 5. For each [=/object store handle=] |handle| associated with
     |transaction|, including those for [=/object stores=] that
-    were deleted during |transaction|, run these substeps:
+    were created or deleted during |transaction|, run these substeps:
 
-    1. Set |handle|'s [=object-store-handle/name=] to its
+    1. If |handle|'s [=object-store-handle/object store=] was not
+        newly created during |transaction|, set |handle|'s
+        [=object-store-handle/name=] to its
         [=object-store-handle/object store=]'s [=object-store/name=].
 
     2. Set |handle|'s [=index set=] to the set of [=/indexes=] that
@@ -4677,11 +4679,12 @@ are as follows.
     </aside>
 
 6. For each [=index handle=] |handle| associated with |transaction|,
-    including those for [=/indexes=] that were deleted during
-    |transaction|, run these substeps:
+    including those for [=/indexes=] that were created or deleted
+    during |transaction|, run these substeps:
 
-    1. Set |handle|'s [=index-handle/name=] to its
-        [=index-handle/index=]'s [=index/name=].
+    1. If |handle|'s [=index-handle/index=] was not newly created
+        during |transaction|, set |handle|'s [=index-handle/name=] to
+        its [=index-handle/index=]'s [=index/name=].
 
     <aside class=note>
       This reverts the value of {{IDBIndex/name}} returned by related
