@@ -1427,7 +1427,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-10-04">4 October 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-10-12">12 October 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -4534,7 +4534,9 @@ database <var>name</var>, a database <var>version</var>, and a <var>request</var
        <p>If <var>version</var> is undefined, let <var>version</var> be 1 if <var>db</var> is null, or <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-9">version</a> otherwise.</p>
       <li data-md="">
        <p>If <var>db</var> is null, let <var>db</var> be a new <a data-link-type="dfn" href="#database" id="ref-for-database-46">database</a> with <a data-link-type="dfn" href="#database-name" id="ref-for-database-name-4">name</a> <var>name</var>, <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-10">version</a> 0
-(zero), and with no <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-87">object stores</a>.</p>
+(zero), and with no <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-87">object stores</a>. If this fails
+due to implementation limitations, return an appropriate
+error (e.g. <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-quotaexceedederror" id="ref-for-exceptiondef-request-quotaexceedederror-5">QuotaExceededError</a></code> or <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-unknownerror" id="ref-for-exceptiondef-request-unknownerror-3">UnknownError</a></code>).</p>
       <li data-md="">
        <p>If <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-11">version</a> is greater than <var>version</var>,
 abort these steps and return a new <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-versionerror" id="ref-for-exceptiondef-request-versionerror-1">VersionError</a></code>.</p>
@@ -4640,7 +4642,8 @@ still not closed, <a data-link-type="dfn" href="#request-fire-a-version-change-e
       <li data-md="">
        <p>Let <var>version</var> be <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-17">version</a>.</p>
       <li data-md="">
-       <p>Delete <var>db</var>.</p>
+       <p>Delete <var>db</var>.  If this fails due to implementation limitations,
+return an appropriate error (e.g. <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-quotaexceedederror" id="ref-for-exceptiondef-request-quotaexceedederror-6">QuotaExceededError</a></code> or <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-unknownerror" id="ref-for-exceptiondef-request-unknownerror-4">UnknownError</a></code>).</p>
       <li data-md="">
        <p>Return <var>version</var>.</p>
      </ol>
@@ -4657,7 +4660,7 @@ written to the <a data-link-type="dfn" href="#database" id="ref-for-database-51"
       <li data-md="">
        <p>If an error occurs while writing the changes to the <a data-link-type="dfn" href="#database" id="ref-for-database-52">database</a>, abort the transaction by following the <a data-link-type="dfn" href="#request-steps-for-aborting-a-transaction" id="ref-for-request-steps-for-aborting-a-transaction-7">steps
 for aborting a transaction</a> with <var>transaction</var> and an
-appropriate for the error, for example <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-quotaexceedederror" id="ref-for-exceptiondef-request-quotaexceedederror-5">QuotaExceededError</a></code> or <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-unknownerror" id="ref-for-exceptiondef-request-unknownerror-3">UnknownError</a></code>.</p>
+appropriate for the error, for example <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-quotaexceedederror" id="ref-for-exceptiondef-request-quotaexceedederror-7">QuotaExceededError</a></code> or <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-unknownerror" id="ref-for-exceptiondef-request-unknownerror-5">UnknownError</a></code>.</p>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to dispatch an event at <var>transaction</var>. The
 event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to "<code>complete</code>". The event does not
@@ -7862,7 +7865,9 @@ specification.</p>
     <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-2">4.4. The IDBDatabase interface</a>
     <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-3">4.5. The IDBObjectStore interface</a>
     <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-4">4.9. The IDBTransaction interface</a>
-    <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-5">5.4. Committing a transaction</a>
+    <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-5">5.1. Opening a database</a>
+    <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-6">5.3. Deleting a database</a>
+    <li><a href="#ref-for-exceptiondef-request-quotaexceedederror-7">5.4. Committing a transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="exceptiondef-request-syntaxerror">
@@ -7895,7 +7900,9 @@ specification.</p>
    <ul>
     <li><a href="#ref-for-exceptiondef-request-unknownerror-1">2.7.1. Transaction Lifetime</a>
     <li><a href="#ref-for-exceptiondef-request-unknownerror-2">4.9. The IDBTransaction interface</a>
-    <li><a href="#ref-for-exceptiondef-request-unknownerror-3">5.4. Committing a transaction</a>
+    <li><a href="#ref-for-exceptiondef-request-unknownerror-3">5.1. Opening a database</a>
+    <li><a href="#ref-for-exceptiondef-request-unknownerror-4">5.3. Deleting a database</a>
+    <li><a href="#ref-for-exceptiondef-request-unknownerror-5">5.4. Committing a transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="exceptiondef-request-versionerror">
