@@ -1427,7 +1427,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-10-12">12 October 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-10-20">20 October 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -5363,9 +5363,9 @@ record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-
     <h2 class="heading settled" data-level="7" id="binding"><span class="secno">7. </span><span class="content">ECMAScript binding</span><a class="self-link" href="#binding"></a></h2>
     <p>This section defines how <a data-link-type="dfn" href="#key" id="ref-for-key-65">key</a> values defined in this specification
 are converted to and from ECMAScript values, and how they may be
-extracted from and injected into ECMAScript values using <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-2">key paths</a>.
-This section references
-types and algorithms from the ECMAScript Language Specification. <a data-link-type="biblio" href="#biblio-ecma-262">[ECMA-262]</a></p>
+extracted from and injected into ECMAScript values using <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-2">key
+paths</a>. This section references types and algorithms and uses some
+algorithm conventions from the ECMAScript Language Specification. <a data-link-type="biblio" href="#biblio-ecma-262">[ECMA-262]</a></p>
     <aside class="issue" id="issue-8f674373"><a class="self-link" href="#issue-8f674373"></a> Simplify this section as much as possible by relying more on <a data-link-type="biblio" href="#biblio-webidl">[WEBIDL]</a> for key conversion logic. </aside>
     <h3 class="heading settled" data-level="7.1" id="extract-key-from-value"><span class="secno">7.1. </span><span class="content">Extract a key from a value</span><a class="self-link" href="#extract-key-from-value"></a></h3>
     <p>The steps to <dfn class="dfn-paneled" data-dfn-for="request" data-dfn-type="dfn" data-noexport="" id="request-extract-a-key-from-a-value-using-a-key-path">extract a key from a value using a key path</dfn> with <var>value</var>, <var>keyPath</var> and an optional <var>multiEntry flag</var> are as
@@ -5447,15 +5447,11 @@ string</a> <var>keyPath</var> on U+002E FULL STOP characters (.).</p>
           <li data-md="">
            <p>If Type(<var>value</var>) is not Object, return failure.</p>
           <li data-md="">
-           <p>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</p>
-          <li data-md="">
-           <p class="assertion">Assert: <var>hop</var> is not an abrupt completion.</p>
+           <p>Let <var>hop</var> be ! HasOwnProperty(<var>value</var>, <var>identifier</var>)</p>
           <li data-md="">
            <p>If <var>hop</var> is false, return failure.</p>
           <li data-md="">
-           <p>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</p>
-          <li data-md="">
-           <p class="assertion">Assert: <var>value</var> is not an abrupt completion.</p>
+           <p>Let <var>value</var> be ! <var>value</var>.[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</p>
           <li data-md="">
            <p>If <var>value</var> is Undefined, return failure.</p>
          </ol>
@@ -5489,9 +5485,7 @@ substeps:</p>
         <li data-md="">
          <p>If <var>value</var> is not an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> object or an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> object (see <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone algorithm</a> <a data-link-type="biblio" href="#biblio-html">[HTML]</a>), then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-dataerror" id="ref-for-exceptiondef-request-dataerror-32">DataError</a></code>.</p>
         <li data-md="">
-         <p>Let <var>hop</var> be HasOwnProperty(<var>value</var>, <var>identifier</var>)</p>
-        <li data-md="">
-         <p class="assertion">Assert: <var>hop</var> is not an abrupt completion.</p>
+         <p>Let <var>hop</var> be ! HasOwnProperty(<var>value</var>, <var>identifier</var>)</p>
         <li data-md="">
          <p>If <var>hop</var> is false, run these substeps:</p>
          <ol>
@@ -5503,9 +5497,7 @@ substeps:</p>
            <p class="assertion">Assert: <var>status</var> is true</p>
          </ol>
         <li data-md="">
-         <p>Let <var>value</var> be <var>value</var>.[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</p>
-        <li data-md="">
-         <p class="assertion">Assert: <var>value</var> is not an abrupt completion.</p>
+         <p>Let <var>value</var> be ! <var>value</var>.[<span>[</span>Get]](<var>identifier</var>, <var>value</var>)</p>
        </ol>
       <li data-md="">
        <p class="assertion">Assert: <var>value</var> is an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> or an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a>.</p>
@@ -5651,10 +5643,8 @@ steps may throw an exception.</p>
         <dd>
          <ol>
           <li data-md="">
-           <p>Let <var>len</var> be the ToLength(Get(<var>input</var>,
+           <p>Let <var>len</var> be ! ToLength(Get(<var>input</var>,
 "<code>length</code>"))</p>
-          <li data-md="">
-           <p class="assertion">Assert: <var>len</var> will never an abrupt completion.</p>
           <li data-md="">
            <p>Add <var>input</var> to <var>seen</var></p>
           <li data-md="">
@@ -5665,22 +5655,18 @@ steps may throw an exception.</p>
            <p>While <var>index</var> is less than <var>len</var>, run these substeps:</p>
            <ol>
             <li data-md="">
-             <p>Let <var>hop</var> be HasOwnProperty(<var>input</var>, <var>index</var>)</p>
-            <li data-md="">
-             <p class="assertion">Assert: <var>hop</var> is not an abrupt completion.</p>
+             <p>Let <var>hop</var> be ! HasOwnProperty(<var>input</var>, <var>index</var>)</p>
             <li data-md="">
              <p>If <var>hop</var> is false, return invalid.</p>
             <li data-md="">
-             <p>Let <var>entry</var> be <var>input</var>.[<span>[</span>Get]](<var>index</var>, <var>input</var>)</p>
-            <li data-md="">
-             <p>ReturnIfAbrupt(<var>entry</var>)</p>
+             <p>Let <var>entry</var> be ? <var>input</var>.[<span>[</span>Get]](<var>index</var>, <var>input</var>)</p>
             <li data-md="">
              <p>Let <var>key</var> be the result of running the steps to <a data-link-type="dfn" href="#request-convert-a-value-to-a-key" id="ref-for-request-convert-a-value-to-a-key-17">convert a value to a key</a> with arguments <var>entry</var> and <var>seen</var></p>
             <li data-md="">
              <p>ReturnIfAbrupt(<var>key</var>)</p>
             <li data-md="">
-             <p>If <var>key</var> is invalid or an exception, then abort these
-steps and return <var>key</var>.</p>
+             <p>If <var>key</var> is invalid abort these steps and return
+invalid.</p>
             <li data-md="">
              <p>Append <var>key</var> to <var>keys</var></p>
             <li data-md="">
@@ -5704,9 +5690,7 @@ steps may throw an exception.</p>
        <p>If IsArray(<var>input</var>), then:</p>
        <ol>
         <li data-md="">
-         <p>Let <var>len</var> be the ToLength(Get(<var>input</var>, "<code>length</code>")).</p>
-        <li data-md="">
-         <p class="assertion">Assert: <var>len</var> will never an abrupt completion.</p>
+         <p>Let <var>len</var> be ! ToLength(Get(<var>input</var>, "<code>length</code>")).</p>
         <li data-md="">
          <p>Let <var>seen</var> be a new set containing only <var>input</var>.</p>
         <li data-md="">
