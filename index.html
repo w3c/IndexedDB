@@ -415,6 +415,19 @@
 	 border-left: 0.5em solid #DEF;
 	}
 
+	/* Put nice boxes around each algorithm. */
+	[data-algorithm]:not(.heading) {
+	  padding: .5em;
+	  border: thin solid #ddd; border-radius: .5em;
+	  margin: .5em 0;
+	}
+	[data-algorithm]:not(.heading) > :first-child {
+	  margin-top: 0;
+	}
+	[data-algorithm]:not(.heading) > :last-child {
+	  margin-bottom: 0;
+	}
+
 	/* Style for switch/case <dl>s */
 	dl.switch > dd > ol.only,
 	dl.switch > dd > .only > ol {
@@ -1427,7 +1440,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-10-20">20 October 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-10-21">21 October 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1632,121 +1645,121 @@ to look up books by author.
 not already exist, it is created and an event handler creates the
 object store and indexes. Finally, the opened connection is saved for
 use in subsequent examples.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">indexedDB</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">"library"</span><span class="p">);</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> request <span class="o">=</span> indexedDB<span class="p">.</span>open<span class="p">(</span><span class="s2">"library"</span><span class="p">)</span><span class="p">;</span>
 
-<span class="nx">request</span><span class="p">.</span><span class="nx">onupgradeneeded</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="c1">// The database did not previously exist, so create object stores and indexes.</span>
-  <span class="kd">var</span> <span class="nx">db</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="p">{</span><span class="nx">keyPath</span><span class="o">:</span> <span class="s2">"isbn"</span><span class="p">});</span>
-  <span class="kd">var</span> <span class="nx">titleIndex</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_title"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">,</span> <span class="p">{</span><span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
-  <span class="kd">var</span> <span class="nx">authorIndex</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_author"</span><span class="p">,</span> <span class="s2">"author"</span><span class="p">);</span>
+request<span class="p">.</span>onupgradeneeded <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// The database did not previously exist, so create object stores and indexes.
+</span>  <span class="kd">var</span> db <span class="o">=</span> request<span class="p">.</span>result<span class="p">;</span>
+  <span class="kd">var</span> store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="p">{</span>keyPath<span class="o">:</span> <span class="s2">"isbn"</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+  <span class="kd">var</span> titleIndex <span class="o">=</span> store<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_title"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">,</span> <span class="p">{</span>unique<span class="o">:</span> <span class="kc">true</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+  <span class="kd">var</span> authorIndex <span class="o">=</span> store<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_author"</span><span class="p">,</span> <span class="s2">"author"</span><span class="p">)</span><span class="p">;</span>
 
-  <span class="c1">// Populate with initial data.</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Quarry Memories"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">123456</span><span class="p">});</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Water Buffaloes"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">234567</span><span class="p">});</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Bedrock Nights"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Barney"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">345678</span><span class="p">});</span>
-<span class="p">};</span>
+  <span class="c1">// Populate with initial data.
+</span>  store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Quarry Memories"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">123456</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+  store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Water Buffaloes"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">234567</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+  store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Bedrock Nights"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Barney"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">345678</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">;</span>
 
-<span class="nx">request</span><span class="p">.</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">db</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-<span class="p">};</span>
+request<span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  db <span class="o">=</span> request<span class="p">.</span>result<span class="p">;</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
     <p>The following example populates the database using a transaction.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">tx</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readwrite"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">);</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> tx <span class="o">=</span> db<span class="p">.</span>transaction<span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readwrite"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> store <span class="o">=</span> tx<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">)</span><span class="p">;</span>
 
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Quarry Memories"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">123456</span><span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Water Buffaloes"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">234567</span><span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Bedrock Nights"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Barney"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">345678</span><span class="p">});</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Quarry Memories"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">123456</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Water Buffaloes"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Fred"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">234567</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Bedrock Nights"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Barney"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">345678</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
 
-<span class="nx">tx</span><span class="p">.</span><span class="nx">oncomplete</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="c1">// All requests have succeeded and the transaction has committed.</span>
-<span class="p">};</span>
+tx<span class="p">.</span>oncomplete <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// All requests have succeeded and the transaction has committed.
+</span><span class="p">}</span><span class="p">;</span>
 </pre>
     <p>The following example looks up a single book in the database by title
 using an index.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">tx</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">index</span><span class="p">(</span><span class="s2">"by_title"</span><span class="p">);</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> tx <span class="o">=</span> db<span class="p">.</span>transaction<span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> store <span class="o">=</span> tx<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> index <span class="o">=</span> store<span class="p">.</span>index<span class="p">(</span><span class="s2">"by_title"</span><span class="p">)</span><span class="p">;</span>
 
-<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">index</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"Bedrock Nights"</span><span class="p">);</span>
-<span class="nx">request</span><span class="p">.</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">matching</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">matching</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// A match was found.</span>
-    <span class="nx">report</span><span class="p">(</span><span class="nx">matching</span><span class="p">.</span><span class="nx">isbn</span><span class="p">,</span> <span class="nx">matching</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span> <span class="nx">matching</span><span class="p">.</span><span class="nx">author</span><span class="p">);</span>
+<span class="kd">var</span> request <span class="o">=</span> index<span class="p">.</span>get<span class="p">(</span><span class="s2">"Bedrock Nights"</span><span class="p">)</span><span class="p">;</span>
+request<span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> matching <span class="o">=</span> request<span class="p">.</span>result<span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span>matching <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// A match was found.
+</span>    report<span class="p">(</span>matching<span class="p">.</span>isbn<span class="p">,</span> matching<span class="p">.</span>title<span class="p">,</span> matching<span class="p">.</span>author<span class="p">)</span><span class="p">;</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="c1">// No match was found.</span>
-    <span class="nx">report</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+    <span class="c1">// No match was found.
+</span>    report<span class="p">(</span><span class="kc">null</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="p">};</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
     <p>The following example looks up all books in the database by author
 using an index and a cursor.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">tx</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">index</span><span class="p">(</span><span class="s2">"by_author"</span><span class="p">);</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> tx <span class="o">=</span> db<span class="p">.</span>transaction<span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readonly"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> store <span class="o">=</span> tx<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> index <span class="o">=</span> store<span class="p">.</span>index<span class="p">(</span><span class="s2">"by_author"</span><span class="p">)</span><span class="p">;</span>
 
-<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">index</span><span class="p">.</span><span class="nx">openCursor</span><span class="p">(</span><span class="nx">IDBKeyRange</span><span class="p">.</span><span class="nx">only</span><span class="p">(</span><span class="s2">"Fred"</span><span class="p">));</span>
-<span class="nx">request</span><span class="p">.</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">cursor</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">cursor</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// Called for each matching record.</span>
-    <span class="nx">report</span><span class="p">(</span><span class="nx">cursor</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">isbn</span><span class="p">,</span> <span class="nx">cursor</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span> <span class="nx">cursor</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">author</span><span class="p">);</span>
-    <span class="nx">cursor</span><span class="p">.</span><span class="k">continue</span><span class="p">();</span>
+<span class="kd">var</span> request <span class="o">=</span> index<span class="p">.</span>openCursor<span class="p">(</span>IDBKeyRange<span class="p">.</span>only<span class="p">(</span><span class="s2">"Fred"</span><span class="p">)</span><span class="p">)</span><span class="p">;</span>
+request<span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> cursor <span class="o">=</span> request<span class="p">.</span>result<span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span>cursor<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Called for each matching record.
+</span>    report<span class="p">(</span>cursor<span class="p">.</span>value<span class="p">.</span>isbn<span class="p">,</span> cursor<span class="p">.</span>value<span class="p">.</span>title<span class="p">,</span> cursor<span class="p">.</span>value<span class="p">.</span>author<span class="p">)</span><span class="p">;</span>
+    cursor<span class="p">.</span><span class="k">continue</span><span class="p">(</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="c1">// No more matching records.</span>
-    <span class="nx">report</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+    <span class="c1">// No more matching records.
+</span>    report<span class="p">(</span><span class="kc">null</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="p">};</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
     <p>The following example shows how errors could be handled when a request
 fails.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">tx</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readwrite"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">tx</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">"Water Buffaloes"</span><span class="p">,</span> <span class="nx">author</span><span class="o">:</span> <span class="s2">"Slate"</span><span class="p">,</span> <span class="nx">isbn</span><span class="o">:</span> <span class="mi">987654</span><span class="p">});</span>
-<span class="nx">request</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="c1">// The uniqueness constraint of the "by_title" index failed.</span>
-  <span class="nx">report</span><span class="p">(</span><span class="nx">request</span><span class="p">.</span><span class="nx">error</span><span class="p">);</span>
-  <span class="c1">// Could call request.preventDefault() to prevent the transaction from aborting.</span>
-<span class="p">};</span>
-<span class="nx">tx</span><span class="p">.</span><span class="nx">onabort</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="c1">// Otherwise the transaction will automatically abort due the failed request.</span>
-  <span class="nx">report</span><span class="p">(</span><span class="nx">tx</span><span class="p">.</span><span class="nx">error</span><span class="p">);</span>
-<span class="p">};</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> tx <span class="o">=</span> db<span class="p">.</span>transaction<span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="s2">"readwrite"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> store <span class="o">=</span> tx<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> request <span class="o">=</span> store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>title<span class="o">:</span> <span class="s2">"Water Buffaloes"</span><span class="p">,</span> author<span class="o">:</span> <span class="s2">"Slate"</span><span class="p">,</span> isbn<span class="o">:</span> <span class="mi">987654</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+request<span class="p">.</span>onerror <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// The uniqueness constraint of the "by_title" index failed.
+</span>  report<span class="p">(</span>request<span class="p">.</span>error<span class="p">)</span><span class="p">;</span>
+  <span class="c1">// Could call request.preventDefault() to prevent the transaction from aborting.
+</span><span class="p">}</span><span class="p">;</span>
+tx<span class="p">.</span>onabort <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Otherwise the transaction will automatically abort due the failed request.
+</span>  report<span class="p">(</span>tx<span class="p">.</span>error<span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
     <p>The database connection may be closed when it is no longer needed.</p>
-<pre class="lang-javascript highlight"><span></span><span class="nx">db</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span>
+<pre class="lang-javascript highlight">db<span class="p">.</span>close<span class="p">(</span><span class="p">)</span><span class="p">;</span>
 </pre>
     <p>In the future, the database may have grown to contain other object
 stores and indexes. The following example shows one way to handle
 opening an older version of the database.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">indexedDB</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">"library"</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="c1">// Request version 3.</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> request <span class="o">=</span> indexedDB<span class="p">.</span>open<span class="p">(</span><span class="s2">"library"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Request version 3.
+</span>
+request<span class="p">.</span>onupgradeneeded <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>event<span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> db <span class="o">=</span> request<span class="p">.</span>result<span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span>event<span class="p">.</span>oldVersion <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Version 1 is the first version of the database.
+</span>    <span class="kd">var</span> store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="p">{</span>keyPath<span class="o">:</span> <span class="s2">"isbn"</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+    <span class="kd">var</span> titleIndex <span class="o">=</span> store<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_title"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">,</span> <span class="p">{</span>unique<span class="o">:</span> <span class="kc">true</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
+    <span class="kd">var</span> authorIndex <span class="o">=</span> store<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_author"</span><span class="p">,</span> <span class="s2">"author"</span><span class="p">)</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span>event<span class="p">.</span>oldVersion <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Version 2 introduces a new index of books by year.
+</span>    <span class="kd">var</span> bookStore <span class="o">=</span> request<span class="p">.</span>transaction<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"books"</span><span class="p">)</span><span class="p">;</span>
+    <span class="kd">var</span> yearIndex <span class="o">=</span> bookStore<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_year"</span><span class="p">,</span> <span class="s2">"year"</span><span class="p">)</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span>event<span class="p">.</span>oldVersion <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Version 3 introduces a new object store for magazines with two indexes.
+</span>    <span class="kd">var</span> magazines <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"magazines"</span><span class="p">)</span><span class="p">;</span>
+    <span class="kd">var</span> publisherIndex <span class="o">=</span> magazines<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_publisher"</span><span class="p">,</span> <span class="s2">"publisher"</span><span class="p">)</span><span class="p">;</span>
+    <span class="kd">var</span> frequencyIndex <span class="o">=</span> magazines<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_frequency"</span><span class="p">,</span> <span class="s2">"frequency"</span><span class="p">)</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span><span class="p">;</span>
 
-<span class="nx">request</span><span class="p">.</span><span class="nx">onupgradeneeded</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">db</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">oldVersion</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// Version 1 is the first version of the database.</span>
-    <span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">,</span> <span class="p">{</span><span class="nx">keyPath</span><span class="o">:</span> <span class="s2">"isbn"</span><span class="p">});</span>
-    <span class="kd">var</span> <span class="nx">titleIndex</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_title"</span><span class="p">,</span> <span class="s2">"title"</span><span class="p">,</span> <span class="p">{</span><span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
-    <span class="kd">var</span> <span class="nx">authorIndex</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_author"</span><span class="p">,</span> <span class="s2">"author"</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">oldVersion</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// Version 2 introduces a new index of books by year.</span>
-    <span class="kd">var</span> <span class="nx">bookStore</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">transaction</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"books"</span><span class="p">);</span>
-    <span class="kd">var</span> <span class="nx">yearIndex</span> <span class="o">=</span> <span class="nx">bookStore</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_year"</span><span class="p">,</span> <span class="s2">"year"</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">oldVersion</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// Version 3 introduces a new object store for magazines with two indexes.</span>
-    <span class="kd">var</span> <span class="nx">magazines</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"magazines"</span><span class="p">);</span>
-    <span class="kd">var</span> <span class="nx">publisherIndex</span> <span class="o">=</span> <span class="nx">magazines</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_publisher"</span><span class="p">,</span> <span class="s2">"publisher"</span><span class="p">);</span>
-    <span class="kd">var</span> <span class="nx">frequencyIndex</span> <span class="o">=</span> <span class="nx">magazines</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_frequency"</span><span class="p">,</span> <span class="s2">"frequency"</span><span class="p">);</span>
-  <span class="p">}</span>
-<span class="p">};</span>
-
-<span class="nx">request</span><span class="p">.</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">db</span> <span class="o">=</span> <span class="nx">request</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span> <span class="c1">// db.version will be 3.</span>
-<span class="p">};</span>
+request<span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="p">)</span> <span class="p">{</span>
+  db <span class="o">=</span> request<span class="p">.</span>result<span class="p">;</span> <span class="c1">// db.version will be 3.
+</span><span class="p">}</span><span class="p">;</span>
 </pre>
    </aside>
    <h2 class="heading settled" data-level="2" id="constructs"><span class="secno">2. </span><span class="content">Constructs</span><a class="self-link" href="#constructs"></a></h2>
@@ -1755,7 +1768,7 @@ sorted in ascending order by code unit.</p>
    <h3 class="heading settled" data-level="2.1" id="database-construct"><span class="secno">2.1. </span><span class="content">Database</span><a class="self-link" href="#database-construct"></a></h3>
    <p>A database’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#origin">origin</a> is the same as the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#origin">origin</a> of the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document">document</a> or <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#worker">worker</a>. Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#origin">origin</a> has an associated
 set of databases.</p>
-   <aside class="note" role="note"> The database origin is not affected by changes to
+   <aside class="note"> The database origin is not affected by changes to
   the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/dom.html#document">Document</a></code>'s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#dom-document-domain">domain</a></code>. </aside>
    <p>Each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#origin">origin</a> has an associated set of <a data-link-type="dfn" href="#database" id="ref-for-database-1">databases</a>. A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="database">database</dfn> has zero or more <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-1">object stores</a> which
 hold the data stored in the database.</p>
@@ -1766,13 +1779,13 @@ the empty string, and stays constant for the lifetime of the database.
 Database names are always compared in a case-sensitive manner, as
 opaque sequences of 16-bit code units. Implementations must support
 all names.</p>
-    <aside class="note" role="note"> If an implementation uses a storage mechanism which can’t handle
+    <aside class="note"> If an implementation uses a storage mechanism which can’t handle
   arbitrary database names, the implementation must use an escaping
   mechanism or something similar to map the provided name to a name
   that it can handle. </aside>
     <p>A <a data-link-type="dfn" href="#database" id="ref-for-database-3">database</a> has a <dfn class="dfn-paneled" data-dfn-for="database" data-dfn-type="dfn" data-noexport="" id="database-version">version</dfn>. When a database is first
 created, its <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-1">version</a> is 0 (zero).</p>
-    <aside class="note" role="note"> Each <a data-link-type="dfn" href="#database" id="ref-for-database-4">database</a> has one version at a time; a <a data-link-type="dfn" href="#database" id="ref-for-database-5">database</a> can’t
+    <aside class="note"> Each <a data-link-type="dfn" href="#database" id="ref-for-database-4">database</a> has one version at a time; a <a data-link-type="dfn" href="#database" id="ref-for-database-5">database</a> can’t
   exist in multiple versions at once. The only way to change the
   version is using an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-1">upgrade transaction</a>. </aside>
    </div>
@@ -1886,7 +1899,7 @@ or a list of other <a data-link-type="dfn" href="#key" id="ref-for-key-5">keys</
    </div>
    <p>An ECMAScript <a data-link-type="biblio" href="#biblio-ecma-262">[ECMA-262]</a> value can be converted to a <a data-link-type="dfn" href="#key" id="ref-for-key-6">key</a> by
 following the steps to <a data-link-type="dfn" href="#request-convert-a-value-to-a-key" id="ref-for-request-convert-a-value-to-a-key-1">convert a value to a key</a>.</p>
-   <aside class="note" role="note">
+   <aside class="note">
      The following ECMAScript types are valid keys: 
     <ul>
      <li data-md="">
@@ -2046,11 +2059,11 @@ result of running the steps to <a data-link-type="dfn" href="#compare-two-keys" 
 result of running the steps to <a data-link-type="dfn" href="#compare-two-keys" id="ref-for-compare-two-keys-3">compare two keys</a> with <var>a</var> and <var>b</var> is -1.</p>
    <p>The <a data-link-type="dfn" href="#key" id="ref-for-key-15">key</a> <var>a</var> is <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="equal-to">equal to</dfn> the <a data-link-type="dfn" href="#key" id="ref-for-key-16">key</a> <var>b</var> if the result
 of running the steps to <a data-link-type="dfn" href="#compare-two-keys" id="ref-for-compare-two-keys-4">compare two keys</a> with <var>a</var> and <var>b</var> is 0.</p>
-   <aside class="note" role="note"> As a result of the above rules, negative infinity is the lowest
+   <aside class="note"> As a result of the above rules, negative infinity is the lowest
   possible value for a <a data-link-type="dfn" href="#key" id="ref-for-key-17">key</a>. <i>Number</i> keys are less than <i>date</i> keys. <i>Date</i> keys are less than <i>string</i> keys. <i>String</i> keys are less than <i>binary</i> keys. <i>Binary</i> keys are less than <i>array</i> keys.
   There is no highest possible <a data-link-type="dfn" href="#key" id="ref-for-key-18">key</a> value.
   This is because an array of any candidate highest <a data-link-type="dfn" href="#key" id="ref-for-key-19">key</a> followed by another <a data-link-type="dfn" href="#key" id="ref-for-key-20">key</a> is even higher. </aside>
-   <aside class="note" role="note"> Members of <i>binary</i> keys are compared as unsigned octet values
+   <aside class="note"> Members of <i>binary</i> keys are compared as unsigned octet values
   (in the range [0, 255]) rather than signed bytes (in the range
   [-128, 127]). </aside>
    <h3 class="heading settled" data-level="2.5" id="key-path-construct"><span class="secno">2.5. </span><span class="content">Key Path</span><a class="self-link" href="#key-path-construct"></a></h3>
@@ -2068,7 +2081,7 @@ by periods (ASCII character code 46, U+002E FULL STOP).</p>
      <p>A non-empty <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence">sequence&lt;DOMString></a> containing only strings
 conforming to the above requirements.</p>
    </ul>
-   <aside class="note" role="note"> Spaces are not allowed within a key path. </aside>
+   <aside class="note"> Spaces are not allowed within a key path. </aside>
    <p><a data-link-type="dfn" href="#key-path" id="ref-for-key-path-1">Key path</a> values can only be accessed from properties explicitly
 copied by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone algorithm</a>, as well as the
 following type-specific properties:</p>
@@ -2116,7 +2129,7 @@ above, the record in the index whose key is <var>Y</var> and value is <var>X</va
     <aside class="example" id="example-5f130912"><a class="self-link" href="#example-5f130912"></a> In the preceding example, the record in the index with key
   "<code>Alice</code>" and value <code>123</code> would have a <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-2">referenced value</a> of <code>{ first: "Alice", last: "Smith"
   }</code>. </aside>
-    <aside class="note" role="note"> Each record in an index references one and only one record in the
+    <aside class="note"> Each record in an index references one and only one record in the
   index’s <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced-4">referenced</a> object store. However there can be multiple
   records in an index which reference the same record in the object
   store. And there can also be no records in an index which reference
@@ -2209,7 +2222,7 @@ a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-co
     <h4 class="heading settled" data-level="2.7.1" id="transaction-lifetime-concept"><span class="secno">2.7.1. </span><span class="content">Transaction Lifetime</span><a class="self-link" href="#transaction-lifetime-concept"></a></h4>
     <p>Transactions are expected to be short lived. This is encouraged by the <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit-1">automatic committing</a> functionality
 described below.</p>
-    <aside class="note" role="note"> Authors can still cause transactions to run for a long time; however,
+    <aside class="note"> Authors can still cause transactions to run for a long time; however,
   this usage pattern is not generally recommended as it can lead to a
   bad user experience. </aside>
     <p>The <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport="" id="transaction-lifetime">lifetime</dfn> of a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-22">transaction</a> is as follows:</p>
@@ -2289,7 +2302,7 @@ constant. That is, two requests to read the same piece of data
 must yield the same result both for the case when data is found
 and the result is that data, and for the case when data is not
 found and a lack of data is indicated.</p>
-      <aside class="note" role="note"> There are a number of ways that an implementation can ensure
+      <aside class="note"> There are a number of ways that an implementation can ensure
   this. The implementation could prevent any <a data-link-type="dfn" href="#transaction-read-write-transaction" id="ref-for-transaction-read-write-transaction-1">read/write
   transaction</a>, whose scope overlaps the scope of the <a data-link-type="dfn" href="#transaction-read-only-transaction" id="ref-for-transaction-read-only-transaction-4">read-only transaction</a>, from starting until the <a data-link-type="dfn" href="#transaction-read-only-transaction" id="ref-for-transaction-read-only-transaction-5">read-only transaction</a> finishes. Or the implementation
   could allow the <a data-link-type="dfn" href="#transaction-read-only-transaction" id="ref-for-transaction-read-only-transaction-6">read-only transaction</a> to see a snapshot
@@ -2320,7 +2333,7 @@ overlapping <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transa
 Due to the requirements in the previous paragraph, this also means
 that the B transaction does not have access to any <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-29">object
 stores</a> in that overlapping <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope-10">scope</a> until the A transaction is <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-3">finished</a>.</p>
-      <aside class="note" role="note"> Generally speaking, the above requirements mean that any
+      <aside class="note"> Generally speaking, the above requirements mean that any
   transaction which has an overlapping scope with a <a data-link-type="dfn" href="#transaction-read-write-transaction" id="ref-for-transaction-read-write-transaction-9">read/write
   transaction</a> and which was created after that <a data-link-type="dfn" href="#transaction-read-write-transaction" id="ref-for-transaction-read-write-transaction-10">read/write
   transaction</a>, can’t run in parallel with that <a data-link-type="dfn" href="#transaction-read-write-transaction" id="ref-for-transaction-read-write-transaction-11">read/write
@@ -2368,7 +2381,7 @@ and an event with type <code>success</code> is fired at the <a data-link-type="d
     <p>If an error occurs while performing the operation, the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-4">done flag</a> is set, the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-1">error</a> is set to the error, and an event with
 type <code>error</code> is fired at the request.</p>
     <p>A <a data-link-type="dfn" href="#request" id="ref-for-request-14">request</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#get-the-parent">get the parent</a> algorithm returns the request’s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction-1">transaction</a>.</p>
-    <aside class="note" role="note"> Requests are not typically re-used, but there are exceptions. When a <a data-link-type="dfn" href="#request-cursor" id="ref-for-request-cursor-1">cursor</a> is iterated, the success of the iteration is reported
+    <aside class="note"> Requests are not typically re-used, but there are exceptions. When a <a data-link-type="dfn" href="#request-cursor" id="ref-for-request-cursor-1">cursor</a> is iterated, the success of the iteration is reported
   on the same <a data-link-type="dfn" href="#request" id="ref-for-request-15">request</a> object used to open the cursor. And when
   an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-13">upgrade transaction</a> is necessary, the same <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request-2">open
   request</a> is used for both the <code><a data-link-type="dfn" href="#request-upgradeneeded" id="ref-for-request-upgradeneeded-6">upgradeneeded</a></code> event and final result of the open operation itself. In both cases,
@@ -2388,9 +2401,9 @@ to completion before the next request is processed. An open request
 may be blocked on other <a data-link-type="dfn" href="#connection" id="ref-for-connection-21">connections</a>, requiring those
 connections to <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed-1">close</a> before the request can complete and allow
 further requests to be processed.</p>
-    <aside class="note" role="note"> A <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue-2">connection queue</a> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queue</a> associated with
+    <aside class="note"> A <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue-2">connection queue</a> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queue</a> associated with
   an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>, as the requests are processed outside any
-  specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#browsing-context">browsing context</a>. The delivery of events to
+  specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>. The delivery of events to
   completed <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request-9">open request</a> still goes through a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queue</a> associated with the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a> of the context where the
   request was made. </aside>
     <h3 class="heading settled" data-level="2.9" id="range-construct"><span class="secno">2.9. </span><span class="content">Key Range</span><a class="self-link" href="#range-construct"></a></h3>
@@ -2415,7 +2428,7 @@ the <a data-link-type="dfn" href="#request-lower-open-flag" id="ref-for-request-
       <p>The <a data-link-type="dfn" href="#request-upper-bound" id="ref-for-request-upper-bound-4">upper bound</a> is null, or it is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than-2">greater than</a> <var>key</var>, or it is both <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to-3">equal to</a> <var>key</var> and
 the <a data-link-type="dfn" href="#request-upper-open-flag" id="ref-for-request-upper-open-flag-1">upper open flag</a> is unset.</p>
     </ul>
-    <aside class="note" role="note">
+    <aside class="note">
      <ul>
       <li data-md="">
        <p>If the <a data-link-type="dfn" href="#request-lower-open-flag" id="ref-for-request-lower-open-flag-2">lower open flag</a> of a <a data-link-type="dfn" href="#request-key-range" id="ref-for-request-key-range-9">key range</a> is unset, the <a data-link-type="dfn" href="#request-lower-bound" id="ref-for-request-lower-bound-5">lower bound</a> <a data-link-type="dfn" href="#key" id="ref-for-key-28">key</a> of the <a data-link-type="dfn" href="#request-key-range" id="ref-for-request-key-range-10">key range</a> is included
@@ -2543,7 +2556,7 @@ specified both for object stores which use <a data-link-type="dfn" href="#object
 setting the property on the stored value which the object store’s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-2">key path</a> points to, and for object stores
 which use <a data-link-type="dfn" href="#object-store-out-of-line-keys" id="ref-for-object-store-out-of-line-keys-1">out-of-line keys</a>, by passing a key argument to
 the call to store the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-20">record</a>.</p>
-      <aside class="note" role="note"> Only specified keys of <a data-link-type="dfn" href="#key-type" id="ref-for-key-type-5">type</a> <i>number</i> may affect the <a data-link-type="dfn" href="#request-current-number" id="ref-for-request-current-number-8">current number</a> of the key generator. Keys of <a data-link-type="dfn" href="#key-type" id="ref-for-key-type-6">type</a> <i>date</i>, <i>array</i> (regardless of the other keys they
+      <aside class="note"> Only specified keys of <a data-link-type="dfn" href="#key-type" id="ref-for-key-type-5">type</a> <i>number</i> may affect the <a data-link-type="dfn" href="#request-current-number" id="ref-for-request-current-number-8">current number</a> of the key generator. Keys of <a data-link-type="dfn" href="#key-type" id="ref-for-key-type-6">type</a> <i>date</i>, <i>array</i> (regardless of the other keys they
   contain), <i>binary</i>, or <i>string</i> (regardless of whether
   they could be parsed as numbers) have no effect on the <a data-link-type="dfn" href="#request-current-number" id="ref-for-request-current-number-9">current
   number</a> of the key generator. Keys of <a data-link-type="dfn" href="#key-type" id="ref-for-key-type-7">type</a> <i>number</i> with <a data-link-type="dfn" href="#key-value" id="ref-for-key-value-5">value</a> less than 1 do not affect the <a data-link-type="dfn" href="#request-current-number" id="ref-for-request-current-number-10">current number</a> since they are always lower than the <a data-link-type="dfn" href="#request-current-number" id="ref-for-request-current-number-11">current number</a>. </aside>
@@ -2567,7 +2580,7 @@ value 2<sup>53</sup> (9007199254740992) any attempts to use the
 key generator to generate a new <a data-link-type="dfn" href="#key" id="ref-for-key-41">key</a> will result in a <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-constrainterror" id="ref-for-exceptiondef-request-constrainterror-1">ConstraintError</a></code>. It is still possible to insert <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-23">records</a> into the object store by specifying an explicit
 key, however the only way to use a key generator again for the
 object store is to delete the object store and create a new one.</p>
-      <aside class="note" role="note"> As long as key generators are used in a normal fashion this will
+      <aside class="note"> As long as key generators are used in a normal fashion this will
   not be a problem. If you generate a new key 1000 times per
   second day and night, you won’t run into this limit for over
   285000 years. </aside>
@@ -2588,68 +2601,68 @@ transaction is rolled back.</p>
     <aside class="example" id="example-dcddf6da">
      <a class="self-link" href="#example-dcddf6da"></a> 
      <p>Each object store gets its own key generator:</p>
-<pre class="lang-javascript highlight"><span></span><span class="nx">store1</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store1</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"a"</span><span class="p">);</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store2</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store2"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store2</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"a"</span><span class="p">);</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store1</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"b"</span><span class="p">);</span> <span class="c1">// Will get key 2</span>
-<span class="nx">store2</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"b"</span><span class="p">);</span> <span class="c1">// Will get key 2</span>
-</pre>
+<pre class="lang-javascript highlight">store1 <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store1<span class="p">.</span>put<span class="p">(</span><span class="s2">"a"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store2 <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store2"</span><span class="p">,</span> <span class="p">{</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store2<span class="p">.</span>put<span class="p">(</span><span class="s2">"a"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store1<span class="p">.</span>put<span class="p">(</span><span class="s2">"b"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 2
+</span>store2<span class="p">.</span>put<span class="p">(</span><span class="s2">"b"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 2
+</span></pre>
      <p>If an insertion fails due to constraint violations or IO error, the
 key generator is not updated.</p>
-<pre class="lang-javascript highlight"><span></span><span class="nx">transaction</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span> <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">()</span> <span class="p">};</span>
-<span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">index</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"index1"</span><span class="p">,</span> <span class="s2">"ix"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span> <span class="nx">ix</span><span class="o">:</span> <span class="s2">"a"</span><span class="p">});</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span> <span class="nx">ix</span><span class="o">:</span> <span class="s2">"a"</span><span class="p">});</span> <span class="c1">// Will fail</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span> <span class="nx">ix</span><span class="o">:</span> <span class="s2">"b"</span><span class="p">});</span> <span class="c1">// Will get key 2</span>
-</pre>
+<pre class="lang-javascript highlight">transaction<span class="p">.</span>onerror <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span> e<span class="p">.</span>preventDefault<span class="p">(</span><span class="p">)</span> <span class="p">}</span><span class="p">;</span>
+store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+index <span class="o">=</span> store<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"index1"</span><span class="p">,</span> <span class="s2">"ix"</span><span class="p">,</span> <span class="p">{</span> unique<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span> ix<span class="o">:</span> <span class="s2">"a"</span><span class="p">}</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span> ix<span class="o">:</span> <span class="s2">"a"</span><span class="p">}</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will fail
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span> ix<span class="o">:</span> <span class="s2">"b"</span><span class="p">}</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 2
+</span></pre>
      <p>Removing items from an objectStore never affects the key generator.
 Including when <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-clear" id="ref-for-dom-idbobjectstore-clear-2">clear()</a></code> is called.</p>
-<pre class="lang-javascript highlight"><span></span><span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"a"</span><span class="p">);</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"b"</span><span class="p">);</span> <span class="c1">// Will get key 2</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">clear</span><span class="p">();</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"c"</span><span class="p">);</span> <span class="c1">// Will get key 3</span>
-<span class="nx">store</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="nx">IDBKeyRange</span><span class="p">.</span><span class="nx">lowerBound</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"d"</span><span class="p">);</span> <span class="c1">// Will get key 4</span>
-</pre>
+<pre class="lang-javascript highlight">store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="s2">"a"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store<span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="s2">"b"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 2
+</span>store<span class="p">.</span>clear<span class="p">(</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="s2">"c"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 3
+</span>store<span class="p">.</span><span class="k">delete</span><span class="p">(</span>IDBKeyRange<span class="p">.</span>lowerBound<span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="s2">"d"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 4
+</span></pre>
      <p>Inserting an item with an explicit key affects the key generator if,
 and only if, the key is numeric and higher than the last generated
 key.</p>
-<pre class="lang-javascript highlight"><span></span><span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"a"</span><span class="p">);</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="c1">// Will use key 3</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"c"</span><span class="p">);</span> <span class="c1">// Will get key 4</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"d"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">);</span> <span class="c1">// Will use key -10</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"e"</span><span class="p">);</span> <span class="c1">// Will get key 5</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"f"</span><span class="p">,</span> <span class="mf">6.00001</span><span class="p">);</span> <span class="c1">// Will use key 6.0001</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"g"</span><span class="p">);</span> <span class="c1">// Will get key 7</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"f"</span><span class="p">,</span> <span class="mf">8.9999</span><span class="p">);</span> <span class="c1">// Will use key 8.9999</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"g"</span><span class="p">);</span> <span class="c1">// Will get key 9</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"h"</span><span class="p">,</span> <span class="s2">"foo"</span><span class="p">);</span> <span class="c1">// Will use key "foo"</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"i"</span><span class="p">);</span> <span class="c1">// Will get key 10</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"j"</span><span class="p">,</span> <span class="p">[</span><span class="mi">1000</span><span class="p">]);</span> <span class="c1">// Will use key [1000]</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"k"</span><span class="p">);</span> <span class="c1">// Will get key 11</span>
-<span class="c1">// All of these would behave the same if the objectStore used a</span>
-<span class="c1">// keyPath and the explicit key was passed inline in the object</span>
-</pre>
+<pre class="lang-javascript highlight">store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store1"</span><span class="p">,</span> <span class="p">{</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="s2">"a"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will use key 3
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"c"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 4
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"d"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will use key -10
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"e"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 5
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"f"</span><span class="p">,</span> <span class="mf">6.00001</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will use key 6.0001
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"g"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 7
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"f"</span><span class="p">,</span> <span class="mf">8.9999</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will use key 8.9999
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"g"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 9
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"h"</span><span class="p">,</span> <span class="s2">"foo"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will use key "foo"
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"i"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 10
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"j"</span><span class="p">,</span> <span class="p">[</span><span class="mi">1000</span><span class="p">]</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will use key [1000]
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="s2">"k"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 11
+</span><span class="c1">// All of these would behave the same if the objectStore used a
+</span><span class="c1">// keyPath and the explicit key was passed inline in the object
+</span></pre>
      <p>Aborting a transaction rolls back any increases to the key generator
 which happened during the transaction. This is to make all rollbacks
 consistent since rollbacks that happen due to crash never has a chance
 to commit the increased key generator value.</p>
-<pre class="lang-javascript highlight"><span></span><span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">trans1</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">([</span><span class="s2">"store"</span><span class="p">],</span> <span class="s2">"readwrite"</span><span class="p">);</span>
-<span class="nx">store_t1</span> <span class="o">=</span> <span class="nx">trans1</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">);</span>
-<span class="nx">store_t1</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"a"</span><span class="p">);</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store_t1</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"b"</span><span class="p">);</span> <span class="c1">// Will get key 2</span>
-<span class="nx">trans1</span><span class="p">.</span><span class="nx">abort</span><span class="p">();</span>
-<span class="nx">trans2</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">transaction</span><span class="p">([</span><span class="s2">"store"</span><span class="p">],</span> <span class="s2">"readwrite"</span><span class="p">);</span>
-<span class="nx">store_t2</span> <span class="o">=</span> <span class="nx">trans2</span><span class="p">.</span><span class="nx">objectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">);</span>
-<span class="nx">store_t2</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"c"</span><span class="p">);</span> <span class="c1">// Will get key 1</span>
-<span class="nx">store_t2</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s2">"d"</span><span class="p">);</span> <span class="c1">// Will get key 2</span>
-</pre>
+<pre class="lang-javascript highlight">db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+trans1 <span class="o">=</span> db<span class="p">.</span>transaction<span class="p">(</span><span class="p">[</span><span class="s2">"store"</span><span class="p">]</span><span class="p">,</span> <span class="s2">"readwrite"</span><span class="p">)</span><span class="p">;</span>
+store_t1 <span class="o">=</span> trans1<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">)</span><span class="p">;</span>
+store_t1<span class="p">.</span>put<span class="p">(</span><span class="s2">"a"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store_t1<span class="p">.</span>put<span class="p">(</span><span class="s2">"b"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 2
+</span>trans1<span class="p">.</span>abort<span class="p">(</span><span class="p">)</span><span class="p">;</span>
+trans2 <span class="o">=</span> db<span class="p">.</span>transaction<span class="p">(</span><span class="p">[</span><span class="s2">"store"</span><span class="p">]</span><span class="p">,</span> <span class="s2">"readwrite"</span><span class="p">)</span><span class="p">;</span>
+store_t2 <span class="o">=</span> trans2<span class="p">.</span>objectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">)</span><span class="p">;</span>
+store_t2<span class="p">.</span>put<span class="p">(</span><span class="s2">"c"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 1
+</span>store_t2<span class="p">.</span>put<span class="p">(</span><span class="s2">"d"</span><span class="p">)</span><span class="p">;</span> <span class="c1">// Will get key 2
+</span></pre>
     </aside>
     <aside class="example" id="example-bfe51756">
      <a class="self-link" href="#example-bfe51756"></a> 
@@ -2668,12 +2681,12 @@ the key value. In the example below the <a data-link-type="dfn" href="#object-st
 the object store is "<code>foo.bar</code>". The actual object has no
 value for the <code>bar</code> property, <code>{ foo: {} }</code>.
 When the object is saved in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-45">object store</a> the <code>bar</code> property is assigned a value of 1 because that is the next <a data-link-type="dfn" href="#key" id="ref-for-key-43">key</a> generated by the <a data-link-type="dfn" href="#request-key-generator" id="ref-for-request-key-generator-9">key generator</a>.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">keyPath</span><span class="o">:</span> <span class="s2">"foo.bar"</span><span class="p">,</span>
-                                            <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span> <span class="nx">foo</span><span class="o">:</span> <span class="p">{}</span> <span class="p">}).</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">key</span> <span class="o">===</span> <span class="mi">1</span><span class="p">);</span>
-<span class="p">};</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> keyPath<span class="o">:</span> <span class="s2">"foo.bar"</span><span class="p">,</span>
+                                            autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span> foo<span class="o">:</span> <span class="p">{</span><span class="p">}</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> key <span class="o">=</span> e<span class="p">.</span>target<span class="p">.</span>result<span class="p">;</span>
+  console<span class="p">.</span>assert<span class="p">(</span>key <span class="o">===</span> <span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
      <p>If the following conditions are true:</p>
      <ul>
@@ -2688,12 +2701,12 @@ store</a> is "<code>foo.bar</code>". The actual object has a value of
 10 for the <code>bar</code> property, <code>{ foo: { bar: 10}
 }</code>. When the object is saved in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-48">object store</a> the <code>bar</code> property keeps its value of 10, because that is the
 key value.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">keyPath</span><span class="o">:</span> <span class="s2">"foo.bar"</span><span class="p">,</span>
-                                            <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span> <span class="nx">foo</span><span class="o">:</span> <span class="p">{</span> <span class="nx">bar</span><span class="o">:</span> <span class="mi">10</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">key</span> <span class="o">===</span> <span class="mi">10</span><span class="p">);</span>
-<span class="p">};</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> keyPath<span class="o">:</span> <span class="s2">"foo.bar"</span><span class="p">,</span>
+                                            autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span> foo<span class="o">:</span> <span class="p">{</span> bar<span class="o">:</span> <span class="mi">10</span> <span class="p">}</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> key <span class="o">=</span> e<span class="p">.</span>target<span class="p">.</span>result<span class="p">;</span>
+  console<span class="p">.</span>assert<span class="p">(</span>key <span class="o">===</span> <span class="mi">10</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
      <p>The following example illustrates the scenario when the specified
 in-line <a data-link-type="dfn" href="#key" id="ref-for-key-45">key</a> is defined through a <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-8">key
@@ -2705,17 +2718,17 @@ In the example below the <a data-link-type="dfn" href="#object-store-key-path" i
 object has no value for the <code>foo</code> property, <code>{ zip: {}
 }</code>. When the object is saved in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-50">object store</a> the <code>foo</code>, <code>bar</code>, and <code>baz</code> properties are created each as a child of the other until a value for <code>foo.bar.baz</code> can be assigned. The value for <code>foo.bar.baz</code> is the next key generated by the object
 store.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">keyPath</span><span class="o">:</span> <span class="s2">"foo.bar.baz"</span><span class="p">,</span>
-                                            <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span> <span class="nx">zip</span><span class="o">:</span> <span class="p">{}</span> <span class="p">}).</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">key</span> <span class="o">===</span> <span class="mi">1</span><span class="p">);</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">key</span><span class="p">).</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
-    <span class="c1">// value will be: { zip: {}, foo: { bar: { baz: 1 } } }</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">foo</span><span class="p">.</span><span class="nx">bar</span><span class="p">.</span><span class="nx">baz</span> <span class="o">===</span> <span class="mi">1</span><span class="p">);</span>
-  <span class="p">};</span>
-<span class="p">};</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> keyPath<span class="o">:</span> <span class="s2">"foo.bar.baz"</span><span class="p">,</span>
+                                            autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
+store<span class="p">.</span>put<span class="p">(</span><span class="p">{</span> zip<span class="o">:</span> <span class="p">{</span><span class="p">}</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> key <span class="o">=</span> e<span class="p">.</span>target<span class="p">.</span>result<span class="p">;</span>
+  console<span class="p">.</span>assert<span class="p">(</span>key <span class="o">===</span> <span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+  store<span class="p">.</span>get<span class="p">(</span>key<span class="p">)</span><span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>e<span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> value <span class="o">=</span> e<span class="p">.</span>target<span class="p">.</span>result<span class="p">;</span>
+    <span class="c1">// value will be: { zip: {}, foo: { bar: { baz: 1 } } }
+</span>    console<span class="p">.</span>assert<span class="p">(</span>value<span class="p">.</span>foo<span class="p">.</span>bar<span class="p">.</span>baz <span class="o">===</span> <span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+  <span class="p">}</span><span class="p">;</span>
+<span class="p">}</span><span class="p">;</span>
 </pre>
      <p>Attempting to store a property on a primitive value will fail and
 throw an error. In the first example below the <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-10">key
@@ -2725,16 +2738,16 @@ property on that primitive value fails. The same is true for arrays.
 Properties are not allowed on an array. In the second example below,
 the actual object is an array, <code>[10]</code>. Trying to define a
 property on the array fails.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">createObjectStore</span><span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> <span class="nx">keyPath</span><span class="o">:</span> <span class="s2">"foo"</span><span class="p">,</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> store <span class="o">=</span> db<span class="p">.</span>createObjectStore<span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="p">{</span> keyPath<span class="o">:</span> <span class="s2">"foo"</span><span class="p">,</span> autoIncrement<span class="o">:</span> <span class="kc">true</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 
-<span class="c1">// The key generation will attempt to create and store the key path</span>
-<span class="c1">// property on this primitive.</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="c1">// will throw DataError</span>
-
-<span class="c1">// The key generation will attempt to create and store the key path</span>
-<span class="c1">// property on this array.</span>
-<span class="nx">store</span><span class="p">.</span><span class="nx">put</span><span class="p">([</span><span class="mi">10</span><span class="p">]);</span> <span class="c1">// will throw DataError</span>
-</pre>
+<span class="c1">// The key generation will attempt to create and store the key path
+</span><span class="c1">// property on this primitive.
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="p">;</span> <span class="c1">// will throw DataError
+</span>
+<span class="c1">// The key generation will attempt to create and store the key path
+</span><span class="c1">// property on this array.
+</span>store<span class="p">.</span>put<span class="p">(</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="p">)</span><span class="p">;</span> <span class="c1">// will throw DataError
+</span></pre>
     </aside>
     <h2 class="heading settled" data-level="3" id="exceptions"><span class="secno">3. </span><span class="content">Exceptions</span><a class="self-link" href="#exceptions"></a></h2>
     <p>Each of the exceptions defined in this document is a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code> with a specific type. The exception types and
@@ -2794,7 +2807,7 @@ properties such as code value are defined in <a data-link-type="biblio" href="#b
        <td> An attempt was made to open a database using a lower version
       than the existing version. 
     </table>
-    <aside class="note" role="note"> Given that multiple Indexed DB operations can throw the same type of
+    <aside class="note"> Given that multiple Indexed DB operations can throw the same type of
   error, and that a even single operation can throw the same type of
   error for multiple reasons, implementations are encouraged to
   provide more specific messages to enable developers to identify the
@@ -2818,9 +2831,9 @@ requests can be active on any <a data-link-type="dfn" href="#database" id="ref-f
      <p>In the following example, we open a <a data-link-type="dfn" href="#database" id="ref-for-database-28">database</a> asynchronously.
 Various event handlers are registered for responding to various
 situations.</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="nx">indexedDB</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">'AddressBook'</span><span class="p">,</span> <span class="mi">15</span><span class="p">);</span>
-<span class="nx">request</span><span class="p">.</span><span class="nx">onsuccess</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">evt</span><span class="p">)</span> <span class="p">{...};</span>
-<span class="nx">request</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">evt</span><span class="p">)</span> <span class="p">{...};</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> request <span class="o">=</span> indexedDB<span class="p">.</span>open<span class="p">(</span><span class="s1">'AddressBook'</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span><span class="p">;</span>
+request<span class="p">.</span>onsuccess <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>evt<span class="p">)</span> <span class="p">{</span><span class="p">...</span><span class="p">}</span><span class="p">;</span>
+request<span class="p">.</span>onerror <span class="o">=</span> <span class="kd">function</span><span class="p">(</span>evt<span class="p">)</span> <span class="p">{</span><span class="p">...</span><span class="p">}</span><span class="p">;</span>
 </pre>
     </aside>
 <pre class="idl highlight def">[<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed">Exposed</a>=(<span class="n">Window</span>,<span class="n">Worker</span>)]
@@ -2928,7 +2941,7 @@ when invoked, must run these steps:</p>
 opening a database</a>, with the origin of the
 global scope used to access this <code class="idl"><a data-link-type="idl" href="#request-idbfactory" id="ref-for-request-idbfactory-4">IDBFactory</a></code>, <var>name</var>, <var>version</var> if given and undefined
 otherwise, and <var>request</var>.</p>
-         <aside class="note" role="note"> If <var>version</var> is not given and a <a data-link-type="dfn" href="#database" id="ref-for-database-30">database</a> with that name already exists, a connection will be opened
+         <aside class="note"> If <var>version</var> is not given and a <a data-link-type="dfn" href="#database" id="ref-for-database-30">database</a> with that name already exists, a connection will be opened
   without changing the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-6">version</a>. If <var>version</var> is not given and no <a data-link-type="dfn" href="#database" id="ref-for-database-31">database</a> with
   that name exists, a new <a data-link-type="dfn" href="#database" id="ref-for-database-32">database</a> will be created with <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-7">version</a> equal to 1. </aside>
         <li data-md="">
@@ -2946,11 +2959,11 @@ event does not bubble and is not cancelable. If the steps
 above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-14">upgrade transaction</a> being run,
 then firing the "<code>success</code>" event must be done
 after the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-15">upgrade transaction</a> completes.</p>
-           <aside class="note" role="note"> The last requirement is to ensure that in case another
+           <aside class="note"> The last requirement is to ensure that in case another
   version upgrade is about to happen, the success event is
   fired on the connection first so that the script gets a
   chance to register a listener for the <code>versionchange</code> event. </aside>
-           <aside class="note" role="note"> The firing of "<code>success</code>" or "<code>error</code>"
+           <aside class="note"> The firing of "<code>success</code>" or "<code>error</code>"
   events do not follow the normal steps to <a data-link-type="dfn" href="#request-fire-a-success-event" id="ref-for-request-fire-a-success-event-1">fire a success
   event</a> or <a data-link-type="dfn" href="#request-fire-an-error-event" id="ref-for-request-fire-an-error-event-1">fire an error event</a> as there is no
   active transaction at the time when they fire. </aside>
@@ -2983,7 +2996,7 @@ event does bubble but is not cancelable.</p>
           <li data-md="">
            <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-5">result</a> of <var>request</var> to undefined and <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-1">fire a version change event</a> named <code>success</code> at <a data-link-type="dfn" href="#request" id="ref-for-request-20">request</a> with <var>result</var> and
 null.</p>
-           <aside class="note" role="note"> The firing of "<code>success</code>" or "<code>error</code>"
+           <aside class="note"> The firing of "<code>success</code>" or "<code>error</code>"
   events do not follow the normal steps to <a data-link-type="dfn" href="#request-fire-a-success-event" id="ref-for-request-fire-a-success-event-2">fire a success
   event</a> or <a data-link-type="dfn" href="#request-fire-an-error-event" id="ref-for-request-fire-an-error-event-2">fire an error event</a> as there is no
   active transaction at the time when they fire. </aside>
@@ -3049,13 +3062,13 @@ other words, the value of this attribute stays constant for the
 lifetime of the <code class="idl"><a data-link-type="idl" href="#request-idbdatabase" id="ref-for-request-idbdatabase-6">IDBDatabase</a></code> instance.</p>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export="" id="dom-idbdatabase-version">version</dfn> attribute’s getter
 must return this <a data-link-type="dfn" href="#connection" id="ref-for-connection-27">connection</a>'s <a data-link-type="dfn" href="#connection-version" id="ref-for-connection-version-2">version</a>.</p>
-    <aside class="note" role="note"> As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection-28">connection</a> is open, this is the same as the
+    <aside class="note"> As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection-28">connection</a> is open, this is the same as the
   connected <a data-link-type="dfn" href="#database" id="ref-for-database-35">database</a>'s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-8">version</a>. Once the <a data-link-type="dfn" href="#connection" id="ref-for-connection-29">connection</a> has <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed-3">closed</a>, this attribute will not
   reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-16">upgrade transaction</a>. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export="" id="dom-idbdatabase-objectstorenames">objectStoreNames</dfn> attribute’s
 getter must return a <a data-link-type="dfn" href="#sorted-list" id="ref-for-sorted-list-1">sorted list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name-2">names</a> of
 the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-51">object stores</a> in this <a data-link-type="dfn" href="#connection" id="ref-for-connection-30">connection</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set-1">object store set</a>.</p>
-    <aside class="note" role="note"> As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection-31">connection</a> is open, this is the same as the
+    <aside class="note"> As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection-31">connection</a> is open, this is the same as the
   connected <a data-link-type="dfn" href="#database" id="ref-for-database-36">database</a>'s <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-52">object store</a> <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name-3">names</a>.
   Once the <a data-link-type="dfn" href="#connection" id="ref-for-connection-32">connection</a> has <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed-4">closed</a>, this attribute
   will not reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-17">upgrade transaction</a>. </aside>
@@ -3154,7 +3167,7 @@ unset the <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-tr
        <p>Return an <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-3">IDBTransaction</a></code> object representing <var>transaction</var>.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> The created <var>transaction</var> will follow the <a data-link-type="dfn" href="#transaction-lifetime" id="ref-for-transaction-lifetime-1">lifetime</a> rules. </aside>
+    <aside class="note"> The created <var>transaction</var> will follow the <a data-link-type="dfn" href="#transaction-lifetime" id="ref-for-transaction-lifetime-1">lifetime</a> rules. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export="" id="dom-idbdatabase-close">close()</dfn> method, when invoked,
 must run these steps:</p>
     <div class="algorithm">
@@ -3217,7 +3230,7 @@ the event handler for the <code>versionchange</code> event.</p>
 </pre>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export="" id="dom-idbobjectstore-name">name</dfn> attribute’s getter
 must return this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-10">object store handle</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name-7">name</a>.</p>
-    <aside class="note" role="note"> As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-31">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-5">finished</a>,
+    <aside class="note"> As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-31">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-5">finished</a>,
   this is the same as the associated <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-67">object store</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name-8">name</a>. Once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-32">transaction</a> has <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-6">finished</a>, this attribute will not reflect changes made with a
   later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-23">upgrade transaction</a>. </aside>
     <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-2">name</a></code> attribute’s setter must run these steps:</p>
@@ -3262,7 +3275,7 @@ instance every time it is inspected. Changing the properties of the
 object has no effect on the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-70">object store</a>.</p>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export="" id="dom-idbobjectstore-indexnames">indexNames</dfn> attribute’s
 getter must return a <a data-link-type="dfn" href="#sorted-list" id="ref-for-sorted-list-2">sorted list</a> of the <a data-link-type="dfn" href="#index-name" id="ref-for-index-name-2">names</a> of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-19">indexes</a> in this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-15">object store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set-1">index set</a>.</p>
-    <aside class="note" role="note"> As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-33">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-7">finished</a>,
+    <aside class="note"> As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-33">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-7">finished</a>,
   this is the same as the associated <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-71">object store</a>'s list
   of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-20">index</a> <a data-link-type="dfn" href="#index-name" id="ref-for-index-name-3">names</a>. Once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-34">transaction</a> has <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-8">finished</a>, this attribute will not
   reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-25">upgrade transaction</a>. </aside>
@@ -3406,7 +3419,7 @@ the <a data-link-type="dfn" href="#request-steps-for-deleting-records-from-an-ob
     </div>
     <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-46">key</a> or an <code class="idl"><a data-link-type="idl" href="#request-idbkeyrange" id="ref-for-request-idbkeyrange-1">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-25">records</a> keys to be
 deleted.</p>
-    <aside class="note" role="note"> Unlike other methods which take keys or key ranges, this method does <strong>not</strong> allow null to be given as key. This is to
+    <aside class="note"> Unlike other methods which take keys or key ranges, this method does <strong>not</strong> allow null to be given as key. This is to
   reduce the risk that a small bug would clear a whole object store. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export="" id="dom-idbobjectstore-clear">clear()</dfn> method, when invoked,
 must run these steps:</p>
@@ -3451,7 +3464,7 @@ invoked, must run these steps:</p>
     <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-47">key</a> or an <code class="idl"><a data-link-type="idl" href="#request-idbkeyrange" id="ref-for-request-idbkeyrange-2">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-26">record</a> to be retrieved. If a
 range is specified, the method retrieves the first existing value in
 that range.</p>
-    <aside class="note" role="note"> This method produces the same result if a record with the given key
+    <aside class="note"> This method produces the same result if a record with the given key
   doesn’t exist as when a record exists, but has undefined as value.
   If you need to tell the two situations apart, you can use <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-opencursor" id="ref-for-dom-idbobjectstore-opencursor-2">openCursor()</a></code> with the same key. This will return
   a cursor with undefined as value if a record exists, or no cursor if
@@ -3684,9 +3697,9 @@ created due to <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-ind
     <aside class="example" id="example-2657c439">
      <a class="self-link" href="#example-2657c439"></a> 
      <p>The asynchronous creation of indexes is observable in the following example:</p>
-<pre class="lang-javascript highlight"><span></span><span class="kd">var</span> <span class="nx">request1</span> <span class="o">=</span> <span class="nx">objectStore</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s2">"betty"</span><span class="p">},</span> <span class="mi">1</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">request2</span> <span class="o">=</span> <span class="nx">objectStore</span><span class="p">.</span><span class="nx">put</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s2">"betty"</span><span class="p">},</span> <span class="mi">2</span><span class="p">);</span>
-<span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="nx">objectStore</span><span class="p">.</span><span class="nx">createIndex</span><span class="p">(</span><span class="s2">"by_name"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="p">{</span><span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<pre class="lang-javascript highlight"><span class="kd">var</span> request1 <span class="o">=</span> objectStore<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>name<span class="o">:</span> <span class="s2">"betty"</span><span class="p">}</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> request2 <span class="o">=</span> objectStore<span class="p">.</span>put<span class="p">(</span><span class="p">{</span>name<span class="o">:</span> <span class="s2">"betty"</span><span class="p">}</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="p">;</span>
+<span class="kd">var</span> index <span class="o">=</span> objectStore<span class="p">.</span>createIndex<span class="p">(</span><span class="s2">"by_name"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="p">{</span>unique<span class="o">:</span> <span class="kc">true</span><span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
      <p>At the point where <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-createindex" id="ref-for-dom-idbobjectstore-createindex-4">createIndex()</a></code> called, neither of the <a data-link-type="dfn" href="#request" id="ref-for-request-21">requests</a> have executed. When the second request executes, a
   duplicate name is created. Since the index creation is considered an
@@ -3714,9 +3727,9 @@ store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-index-set"
 this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-57">object store handle</a>.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> Each call to this method on the same <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-8">IDBObjectStore</a></code> instance
+    <aside class="note"> Each call to this method on the same <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-8">IDBObjectStore</a></code> instance
   with the same name returns the same <code class="idl"><a data-link-type="idl" href="#request-idbindex" id="ref-for-request-idbindex-6">IDBIndex</a></code> instance. </aside>
-    <aside class="note" role="note"> The returned <code class="idl"><a data-link-type="idl" href="#request-idbindex" id="ref-for-request-idbindex-7">IDBIndex</a></code> instance is specific to this <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-9">IDBObjectStore</a></code> instance. If this method is called on a
+    <aside class="note"> The returned <code class="idl"><a data-link-type="idl" href="#request-idbindex" id="ref-for-request-idbindex-7">IDBIndex</a></code> instance is specific to this <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-9">IDBObjectStore</a></code> instance. If this method is called on a
   different <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-10">IDBObjectStore</a></code> instance with the same name, a
   different <code class="idl"><a data-link-type="idl" href="#request-idbindex" id="ref-for-request-idbindex-8">IDBIndex</a></code> instance is returned. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export="" data-lt="deleteIndex(indexName)" id="dom-idbobjectstore-deleteindex">deleteIndex(<var>name</var>)</dfn> method,
@@ -3773,7 +3786,7 @@ within the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgra
 </pre>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export="" id="dom-idbindex-name">name</dfn> attribute’s getter must
 return this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-10">index handle</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name-8">name</a>.</p>
-    <aside class="note" role="note"> As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-36">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-10">finished</a>,
+    <aside class="note"> As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-36">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-10">finished</a>,
   this is the same as the associated <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-28">index</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name-9">name</a>. Once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-37">transaction</a> has <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish-11">finished</a>, this attribute will not reflect changes made with a
   later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-33">upgrade transaction</a>. </aside>
     <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-2">name</a></code> attribute’s setter must run these steps:</p>
@@ -3850,7 +3863,7 @@ been deleted, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn
     <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-54">key</a> or an <code class="idl"><a data-link-type="idl" href="#request-idbkeyrange" id="ref-for-request-idbkeyrange-9">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-31">record</a> to be retrieved. If a
 range is specified, the method retrieves the first existing record in
 that range.</p>
-    <aside class="note" role="note"> This method produces the same result if a record with the given key
+    <aside class="note"> This method produces the same result if a record with the given key
   doesn’t exist as when a record exists, but has undefined as value.
   If you need to tell the two situations apart, you can use <code class="idl"><a data-link-type="idl" href="#dom-idbindex-opencursor" id="ref-for-dom-idbindex-opencursor-2">openCursor()</a></code> with the same key. This will return a
   cursor with undefined as value if a record exists, or no cursor if
@@ -4215,7 +4228,7 @@ record into an object store</a> as <var>operation</var>, using this
 cursor’s <a data-link-type="dfn" href="#cursor-effective-object-store" id="ref-for-cursor-effective-object-store-5">effective object store</a> as <var>store</var>, the <var>clone</var> as <var>value</var>, this cursor’s <a data-link-type="dfn" href="#cursor-effective-key" id="ref-for-cursor-effective-key-5">effective key</a> as <var>key</var>, and with the <var>no-overwrite flag</var> unset.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> A result of running the <a data-link-type="dfn" href="#request-steps-for-storing-a-record-into-an-object-store" id="ref-for-request-steps-for-storing-a-record-into-an-object-store-4">steps for storing a record into an object
+    <aside class="note"> A result of running the <a data-link-type="dfn" href="#request-steps-for-storing-a-record-into-an-object-store" id="ref-for-request-steps-for-storing-a-record-into-an-object-store-4">steps for storing a record into an object
   store</a> is that if the record has been deleted since the cursor
   moved to it, a new record will be created. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export="" id="dom-idbcursor-advance">advance(<var>count</var>)</dfn> method, when
@@ -4247,7 +4260,7 @@ for iterating a cursor</a> with this <a data-link-type="dfn" href="#request-curs
 and <var>request</var>.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> Calling this method more than once before new cursor data has been
+    <aside class="note"> Calling this method more than once before new cursor data has been
   loaded - for example, calling <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-advance" id="ref-for-dom-idbcursor-advance-2">advance()</a></code> twice from the
   same onsuccess handler - results in an <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-invalidstateerror" id="ref-for-exceptiondef-request-invalidstateerror-40">InvalidStateError</a></code> exception being thrown on the second call because the cursor’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag-8">got value flag</a> has been unset. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export="" data-lt="continue(key)|continue()" id="dom-idbcursor-continue">continue(<var>key</var>)</dfn> method, when
@@ -4292,7 +4305,7 @@ for iterating a cursor</a> with this <a data-link-type="dfn" href="#request-curs
 given), and <var>request</var>.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> Calling this method more than once before new cursor data has been
+    <aside class="note"> Calling this method more than once before new cursor data has been
   loaded - for example, calling <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-continue" id="ref-for-dom-idbcursor-continue-2">continue()</a></code> twice from the
   same onsuccess handler - results in an <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-invalidstateerror" id="ref-for-exceptiondef-request-invalidstateerror-43">InvalidStateError</a></code> exception being thrown on the second call because the cursor’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag-11">got value flag</a> has been unset. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export="" data-lt="continuePrimaryKey(key, primaryKey)" id="dom-idbcursor-continueprimarykey">continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</dfn> method, when invoked, must run these steps:</p>
@@ -4351,7 +4364,7 @@ for iterating a cursor</a> with this <a data-link-type="dfn" href="#request-curs
   The <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-continueprimarykey" id="ref-for-dom-idbcursor-continueprimarykey-2">continuePrimaryKey()</a></code> method is new in this edition.
   It will be supported in Firefox 51.
   🚧 </aside>
-    <aside class="note" role="note"> Calling this method more than once before new cursor data has been
+    <aside class="note"> Calling this method more than once before new cursor data has been
   loaded - for example, calling <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-continueprimarykey" id="ref-for-dom-idbcursor-continueprimarykey-3">continuePrimaryKey()</a></code> twice from
   the same onsuccess handler - results in an <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-invalidstateerror" id="ref-for-exceptiondef-request-invalidstateerror-46">InvalidStateError</a></code> being thrown on the second call because the cursor’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag-14">got value
   flag</a> has been unset. </aside>
@@ -4435,7 +4448,7 @@ this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction
   The <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-objectstorenames" id="ref-for-dom-idbtransaction-objectstorenames-2">objectStoreNames</a></code> attribute is new in this edition.
   It is supported in Chrome 48 and Firefox 44.
   🚧 </aside>
-    <aside class="note" role="note"> The contents of each list returned by this attribute does not
+    <aside class="note"> The contents of each list returned by this attribute does not
   change, but subsequent calls to this attribute during an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-36">upgrade
   transaction</a> may return lists with different contents as <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-85">object stores</a> are created and deleted. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export="" id="dom-idbtransaction-mode">mode</dfn> attribute’s getter
@@ -4445,7 +4458,7 @@ return the <a data-link-type="dfn" href="#database" id="ref-for-database-43">dat
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export="" id="dom-idbtransaction-error">error</dfn> attribute’s getter
 must return this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-45">transaction</a>'s <a data-link-type="dfn" href="#transaction-error" id="ref-for-transaction-error-1">error</a>, or null if
 none.</p>
-    <aside class="note" role="note"> If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-46">transaction</a> was aborted due to a failed <a data-link-type="dfn" href="#request" id="ref-for-request-27">request</a>, this will be the same as the <a data-link-type="dfn" href="#request" id="ref-for-request-28">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-5">error</a>. If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-47">transaction</a> was aborted
+    <aside class="note"> If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-46">transaction</a> was aborted due to a failed <a data-link-type="dfn" href="#request" id="ref-for-request-27">request</a>, this will be the same as the <a data-link-type="dfn" href="#request" id="ref-for-request-28">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-5">error</a>. If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-47">transaction</a> was aborted
   due to an uncaught exception in an event handler, the error will be <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-aborterror" id="ref-for-exceptiondef-request-aborterror-1">AbortError</a></code>. If the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-48">transaction</a> was aborted due to
   an error while committing, it will reflect the reason for the
   failure (e.g. <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-quotaexceedederror" id="ref-for-exceptiondef-request-quotaexceedederror-4">QuotaExceededError</a></code>, <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-constrainterror" id="ref-for-exceptiondef-request-constrainterror-7">ConstraintError</a></code>, or <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-unknownerror" id="ref-for-exceptiondef-request-unknownerror-2">UnknownError</a></code>). </aside>
@@ -4461,9 +4474,9 @@ when invoked, must run these steps:</p>
        <p>Return an <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-61">object store handle</a> associated with <var>store</var> and this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-50">transaction</a>.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> Each call to this method on the same <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-6">IDBTransaction</a></code> instance
+    <aside class="note"> Each call to this method on the same <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-6">IDBTransaction</a></code> instance
   with the same name returns the same <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-15">IDBObjectStore</a></code> instance. </aside>
-    <aside class="note" role="note"> The returned <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-16">IDBObjectStore</a></code> instance is specific to this <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-7">IDBTransaction</a></code>. If this method is called on a different <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-8">IDBTransaction</a></code>, a different <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-17">IDBObjectStore</a></code> instance is
+    <aside class="note"> The returned <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-16">IDBObjectStore</a></code> instance is specific to this <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-7">IDBTransaction</a></code>. If this method is called on a different <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-8">IDBTransaction</a></code>, a different <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-17">IDBObjectStore</a></code> instance is
   returned. </aside>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export="" id="dom-idbtransaction-abort">abort()</dfn> method, when invoked,
 must run these steps:</p>
@@ -4481,7 +4494,7 @@ event handler for the <code>abort</code> event.</p>
 the event handler for the <code>complete</code> event.</p>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export="" id="dom-idbtransaction-onerror">onerror</dfn> attribute is the
 event handler for the <code>error</code> event.</p>
-    <aside class="note" role="note"> To determine if a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-53">transaction</a> has completed successfully,
+    <aside class="note"> To determine if a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-53">transaction</a> has completed successfully,
   listen to the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-54">transaction</a>'s <code>complete</code> event
   rather than the <code>success</code> event of a particular <a data-link-type="dfn" href="#request" id="ref-for-request-29">request</a>, because the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-55">transaction</a> may still fail after
   the <code>success</code> event fires. </aside>
@@ -4489,7 +4502,7 @@ event handler for the <code>error</code> event.</p>
     <p>The <code class="idl"><a data-link-type="idl" href="#request-domstringlist" id="ref-for-request-domstringlist-6">DOMStringList</a></code> interface represents an immutable ordered
 collection of zero or more <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString">DOMString</a></code> values. The items in a <code class="idl"><a data-link-type="idl" href="#request-domstringlist" id="ref-for-request-domstringlist-7">DOMStringList</a></code> are accessible via an integral index, starting from
 zero.</p>
-    <aside class="note" role="note"> The <code class="idl"><a data-link-type="idl" href="#request-domstringlist" id="ref-for-request-domstringlist-8">DOMStringList</a></code> interface was previously defined in <a data-link-type="biblio" href="#biblio-dom-level-3-core">[DOM-Level-3-core]</a> but has been removed from the current versions
+    <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#request-domstringlist" id="ref-for-request-domstringlist-8">DOMStringList</a></code> interface was previously defined in <a data-link-type="biblio" href="#biblio-dom-level-3-core">[DOM-Level-3-core]</a> but has been removed from the current versions
   of <a data-link-type="biblio" href="#biblio-dom">[DOM]</a> and is now only referenced in this specification. It is
   hoped that in the future all uses of this type can be replaced by
   the conceptually similar <code>FrozenArray&lt;DOMString></code> to enable the use of other <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> methods, but retaining support
@@ -4553,7 +4566,7 @@ except <var>connection</var>, associated with <var>db</var>.</p>
         <li data-md="">
          <p>For each <var>entry</var> in <var>openConnections</var> that does not have its <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-5">close pending flag</a> set, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-2">fire a
 version change event</a> named <code>versionchange</code> at <var>entry</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-13">version</a> and <var>version</var>.</p>
-         <aside class="note" role="note"> Firing this event might cause one or more of the other
+         <aside class="note"> Firing this event might cause one or more of the other
   objects in <var>openConnections</var> to be closed, in which case the <code>versionchange</code> event must not be fired at those
   objects if that hasn’t yet been done. </aside>
         <li data-md="">
@@ -4603,9 +4616,9 @@ bubble or be cancelable.</p>
   🚧 </aside>
      </ol>
     </div>
-    <aside class="note" role="note"> Once the <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-7">close pending flag</a> has been set no new transactions
+    <aside class="note"> Once the <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-7">close pending flag</a> has been set no new transactions
   can be <a data-link-type="dfn" href="#transaction-created" id="ref-for-transaction-created-6">created</a> using <var>connection</var>. All methods that <a data-link-type="dfn" href="#transaction-created" id="ref-for-transaction-created-7">create</a> transactions first check the <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-8">close pending flag</a> first and throw an exception if it is set. </aside>
-    <aside class="note" role="note"> Once the <a data-link-type="dfn" href="#connection" id="ref-for-connection-46">connection</a> is closed, this can unblock the <a data-link-type="dfn" href="#request-steps-for-running-an-upgrade-transaction" id="ref-for-request-steps-for-running-an-upgrade-transaction-4">steps for
+    <aside class="note"> Once the <a data-link-type="dfn" href="#connection" id="ref-for-connection-46">connection</a> is closed, this can unblock the <a data-link-type="dfn" href="#request-steps-for-running-an-upgrade-transaction" id="ref-for-request-steps-for-running-an-upgrade-transaction-4">steps for
   running an upgrade transaction</a>, and the <a data-link-type="dfn" href="#request-steps-for-deleting-a-database" id="ref-for-request-steps-for-deleting-a-database-2">steps for deleting a
   database</a>, which <a href="#delete-close-block">both</a> <a href="#version-change-close-block">wait</a> for <a data-link-type="dfn" href="#connection" id="ref-for-connection-47">connections</a> to
   a given <a data-link-type="dfn" href="#database" id="ref-for-database-47">database</a> to be closed before continuing. </aside>
@@ -4628,7 +4641,7 @@ requested the <a data-link-type="dfn" href="#database" id="ref-for-database-48">
       <li data-md="">
        <p>For each <var>entry</var> in <var>openConnections</var> that does not have its <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag-9">close pending flag</a> set, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="#request-fire-a-version-change-event" id="ref-for-request-fire-a-version-change-event-4">fire a version
 change event</a> named <code>versionchange</code> at <var>entry</var> with <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-15">version</a> and null.</p>
-       <aside class="note" role="note"> Firing this event might cause one or more of the other objects
+       <aside class="note"> Firing this event might cause one or more of the other objects
   in <var>openConnections</var> to be closed, in which case the <code>versionchange</code> event must not be fired at those
   objects if that hasn’t yet been done. </aside>
       <li data-md="">
@@ -4664,7 +4677,7 @@ appropriate for the error, for example <code class="idl"><a data-link-type="idl"
        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to dispatch an event at <var>transaction</var>. The
 event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to "<code>complete</code>". The event does not
 bubble and is not cancelable.</p>
-       <aside class="note" role="note"> Even if an exception is thrown from one of the event handlers of
+       <aside class="note"> Even if an exception is thrown from one of the event handlers of
   this event, the transaction is still committed since writing the
   database changes happens before the event takes places. Only
   after the transaction has been successfully written is the
@@ -4704,7 +4717,7 @@ run these substeps:</p>
          <p>Dispatch an event at <var>request</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to
 "<code>error</code>". The event bubbles and is cancelable.</p>
        </ol>
-       <aside class="note" role="note"> This does not always result in any <code>error</code> events
+       <aside class="note"> This does not always result in any <code>error</code> events
   being fired. For example if a transaction is aborted due to an
   error while <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit-4">committing</a> the transaction,
   or if it was the last remaining request that failed. </aside>
@@ -4742,7 +4755,7 @@ in this algorithm.</p>
        <p>Let <var>result</var> be the result of performing <var>operation</var>.</p>
       <li data-md="">
        <p>If <var>result</var> is an error, then revert all changes made by <var>operation</var>.</p>
-       <aside class="note" role="note"> This only reverts the changes done by this request, not any
+       <aside class="note"> This only reverts the changes done by this request, not any
   other changes made by the transaction. </aside>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
@@ -4787,7 +4800,7 @@ for the <a data-link-type="dfn" href="#database" id="ref-for-database-55">databa
        <p>Unset <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-6">active flag</a>.</p>
       <li data-md="">
        <p>Start <var>transaction</var>.</p>
-       <aside class="note" role="note"> Note that until this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-59">transaction</a> is finished, no
+       <aside class="note"> Note that until this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-59">transaction</a> is finished, no
   other <a data-link-type="dfn" href="#connection" id="ref-for-connection-53">connections</a> can be opened to the same <a data-link-type="dfn" href="#database" id="ref-for-database-57">database</a>. </aside>
       <li data-md="">
        <p>Let <var>old version</var> be <var>db</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-19">version</a>.</p>
@@ -4825,7 +4838,7 @@ task as the task firing the <code>complete</code> or <code>abort</code> event, b
     </div>
     <h3 class="heading settled" data-level="5.8" id="abort-upgrade-transaction"><span class="secno">5.8. </span><span class="content">Aborting an upgrade transaction</span><a class="self-link" href="#abort-upgrade-transaction"></a></h3>
     <p>The <dfn class="dfn-paneled" data-dfn-for="request" data-dfn-type="dfn" data-noexport="" id="request-steps-for-aborting-an-upgrade-transaction">steps for aborting an upgrade transaction</dfn> <var>transaction</var> are as follows.</p>
-    <aside class="note" role="note"> The steps are run after the normal <a data-link-type="dfn" href="#request-steps-for-aborting-a-transaction" id="ref-for-request-steps-for-aborting-a-transaction-11">steps for aborting a
+    <aside class="note"> The steps are run after the normal <a data-link-type="dfn" href="#request-steps-for-aborting-a-transaction" id="ref-for-request-steps-for-aborting-a-transaction-11">steps for aborting a
   transaction</a>, which revert changes to the <a data-link-type="dfn" href="#database" id="ref-for-database-58">database</a> including
   the set of associated <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-91">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-36">indexes</a>, as well
   as the change to the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-20">version</a>. </aside>
@@ -4838,11 +4851,11 @@ task as the task firing the <code>complete</code> or <code>abort</code> event, b
       <li data-md="">
        <p>Set <var>connection</var>’s <a data-link-type="dfn" href="#connection-version" id="ref-for-connection-version-4">version</a> to <var>database</var>’s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-21">version</a> if <var>database</var> previously existed, or 0 (zero)
 if <var>database</var> was newly created.</p>
-       <aside class="note" role="note"> This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-version" id="ref-for-dom-idbdatabase-version-2">version</a></code> returned by the <code class="idl"><a data-link-type="idl" href="#request-idbdatabase" id="ref-for-request-idbdatabase-12">IDBDatabase</a></code> object. </aside>
+       <aside class="note"> This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-version" id="ref-for-dom-idbdatabase-version-2">version</a></code> returned by the <code class="idl"><a data-link-type="idl" href="#request-idbdatabase" id="ref-for-request-idbdatabase-12">IDBDatabase</a></code> object. </aside>
       <li data-md="">
        <p>Set <var>connection</var>’s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set-4">object store set</a> to the set of <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-92">object stores</a> in <var>database</var> if <var>database</var> previously
 existed, or the empty set if <var>database</var> was newly created.</p>
-       <aside class="note" role="note"> This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-objectstorenames" id="ref-for-dom-idbdatabase-objectstorenames-4">objectStoreNames</a></code> returned
+       <aside class="note"> This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-objectstorenames" id="ref-for-dom-idbdatabase-objectstorenames-4">objectStoreNames</a></code> returned
   by the <code class="idl"><a data-link-type="idl" href="#request-idbdatabase" id="ref-for-request-idbdatabase-13">IDBDatabase</a></code> object. </aside>
       <li data-md="">
        <p>For each <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-63">object store handle</a> <var>handle</var> associated with <var>transaction</var>, including those for <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-93">object stores</a> that
@@ -4855,7 +4868,7 @@ newly created during <var>transaction</var>, set <var>handle</var>’s <a data-l
          <p>Set <var>handle</var>’s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set-5">index set</a> to the set of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-37">indexes</a> that
 reference its <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store-22">object store</a>.</p>
        </ol>
-       <aside class="note" role="note">
+       <aside class="note">
          This reverts the values of <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-4">name</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames-4">indexNames</a></code> returned by related <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-18">IDBObjectStore</a></code> objects. 
         <p>Although script cannot access an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-94">object store</a> by using the <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-objectstore" id="ref-for-dom-idbtransaction-objectstore-2">objectStore()</a></code> method on an <code class="idl"><a data-link-type="idl" href="#request-idbtransaction" id="ref-for-request-idbtransaction-9">IDBTransaction</a></code> instance after
   the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-61">transaction</a> is aborted, it may still have references to <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-19">IDBObjectStore</a></code> instances where the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-5">name</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames-5">indexNames</a></code> properties can be queried.</p>
@@ -4870,14 +4883,14 @@ during <var>transaction</var>, run these substeps:</p>
 during <var>transaction</var>, set <var>handle</var>’s <a data-link-type="dfn" href="#index-handle-name" id="ref-for-index-handle-name-2">name</a> to
 its <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index-14">index</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name-13">name</a>.</p>
        </ol>
-       <aside class="note" role="note">
+       <aside class="note">
          This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-4">name</a></code> returned by related <code class="idl"><a data-link-type="idl" href="#request-idbindex" id="ref-for-request-idbindex-12">IDBIndex</a></code> objects. 
         <p>Although script cannot access an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-39">index</a> by using the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-index" id="ref-for-dom-idbobjectstore-index-2">index()</a></code> method on an <code class="idl"><a data-link-type="idl" href="#request-idbobjectstore" id="ref-for-request-idbobjectstore-20">IDBObjectStore</a></code> instance after the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-62">transaction</a> is aborted, it may still have references to <code class="idl"><a data-link-type="idl" href="#request-idbindex" id="ref-for-request-idbindex-13">IDBIndex</a></code> instances where the <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-5">name</a></code> property can
   be queried.</p>
        </aside>
      </ol>
     </div>
-    <aside class="note" role="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name-2">name</a></code> property of the <code class="idl"><a data-link-type="idl" href="#request-idbdatabase" id="ref-for-request-idbdatabase-14">IDBDatabase</a></code> instance is
+    <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name-2">name</a></code> property of the <code class="idl"><a data-link-type="idl" href="#request-idbdatabase" id="ref-for-request-idbdatabase-14">IDBDatabase</a></code> instance is
   not modified, even if the aborted <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-41">upgrade transaction</a> was
   creating a new <a data-link-type="dfn" href="#database" id="ref-for-database-60">database</a>. </aside>
     <h3 class="heading settled" data-level="5.9" id="fire-success-event"><span class="secno">5.9. </span><span class="content">Firing a success event</span><a class="self-link" href="#fire-success-event"></a></h3>
@@ -4922,7 +4935,7 @@ The event bubbles and is cancelable.</p>
 dispatching the event in step 3, abort the transaction by
 following the <a data-link-type="dfn" href="#request-steps-for-aborting-a-transaction" id="ref-for-request-steps-for-aborting-a-transaction-13">steps for aborting a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-aborterror" id="ref-for-exceptiondef-request-aborterror-8">AbortError</a></code> and terminate these steps. This is done even if the
 event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is not set.</p>
-       <aside class="note" role="note"> This means that if an error event is fired and any of the event
+       <aside class="note"> This means that if an error event is fired and any of the event
   handlers throw an exception, <var>transaction</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-error" id="ref-for-dom-idbtransaction-error-2">error</a></code> property is set to an <code class="idl"><a data-link-type="idl" href="#exceptiondef-request-aborterror" id="ref-for-exceptiondef-request-aborterror-9">AbortError</a></code> rather than <var>request</var>’s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-9">error</a>, even if <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-preventdefault">preventDefault()</a></code> is never called. </aside>
       <li data-md="">
        <p>If the event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is not set, run the <a data-link-type="dfn" href="#request-steps-for-aborting-a-transaction" id="ref-for-request-steps-for-aborting-a-transaction-14">steps
@@ -4991,7 +5004,7 @@ according key of the records in ascending order.</p>
          <p>If <var>index key</var> is an exception, or invalid, or failure, take no
 further actions for this index, and continue these substeps
 for the next index.</p>
-         <aside class="note" role="note"> An exception thrown in this step is not rethrown. </aside>
+         <aside class="note"> An exception thrown in this step is not rethrown. </aside>
         <li data-md="">
          <p>If <var>index</var>’s <a data-link-type="dfn" href="#index-multientry-flag" id="ref-for-index-multientry-flag-6">multiEntry flag</a> is unset, or if <var>index key</var> is not an <a data-link-type="dfn" href="#array-key" id="ref-for-array-key-5">array key</a>, and if <var>index</var> already contains a <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-39">record</a> with <a data-link-type="dfn" href="#key" id="ref-for-key-61">key</a> <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to-15">equal to</a> <var>index
 key</var>, and <var>index</var> has its <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-index-unique-flag-7">unique flag</a> set, then this
@@ -5013,9 +5026,9 @@ records are stored in <var>index</var>’s <a data-link-type="dfn" href="#index-
 records</a> such that the list is sorted primarily on the
 records keys, and secondarily on the records values, in
 ascending order.</p>
-         <aside class="note" role="note"> It is valid for there to be no <a data-link-type="dfn" href="#subkeys" id="ref-for-subkeys-4">subkeys</a>. In this case
+         <aside class="note"> It is valid for there to be no <a data-link-type="dfn" href="#subkeys" id="ref-for-subkeys-4">subkeys</a>. In this case
   no records are added to the index. </aside>
-         <aside class="note" role="note"> Even if any member of <a data-link-type="dfn" href="#subkeys" id="ref-for-subkeys-5">subkeys</a> is itself an <a data-link-type="dfn" href="#array-key" id="ref-for-array-key-9">array key</a>,
+         <aside class="note"> Even if any member of <a data-link-type="dfn" href="#subkeys" id="ref-for-subkeys-5">subkeys</a> is itself an <a data-link-type="dfn" href="#array-key" id="ref-for-array-key-9">array key</a>,
   the member is used directly as the key for the index record.
   Nested <a data-link-type="dfn" href="#array-key" id="ref-for-array-key-10">array keys</a> are not flattened or "unpacked" to
   produce multiple rows; only the outer-most <a data-link-type="dfn" href="#array-key" id="ref-for-array-key-11">array key</a> is. </aside>
@@ -5212,7 +5225,7 @@ follows.</p>
        <p class="assertion">Assert: if <var>primaryKey</var> is given, <var>source</var> is an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-42">index</a> and <var>direction</var> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next-7">"next"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev-7">"prev"</a></code>.</p>
       <li data-md="">
        <p>Let <var>records</var> be the list of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-51">records</a> in <var>source</var>.</p>
-       <aside class="note" role="note"> <var>records</var> is always sorted in ascending <a data-link-type="dfn" href="#key" id="ref-for-key-63">key</a> order.
+       <aside class="note"> <var>records</var> is always sorted in ascending <a data-link-type="dfn" href="#key" id="ref-for-key-63">key</a> order.
   In the case of <var>source</var> being an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-43">index</a>, <var>records</var> is secondarily sorted in ascending <a data-link-type="dfn" href="#value" id="ref-for-value-11">value</a> order
   (where the value in an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-44">index</a> is the <a data-link-type="dfn" href="#key" id="ref-for-key-64">key</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-52">record</a> in the referenced <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-96">object store</a>). </aside>
       <li data-md="">
@@ -5298,7 +5311,7 @@ than</a> <var>position</var>.</p>
            </ul>
            <p>If <var>temp record</var> is defined, let <var>found record</var> be the
     first record in <var>records</var> whose key is <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to-27">equal to</a> <var>temp record</var>’s key.</p>
-           <aside class="note" role="note"> Iterating with <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique-6">"prevunique"</a></code> visits the same records that <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique-6">"nextunique"</a></code> visits, but in reverse order. </aside>
+           <aside class="note"> Iterating with <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique-6">"prevunique"</a></code> visits the same records that <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique-6">"nextunique"</a></code> visits, but in reverse order. </aside>
          </dl>
         <li data-md="">
          <p>If <var>found record</var> is not defined, run these substeps:</p>
@@ -5399,7 +5412,7 @@ failure.</p>
          </ol>
         <li data-md="">
          <p>Return <var>result</var>.</p>
-         <aside class="note" role="note"> This will only ever "recurse" one level since <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-3">key
+         <aside class="note"> This will only ever "recurse" one level since <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-3">key
   path</a> sequences can’t ever be nested. </aside>
        </ol>
       <li data-md="">
@@ -5414,7 +5427,7 @@ string</a> <var>keyPath</var> on U+002E FULL STOP characters (.).</p>
         <dt>If <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-ecmascript-data-types-and-values">Type</a>(<var>value</var>) is String, and <var>identifier</var> is "<code>length</code>"
         <dd>Let <var>value</var> be a Number equal to the number of elements in <var>value</var>.
         <dt>If <var>value</var> is an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> and <var>identifier</var> is "<code>length</code>"
-        <dd>Let <var>value</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-tolength">ToLength</a>(<a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> Get(<var>value</var>, "<code>length</code>")).
+        <dd>Let <var>value</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-tolength">ToLength</a>(<a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-get-o-p">Get</a>(<var>value</var>, "<code>length</code>")).
         <dt>If <var>value</var> is a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-Blob">Blob</a></code> and <var>identifier</var> is "<code>size</code>"
         <dd>Let <var>value</var> be a Number equal to <var>value</var>’s <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-size">size</a></code>.
         <dt>If <var>value</var> is a <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-Blob">Blob</a></code> and <var>identifier</var> is "<code>type</code>"
@@ -5447,7 +5460,7 @@ string</a> <var>keyPath</var> on U+002E FULL STOP characters (.).</p>
        <p>Return <var>value</var>.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> Assertions can be made in the above steps because this algorithm is
+    <aside class="note"> Assertions can be made in the above steps because this algorithm is
   only applied to values that are the output of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone
   algorithm</a> and only access "own" properties. </aside>
     <h3 class="heading settled" data-level="7.2" id="inject-key-into-value"><span class="secno">7.2. </span><span class="content">Inject a key into a value</span><a class="self-link" href="#inject-key-into-value"></a></h3>
@@ -5496,10 +5509,10 @@ key to a value</a>.</p>
        <p class="assertion">Assert: <var>status</var> is true.</p>
      </ol>
     </div>
-    <aside class="note" role="note"> The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-4">key path</a> used here is always a string and never a sequence,
+    <aside class="note"> The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-4">key path</a> used here is always a string and never a sequence,
   since it is not possible to create a <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-99">object store</a> which has a <a data-link-type="dfn" href="#request-key-generator" id="ref-for-request-key-generator-23">key generator</a> and also has a <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-19">key path</a> that is a
   sequence. </aside>
-    <aside class="note" role="note"> Assertions can be made in the above steps because this algorithm is
+    <aside class="note"> Assertions can be made in the above steps because this algorithm is
   only applied to values that are the output of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone
   algorithm</a>. </aside>
     <h3 class="heading settled" data-level="7.3" id="convert-key-to-value"><span class="secno">7.3. </span><span class="content">Convert a key to a value</span><a class="self-link" href="#convert-key-to-value"></a></h3>
@@ -5708,7 +5721,7 @@ steps may throw an exception.</p>
 value to a key</a> with argument <var>input</var>.</p>
      </ol>
     </div>
-    <aside class="note" role="note">
+    <aside class="note">
       These steps are similar to those to <a data-link-type="dfn" href="#request-convert-a-value-to-a-key" id="ref-for-request-convert-a-value-to-a-key-20">convert a value to a key</a> but if the top-level value is an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> then members which can
   not be converted to keys are ignored, and duplicates are removed. 
      <p>For example, the value <code>[10, 20, null, 30, 20]</code> is
@@ -5814,7 +5827,7 @@ content on <code>geocities.com</code>, all share one set of databases.</p>
 shared hosts are therefore recommended to avoid using these features,
 as it would be trivial for other authors to read the data and
 overwrite it.</p>
-    <aside class="note" role="note"> Even if a path-restriction feature was made available, the usual DOM
+    <aside class="note"> Even if a path-restriction feature was made available, the usual DOM
   scripting security model would make it trivial to bypass this
   protection and access the data from any path. </aside>
     <h3 class="heading settled" data-level="9.3" id="implementation-risks"><span class="secno">9.3. </span><span class="content">Implementation risks</span><a class="self-link" href="#implementation-risks"></a></h3>
@@ -6521,9 +6534,9 @@ specification.</p>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a>
      <li><a href="https://html.spec.whatwg.org/multipage/scripting.html#imagedata">ImageData</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope">WindowOrWorkerGlobalScope</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#browsing-context">browsing context</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#dom-document-domain">domain</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">event handler idl attributes</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">event handler idl attribute</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#origin">origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>
