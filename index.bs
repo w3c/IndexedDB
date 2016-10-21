@@ -23,46 +23,53 @@ Test Suite: https://github.com/w3c/web-platform-tests/tree/master/IndexedDB
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     urlPrefix: dom.html
         type: interface
-            text: Document; url: #document
+            text: Document; url: document
     urlPrefix: browsers.html
         type: dfn
-            text: origin; url: #origin
+            text: origin; url: origin
     urlPrefix: workers.html
         type: dfn
-            text: worker; url: #worker
+            text: worker; url: worker
     urlPrefix: infrastructure.html
         type: dfn
-            text: strictly splitting the string; url: #strictly-split-a-string
-            text: structured clone; url: #structuredclone
-            text: structured clone algorithm; url: #safe-passing-of-structured-data
+            text: strictly splitting the string; url: strictly-split-a-string
+            text: structured clone; url: structuredclone
+            text: structured clone algorithm; url: safe-passing-of-structured-data
     urlPrefix: webappapis.html
         type: dfn
-            text: queue a task; url: #queue-a-task
-            text: task queue; url: #task-queue
-            text: browsing context; url: #browsing-context
-            text: event loop; url: #event-loop
-            text: event handler idl attributes; url: #event-handler-idl-attributes
+            text: task queue; url: task-queue
+            text: event loop; url: event-loop
 spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
     type: dfn
-        text: IdentifierName; url: #prod-IdentifierName
-        text: String; url: #sec-ecmascript-language-types-string-type
-        text: Number; url: #sec-ecmascript-language-types-number-type
-        text: Date; url: #sec-date-objects
-        text: Object; url: #sec-object-objects
-        text: TypeError; url: #sec-native-error-types-used-in-this-standard-typeerror
-        text: Array; url: #sec-array-objects
-        text: ArrayBuffer; url: #sec-arraybuffer-objects
-        text: Uint8Array; url: #sec-typedarray-objects
-        text: Promise; url: #sec-promise-objects
         url: sec-algorithm-conventions
             text: !
             text: ?
+        text: abrupt completion; url: sec-completion-record-specification-type
+        text: ReturnIfAbrupt; url: sec-returnifabrupt
+        text: IdentifierName; url: prod-IdentifierName
+        text: Type; url: sec-ecmascript-data-types-and-values
+        text: HasOwnProperty; url: sec-hasownproperty
+        text: Get; url: sec-get-o-p
+        text: CreateDataProperty; url: sec-createdataproperty
+        text: ToLength; url: sec-tolength
+        text: ToString; url: sec-tostring
+        text: IsArray; url: sec-isarray
+        text: String; url: sec-ecmascript-language-types-string-type
+        text: Number; url: sec-ecmascript-language-types-number-type
+        text: Date; url: sec-date-objects
+        text: Object; url: sec-object-objects
+        text: TypeError; url: sec-native-error-types-used-in-this-standard-typeerror
+        text: Array; url: sec-array-objects
+        text: ArrayBuffer; url: sec-arraybuffer-objects
+        text: Uint8Array; url: sec-typedarray-objects
+        text: Promise; url: sec-promise-objects
 spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     type: dfn
-        text: sequence<DOMString>; url: #idl-sequence
-        text: octet; url: #idl-octet
-        text: getting a copy of the bytes held by a buffer source; url: #dfn-get-buffer-source-copy
-        text: create exception; url: #dfn-create-exception
+        text: sequence<DOMString>; url: idl-sequence
+        text: sequence<any>; url: idl-sequence
+        text: octet; url: idl-octet
+        text: getting a copy of the bytes held by a buffer source; url: dfn-get-buffer-source-copy
+        text: create exception; url: dfn-create-exception
 </pre>
 
 <style>
@@ -505,8 +512,8 @@ following the steps to [=convert a value to a key=].
 
   * [=Number=] primitive values, except NaN. This includes Infinity
       and -Infinity.
-  * [=Date=] objects, except where the [<span>[</span>DateValue]]
-      internal slot is NaN
+  * [=Date=] objects, except where the \[[DateValue]]
+      internal slot is NaN.
   * [=String=] primitive values.
   * [=ArrayBuffer=] objects (or views on buffers such as
       [=Uint8Array=]).
@@ -565,7 +572,7 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
       <dd>
         1. If |va| is greater than |vb|, then return 1.
         2. If |va| is less than |vb|, then return -1.
-        3. Return 0
+        3. Return 0.
       </dd>
 
       <dt><i>string</i></dt>
@@ -573,14 +580,14 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
         1. Let |length| be the lesser of |va|'s length and |vb|'s length.
         2. Let |i| be 0.
         3. While |i| is less than |length|, run these substeps:
-            1. Let |u| be the code unit of |va| at index |i|
-            2. Let |v| be the code unit of |vb| at index |i|
-            3. If |u| is greater than |v| then return 1
-            4. If |u| is less than |v| then return -1
-            5. Increase |i| by 1
-        4. If |va|'s length is greater than |vb|'s length, then return 1
-        5. If |va|'s length is less than |vb|'s length, then return -1
-        6. Return 0
+            1. Let |u| be the code unit of |va| at index |i|.
+            2. Let |v| be the code unit of |vb| at index |i|.
+            3. If |u| is greater than |v| then return 1.
+            4. If |u| is less than |v| then return -1.
+            5. Increase |i| by 1.
+        4. If |va|'s length is greater than |vb|'s length, then return 1.
+        5. If |va|'s length is less than |vb|'s length, then return -1.
+        6. Return 0.
       </dd>
 
       <dt><i>binary</i></dt>
@@ -589,15 +596,15 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
         2. Let |i| be 0.
         3. While |i| is less than |length|, run these substeps:
 
-            1. Let |u| be the [=octet=] in |va| at index |i|
-            2. Let |v| be the [=octet=] in |vb| at index |i|
-            3. If |u| is greater than |v| then return 1
-            4. If |u| is less than |v| then return -1
-            5. Increase |i| by 1
+            1. Let |u| be the [=octet=] in |va| at index |i|.
+            2. Let |v| be the [=octet=] in |vb| at index |i|.
+            3. If |u| is greater than |v| then return 1.
+            4. If |u| is less than |v| then return -1.
+            5. Increase |i| by 1.
 
-        4. If |va|'s length is greater than |vb|'s length, then return 1
-        5. If |va|'s length is less than |vb|'s length, then return -1
-        6. Return 0
+        4. If |va|'s length is greater than |vb|'s length, then return 1.
+        5. If |va|'s length is less than |vb|'s length, then return -1.
+        6. Return 0.
       </dd>
 
       <dt><i>array</i></dt>
@@ -606,15 +613,15 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
         2. Let |i| be 0.
         3. While |i| is less than |length|, run these substeps:
 
-            1. Let |u| be the [=/key=] in |va| at index |i|
-            2. Let |v| be the [=/key=] in |vb| at index |i|
-            3. Let |c| be the result of recursively running the steps to [=compare two keys=] with |u| and |v|
-            4. If |c| is not 0, return |c|
-            5. Increase |i| by 1
+            1. Let |u| be the [=/key=] in |va| at index |i|.
+            2. Let |v| be the [=/key=] in |vb| at index |i|.
+            3. Let |c| be the result of recursively running the steps to [=compare two keys=] with |u| and |v|.
+            4. If |c| is not 0, return |c|.
+            5. Increase |i| by 1.
 
-        4. If |va|'s length is greater than |vb|'s length, then return 1
-        5. If |va|'s length is less than |vb|'s length, then return -1
-        6. Return 0
+        4. If |va|'s length is greater than |vb|'s length, then return 1.
+        5. If |va|'s length is less than |vb|'s length, then return -1.
+        6. Return 0.
       </dd>
     </dl>
 
@@ -2436,7 +2443,7 @@ of [=/indexes=] in this [=/object store handle=]'s
 
 The <dfn attribute for=IDBObjectStore>transaction</dfn> attribute's
 getter must return this [=/object store handle=]'s
-[=object-store-handle/transaction=],
+[=object-store-handle/transaction=].
 
 
 The <dfn attribute for=IDBObjectStore>autoIncrement</dfn> attribute's
@@ -4520,7 +4527,7 @@ database, and an optional |request|.
 
 These steps can be aborted at any point if the [=/transaction=] the
 created [=request=] belongs to is [=aborted=] using the [=steps for
-aborting a transaction=]
+aborting a transaction=].
 
 <div class=algorithm>
 
@@ -4531,7 +4538,7 @@ aborting a transaction=]
     {{TransactionInactiveError}}.
 
 3. If |request| was not given, let |request| be a new |request| with
-    [=request/source=] as |source|
+    [=request/source=] as |source|.
 
 4. Add |request| to the end of |transaction|'s [=request list=].
 
@@ -4831,7 +4838,7 @@ follows.
             operation failed with a {{ConstraintError}}. Abort this
             algorithm without taking any further steps.
 
-        2. Set |key| to the [=key generator=]'s [=current number=]
+        2. Set |key| to the [=key generator=]'s [=current number=].
 
         3. Increase the [=key generator=]'s [=current number=] by 1.
 
@@ -4954,18 +4961,14 @@ store</dfn> with |store|, |range| and optional |count| are as follows:
     in |store|'s [=object-store/list of records=] whose key is
     [=in=] |range|.
 
-3. Let |array| be a new [=Array=] object.
+3. Let |sequence| be a [=sequence&lt;any&gt;=].
 
-4. Let |index| be 0.
-
-5. For each |record| in |records|, run these substeps:
+4. For each |record| in |records|, run these substeps:
 
     1. Let |entry| be a [=structured clone=] of |record|'s value.
-    2. Let |status| be CreateDataProperty(|array|, |index|, |entry|).
-    3. Assert: |status| is true.
-    4. Increase |index| by 1.
+    2. Append |entry| to |sequence|.
 
-6. Return |array|.
+5. Return |sequence|.
 
 </div>
 
@@ -4997,19 +5000,15 @@ with |store|, |range| and optional |count| are as follows:
     in |store|'s [=object-store/list of records=] whose key is
     [=in=] |range|.
 
-3. Let |array| be a new [=Array=] object.
+3. Let |sequence| be a [=sequence&lt;any&gt;=].
 
-4. Let |index| be 0.
-
-5. For each |record| in |records|, run these substeps:
+4. For each |record| in |records|, run these substeps:
 
     1. Let |entry| be the result of running the steps to [=convert a
         key to a value=] with |record|'s key.
-    2. Let |status| be CreateDataProperty(|array|, |index|, |entry|).
-    3. Assert: |status| is true.
-    4. Increase |index| by 1.
+    2. Append |entry| to |sequence|.
 
-6. Return |array|.
+5. Return |sequence|.
 
 </div>
 
@@ -5043,20 +5042,15 @@ index</dfn> with |index|, |range| and optional |count| are as follows:
 2. Let |records| be a list containing the first |count| [=records=]
     in |index|'s [=index/list of records=] whose key is [=in=] |range|.
 
-3. Let |array| be a new [=Array=] object.
+3. Let |sequence| be a [=sequence&lt;any&gt;=].
 
-4. Let |index| be 0.
-
-5. For each |record| in |records|, run these substeps:
+4. For each |record| in |records|, run these substeps:
 
     1. Let |entry| be a [=structured clone=] of |record|'s
         [=referenced value=].
-    2. Let |status| be CreateDataProperty(|array|, |index|, |entry|).
-    3. Assert: |status| is true.
-    4. Increase |index| by 1.
+    2. Append |entry| to |sequence|.
 
-
-6. Return |array|.
+5. Return |sequence|.
 
 </div>
 
@@ -5087,19 +5081,15 @@ The <dfn>steps for retrieving multiple values from an index</dfn> with
 2. Let |records| be a list containing the first |count| [=records=] in
     |index|'s [=index/list of records=] whose key is [=in=] |range|.
 
-3. Let |array| be a new [=Array=] object.
+3. Let |sequence| be a [=sequence&lt;any&gt;=].
 
-4. Let |index| be 0.
-
-5. For each |record| in |records|, run these substeps:
+4. For each |record| in |records|, run these substeps:
 
     1. Let |entry| be the result of running the steps to [=convert a
         key to a value=] with |record|'s value.
-    2. Let |status| be CreateDataProperty(|array|, |index|, |entry|).
-    3. Assert: |status| is true.
-    4. Increase |index| by 1.
+    2. Append |entry| to |sequence|.
 
-6. Return |array|.
+5. Return |sequence|.
 
 </div>
 
@@ -5390,22 +5380,31 @@ ECMAScript value or failure, or the steps may throw an exception.
 
 1. If |keyPath| is a [=sequence&lt;DOMString&gt;=], run these substeps:
 
-    1. Let |result| be a new [=Array=] ECMAScript object.
+    1. Let |result| be a new [=Array=] object created as if by the
+        expression <code>[]</code>.
 
-    2. For each |item| in the |keyPath| sequence, run these substeps:
+    2. Let |i| be 0.
+
+    3. For each |item| in the |keyPath| sequence, run these substeps:
 
         1. Let |key| be the result of recursively running the steps to
             [=extract a key from a value using a key path=] using
             |item| as |keyPath| and |value| as |value|.
 
-        2. Assert: |key| is not an abrupt completion.
+        2. Assert: |key| is not an [=abrupt completion=].
 
         3. If |key| is failure, abort the overall algorithm and return
             failure.
 
-        4. Append the result of the first sub-step to end of |result|.
+        4. Let |p| be ! [=ToString=](|i|).
 
-    3. Return |result|.
+        5. Let |status| be [=CreateDataProperty=](|result|, |p|, |key|).
+
+        6. Assert: |status| is true.
+
+        7. Increase |i| by 1.
+
+    4. Return |result|.
 
         <aside class=note>
           This will only ever "recurse" one level since [=/key
@@ -5421,11 +5420,12 @@ ECMAScript value or failure, or the steps may throw an exception.
 4. For each |identifier| in |identifiers|, jump to the appropriate step below:
 
     <dl class=switch>
-      <dt>If Type(|value|) is String, and |identifier| is "<code>length</code>"</dt>
+      <dt>If [=/Type=](|value|) is String, and |identifier| is "<code>length</code>"</dt>
       <dd>Let |value| be a Number equal to the number of elements in |value|.</dd>
 
       <dt>If |value| is an [=Array=] and |identifier| is "<code>length</code>"</dt>
-      <dd>Let |value| be [=!=] ToLength([=!=] Get(|value|, "<code>length</code>")).</dd>
+
+      <dd>Let |value| be [=!=] [=ToLength=]([=!=] [=Get=](|value|, "<code>length</code>")).</dd>
 
       <dt>If |value| is a {{Blob}} and |identifier| is "<code>size</code>"</dt>
       <dd>Let |value| be a Number equal to |value|'s {{Blob/size}}.</dd>
@@ -5440,26 +5440,25 @@ ECMAScript value or failure, or the steps may throw an exception.
       <dd>Let |value| be a Number equal to |value|'s {{File/lastModified}}.</dd>
 
       <dt>If |value| is a {{File}} and |identifier| is "<code>lastModifiedDate</code>"</dt>
-      <dd>Let |value| be a new [=Date=] object with [<span>[</span>DateValue]]
+      <dd>Let |value| be a new [=Date=] object with \[[DateValue]] internal slot
         equal to |value|'s {{File/lastModified}}.</dd>
 
       <dt>Otherwise</dt>
       <dd>
-        1. If Type(|value|) is not Object, return failure.
+        1. If [=/Type=](|value|) is not Object, return failure.
 
-        2. Let |hop| be [=!=] HasOwnProperty(|value|, |identifier|)
+        2. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
         3. If |hop| is false, return failure.
 
-        4. Let |value| be [=!=] |value|.[<span>[</span>Get]](|identifier|,
-            |value|)
+        4. Let |value| be [=!=] [=Get=](|value|, |identifier|).
 
         5. If |value| is undefined, return failure.
       </dd>
 
     </dl>
 
-5. Assert: |value| is not an abrupt completion.
+5. Assert: |value| is not an [=abrupt completion=].
 
 6. Return |value|.
 
@@ -5496,26 +5495,26 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
         object (see [=structured clone algorithm=] [[!HTML]]), then
         [=throw=] a {{DataError}}.
 
-    2. Let |hop| be [=!=] HasOwnProperty(|value|, |identifier|).
+    2. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
     3. If |hop| is false, run these substeps:
 
-         1. Let |o| be a new [=Object=].
+         1. Let |o| be a new [=Object=] created as if by the
+            expression <code>({})</code>.
 
-         2. Let |status| be CreateDataProperty(|value|, |identifier|,
+         2. Let |status| be [=CreateDataProperty=](|value|, |identifier|,
             |o|).
 
          3. Assert: |status| is true.
 
-    4. Let |value| be [=!=] |value|.[<span>[</span>Get]](|identifier|,
-        |value|).
+    4. Let |value| be [=!=] [=Get=](|value|, |identifier|).
 
 5. Assert: |value| is an [=Object=] or an [=Array=].
 
 6. Let |keyValue| be the result of running the steps to [=convert a
     key to a value=].
 
-7. Let |status| be CreateDataProperty(|value|, |last|, |keyValue|).
+7. Let |status| be [=CreateDataProperty=](|value|, |last|, |keyValue|).
 
 8. Assert: |status| is true.
 
@@ -5561,7 +5560,7 @@ steps take one argument, |key|, and return an ECMAScript value.
       <dd>
         1. Let |date| be the result of executing the ECMAScript Date
             constructor with the single argument |value|.
-        2. Assert: |date| is not an abrupt completion.
+        2. Assert: |date| is not an [=abrupt completion=].
         3. Return |date|.
 
       </dd>
@@ -5571,9 +5570,9 @@ steps take one argument, |key|, and return an ECMAScript value.
         1. Let |len| be the length of |value|.
         2. Let |buffer| be the result of executing the ECMAScript
             ArrayBuffer constructor with |len|.
-        3. Assert: |buffer| is not an abrupt completion.
+        3. Assert: |buffer| is not an [=abrupt completion=].
         4. Set the entries in |buffer|'s
-            [<span>[</span>ArrayBufferData]] internal slot to the entries
+            \[[ArrayBufferData]] internal slot to the entries
             in |value|.
         5. Return |buffer|.
 
@@ -5583,7 +5582,7 @@ steps take one argument, |key|, and return an ECMAScript value.
       <dd>
         1. Let |array| be the result of executing the ECMAScript Array
             constructor with no arguments.
-        2. Assert: |array| is not an abrupt completion.
+        2. Assert: |array| is not an [=abrupt completion=].
         3. Let |len| be the length of |value|.
         4. Let |index| be 0.
         5. While |index| is less than |len|, run these substeps:
@@ -5591,7 +5590,7 @@ steps take one argument, |key|, and return an ECMAScript value.
             1. Let |entry| be the result of running the steps to
                 [=convert a key to a value=] with the |index|th
                 entry of |value| as input.
-            2. Let |status| be CreateDataProperty(|array|, |index|,
+            2. Let |status| be [=CreateDataProperty=](|array|, |index|,
                 |entry|).
             3. Assert: |status| is true.
             4. Increase |index| by 1.
@@ -5615,29 +5614,29 @@ steps may throw an exception.
 
 <div class=algorithm>
 
-1. If |seen| was not given, let |seen| be a new empty set
+1. If |seen| was not given, let |seen| be a new empty set.
 
-2. If |input| is in |seen| return invalid
+2. If |input| is in |seen| return invalid.
 
 3. Jump to the appropriate step below:
 
     <dl class=switch>
 
       <!-- Number -->
-      <dt>If Type(|input|) is Number</dt>
+      <dt>If [=/Type=](|input|) is Number</dt>
       <dd>
         1. If |input| is NaN then return invalid.
         2. Otherwise, return a new [=/key=] with
             [=key/type=] <i>number</i> and [=key/value=]
-            |input|
+            |input|.
 
       </dd>
 
       <!-- Date -->
-      <dt>If |input| has an [<span>[</span>DateValue]] internal slot</dt>
+      <dt>If |input| is a [=Date=] (has a \[[DateValue]] internal slot)</dt>
       <dd>
         1. Let |ms| be the value of |input|'s
-            [<span>[</span>DateValue]] internal slot.
+            \[[DateValue]] internal slot.
 
         2. If |ms| is NaN then return invalid.
 
@@ -5647,7 +5646,7 @@ steps may throw an exception.
       </dd>
 
       <!-- String -->
-      <dt>If Type(|input|) is String</dt>
+      <dt>If [=/Type=](|input|) is String</dt>
       <dd>
 
         1. Return a new [=/key=] with [=key/type=] <i>string</i> and
@@ -5657,8 +5656,7 @@ steps may throw an exception.
 
       <!-- Binary -->
       <dt>
-        If |input| has an [<span>[</span>ArrayBufferData]] internal slot
-        or an [<span>[</span>ViewedArrayBuffer]] internal slot</dt>
+        If |input| is a [=buffer source type=]</dt>
       <dd>
 
         1. Let |octets| be the result of running the steps for
@@ -5671,28 +5669,27 @@ steps may throw an exception.
       </dd>
 
       <!-- Array -->
-      <dt>If IsArray(|input|)</dt>
+      <dt>If [=IsArray=](|input|)</dt>
       <dd>
 
-        1. Let |len| be [=?=] ToLength( [=?=] Get(|input|,
+        1. Let |len| be [=?=] [=ToLength=]( [=?-] [=Get=](|input|,
             "<code>length</code>")).
         2. Add |input| to |seen|.
         3. Let |keys| be a new empty list.
         4. Let |index| be 0.
         5. While |index| is less than |len|, run these substeps:
 
-            1. Let |hop| be [=?=] HasOwnProperty(|input|, |index|).
+            1. Let |hop| be [=?=] [=HasOwnProperty=](|input|, |index|).
 
             2. If |hop| is false, return invalid.
 
-            3. Let |entry| be [=?=] |input|.[<span>[</span>Get]](|index|,
-                |input|).
+            3. Let |entry| be [=?=] [=Get=](|input|, |index|).
 
             4. Let |key| be the result of running the steps to
                 [=convert a value to a key=] with arguments |entry|
                 and |seen|.
 
-            5. ReturnIfAbrupt(|key|).
+            5. [=ReturnIfAbrupt=](|key|).
 
             6. If |key| is invalid abort these steps and return
                 invalid.
@@ -5707,7 +5704,7 @@ steps may throw an exception.
       </dd>
 
       <dt>Otherwise</dt>
-      <dd>Return invalid</dd>
+      <dd>Return invalid.</dd>
     </dl>
 
 </div>
@@ -5720,9 +5717,9 @@ steps may throw an exception.
 
 <div class=algorithm>
 
-1. If IsArray(|input|), then:
+1. If [=IsArray=](|input|), then:
 
-    1. Let |len| be [=?=] ToLength( [=?=] Get(|input|, "<code>length</code>")).
+    1. Let |len| be [=?=] ToLength( [=?=] [=Get=](|input|, "<code>length</code>")).
 
     2. Let |seen| be a new set containing only |input|.
 
@@ -5732,17 +5729,17 @@ steps may throw an exception.
 
     5. While |index| is less than |len|, run these substeps:
 
-        1. Let |entry| be |input|.[<span>[</span>Get]](|index|, |input|)
+        1. Let |entry| be [=Get=](|input|, |index|).
 
-        2. If |entry| is not an exception, run these substeps:
+        2. If |entry| is not an [=abrupt completion=], run these substeps:
 
              1. Let |key| be the result of running the steps to
                  [=convert a value to a key=] with arguments
                  |entry| and |seen|.
 
-             2. If |key| is not invalid or an exception, add |key| to
-                 |keys| if there are no other members of |keys|
-                 [=equal to=] |key|.
+             2. If |key| is not invalid or an [=abrupt completion=],
+                 add |key| to |keys| if there are no other members of
+                 |keys| [=equal to=] |key|.
 
         3. Increase |index| by 1.
 
