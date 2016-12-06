@@ -930,7 +930,7 @@ The <dfn>lifetime</dfn> of a
     against a transaction only while that transaction is [=transaction/active=].
     If an attempt is made to place a request against a transaction
     when that transaction is not [=transaction/active=], the implementation must
-    reject the attempt by throwing a {{TransactionInactiveError}}.
+    reject the attempt by throwing a "{{TransactionInactiveError}}" {{DOMException}}.
 
 3. Once an implementation is able to enforce the constraints defined
     for the transaction [=transaction/scope=] and [=transaction/mode=], defined below, the
@@ -965,8 +965,8 @@ The <dfn>lifetime</dfn> of a
     request. In this case the implementation must run the [=steps for
     aborting a transaction=] using the transaction as |transaction|
     and the appropriate error type as |error|. For example if quota
-    was exceeded then {{QuotaExceededError}} should be used as
-    |error|, and if an IO error happened, {{UnknownError}} should be
+    was exceeded then a "{{QuotaExceededError}}" {{DOMException}} should be used as
+    |error|, and if an IO error happened, an "{{UnknownError}}" {{DOMException}} should be
     used as |error|.
 
 7. When a transaction has been started and it can no longer become
@@ -1253,13 +1253,13 @@ follows:
 1. If |value| is a [=key range=], return |value|.
 
 2. If |value| is undefined or is null, then [=throw=] a
-    {{DataError}} if |null disallowed flag| is set, or return an
+    "{{DataError}}" {{DOMException}} if |null disallowed flag| is set, or return an
     [=unbounded key range=] otherwise.
 
 3. Let |key| be the result of running the steps to [=convert
     a value to a key=] with |value|. Rethrow any exceptions.
 
-4. If |key| is invalid, [=throw=] a {{DataError}}.
+4. If |key| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 5. Return a [=key range=] [=containing only=] |key|.
 
@@ -1446,7 +1446,7 @@ generating numbers when a [=key generator=] is used.
 * When the [=current number=] of a key generator reaches above the
     value 2<sup>53</sup> (9007199254740992) any attempts to use the
     key generator to generate a new [=/key=] will result in a
-    {{ConstraintError}}. It is still possible to insert
+    "{{ConstraintError}}" {{DOMException}}. It is still possible to insert
     [=object-store/records=] into the object store by specifying an explicit
     key, however the only way to use a key generator again for the
     object store is to delete the object store and create a new one.
@@ -1834,15 +1834,15 @@ enum IDBRequestReadyState {
     <dt><var>request</var> . {{IDBRequest/result}}</dt>
     <dd>
         When a request is completed, returns the [=request/result=],
-        or <code>undefined</code> if the request failed. Throws
-        {{InvalidStateError}} if the request is still pending.
+        or <code>undefined</code> if the request failed. Throws a
+        "{{InvalidStateError}}" {{DOMException}} if the request is still pending.
     </dd>
 
     <dt><var>request</var> . {{IDBRequest/error}}</dt>
     <dd>
         When a request is completed, returns the [=request/error=] (a
         {{DOMException}}), or null if the request succeeded. Throws
-        {{InvalidStateError}} if the request is still pending.
+        a "{{InvalidStateError}}" {{DOMException}} if the request is still pending.
     </dd>
 
     <dt><var>request</var> . {{IDBRequest/source}}</dt>
@@ -1868,14 +1868,14 @@ enum IDBRequestReadyState {
 </div>
 
 The <dfn attribute for=IDBRequest>result</dfn> attribute's getter must
-[=throw=] an {{InvalidStateError}} if the [=request/done flag=] is
+[=throw=] an "{{InvalidStateError}}" {{DOMException}} if the [=request/done flag=] is
 unset. Otherwise, the attribute's getter must return the
 [=request/result=] of the request, or undefined if the
 request resulted in an error.
 
 
 The <dfn attribute for=IDBRequest>error</dfn> attribute's getter must
-[=throw=] an {{InvalidStateError}} if the [=request/done flag=] is unset.
+[=throw=] an "{{InvalidStateError}}" {{DOMException}} if the [=request/done flag=] is unset.
 Otherwise, the attribute's getter must return the [=request/error=] of
 the request, or null if no error occurred.
 
@@ -2143,7 +2143,7 @@ when invoked, must run these steps:
         |key2| precedes |key1|, and 0 if
         the keys are equal.
 
-        Throws {{DataError}} if either input is not a valid [=/key=].
+        Throws a "{{DataError}}" {{DOMException}} if either input is not a valid [=/key=].
     </dd>
   </dl>
 </div>
@@ -2156,12 +2156,12 @@ when invoked, must run these steps:
 1. Let |a| be the result of running the steps to [=convert a
     value to a key=] with |first|. Rethrow any exceptions.
 
-2. If |a| is invalid, [=throw=] a {{DataError}}.
+2. If |a| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 3. Let |b| be the result of running the steps to [=convert a
     value to a key=] with |second|. Rethrow any exceptions.
 
-4. If |b| is invalid, [=throw=] a {{DataError}}.
+4. If |b| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 5. Return the results of running the steps to [=compare two keys=]
     with |a| and |b|.
@@ -2257,7 +2257,7 @@ must return this [=/connection=]'s
         Creates a new [=/object store=] in with the given |name| and |options|
         and returns a new {{IDBObjectStore}}.
 
-        Throws {{InvalidStateError}} if not called within an
+        Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
         [=upgrade transaction=].
     </dd>
 
@@ -2266,7 +2266,7 @@ must return this [=/connection=]'s
     <dd>
         Deletes the [=/object store=] with the given |name|.
 
-        Throws {{InvalidStateError}} if not called within an
+        Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
         [=upgrade transaction=].
     </dd>
   </dl>
@@ -2294,19 +2294,19 @@ The <dfn method for=IDBDatabase>createObjectStore(|name|,
 
 2. Let |transaction| be the currently running [=upgrade
     transaction=] associated with |database|, or
-    [=throw=] an {{InvalidStateError}} if none.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}} if none.
 
 3. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 4. Let |keyPath| be |options|'s {{IDBObjectStoreParameters/keyPath}}
     member if it is not undefined or null, or null otherwise.
 
 5. If |keyPath| is not null and is not a [=valid key
-    path=], [=throw=] a {{SyntaxError}}.
+    path=], [=throw=] a "{{SyntaxError}}" {{DOMException}}.
 
 6. If an [=/object store=] [=object-store/named=] |name| already
-    exists in |database| [=throw=] a {{ConstraintError}}.
+    exists in |database| [=throw=] a "{{ConstraintError}}" {{DOMException}}.
 
 7. Let |autoIncrement| be set if |options|'s
     {{IDBObjectStoreParameters/autoIncrement}} member is true, or
@@ -2314,7 +2314,7 @@ The <dfn method for=IDBDatabase>createObjectStore(|name|,
 
 8. If |autoIncrement| is set and |keyPath| is an empty string or any
     sequence (empty or otherwise), [=throw=] an
-    {{InvalidAccessError}}.
+    "{{InvalidAccessError}}" {{DOMException}}.
 
 9. Let |store| be a new [=/object store=] in
     |database|. Set the created [=/object store=]'s
@@ -2348,7 +2348,7 @@ reasons. Such implementations must still create and return an
 creating the [=/object store=] has failed, it must abort the
 transaction using the [=steps for aborting a transaction=] using the
 appropriate error. For example if creating the [=/object store=]
-failed due to quota reasons, {{QuotaExceededError}} must be used as
+failed due to quota reasons, a "{{QuotaExceededError}}" {{DOMException}} must be used as
 error.
 
 
@@ -2362,14 +2362,14 @@ method, when invoked, must run these steps:
 
 2. Let |transaction| be the currently running [=upgrade
     transaction=] associated with |database|, or
-    [=throw=] an {{InvalidStateError}} if none.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}} if none.
 
 3. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 4. Let |store| be the [=/object store=]
     [=object-store/named=] |name| in |database|,
-    or [=throw=] a {{NotFoundError}} if none.
+    or [=throw=] a "{{NotFoundError}}" {{DOMException}} if none.
 
 5. Remove |store| from this [=/connection=]'s [=object
     store set=].
@@ -2422,11 +2422,11 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|,
 
 2. If this method is called on {{IDBDatabase}} object for which an
     [=upgrade transaction=] is still running, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 3. If this method is called on an {{IDBDatabase}} instance where the
     [=close pending flag=] is set, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. Let |scope| be the set of unique strings in |storeNames| if it is a
     sequence, or a set containing one string equal to |storeNames|
@@ -2434,9 +2434,9 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|,
 
 5. If any string in |scope| is not the name of an [=/object
     store=] in the [=connected=] [=database=], [=throw=] a
-    {{NotFoundError}}.
+    "{{NotFoundError}}" {{DOMException}}.
 
-6. If |scope| is empty, [=throw=] an {{InvalidAccessError}}.
+6. If |scope| is empty, [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
 7. Let |transaction| be a newly [=transaction/created=] [=/transaction=] with
     |connection|, |mode| and the set of [=/object stores=] named in
@@ -2543,7 +2543,7 @@ dictionary IDBIndexParameters {
     <dd>
         Updates the [=object-store/name=] of the store to |newName|.
 
-        Throws {{/InvalidStateError}} if not called within an [=upgrade
+        Throws "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
         transaction=].
     </dd>
     <dt><var>store</var> . {{IDBObjectStore/keyPath}}</dt>
@@ -2592,20 +2592,20 @@ The {{IDBObjectStore/name}} attribute's setter must run these steps:
     [=object-store-handle/object store=].
 
 4. If |store| has been deleted,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If |transaction| is not an [=upgrade transaction=],
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 6. If |transaction| is not [=transaction/active=],
-    [=throw=] a {{TransactionInactiveError}}.
+    [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 7. If |store|'s [=object-store/name=] is equal to |name|,
     terminate these steps.
 
 8. If an [=/object store=] [=object-store/named=]
     |name| already exists in |store|'s [=database=], [=throw=] a
-    {{ConstraintError}}.
+    "{{ConstraintError}}" {{DOMException}}.
 
 9. Set |store|'s [=object-store/name=] to |name|.
 
@@ -2664,8 +2664,8 @@ and false otherwise.
 
 
 <div class=note>
-  The following methods throw {{ReadOnlyError}} if called within a
-  [=read-only transaction=], and {{TransactionInactiveError}} if
+  The following methods throw a "{{ReadOnlyError}}" {{DOMException}} if called within a
+  [=read-only transaction=], and a "{{TransactionInactiveError}}" {{DOMException}} if
   called when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -2680,13 +2680,13 @@ and false otherwise.
     <dd>
        Adds or updates a [=record=] in |store| with the given |value|
        and |key|. If the store uses [=in-line keys=], then |key| must
-       not be specified, or a {{DataError}} will be thrown.
+       not be specified, or a "{{DataError}}" {{DOMException}} will be thrown.
 
        If {{IDBObjectStore/put()}} is used, any existing [=record=]
        with the [=/key=] will be replaced. If {{IDBObjectStore/add()}}
        is used, and if a [=record=] with the [=/key=] already exists
        the |request| will fail, with |request|'s {{IDBRequest/error}}
-       set to {{ConstraintError}}.
+       set to a "{{ConstraintError}}" {{DOMException}}.
 
        If successful, |request|'s {{IDBRequest/result}} will be the
        [=record=]'s [=/key=].
@@ -2728,27 +2728,27 @@ when invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=],
-    [=throw=] a {{TransactionInactiveError}}.
+    [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. If |transaction| is a [=read-only transaction=],
-    [=throw=] a {{ReadOnlyError}}.
+    [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
 
 6. If |store| uses [=in-line keys=] and |key| was given,
-    [=throw=] a {{DataError}}.
+    [=throw=] a "{{DataError}}" {{DOMException}}.
 
 7. If |store| uses [=out-of-line keys=] and has no [=key
     generator=] and |key| was not given, [=throw=] a
-    {{DataError}}.
+    "{{DataError}}" {{DOMException}}.
 
 8. If |key| was given, run these substeps:
 
     1. Let |r| be the result of running the steps to [=convert a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    2. If |r| is invalid, [=throw=] a {{DataError}}.
+    2. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
     3. Let |key| be |r|.
 
@@ -2762,12 +2762,12 @@ when invoked, must run these steps:
         |store|'s [=object-store/key path=]. Rethrow any
         exceptions.
 
-    2. If |kpk| is invalid, [=throw=] a {{DataError}}.
+    2. If |kpk| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
     3. If |kpk| is not failure, let |key| be |kpk|.
 
     4. Otherwise, if |store| does not have a [=key
-        generator=], [=throw=] a {{DataError}}.
+        generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
 
 11. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
@@ -2790,27 +2790,27 @@ when invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. If |transaction| is a [=read-only transaction=],
-    [=throw=] a {{ReadOnlyError}}.
+    [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
 
 6. If |store| uses [=in-line keys=] and |key| was given,
-    [=throw=] a {{DataError}}.
+    [=throw=] a "{{DataError}}" {{DOMException}}.
 
 7. If |store| uses [=out-of-line keys=] and has no [=key
     generator=] and |key| was not given, [=throw=] a
-    {{DataError}}.
+    "{{DataError}}" {{DOMException}}.
 
 8. If |key| was given, run these substeps:
 
     1. Let |r| be the result of running the steps to [=convert a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    2. If |r| is invalid, [=throw=] a {{DataError}}.
+    2. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
     3. Let |key| be |r|.
 
@@ -2824,13 +2824,13 @@ when invoked, must run these steps:
         |store|'s [=object-store/key path=]. Rethrow any
         exceptions.
 
-    2. If |kpk| is invalid, [=throw=] a {{DataError}}.
+    2. If |kpk| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
     3. If |kpk| is not failure, let |key| be
         |kpk|.
 
     4. Otherwise, if |store| does not have a [=key
-        generator=], [=throw=] a {{DataError}}.
+        generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
 
 11. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
@@ -2853,13 +2853,13 @@ invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. If |transaction| is a [=read-only transaction=],
-    [=throw=] a {{ReadOnlyError}}.
+    [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
 
 6. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -2896,13 +2896,13 @@ must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. If |transaction| is a [=read-only transaction=],
-    [=throw=] a {{ReadOnlyError}}.
+    [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
 
 6. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
@@ -2912,7 +2912,7 @@ must run these steps:
 
 
 <div class=note>
-  The following methods throw {{TransactionInactiveError}} if called
+  The following methods throw a "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -2990,10 +2990,10 @@ invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -3035,10 +3035,10 @@ invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -3079,10 +3079,10 @@ method, when invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3122,10 +3122,10 @@ method, when invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3165,10 +3165,10 @@ invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3187,7 +3187,7 @@ identifying the [=object-store/records=] keys to be counted. If null or not
 given, an [=unbounded key range=] is used.
 
 <div class=note>
-  The following methods throw {{TransactionInactiveError}} if called
+  The following methods throw a "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -3235,10 +3235,10 @@ The <dfn method for=IDBObjectStore>openCursor(|query|,
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3275,10 +3275,10 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3334,9 +3334,9 @@ or not given, an [=unbounded key range=] is used.
       |keyPath| and |options| define constraints that cannot be
       satisfied with the data already in |store| the [=upgrade
       transaction=] will [=transaction/abort=] with
-      {{ConstraintError}}.
+      a "{{ConstraintError}}" {{DOMException}}.
 
-      Throws {{InvalidStateError}} if not called within an [=upgrade
+      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
       transaction=].
     </dd>
 
@@ -3346,7 +3346,7 @@ or not given, an [=unbounded key range=] is used.
     <dd>
       Deletes the [=/index=] in |store| with the given |name|.
 
-      Throws {{InvalidStateError}} if not called within an [=upgrade
+      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
       transaction=].
     </dd>
 
@@ -3365,20 +3365,20 @@ The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
     [=object-store-handle/object store=].
 
 3. If |transaction| is not an [=upgrade transaction=],
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 5. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 6. If an [=/index=] [=index/named=]
     |name| already exists in |store|, [=throw=] a
-    {{ConstraintError}}.
+    "{{ConstraintError}}" {{DOMException}}.
 
 7. If |keyPath| is not a [=valid key path=], [=throw=]
-    a {{SyntaxError}}.
+    a "{{SyntaxError}}" {{DOMException}}.
 
 8. Let |unique| be set if |options|'s
     {{IDBIndexParameters/unique}} member is true, and unset otherwise.
@@ -3387,7 +3387,7 @@ The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
     {{IDBIndexParameters/multiEntry}} member is true, and unset otherwise.
 
 10. If |keyPath| is a sequence and |multiEntry| is
-    set, [=throw=] an {{InvalidAccessError}}.
+    set, [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
 11. Let |index| be a new [=/index=] in |store|.
     Set |index|'s [=index/name=] to
@@ -3436,8 +3436,8 @@ and once the implementation determines that creating the index has
 failed, it must abort the transaction using the [=steps for aborting
 a transaction=] using an appropriate error as |error|. For example
 if creating the [=/index=] failed due to quota reasons,
-{{QuotaExceededError}} must be used as error and if the index can't be
-created due to [=unique flag=] constraints, {{ConstraintError}}
+a "{{QuotaExceededError}}" {{DOMException}} must be used as error and if the index can't be
+created due to [=unique flag=] constraints, a "{{ConstraintError}}" {{DOMException}}
 must be used as error.
 
 <aside class=example>
@@ -3473,15 +3473,15 @@ invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| has [=transaction/finished=], [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 5. Let |index| be the [=/index=]
     [=index/named=] |name| in this [=/object
     store handle=]'s [=index set=] if one exists, or [=throw=]
-    a {{NotFoundError}} otherwise.
+    a "{{NotFoundError}}" {{DOMException}} otherwise.
 
 6. Return an [=index handle=] associated with |index| and
     this [=/object store handle=].
@@ -3513,16 +3513,16 @@ when invoked, must run these steps:
     [=object-store-handle/object store=].
 
 3. If |transaction| is not an [=upgrade transaction=],
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |store| has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 5. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 6. Let |index| be the [=/index=] [=index/named=] |name|
-    in |store| if one exists, or [=throw=] a {{NotFoundError}}
+    in |store| if one exists, or [=throw=] a "{{NotFoundError}}" {{DOMException}}
     otherwise.
 
 7. Remove |index| from this [=/object store handle=]'s
@@ -3584,7 +3584,7 @@ interface IDBIndex {
     <dd>
       Updates the [=index/name=] of the store to |newName|.
 
-      Throws {{/InvalidStateError}} if not called within an [=upgrade
+      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
       transaction=].
     </dd>
     <dt><var>index</var> . {{IDBIndex/objectStore}}</dt>
@@ -3631,20 +3631,20 @@ The {{IDBIndex/name}} attribute's setter must run these steps:
     [=index-handle/index=].
 
 4. If |transaction| is not an [=upgrade transaction=],
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 6. If |index| or |index|'s [=/object store=] has
-    been deleted, [=throw=] an {{InvalidStateError}}.
+    been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 7. If |index|'s [=index/name=] is equal to
     |name|, terminate these steps.
 
 8. If an [=/index=] [=index/named=]
     |name| already exists in |index|'s [=/object
-    store=], [=throw=] a {{ConstraintError}}.
+    store=], [=throw=] a "{{ConstraintError}}" {{DOMException}}.
 
 9. Set |index|'s [=index/name=] to
     |name|.
@@ -3692,7 +3692,7 @@ otherwise.
 
 
 <div class=note>
-  The following methods throw {{TransactionInactiveError}} if called
+  The following methods throw an "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -3773,10 +3773,10 @@ must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has
-    been deleted, [=throw=] an {{InvalidStateError}}.
+    been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -3819,10 +3819,10 @@ invoked, must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has been deleted,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to [=convert a
     value to a key range=] with |query| and |null disallowed flag|
@@ -3854,10 +3854,10 @@ when invoked, must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has
-    been deleted, [=throw=] an {{InvalidStateError}}.
+    been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3897,10 +3897,10 @@ method, when invoked, must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has
-    been deleted, [=throw=] an {{InvalidStateError}}.
+    been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3940,10 +3940,10 @@ invoked, must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has
-    been deleted, [=throw=] an {{InvalidStateError}}.
+    been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3962,7 +3962,7 @@ identifying the [=object-store/records=] keys to be counted. If null or not
 given, an [=unbounded key range=] is used.
 
 <div class=note>
-  The following methods throw {{TransactionInactiveError}} if called
+  The following methods throw an "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -4009,10 +4009,10 @@ method, when invoked, must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has been deleted,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4049,10 +4049,10 @@ method, when invoked, must run these steps:
     [=index-handle/index=].
 
 3. If |index| or |index|'s [=/object store=] has
-    been deleted, [=throw=] an {{InvalidStateError}}.
+    been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 5. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4186,7 +4186,7 @@ invoked, must run these steps:
 1. Let |key| be the result of running the steps to [=convert
     a value to a key=] with |value|. Rethrow any exceptions.
 
-2. If |key| is invalid, [=throw=] a {{DataError}}.
+2. If |key| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 3. Create and return a new [=key range=] [=containing only=]
     |key|.
@@ -4201,7 +4201,7 @@ method, when invoked, must run these steps:
 1. Let |lowerKey| be the result of running the steps to [=convert a
     value to a key=] with |lower|. Rethrow any exceptions.
 
-2. If |lowerKey| is invalid, [=throw=] a {{DataError}}.
+2. If |lowerKey| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 3. Create and return a new [=key range=] with [=lower bound=]
     set to |lowerKey|, [=lower open flag=] set if |lowerOpen| is
@@ -4218,7 +4218,7 @@ method, when invoked, must run these steps:
 1. Let |upperKey| be the result of running the steps to [=convert a
     value to a key=] with |upper|. Rethrow any exceptions.
 
-2. If |upperKey| is invalid, [=throw=] a {{DataError}}.
+2. If |upperKey| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 3. Create and return a new [=key range=] with [=lower bound=]
     set to null, [=lower open flag=] set, [=upper bound=] set if
@@ -4234,15 +4234,15 @@ The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|,
 1. Let |lowerKey| be the result of running the steps to [=convert a
     value to a key=] with |lower|. Rethrow any exceptions.
 
-2. If |lowerKey| is invalid, [=throw=] a {{DataError}}.
+2. If |lowerKey| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 3. Let |upperKey| be the result of running the steps to [=convert a
     value to a key=] with |upper|. Rethrow any exceptions.
 
-4. If |upperKey| is invalid, [=throw=] a {{DataError}}.
+4. If |upperKey| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 5. If |lowerKey| is [=greater than=] |upperKey|, [=throw=] a
-    {{DataError}}.
+    "{{DataError}}" {{DOMException}}.
 
 6. Create and return a new [=key range=] with [=lower bound=]
     set to |lowerKey|, [=lower open flag=] set if |lowerOpen| is
@@ -4269,7 +4269,7 @@ invoked, must run these steps:
 1. Let |k| be the result of running the steps to [=convert a
     value to a key=] with |key|. Rethrow any exceptions.
 
-2. If |k| is invalid, [=throw=] a {{DataError}}.
+2. If |k| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 3. Return true if |k| is [=in=]
     this range, and false otherwise.
@@ -4334,12 +4334,12 @@ enum IDBCursorDirection {
     <dt><var>cursor</var> . {{IDBCursor/key}}
     <dd>
       Returns the [=cursor/key=] of the cursor.
-      Throws {{InvalidStateError}} if the cursor is advancing or is finished.
+      Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
     </dd>
     <dt><var>cursor</var> . {{IDBCursor/primaryKey}}
     <dd>
       Returns the [=cursor/effective key=] of the cursor.
-      Throws {{InvalidStateError}} if the cursor is advancing or is finished.
+      Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
     </dd>
   </dl>
 </div>
@@ -4381,10 +4381,10 @@ does not modify the contents of the database.
   {{IDBRequest/result}} will be the same cursor if a [=record=] was
   in range, or <code>undefined</code> otherwise.
 
-  If called while the cursor is already advancing, {{InvalidStateError}}
+  If called while the cursor is already advancing, an "{{InvalidStateError}}" {{DOMException}}
   will be thrown.
 
-  The following methods throw {{TransactionInactiveError}} if called
+  The following methods throw a "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -4410,7 +4410,7 @@ does not modify the contents of the database.
         <var>primaryKey</var>)</dt>
     <dd>
       Advances the cursor to the next [=record=] in range matching
-      or after |key| and |primaryKey|. Throws {{InvalidAccessError}}
+      or after |key| and |primaryKey|. Throws an "{{InvalidAccessError}}" {{DOMException}}
       if the [=cursor/source=] is not an [=/index=].
     </dd>
   </dl>
@@ -4429,14 +4429,14 @@ invoked, must run these steps:
     [=cursor/transaction=].
 
 3. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 4. If the cursor's [=cursor/source=] or [=effective object
-    store=] has been deleted, [=throw=] an {{InvalidStateError}}.
+    store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If this cursor's [=got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 7. Unset the [=got value flag=] on the cursor.
 
@@ -4455,8 +4455,8 @@ invoked, must run these steps:
 <aside class=note>
   Calling this method more than once before new cursor data has been
   loaded - for example, calling {{advance()}} twice from the
-  same onsuccess handler - results in an {{InvalidStateError}}
-  exception being thrown on the second call because the cursor's
+  same onsuccess handler - results in an "{{InvalidStateError}}" {{DOMException}}
+  being thrown on the second call because the cursor's
   [=got value flag=] has been unset.
 </aside>
 
@@ -4470,32 +4470,32 @@ invoked, must run these steps:
     [=cursor/transaction=].
 
 2. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 3. If the cursor's [=cursor/source=] or
     [=effective object store=] has been deleted, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 4. If this cursor's [=got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If |key| is given, run these substeps:
 
     1. Let |r| be the result of running the steps to [=convert a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    2. If |r| is invalid, [=throw=] a {{DataError}}.
+    2. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
     3. Let |key| be |r|.
 
     4. If |key| is [=less than=] or [=equal to=] this cursor's
         [=cursor/position=] and this cursor's [=cursor/direction=] is
-        {{"next"}} or {{"nextunique"}}, [=throw=] a {{DataError}}.
+        {{"next"}} or {{"nextunique"}}, [=throw=] a "{{DataError}}" {{DOMException}}.
 
     5. If |key| is [=greater than=] or [=equal to=] this
         cursor's [=cursor/position=] and this cursor's [=cursor/direction=] is
-        {{"prev"}} or {{"prevunique"}}, [=throw=] a {{DataError}}.
+        {{"prev"}} or {{"prevunique"}}, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 6. Unset the [=got value flag=] on the cursor.
 
@@ -4514,8 +4514,8 @@ invoked, must run these steps:
 <aside class=note>
   Calling this method more than once before new cursor data has been
   loaded - for example, calling {{continue()}} twice from the
-  same onsuccess handler - results in an {{InvalidStateError}}
-  exception being thrown on the second call because the cursor's
+  same onsuccess handler - results in an "{{InvalidStateError}}" {{DOMException}}
+  being thrown on the second call because the cursor's
   [=got value flag=] has been unset.
 </aside>
 
@@ -4529,53 +4529,53 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
     [=cursor/transaction=].
 
 2. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 3. If the cursor's [=cursor/source=] or [=effective object
-    store=] has been deleted, [=throw=] an {{InvalidStateError}}.
+    store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If this cursor's [=cursor/source=] is not an
-    [=/index=] [=throw=] an {{InvalidAccessError}}.
+    [=/index=] [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
 5. If this cursor's [=cursor/direction=] is not {{"next"}} or {{"prev"}},
-    [=throw=] an {{InvalidAccessError}}.
+    [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
 6. If this cursor's [=got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 7. Let |r| be the result of running the steps to [=convert a value to
     a key=] with |key|. Rethrow any exceptions.
 
-8. If |r| is invalid, [=throw=] a {{DataError}}.
+8. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 9. Let |key| be |r|.
 
 10. Let |r| be the result of running the steps to [=convert a value
      to a key=] with |primaryKey|. Rethrow any exceptions.
 
-11. If |r| is invalid, [=throw=] a {{DataError}}.
+11. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 12. Let |primaryKey| be |r|.
 
 13. If |key| is [=less than=] this cursor's
     [=cursor/position=] and this cursor's [=cursor/direction=] is {{"next"}},
-    [=throw=] a {{DataError}}.
+    [=throw=] a "{{DataError}}" {{DOMException}}.
 
 14. If |key| is [=greater than=] this cursor's
     [=cursor/position=] and this cursor's [=cursor/direction=] is {{"prev"}},
-    [=throw=] a {{DataError}}.
+    [=throw=] a "{{DataError}}" {{DOMException}}.
 
 15. If |key| is [=equal to=] this cursor's [=cursor/position=] and
     |primaryKey| is [=less than=] or [=equal to=] this cursor's
     [=object store position=] and this cursor's [=cursor/direction=] is
-    {{"next"}}, [=throw=] a {{DataError}}.
+    {{"next"}}, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 16. If |key| is [=equal to=] this cursor's [=cursor/position=] and
     |primaryKey| is [=greater than=] or [=equal to=] this
     cursor's [=object store position=] and this cursor's
     [=cursor/direction=] is {{"prev"}}, [=throw=] a
-    {{DataError}}.
+    "{{DataError}}" {{DOMException}}.
 
 17. Unset the [=got value flag=] on the cursor.
 
@@ -4601,7 +4601,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 <aside class=note>
   Calling this method more than once before new cursor data has been
   loaded - for example, calling {{continuePrimaryKey()}} twice from
-  the same onsuccess handler - results in an {{InvalidStateError}}
+  the same onsuccess handler - results in an "{{InvalidStateError}}" {{DOMException}}
   being thrown on the second call because the cursor's [=got value
   flag=] has been unset.
 </aside>
@@ -4609,8 +4609,8 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 
 
 <div class=note>
-  The following methods throw {{ReadOnlyError}} if called within a
-  [=read-only transaction=], and {{TransactionInactiveError}} if
+  The following methods throw a "{{ReadOnlyError}}" {{DOMException}} if called within a
+  [=read-only transaction=], and a "{{TransactionInactiveError}}" {{DOMException}} if
   called when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
@@ -4619,7 +4619,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
     <dd>
       Updated the [=record=] pointed at by the cursor with a new value.
 
-      Throws {{DataError}} if the [=cursor/effective object store=]
+      Throws a "{{DataError}}" {{DOMException}} if the [=cursor/effective object store=]
       uses [=in-line keys=] and the [=/key=] would have changed.
 
       If successful, |request|'s {{IDBRequest/result}} will be the
@@ -4646,20 +4646,20 @@ invoked, must run these steps:
     [=cursor/transaction=].
 
 2. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 3. If |transaction| is a [=read-only transaction=], [=throw=] a
-    {{ReadOnlyError}}.
+    "{{ReadOnlyError}}" {{DOMException}}.
 
 4. If the cursor's [=cursor/source=] or [=effective object
-    store=] has been deleted, [=throw=] an {{InvalidStateError}}.
+    store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If this cursor's [=got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 6. If this cursor's [=key only flag=] is set, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 7. Let |clone| be [=structured clone=] of |value|. Rethrow any
     exceptions.
@@ -4675,7 +4675,7 @@ invoked, must run these steps:
 
     2. If |kpk| is failure, invalid, or not [=equal to=]
         the cursor's [=effective key=], [=throw=] a
-        {{DataError}}.
+        "{{DataError}}" {{DOMException}}.
 
 9. Run [=steps for asynchronously executing a request=] and return
     the {{IDBRequest}} created by these steps. The steps are run with
@@ -4703,20 +4703,20 @@ must run these steps:
     [=cursor/transaction=].
 
 2. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 3. If |transaction| is a [=read-only transaction=], [=throw=] a
-    {{ReadOnlyError}}.
+    "{{ReadOnlyError}}" {{DOMException}}.
 
 4. If the cursor's [=cursor/source=] or [=effective object
-    store=] has been deleted, [=throw=] an {{InvalidStateError}}.
+    store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If this cursor's [=got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
-    [=throw=] an {{InvalidStateError}}.
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 6. If this cursor's [=key only flag=] is set, [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 7. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
@@ -4862,10 +4862,10 @@ none.
   [=request=], this will be the same as the [=request=]'s
   [=request/error=]. If this [=/transaction=] was aborted
   due to an uncaught exception in an event handler, the error will be
-  {{AbortError}}. If the [=/transaction=] was aborted due to
+  a "{{AbortError}}" {{DOMException}}. If the [=/transaction=] was aborted due to
   an error while committing, it will reflect the reason for the
-  failure (e.g. {{QuotaExceededError}}, {{ConstraintError}}, or
-  {{UnknownError}}).
+  failure (e.g. "{{QuotaExceededError}}", "{{ConstraintError}}", or
+  "{{UnknownError}}" {{DOMException}}).
 </aside>
 
 <div class=note>
@@ -4878,7 +4878,7 @@ none.
     <dt><var>transaction</var> . {{IDBTransaction/abort()}}</dt>
     <dd>
       Aborts the transaction. All pending [=requests=] will fail with
-      {{AbortError}} and all changes made to the database will be
+      a "{{AbortError}}" {{DOMException}} and all changes made to the database will be
       reverted.
     </dd>
   </dl>
@@ -4890,12 +4890,12 @@ when invoked, must run these steps:
 <div class=algorithm>
 
 1. If |transaction| has [=transaction/finished=], [=throw=] an
-    {{InvalidStateError}}.
+    "{{InvalidStateError}}" {{DOMException}}.
 
 2. Let |store| be the [=/object store=]
     [=object-store/named=] |name| in this
     [=/transaction=]'s [=transaction/scope=], or [=throw=] a
-    {{NotFoundError}} if none.
+    "{{NotFoundError}}" {{DOMException}} if none.
 
 3. Return an [=/object store handle=] associated with |store|
     and this [=/transaction=].
@@ -4921,7 +4921,7 @@ must run these steps:
 <div class=algorithm>
 
 1. If this [=/transaction=] is [=transaction/finished=], [=throw=]
-    an {{InvalidStateError}}.
+    an "{{InvalidStateError}}" {{DOMException}}.
 
 2. Unset the [=/transaction=]'s [=transaction/active flag=] and run the
     [=steps for aborting a transaction=] with null as |error|.
@@ -5043,11 +5043,11 @@ database |name|, a database |version|, and a |request|.
 6. If |db| is null, let |db| be a new [=database=] with
     [=database/name=] |name|, [=database/version=] 0 (zero), and with
     no [=/object stores=]. If this fails for any reason, return an
-    appropriate error (e.g. {{QuotaExceededError}} or
-    {{UnknownError}}).
+    appropriate error (e.g. a "{{QuotaExceededError}}" or
+    "{{UnknownError}}" {{DOMException}}).
 
 7. If |db|'s [=database/version=] is greater than |version|,
-    abort these steps and return a new {{VersionError}}.
+    abort these steps and return a new "{{VersionError}}" {{DOMException}}.
 
 8. Let |connection| be a new [=/connection=] to |db|.
 
@@ -5087,12 +5087,12 @@ database |name|, a database |version|, and a |request|.
 
     7. If |connection| was [=connection/closed=], create and
         return a newly <a lt="create exception">created</a>
-        {{AbortError}} and abort these steps.
+        "{{AbortError}}" {{DOMException}} and abort these steps.
 
     8. If the [=upgrade transaction=] was aborted, run the [=steps
         for closing a database connection=] with |connection|,
         create and return a newly <a lt="create exception">created</a>
-        {{AbortError}} and abort these steps.
+        "{{AbortError}}" {{DOMException}} and abort these steps.
 
 11. Return |connection|.
 
@@ -5113,7 +5113,7 @@ optional |forced flag|.
 2. If the |forced flag| is set, then for each |transaction|
     [=transaction/created=] using |connection| run the [=steps for aborting a
     transaction=] with |transaction| and newly <a lt="create
-    exception">created</a> {{AbortError}}.
+    exception">created</a> "{{AbortError}}" {{DOMException}}.
 
 3. Wait for all transactions [=transaction/created=] using |connection| to complete.
     Once they are complete, |connection| is [=connection/closed=].
@@ -5197,7 +5197,7 @@ requested the [=database=] to be deleted, a database |name|, and a
 10. Let |version| be |db|'s [=database/version=].
 
 11. Delete |db|. If this fails for any reason, return an appropriate
-    error (e.g. {{QuotaExceededError}} or {{UnknownError}}).
+    error (e.g. "{{QuotaExceededError}}" or "{{UnknownError}}" {{DOMException}}).
 
 12. Return |version|.
 
@@ -5220,8 +5220,8 @@ takes one argument, the |transaction| to commit.
 2. If an error occurs while writing the changes to the
     [=database=], abort the transaction by following the [=steps
     for aborting a transaction=] with |transaction| and an
-    appropriate for the error, for example {{QuotaExceededError}} or
-    {{UnknownError}}.
+    appropriate for the error, for example "{{QuotaExceededError}}" or
+    "{{UnknownError}}" {{DOMException}}.
 
 3. [=Queue a task=] to dispatch an event at |transaction|. The
     event must use the [=Event=] interface and have its
@@ -5272,7 +5272,7 @@ takes two arguments: the |transaction| to abort, and |error|.
     1. Set the [=request/done flag=] on |request|.
     2. Set the [=request/result=] of |request| to undefined.
     3. Set the [=request/error=] of |request| to a newly
-        <a lt="create exception">created</a> {{AbortError}}.
+        <a lt="create exception">created</a> "{{AbortError}}" {{DOMException}}.
     4. Dispatch an event at |request|. The event must use the
         [=Event=] interface and have its {{Event/type}} set to
         "<code>error</code>". The event bubbles and is cancelable.
@@ -5311,7 +5311,7 @@ aborting a transaction=].
     |source|.
 
 2. If |transaction| is not [=transaction/active=], [=throw=] a
-    {{TransactionInactiveError}}.
+    "{{TransactionInactiveError}}" {{DOMException}}.
 
 3. If |request| was not given, let |request| be a new |request| with
     [=request/source=] as |source|.
@@ -5399,7 +5399,7 @@ for the [=database=], and a |request|.
         dispatching the event in the previous step, abort the
         transaction by following the [=steps for aborting a
         transaction=] with the |error| property set to a newly
-        <a lt="create exception">created</a> {{AbortError}}.
+        <a lt="create exception">created</a> "{{AbortError}}" {{DOMException}}.
 
 8. Wait for |transaction| to [=transaction/finish=].
 
@@ -5529,7 +5529,7 @@ the implementation must run the following steps:
     dispatching the event in step 3, abort the transaction by
     following the [=steps for aborting a transaction=] with
     |transaction| and a newly <a lt="create exception">created</a>
-    {{AbortError}}.
+    "{{AbortError}}" {{DOMException}}.
 
 </div>
 
@@ -5558,7 +5558,7 @@ the implementation must run the following steps:
     dispatching the event in step 3, abort the transaction by
     following the [=steps for aborting a transaction=] with
     |transaction| and a newly <a lt="create exception">created</a>
-    {{AbortError}} and terminate these steps. This is done even if the
+    "{{AbortError}}" {{DOMException}} and terminate these steps. This is done even if the
     event's [=canceled flag=] is not set.
 
     <aside class=note>
@@ -5611,7 +5611,7 @@ follows.
 
         1. If the [=key generator=]'s [=current number=] is
             greater than 2<sup>53</sup> (9007199254740992), then this
-            operation failed with a {{ConstraintError}}. Abort this
+            operation failed with a "{{ConstraintError}}" {{DOMException}}. Abort this
             algorithm without taking any further steps.
 
         2. Set |key| to the [=key generator=]'s [=current number=].
@@ -5630,7 +5630,7 @@ follows.
 
 3. If the |no-overwrite flag| was given to these steps and is set, and
     a [=object-store/record=] already exists in |store| with its key [=equal to=]
-    |key|, then this operation failed with a {{ConstraintError}}.
+    |key|, then this operation failed with a "{{ConstraintError}}" {{DOMException}}.
     Abort this algorithm without taking any further steps.
 
 4. If a [=object-store/record=] already exists in |store| with its key [=equal
@@ -5661,7 +5661,7 @@ follows.
         is not an [=array key=], and if |index| already contains a
         [=object-store/record=] with [=/key=] [=equal to=] |index
         key|, and |index| has its [=unique flag=] set, then this
-        operation failed with a {{ConstraintError}}. Abort this
+        operation failed with a "{{ConstraintError}}" {{DOMException}}. Abort this
         algorithm without taking any further steps.
 
     4. If |index|'s [=multiEntry flag=] is set and |index key| is
@@ -5669,7 +5669,7 @@ follows.
         [=object-store/record=] with [=/key=] [=equal to=] any of the
         [=subkeys=] of |index key|, and |index| has its [=unique
         flag=] set, then this operation failed with a
-        {{ConstraintError}}. Abort this algorithm without taking any
+        "{{ConstraintError}}" {{DOMException}}. Abort this algorithm without taking any
         further steps.
 
     5. If |index|'s [=multiEntry flag=] is unset, or if |index key|
@@ -6275,7 +6275,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 
     1. If |value| is not an [=Object=] object or an [=Array=]
         object (see [=structured clone algorithm=] [[!HTML]]), then
-        [=throw=] a {{DataError}}.
+        [=throw=] a "{{DataError}}" {{DOMException}}.
 
     2. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
