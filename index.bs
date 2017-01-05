@@ -247,7 +247,7 @@ db.close();
 
 In the future, the database may have grown to contain other object
 stores and indexes. The following example shows one way to handle
-opening an older version of the database.
+migrating from an older version of the database.
 
 <pre class=lang-javascript>
 var request = indexedDB.open("library", 3); // Request version 3.
@@ -278,6 +278,63 @@ request.onsuccess = function() {
 };
 </pre>
 
+The database cannot upgrade while other tabs are still using it. To avoid blocking
+other tabs, you should use the "versionchange" event to close the connection to
+the database.
+
+<pre class=lang-javascript>
+db.onversionchange = function() {
+  // First, save any unsaved data:
+  saveUnsavedData().then(function() {
+    // Now you need to close the database.
+    // If the document isn't being actively used, it may be appropriate to reload:
+    if (!document.hasFocus()) {
+      location.reload();
+      // Reloading will close the database, and also reload with the new JavaScript
+      // and database definitions.
+    } else {
+      // Alternatively you may close the database and display a message to the
+      // user. You need to ensure this isn't a disruptive user experience.
+      db.close();
+      displayMessage("Disconnected from database, please refresh to reconnect.");
+    }
+  });
+};
+
+function saveUnsavedData() {
+  // How you do this depends on your app.
+}
+
+function displayMessage() {
+  // Show some sort of alert to the user.
+}
+</pre>
+
+Your new tabs can use the "blocked" event to detect if older tabs are preventing
+them from upgrading the database.
+
+<pre class=lang-javascript>
+var request = indexedDB.open("library", 4); // Request version 4.
+
+request.onupgradeneeded = function(event) {
+  // ...
+};
+
+request.onblocked = function() {
+  displayMessage("Please close other tabs to this site.");
+};
+
+request.onsuccess = function() {
+  hideMessage();
+};
+
+function hideMessage() {
+  // Hide a previously displayed message.
+}
+</pre>
+
+The user will only see the above message if another tab fails to disconnect from
+the database. Ideally the user won't see this!
 </aside>
 
 <!-- ============================================================ -->
