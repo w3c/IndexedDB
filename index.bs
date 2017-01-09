@@ -247,7 +247,7 @@ db.close();
 
 In the future, the database may have grown to contain other object
 stores and indexes. The following example shows one way to handle
-opening an older version of the database.
+migrating from an older version of the database.
 
 <pre class=lang-javascript>
 var request = indexedDB.open("library", 3); // Request version 3.
@@ -277,7 +277,95 @@ request.onsuccess = function() {
   db = request.result; // db.version will be 3.
 };
 </pre>
+</aside>
 
+<aside class=example id=handling-versionchange>
+A single database can be used by multiple clients (pages and workers)
+simultaneously - transactions ensure they don't clash while reading and writing.
+However, if a new client wants to upgrade the database (via the "upgradeneeded"
+event), it cannot do so until all other clients close their connection to the
+current version of the database.
+
+To avoid blocking a new client from upgrading, clients should listen for the
+"versionchange" event. This fires when another client is wanting to upgrade the
+database. To allow this to continue, react to the "versionchange" event by doing
+something that ultimately closes this client's connection to the database.
+
+One way of doing this is to reload the page:
+
+<pre class=lang-javascript>
+db.onversionchange = function() {
+  // First, save any unsaved data:
+  saveUnsavedData().then(function() {
+    // If the document isn't being actively used, it may be appropriate to reload
+    // the page without the user's interaction.
+    if (!document.hasFocus()) {
+      location.reload();
+      // Reloading will close the database, and also reload with the new JavaScript
+      // and database definitions.
+    } else {
+      // If the document has focus, it may be too disruptive to reload the page.
+      // Maybe ask the user to do it manually:
+      displayMessage("Please reload this page for the latest version.");
+    }
+  });
+};
+
+function saveUnsavedData() {
+  // How you do this depends on your app.
+}
+
+function displayMessage() {
+  // Show a non-modal message to the user.
+}
+</pre>
+
+Another way is to call the database's close method. However, you need to make
+sure your app is aware of this, as subsiquent attempts to access the database
+will fail.
+
+<pre class=lang-javascript>
+db.onversionchange = function() {
+  saveUnsavedData().then(function() {
+    db.close();
+    stopUsingTheDatabase();
+  });
+};
+
+function stopUsingTheDatabase() {
+  // Put the app into a state where it no longer uses the database.
+}
+</pre>
+
+The new client (the one attempting the upgrade) can use the "blocked" event to
+detect if other clients are preventing the upgrade from happening. The "blocked"
+event fires if other clients still hold a connection to the database after their
+"versionchange" events have fired.
+
+<pre class=lang-javascript>
+var request = indexedDB.open("library", 4); // Request version 4.
+var blockedTimeout;
+
+request.onblocked = function() {
+  // Give the other clients time to save data asynchronously.
+  blockedTimeout = setTimeout(function() {
+    displayMessage("Upgrade blocked - Please close other tabs displaying this site.");
+  }, 1000);
+};
+
+request.onupgradeneeded = function(event) {
+  clearTimeout(blockedTimeout);
+  hideMessage();
+  // ...
+};
+
+function hideMessage() {
+  // Hide a previously displayed message.
+}
+</pre>
+
+The user will only see the above message if another client fails to disconnect
+from the database. Ideally the user will never see this.
 </aside>
 
 <!-- ============================================================ -->
@@ -5124,6 +5212,13 @@ optional |forced flag|.
     at |connection|. The event must use the [=Event=] interface and
     have its type set to "<code>close</code>". The event must not
     bubble or be cancelable.
+
+    <aside class=note>
+      The "<code>close</code>" event only fires if the connection closes
+      abnormally, e.g. if the user deletes browsing data, or there is
+      corruption, or an I/O error. If <code>close()</code> is called explicitly
+      the event <em>does not</em> fire.
+    </aside>
 
     <aside class=advisement>
       &#x1F6A7;
