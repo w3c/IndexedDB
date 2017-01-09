@@ -281,15 +281,15 @@ request.onsuccess = function() {
 
 <aside class=example id=handling-versionchange>
 A single database can be used by multiple clients (pages and workers)
-simultaneously - transactions ensure they don't clash while reading and writing.
-However, if a new client wants to upgrade the database (via the "upgradeneeded"
+simultaneously &mdash; transactions ensure they don't clash while reading and writing.
+If a new client wants to upgrade the database (via the "<code>[=upgradeneeded=]</code>"
 event), it cannot do so until all other clients close their connection to the
 current version of the database.
 
 To avoid blocking a new client from upgrading, clients should listen for the
-"versionchange" event. This fires when another client is wanting to upgrade the
-database. To allow this to continue, react to the "versionchange" event by doing
-something that ultimately closes this client's connection to the database.
+[=connection/version change event=]. This fires when another client is wanting to upgrade the
+database. To allow this to continue, react to the "<code>versionchange</code>" event by doing
+something that ultimately closes this client's [=/connection=] to the database.
 
 One way of doing this is to reload the page:
 
@@ -320,8 +320,8 @@ function displayMessage() {
 }
 </pre>
 
-Another way is to call the database's close method. However, you need to make
-sure your app is aware of this, as subsiquent attempts to access the database
+Another way is to call the [=/connection=]'s {{IDBDatabase/close()}} method. However, you need to make
+sure your app is aware of this, as subsequent attempts to access the database
 will fail.
 
 <pre class=lang-javascript>
@@ -337,10 +337,10 @@ function stopUsingTheDatabase() {
 }
 </pre>
 
-The new client (the one attempting the upgrade) can use the "blocked" event to
-detect if other clients are preventing the upgrade from happening. The "blocked"
+The new client (the one attempting the upgrade) can use the <code>"blocked"</code> event to
+detect if other clients are preventing the upgrade from happening. The <code>"blocked"</code>
 event fires if other clients still hold a connection to the database after their
-"versionchange" events have fired.
+<code>"versionchange"</code> events have fired.
 
 <pre class=lang-javascript>
 var request = indexedDB.open("library", 4); // Request version 4.
@@ -477,6 +477,11 @@ running.
 
 A [=/connection=]'s [=get the parent=] algorithm returns
 null.
+
+A <dfn>version change event</dfn> will be fired at an open
+[=/connection=] if an attempt is made to upgrade or delete the
+[=database=]. This gives the [=/connection=] the opportunity to close
+to allow the upgrade or delete to proceed.
 
 </div>
 
@@ -5215,8 +5220,8 @@ optional |forced flag|.
 
     <aside class=note>
       The "<code>close</code>" event only fires if the connection closes
-      abnormally, e.g. if the user deletes browsing data, or there is
-      corruption, or an I/O error. If <code>close()</code> is called explicitly
+      abnormally, e.g. if the origin's storage is cleared, or there is
+      corruption or an I/O error. If {{IDBDatabase/close()}} is called explicitly
       the event <em>does not</em> fire.
     </aside>
 
