@@ -320,20 +320,21 @@ function displayMessage() {
 }
 </pre>
 
-Another way is to call the database's close method. Other code on your page
-should react to the database's "close" event, so it knows the database is no
-longer accessible.
+Another way is to call the database's close method. However, you need to make
+sure your app is aware of this, as subsiquent attempts to access the database
+will fail.
 
 <pre class=lang-javascript>
 db.onversionchange = function() {
   saveUnsavedData().then(function() {
     db.close();
+    stopUsingTheDatabase();
   });
 };
 
-db.addEventListener('close', function() {
+function stopUsingTheDatabase() {
   // Put the app into a state where it no longer uses the database.
-});
+}
 </pre>
 
 The new client (the one attempting the upgrade) can use the "blocked" event to
@@ -5211,6 +5212,13 @@ optional |forced flag|.
     at |connection|. The event must use the [=Event=] interface and
     have its type set to "<code>close</code>". The event must not
     bubble or be cancelable.
+
+    <aside class=note>
+      The "<code>close</code>" event only fires if the connection closes
+      abnormally, e.g. if the user deletes browsing data, or there is
+      corruption, or an I/O error. If <code>close()</code> is called explicitly
+      the event <em>does not</em> fire.
+    </aside>
 
     <aside class=advisement>
       &#x1F6A7;
