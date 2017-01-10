@@ -5325,18 +5325,24 @@ takes one argument, the |transaction| to commit.
     appropriate for the error, for example "{{QuotaExceededError}}" or
     "{{UnknownError}}" {{DOMException}}.
 
-3. [=Queue a task=] to dispatch an event at |transaction|. The
-    event must use the [=Event=] interface and have its
-    {{Event/type}} set to "<code>complete</code>". The event does not
-    bubble and is not cancelable.
+3. [=Queue a task=] to run the these substeps
 
-    <aside class=note>
-      Even if an exception is thrown from one of the event handlers of
-      this event, the transaction is still committed since writing the
-      database changes happens before the event takes places. Only
-      after the transaction has been successfully written is the
-      "<code>complete</code>" event fired.
-    </aside>
+    1. Dispatch an event at |transaction|. The event must use the
+        [=Event=] interface and have its {{Event/type}} set to
+        "<code>complete</code>". The event does not bubble and is not
+        cancelable.
+
+        <aside class=note>
+          Even if an exception is thrown from one of the event handlers of
+          this event, the transaction is still committed since writing the
+          database changes happens before the event takes places. Only
+          after the transaction has been successfully written is the
+          "<code>complete</code>" event fired.
+        </aside>
+
+    2. If |transaction| is an [=upgrade transaction=], then
+        let |request| be the [=request=] associated with |transaction|
+        and set |request|'s [=request/transaction=] to null.
 
 </div>
 
@@ -5386,10 +5392,15 @@ takes two arguments: the |transaction| to abort, and |error|.
       or if it was the last remaining request that failed.
     </aside>
 
-5. [=Queue a task=] to dispatch an event at |transaction|. The event
-    must use the [=Event=] interface and have its {{Event/type}} set
-    to "<code>abort</code>". The event does bubble but is not
-    cancelable.
+5. [=Queue a task=] to run the following substeps:
+
+    1. Dispatch an event at |transaction|. The event must use the
+        [=Event=] interface and have its {{Event/type}} set to
+        "<code>abort</code>". The event does bubble but is not cancelable.
+
+    2. If |transaction| is an [=upgrade transaction=], then
+        let |request| be the [=request=] associated with |transaction|
+        and set |request|'s [=request/transaction=] to null.
 
 </div>
 
@@ -5505,13 +5516,12 @@ for the [=database=], and a |request|.
 
 8. Wait for |transaction| to [=transaction/finish=].
 
-9. If |transaction| is aborted for any reason, the [=steps for
-    aborting a transaction=] must be run.
-
-10. When |transaction| is finished, immediately set |request|'s
-    [=request/transaction=] to null. This must be done in the same
-    task as the task firing the <code>complete</code> or
-    <code>abort</code> event, but after the event has been fired.
+    <aside class=note>
+      Some of the algorithms invoked during the [=/transaction=]'s
+      [=transaction/lifetime=], such as the [=steps for committing a
+      transaction=] and the [=steps for aborting a transaction=],
+      include steps specific to [=upgrade transactions=].
+    </aside>
 
 </div>
 
