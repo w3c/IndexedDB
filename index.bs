@@ -36,9 +36,8 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: worker; url: worker
     urlPrefix: infrastructure.html
         type: dfn
+            text: structuredclone; url: structuredclone
             text: strictly splitting; url: strictly-split-a-string
-            text: structured clone; url: structuredclone
-            text: structured clone algorithm; url: safe-passing-of-structured-data
 spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
     type: dfn
         url: sec-algorithm-conventions
@@ -63,6 +62,8 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
         text: ArrayBuffer; url: sec-arraybuffer-objects
         text: Uint8Array; url: sec-typedarray-objects
         text: Promise; url: sec-promise-objects
+        text: Realm; url: sec-code-objects
+        text: current Realm; url: current-realm
 spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     type: dfn
         text: sequence<DOMString>; url: idl-sequence
@@ -567,8 +568,7 @@ transaction=] is running.
 <!-- ============================================================ -->
 
 Each record is associated with a <dfn>value</dfn>. User agents must
-support any ECMAScript [[!ECMA-262]] value supported by the
-[=structured clone algorithm=] [[!HTML]]. This includes simple types
+support any [=cloneable object=]. This includes simple types
 such as [=String=] primitive values and [=Date=] objects as well as
 [=Object=] and [=Array=] instances, {{File}} objects, {{Blob}}
 objects, {{ImageData}} objects, and so on. Record [=/values=] are
@@ -785,7 +785,7 @@ from a [=/value=]. A <dfn>valid key path</dfn> is one of:
 </aside>
 
 [=/Key path=] values can only be accessed from properties explicitly
-copied by the [=structured clone algorithm=], as well as the
+copied by the [=StructuredClone=], as well as the
 following type-specific properties:
 
 <table class=props>
@@ -2847,10 +2847,12 @@ when invoked, must run these steps:
 
     3. Let |key| be |r|.
 
-9. Let |clone| be [=structured clone=] of |value|.
+9. Let |targetRealm| be a user-agent defined [=Realm=].
+
+10. Let |clone| be [=StructuredClone=](|value|, |targetRealm|).
     Rethrow any exceptions.
 
-10. If |store| uses [=in-line keys=], run these substeps:
+11. If |store| uses [=in-line keys=], run these substeps:
 
     1. Let |kpk| be the result of running the steps to [=extract a
         key from a value using a key path=] with |clone| and
@@ -2864,7 +2866,7 @@ when invoked, must run these steps:
     4. Otherwise, if |store| does not have a [=key
         generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
 
-11. Run the [=steps for asynchronously executing a request=] and
+12. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=/object store handle=] as |source| and the
     [=steps for storing a record into an object store=] as
@@ -2909,10 +2911,12 @@ when invoked, must run these steps:
 
     3. Let |key| be |r|.
 
-9. Let |clone| be [=structured clone=] of |value|. Rethrow any
-    exceptions.
+9. Let |targetRealm| be a user-agent defined [=Realm=].
 
-10. If |store| uses [=in-line keys=], run these substeps:
+10. Let |clone| be [=StructuredClone=](|value|, |targetRealm|).
+    Rethrow any exceptions.
+
+11. If |store| uses [=in-line keys=], run these substeps:
 
     1. Let |kpk| be the result of running the steps to [=extract a
         key from a value using a key path=] with |clone| and
@@ -2927,7 +2931,7 @@ when invoked, must run these steps:
     4. Otherwise, if |store| does not have a [=key
         generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
 
-11. Run the [=steps for asynchronously executing a request=] and
+12. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=/object store handle=] as |source| and the
     [=steps for storing a record into an object store=] as
@@ -3098,7 +3102,8 @@ invoked, must run these steps:
       return the {{IDBRequest}} created by these steps. The steps
       are run with this [=/object store handle=] as
       |source| and the [=steps for retrieving a value from
-      an object store=] as |operation|, using
+      an object store=] as |operation|, using the
+      [=current Realm=] as |targetRealm|,
       |store| and |range|.
 
 </div>
@@ -3187,7 +3192,8 @@ method, when invoked, must run these steps:
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=/object store handle=] as |source| and the
     [=steps for retrieving multiple values from an object store=]
-    as |operation|, using |store|, |range|, and |count| if given.
+    as |operation|, using the [=current Realm=] as |targetRealm|,
+    |store|, |range|, and |count| if given.
 
 </div>
 
@@ -3349,7 +3355,8 @@ The <dfn method for=IDBObjectStore>openCursor(|query|,
 7. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=/object store handle=] as |source| and the
-    [=steps for iterating a cursor=] with |cursor| as |operation|.
+    [=steps for iterating a cursor=] as |operation|, using
+    the [=current Realm=] as |targetRealm|, and |cursor|.
 
 </div>
 
@@ -3393,8 +3400,8 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
 7. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=/object store handle=] as |source| and
-    the [=steps for iterating a cursor=] with |cursor| as
-    |operation|.
+    the [=steps for iterating a cursor=] as |operation|,
+    using the [=current Realm=] as |targetRealm|, and |cursor|.
 
 </div>
 
@@ -3881,8 +3888,8 @@ must run these steps:
       return the {{IDBRequest}} created by these steps. The steps
       are run with this [=index handle=] as |source| and
       the [=steps for retrieving a referenced value from an index=]
-      as |operation|, using |index| and
-      |range|.
+      as |operation|, using the [=current Realm=] as |targetRealm|,
+      |index| and |range|.
 
 </div>
 
@@ -3962,7 +3969,8 @@ when invoked, must run these steps:
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=index handle=] as |source| and the [=steps for
     retrieving multiple referenced values from an index=] as
-    |operation|, using |index|, |range|, and |count| if given.
+    |operation|, using the [=current Realm=] as |targetRealm|,
+    |index|, |range|, and |count| if given.
 
 </div>
 
@@ -4123,7 +4131,8 @@ method, when invoked, must run these steps:
 7. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=index handle=] as |source| and the [=steps for
-    iterating a cursor=] with |cursor| as |operation|.
+    iterating a cursor=] as |operation|, using the [=current Realm=]
+    as |targetRealm|, and |cursor|.
 
 </div>
 
@@ -4164,8 +4173,8 @@ method, when invoked, must run these steps:
 8. Run the [=steps for asynchronously executing a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
     run with this [=index handle=] as |source| and the
-    [=steps for iterating a cursor=] with |cursor| as
-    |operation|.
+    [=steps for iterating a cursor=] as |operation|, using the
+    [=current Realm=] as |targetRealm|, and |cursor|.
 
 </div>
 
@@ -4541,9 +4550,9 @@ invoked, must run these steps:
 9. Unset the [=request/done flag=] on |request|.
 
 10. Run the [=steps for asynchronously executing a request=] with
-    the cursor's [=cursor/source=] as |source| and the [=steps
-    for iterating a cursor=] with this [=cursor=] and |count|,
-    and |request|.
+    the cursor's [=cursor/source=] as |source|, the [=steps
+    for iterating a cursor=] as |operation| and |request|, using
+    the [=current Realm=] as |targetRealm|, this [=cursor=] and |count|.
 
 </div>
 
@@ -4600,9 +4609,10 @@ invoked, must run these steps:
 8. Unset the [=request/done flag=] on |request|.
 
 9. Run the [=steps for asynchronously executing a request=] with
-    the cursor's [=cursor/source=] as |source| and the [=steps
-    for iterating a cursor=] with this [=cursor=] and |key| (if
-    given), and |request|.
+    the cursor's [=cursor/source=] as |source|, the [=steps
+    for iterating a cursor=] as |operation| and |request|,
+    using the [=current Realm=] as |targetRealm|,
+    this [=cursor=] and |key| (if given).
 
 </div>
 
@@ -4680,9 +4690,10 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 19. Unset the [=request/done flag=] on |request|.
 
 20. Run the [=steps for asynchronously executing a request=] with
-    the cursor's [=cursor/source=] as |source| and the [=steps
-    for iterating a cursor=] with this [=cursor=], |key|,
-    |primaryKey|, and |request|.
+    the cursor's [=cursor/source=] as |source|, the [=steps
+    for iterating a cursor=] as |operation| and |request|,
+    using the [=current Realm=] as |targetRealm|,
+    this [=cursor=], |key| and |primaryKey|.
 
 </div>
 
@@ -4756,10 +4767,12 @@ invoked, must run these steps:
 6. If this cursor's [=key only flag=] is set, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-7. Let |clone| be [=structured clone=] of |value|. Rethrow any
-    exceptions.
+7. Let |targetRealm| be a user-agent defined [=Realm=].
 
-8. If the [=effective object store=] of this cursor uses [=in-line
+8. Let |clone| be [=StructuredClone=](|value|, |targetRealm|).
+    Rethrow any exceptions.
+
+9. If the [=effective object store=] of this cursor uses [=in-line
     keys=], run these substeps:
 
     1. Let |kpk| be the result of running the steps to
@@ -4772,7 +4785,7 @@ invoked, must run these steps:
         the cursor's [=effective key=], [=throw=] a
         "{{DataError}}" {{DOMException}}.
 
-9. Run [=steps for asynchronously executing a request=] and return
+10. Run [=steps for asynchronously executing a request=] and return
     the {{IDBRequest}} created by these steps. The steps are run with
     this [=cursor=] as |source| and the [=steps for storing a
     record into an object store=] as |operation|, using this
@@ -5630,6 +5643,12 @@ This section describes various operations done on the data in
 These operations are run by the [=steps for asynchronously executing
 a request=].
 
+<aside class=note>
+  Invocations of [=StructuredClone=]() in the operation steps below
+  can be asserted not to throw (as indicated by the [=!=] prefix)
+  because they operate only on previously cloned data.
+</aside>
+
 <!-- ============================================================ -->
 <h3 id=object-store-storage-operation>Object Store Storage Operation</h3>
 <!-- ============================================================ -->
@@ -5755,7 +5774,7 @@ follows.
 <!-- ============================================================ -->
 
 The <dfn>steps for retrieving a value from an object store</dfn> with
-|store| and |range| are as follows:
+|targetRealm|, |store| and |range| are as follows:
 
 
 <div class=algorithm>
@@ -5766,13 +5785,15 @@ The <dfn>steps for retrieving a value from an object store</dfn> with
 
 2. If |record| was not found, return undefined.
 
-3. Return a [=structured clone=] of |record|'s value.
+3. Let |value| be of |record|'s [=/value=].
+
+4. Return [=!=] [=StructuredClone=](|value|, |targetRealm|).
 
 </div>
 
 
 The <dfn>steps for retrieving multiple values from an object
-store</dfn> with |store|, |range| and optional |count| are as follows:
+store</dfn> with |targetRealm|, |store|, |range| and optional |count| are as follows:
 
 <div class=algorithm>
 
@@ -5786,8 +5807,9 @@ store</dfn> with |store|, |range| and optional |count| are as follows:
 
 4. For each |record| in |records|, run these substeps:
 
-    1. Let |entry| be a [=structured clone=] of |record|'s value.
-    2. Append |entry| to |list|.
+    1. Let |value| be |record|'s [=/value=].
+    2. Let |entry| be [=!=] [=StructuredClone=](|value|, |targetRealm|).
+    3. Append |entry| to |list|.
 
 5. Return |list| converted to a [=sequence&lt;any&gt;=].
 
@@ -5840,7 +5862,7 @@ with |store|, |range| and optional |count| are as follows:
 <!-- ============================================================ -->
 
 The <dfn>steps for retrieving a referenced value from an index</dfn>
-with |index| and |range| are as follows.
+with |targetRealm|, |index| and |range| are as follows.
 
 <div class=algorithm>
 
@@ -5849,14 +5871,15 @@ with |index| and |range| are as follows.
 
 2. If |record| was not found, return undefined.
 
-3. Return a [=structured clone=] of |record|'s [=referenced
-    value=].
+3. Let |value| be |record|'s [=referenced value=].
+
+4. Return [=!=] [=StructuredClone=](|value|, |targetRealm|).
 
 </div>
 
 
 The <dfn>steps for retrieving multiple referenced values from an
-index</dfn> with |index|, |range| and optional |count| are as follows:
+index</dfn> with |targetRealm|, |index|, |range| and optional |count| are as follows:
 
 <div class=algorithm>
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
@@ -5868,9 +5891,9 @@ index</dfn> with |index|, |range| and optional |count| are as follows:
 
 4. For each |record| in |records|, run these substeps:
 
-    1. Let |entry| be a [=structured clone=] of |record|'s
-        [=referenced value=].
-    2. Append |entry| to |list|.
+    1. Let |value| be |record|'s [=referenced value=].
+    2. Let |entry| be [=!=] [=StructuredClone=](|value|, |targetRealm|).
+    3. Append |entry| to |list|.
 
 5. Return |list| converted to a [=sequence&lt;any&gt;=].
 
@@ -5982,7 +6005,7 @@ The <dfn>steps for clearing an object store</dfn> with |store| are as follows.
 <h3 id=cursor-iteration-operation>Cursor Iteration Operation</h3>
 <!-- ============================================================ -->
 
-The <dfn>steps for iterating a cursor</dfn> with |cursor|, an optional
+The <dfn>steps for iterating a cursor</dfn> with |targetRealm|, |cursor|, an optional
 |key| and |primaryKey| to iterate to, and an optional |count| are as
 follows.
 
@@ -6142,9 +6165,11 @@ follows.
 
 12. Set |cursor|'s [=cursor/key=] to |found record|'s key.
 
-13. If |cursor|'s [=key only flag=] is unset, set |cursor|'s
-    [=cursor/value=] to a [=structured clone=] of |found
-    record|'s [=referenced value=].
+13. If |cursor|'s [=key only flag=] is unset, run these substeps:
+
+    1. Let |value| be |found record|'s [=referenced value=].
+    2. Set |cursor|'s [=cursor/value=] to
+        [=!=] [=StructuredClone=](|value|, |targetRealm|)
 
 14. Set |cursor|'s [=got value flag=].
 
@@ -6293,8 +6318,8 @@ ECMAScript value or failure, or the steps may throw an exception.
 
 <aside class=note>
   Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of the [=structured clone
-  algorithm=] and only access "own" properties.
+  only applied to values that are the output of [=StructuredClone=]
+  and only access "own" properties.
 </aside>
 
 
@@ -6319,8 +6344,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
     substeps:
 
     1. If |value| is not an [=Object=] object or an [=Array=]
-        object (see [=structured clone algorithm=] [[!HTML]]), then
-        [=throw=] a "{{DataError}}" {{DOMException}}.
+        object, then [=throw=] a "{{DataError}}" {{DOMException}}.
 
     2. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
@@ -6356,8 +6380,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 
 <aside class=note>
   Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of the [=structured clone
-  algorithm=].
+  only applied to values that are the output of [=StructuredClone=].
 </aside>
 
 

@@ -1455,7 +1455,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-01-13">13 January 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-01-18">18 January 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1967,7 +1967,7 @@ transaction</a> is running.</p>
    </div>
    <h3 class="heading settled" data-level="2.3" id="value-construct"><span class="secno">2.3. </span><span class="content">Values</span><a class="self-link" href="#value-construct"></a></h3>
    <p>Each record is associated with a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="value">value</dfn>. User agents must
-support any ECMAScript <a data-link-type="biblio" href="#biblio-ecma-262">[ECMA-262]</a> value supported by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone algorithm</a> <a data-link-type="biblio" href="#biblio-html">[HTML]</a>. This includes simple types
+support any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#cloneable-objects">cloneable object</a>. This includes simple types
 such as <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type">String</a> primitive values and <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-date-objects">Date</a> objects as well as <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> and <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> instances, <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-file">File</a></code> objects, <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-Blob">Blob</a></code> objects, <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/scripting.html#imagedata">ImageData</a></code> objects, and so on. Record <a data-link-type="dfn" href="#value" id="ref-for-value-3">values</a> are
 stored and retrieved by value rather than by reference; later changes
 to a value have no effect on the record stored in the database.</p>
@@ -2173,7 +2173,7 @@ conforming to the above requirements.</p>
    </ul>
    <aside class="note"> Spaces are not allowed within a key path. </aside>
    <p><a data-link-type="dfn" href="#key-path" id="ref-for-key-path-1">Key path</a> values can only be accessed from properties explicitly
-copied by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone algorithm</a>, as well as the
+copied by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>, as well as the
 following type-specific properties:</p>
    <table class="props">
     <tbody>
@@ -3540,7 +3540,9 @@ value to a key</a> with <var>key</var>. Rethrow any exceptions.</p>
         <p>Let <var>key</var> be <var>r</var>.</p>
       </ol>
      <li data-md="">
-      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>value</var>.
+      <p>Let <var>targetRealm</var> be a user-agent defined <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-code-objects">Realm</a>.</p>
+     <li data-md="">
+      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).
 Rethrow any exceptions.</p>
      <li data-md="">
       <p>If <var>store</var> uses <a data-link-type="dfn" href="#object-store-in-line-keys" id="ref-for-object-store-in-line-keys-4">in-line keys</a>, run these substeps:</p>
@@ -3598,8 +3600,10 @@ value to a key</a> with <var>key</var>. Rethrow any exceptions.</p>
         <p>Let <var>key</var> be <var>r</var>.</p>
       </ol>
      <li data-md="">
-      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>value</var>. Rethrow any
-exceptions.</p>
+      <p>Let <var>targetRealm</var> be a user-agent defined <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-code-objects">Realm</a>.</p>
+     <li data-md="">
+      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).
+Rethrow any exceptions.</p>
      <li data-md="">
       <p>If <var>store</var> uses <a data-link-type="dfn" href="#object-store-in-line-keys" id="ref-for-object-store-in-line-keys-6">in-line keys</a>, run these substeps:</p>
       <ol>
@@ -3725,7 +3729,7 @@ invoked, must run these steps:</p>
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-6">steps for asynchronously executing a request</a> and
   return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-22">IDBRequest</a></code> created by these steps. The steps
   are run with this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-33">object store handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-retrieving-a-value-from-an-object-store" id="ref-for-steps-for-retrieving-a-value-from-an-object-store-1">steps for retrieving a value from
-  an object store</a> as <var>operation</var>, using <var>store</var> and <var>range</var>.</p>
+  an object store</a> as <var>operation</var>, using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, <var>store</var> and <var>range</var>.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-62">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-2">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-38">record</a> to be retrieved. If a
@@ -3786,7 +3790,7 @@ Rethrow any exceptions.</p>
      <li data-md="">
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-8">steps for asynchronously executing a request</a> and
 return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-24">IDBRequest</a></code> created by these steps. The steps are
-run with this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-39">object store handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-retrieving-multiple-values-from-an-object-store" id="ref-for-steps-for-retrieving-multiple-values-from-an-object-store-1">steps for retrieving multiple values from an object store</a> as <var>operation</var>, using <var>store</var>, <var>range</var>, and <var>count</var> if given.</p>
+run with this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-39">object store handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-retrieving-multiple-values-from-an-object-store" id="ref-for-steps-for-retrieving-multiple-values-from-an-object-store-1">steps for retrieving multiple values from an object store</a> as <var>operation</var>, using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, <var>store</var>, <var>range</var>, and <var>count</var> if given.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-64">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-4">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-40">records</a> to be retrieved. If null or not given,
@@ -3888,7 +3892,8 @@ flag</a> unset, and undefined <a data-link-type="dfn" href="#cursor-key" id="ref
      <li data-md="">
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-11">steps for asynchronously executing a request</a> and
 return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-27">IDBRequest</a></code> created by these steps. The steps are
-run with this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-48">object store handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-1">steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.</p>
+run with this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-48">object store handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-1">steps for iterating a cursor</a> as <var>operation</var>, using
+the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, and <var>cursor</var>.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-67">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-7">IDBKeyRange</a></code> to use as the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-19">cursor</a>'s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-4">range</a>.
@@ -3917,7 +3922,8 @@ set.</p>
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-12">steps for asynchronously executing a request</a> and
 return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-28">IDBRequest</a></code> created by these steps. The steps are
 run with this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle-51">object store handle</a> as <var>source</var> and
-the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-2">steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.</p>
+the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-2">steps for iterating a cursor</a> as <var>operation</var>,
+using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, and <var>cursor</var>.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-68">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-8">IDBKeyRange</a></code> to use as the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-21">cursor</a>'s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-6">range</a>. If null
@@ -4229,7 +4235,7 @@ been deleted, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-13">steps for asynchronously executing a request</a> and
   return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-38">IDBRequest</a></code> created by these steps. The steps
   are run with this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-19">index handle</a> as <var>source</var> and
-  the <a data-link-type="dfn" href="#steps-for-retrieving-a-referenced-value-from-an-index" id="ref-for-steps-for-retrieving-a-referenced-value-from-an-index-1">steps for retrieving a referenced value from an index</a> as <var>operation</var>, using <var>index</var> and <var>range</var>.</p>
+  the <a data-link-type="dfn" href="#steps-for-retrieving-a-referenced-value-from-an-index" id="ref-for-steps-for-retrieving-a-referenced-value-from-an-index-1">steps for retrieving a referenced value from an index</a> as <var>operation</var>, using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, <var>index</var> and <var>range</var>.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-78">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-9">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-58">record</a> to be retrieved. If a
@@ -4287,7 +4293,7 @@ Rethrow any exceptions.</p>
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-15">steps for asynchronously executing a request</a> and
 return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-40">IDBRequest</a></code> created by these steps. The steps are
 run with this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-25">index handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-retrieving-multiple-referenced-values-from-an-index" id="ref-for-steps-for-retrieving-multiple-referenced-values-from-an-index-1">steps for
-retrieving multiple referenced values from an index</a> as <var>operation</var>, using <var>index</var>, <var>range</var>, and <var>count</var> if given.</p>
+retrieving multiple referenced values from an index</a> as <var>operation</var>, using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, <var>index</var>, <var>range</var>, and <var>count</var> if given.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-80">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-11">IDBKeyRange</a></code> identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-60">records</a> to be retrieved. If null or not given,
@@ -4390,7 +4396,7 @@ flag</a> unset, and undefined <a data-link-type="dfn" href="#cursor-key" id="ref
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-18">steps for asynchronously executing a request</a> and
 return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-43">IDBRequest</a></code> created by these steps. The steps are
 run with this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-34">index handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-3">steps for
-iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.</p>
+iterating a cursor</a> as <var>operation</var>, using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, and <var>cursor</var>.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-83">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-14">IDBKeyRange</a></code> to use as the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-25">cursor</a>'s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-8">range</a>. If null
@@ -4418,7 +4424,7 @@ flag</a> of <var>cursor</var> is set.</p>
      <li data-md="">
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-19">steps for asynchronously executing a request</a> and
 return the <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest-44">IDBRequest</a></code> created by these steps. The steps are
-run with this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-37">index handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-4">steps for iterating a cursor</a> with <var>cursor</var> as <var>operation</var>.</p>
+run with this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-37">index handle</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-4">steps for iterating a cursor</a> as <var>operation</var>, using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, and <var>cursor</var>.</p>
     </ol>
    </div>
    <p>The <var>query</var> parameter may be a <a data-link-type="dfn" href="#key" id="ref-for-key-84">key</a> or an <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange-15">IDBKeyRange</a></code> to use as the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-27">cursor</a>'s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-10">range</a>. If null
@@ -4679,9 +4685,9 @@ the cursor is being iterated or has iterated past its end, <a data-link-type="df
       <p>Unset the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-9">done flag</a> on <var>request</var>.</p>
      <li data-md="">
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-20">steps for asynchronously executing a request</a> with
-the cursor’s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source-17">source</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-5">steps
-for iterating a cursor</a> with this <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-35">cursor</a> and <var>count</var>,
-and <var>request</var>.</p>
+the cursor’s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source-17">source</a> as <var>source</var>, the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-5">steps
+for iterating a cursor</a> as <var>operation</var> and <var>request</var>, using
+the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>, this <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-35">cursor</a> and <var>count</var>.</p>
     </ol>
    </div>
    <aside class="note"> Calling this method more than once before new cursor data has been
@@ -4726,9 +4732,10 @@ cursor’s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-po
       <p>Unset the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-10">done flag</a> on <var>request</var>.</p>
      <li data-md="">
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-21">steps for asynchronously executing a request</a> with
-the cursor’s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source-19">source</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-6">steps
-for iterating a cursor</a> with this <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-38">cursor</a> and <var>key</var> (if
-given), and <var>request</var>.</p>
+the cursor’s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source-19">source</a> as <var>source</var>, the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-6">steps
+for iterating a cursor</a> as <var>operation</var> and <var>request</var>,
+using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>,
+this <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-38">cursor</a> and <var>key</var> (if given).</p>
     </ol>
    </div>
    <aside class="note"> Calling this method more than once before new cursor data has been
@@ -4784,8 +4791,10 @@ cursor’s <a data-link-type="dfn" href="#cursor-object-store-position" id="ref-
       <p>Unset the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-11">done flag</a> on <var>request</var>.</p>
      <li data-md="">
       <p>Run the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-22">steps for asynchronously executing a request</a> with
-the cursor’s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source-22">source</a> as <var>source</var> and the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-7">steps
-for iterating a cursor</a> with this <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-41">cursor</a>, <var>key</var>, <var>primaryKey</var>, and <var>request</var>.</p>
+the cursor’s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source-22">source</a> as <var>source</var>, the <a data-link-type="dfn" href="#steps-for-iterating-a-cursor" id="ref-for-steps-for-iterating-a-cursor-7">steps
+for iterating a cursor</a> as <var>operation</var> and <var>request</var>,
+using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm">current Realm</a> as <var>targetRealm</var>,
+this <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-41">cursor</a>, <var>key</var> and <var>primaryKey</var>.</p>
     </ol>
    </div>
    <aside class="advisement"> 🚧
@@ -4833,8 +4842,10 @@ the cursor is being iterated or has iterated past its end, <a data-link-type="df
       <p>If this cursor’s <a data-link-type="dfn" href="#cursor-key-only-flag" id="ref-for-cursor-key-only-flag-5">key only flag</a> is set, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> an
 "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
      <li data-md="">
-      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>value</var>. Rethrow any
-exceptions.</p>
+      <p>Let <var>targetRealm</var> be a user-agent defined <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-code-objects">Realm</a>.</p>
+     <li data-md="">
+      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).
+Rethrow any exceptions.</p>
      <li data-md="">
       <p>If the <a data-link-type="dfn" href="#cursor-effective-object-store" id="ref-for-cursor-effective-object-store-7">effective object store</a> of this cursor uses <a data-link-type="dfn" href="#object-store-in-line-keys" id="ref-for-object-store-in-line-keys-8">in-line
 keys</a>, run these substeps:</p>
@@ -5462,6 +5473,9 @@ for aborting a transaction</a> using <var>transaction</var> and <a data-link-typ
    <p>This section describes various operations done on the data in <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-100">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-44">indexes</a> in a <a data-link-type="dfn" href="#database" id="ref-for-database-66">database</a>.
 These operations are run by the <a data-link-type="dfn" href="#steps-for-asynchronously-executing-a-request" id="ref-for-steps-for-asynchronously-executing-a-request-26">steps for asynchronously executing
 a request</a>.</p>
+   <aside class="note"> Invocations of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>() in the operation steps below
+  can be asserted not to throw (as indicated by the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> prefix)
+  because they operate only on previously cloned data. </aside>
    <h3 class="heading settled" data-level="6.1" id="object-store-storage-operation"><span class="secno">6.1. </span><span class="content">Object Store Storage Operation</span><a class="self-link" href="#object-store-storage-operation"></a></h3>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-storing-a-record-into-an-object-store">steps for storing a record into an object store</dfn> with <var>store</var>, <var>value</var>, an optional <var>key</var>, and a <var>no-overwrite flag</var> are as
 follows.</p>
@@ -5555,7 +5569,7 @@ ascending order.</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.2" id="object-store-retrieval-operation"><span class="secno">6.2. </span><span class="content">Object Store Retrieval Operations</span><a class="self-link" href="#object-store-retrieval-operation"></a></h3>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-retrieving-a-value-from-an-object-store">steps for retrieving a value from an object store</dfn> with <var>store</var> and <var>range</var> are as follows:</p>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-retrieving-a-value-from-an-object-store">steps for retrieving a value from an object store</dfn> with <var>targetRealm</var>, <var>store</var> and <var>range</var> are as follows:</p>
    <div class="algorithm">
     <ol>
      <li data-md="">
@@ -5564,11 +5578,13 @@ any.</p>
      <li data-md="">
       <p>If <var>record</var> was not found, return undefined.</p>
      <li data-md="">
-      <p>Return a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>record</var>’s value.</p>
+      <p>Let <var>value</var> be of <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-18">value</a>.</p>
+     <li data-md="">
+      <p>Return <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
     </ol>
    </div>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="steps for retrieving multiple values from an object store" data-noexport="" id="steps-for-retrieving-multiple-values-from-an-object-store">steps for retrieving multiple values from an object
-store</dfn> with <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:</p>
+store</dfn> with <var>targetRealm</var>, <var>store</var>, <var>range</var> and optional <var>count</var> are as follows:</p>
    <div class="algorithm">
     <ol>
      <li data-md="">
@@ -5581,7 +5597,9 @@ store</dfn> with <var>store</var>, <var>range</var> and optional <var>count</var
       <p>For each <var>record</var> in <var>records</var>, run these substeps:</p>
       <ol>
        <li data-md="">
-        <p>Let <var>entry</var> be a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>record</var>’s value.</p>
+        <p>Let <var>value</var> be <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-19">value</a>.</p>
+       <li data-md="">
+        <p>Let <var>entry</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
        <li data-md="">
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
@@ -5625,7 +5643,7 @@ key to a value</a> with <var>record</var>’s key.</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.3" id="index-retrieval-operation"><span class="secno">6.3. </span><span class="content">Index Retrieval Operations</span><a class="self-link" href="#index-retrieval-operation"></a></h3>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-retrieving-a-referenced-value-from-an-index">steps for retrieving a referenced value from an index</dfn> with <var>index</var> and <var>range</var> are as follows.</p>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-retrieving-a-referenced-value-from-an-index">steps for retrieving a referenced value from an index</dfn> with <var>targetRealm</var>, <var>index</var> and <var>range</var> are as follows.</p>
    <div class="algorithm">
     <ol>
      <li data-md="">
@@ -5634,12 +5652,13 @@ records</a> whose key is <a data-link-type="dfn" href="#in" id="ref-for-in-7">in
      <li data-md="">
       <p>If <var>record</var> was not found, return undefined.</p>
      <li data-md="">
-      <p>Return a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-3">referenced
-value</a>.</p>
+      <p>Let <var>value</var> be <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-3">referenced value</a>.</p>
+     <li data-md="">
+      <p>Return <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
     </ol>
    </div>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="steps for retrieving multiple referenced values from an index" data-noexport="" id="steps-for-retrieving-multiple-referenced-values-from-an-index">steps for retrieving multiple referenced values from an
-index</dfn> with <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:</p>
+index</dfn> with <var>targetRealm</var>, <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:</p>
    <div class="algorithm">
     <ol>
      <li data-md="">
@@ -5652,7 +5671,9 @@ index</dfn> with <var>index</var>, <var>range</var> and optional <var>count</var
       <p>For each <var>record</var> in <var>records</var>, run these substeps:</p>
       <ol>
        <li data-md="">
-        <p>Let <var>entry</var> be a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-4">referenced value</a>.</p>
+        <p>Let <var>value</var> be <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-4">referenced value</a>.</p>
+       <li data-md="">
+        <p>Let <var>entry</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
        <li data-md="">
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
@@ -5671,7 +5692,7 @@ records</a> whose key is <a data-link-type="dfn" href="#in" id="ref-for-in-9">in
       <p>If <var>record</var> was not found, return undefined.</p>
      <li data-md="">
       <p>Return the of running the steps to <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value-7">convert a
-    key to a value</a> with <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-18">value</a>.</p>
+    key to a value</a> with <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-20">value</a>.</p>
     </ol>
    </div>
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-retrieving-multiple-values-from-an-index">steps for retrieving multiple values from an index</dfn> with <var>index</var>, <var>range</var> and optional <var>count</var> are as follows:</p>
@@ -5733,7 +5754,7 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in-13">in</a> <v
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.7" id="cursor-iteration-operation"><span class="secno">6.7. </span><span class="content">Cursor Iteration Operation</span><a class="self-link" href="#cursor-iteration-operation"></a></h3>
-   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-iterating-a-cursor">steps for iterating a cursor</dfn> with <var>cursor</var>, an optional <var>key</var> and <var>primaryKey</var> to iterate to, and an optional <var>count</var> are as
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="steps-for-iterating-a-cursor">steps for iterating a cursor</dfn> with <var>targetRealm</var>, <var>cursor</var>, an optional <var>key</var> and <var>primaryKey</var> to iterate to, and an optional <var>count</var> are as
 follows.</p>
    <div class="algorithm">
     <ol>
@@ -5746,7 +5767,7 @@ follows.</p>
      <li data-md="">
       <p>Let <var>records</var> be the list of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-91">records</a> in <var>source</var>.</p>
       <aside class="note"> <var>records</var> is always sorted in ascending <a data-link-type="dfn" href="#key" id="ref-for-key-89">key</a> order.
-  In the case of <var>source</var> being an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-47">index</a>, <var>records</var> is secondarily sorted in ascending <a data-link-type="dfn" href="#value" id="ref-for-value-19">value</a> order
+  In the case of <var>source</var> being an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-47">index</a>, <var>records</var> is secondarily sorted in ascending <a data-link-type="dfn" href="#value" id="ref-for-value-21">value</a> order
   (where the value in an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-48">index</a> is the <a data-link-type="dfn" href="#key" id="ref-for-key-90">key</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-92">record</a> in the referenced <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-101">object store</a>). </aside>
      <li data-md="">
       <p>Let <var>range</var> be <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-11">range</a>.</p>
@@ -5861,8 +5882,13 @@ store position</a> to <var>object store position</var>.</p>
      <li data-md="">
       <p>Set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-key" id="ref-for-cursor-key-9">key</a> to <var>found record</var>’s key.</p>
      <li data-md="">
-      <p>If <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-key-only-flag" id="ref-for-cursor-key-only-flag-9">key only flag</a> is unset, set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value-10">value</a> to a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a> of <var>found
-record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-5">referenced value</a>.</p>
+      <p>If <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-key-only-flag" id="ref-for-cursor-key-only-flag-9">key only flag</a> is unset, run these substeps:</p>
+      <ol>
+       <li data-md="">
+        <p>Let <var>value</var> be <var>found record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-5">referenced value</a>.</p>
+       <li data-md="">
+        <p>Set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value-10">value</a> to <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>)</p>
+      </ol>
      <li data-md="">
       <p>Set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag-16">got value flag</a>.</p>
      <li data-md="">
@@ -5980,8 +6006,7 @@ remaining steps.</p>
     </ol>
    </div>
    <aside class="note"> Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone
-  algorithm</a> and only access "own" properties. </aside>
+  only applied to values that are the output of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a> and only access "own" properties. </aside>
    <h3 class="heading settled" data-level="7.2" id="inject-key-into-value"><span class="secno">7.2. </span><span class="content">Inject a key into a value</span><a class="self-link" href="#inject-key-into-value"></a></h3>
    <p>The steps to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="inject-a-key-into-a-value-using-a-key-path">inject a key into a value using a key path</dfn> are
 as follows. The algorithm takes a <var>value</var>, a <var>key</var> and a <var>keyPath</var>.</p>
@@ -5999,7 +6024,7 @@ the list.</p>
 substeps:</p>
       <ol>
        <li data-md="">
-        <p>If <var>value</var> is not an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> object or an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> object (see <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone algorithm</a> <a data-link-type="biblio" href="#biblio-html">[HTML]</a>), then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dataerror">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
+        <p>If <var>value</var> is not an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> object or an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> object, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dataerror">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
        <li data-md="">
         <p>Let <var>hop</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-hasownproperty">HasOwnProperty</a>(<var>value</var>, <var>identifier</var>).</p>
        <li data-md="">
@@ -6031,8 +6056,7 @@ key to a value</a>.</p>
   since it is not possible to create a <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-104">object store</a> which has a <a data-link-type="dfn" href="#key-generator" id="ref-for-key-generator-24">key generator</a> and also has a <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-20">key path</a> that is a
   sequence. </aside>
    <aside class="note"> Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone
-  algorithm</a>. </aside>
+  only applied to values that are the output of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>. </aside>
    <h3 class="heading settled" data-level="7.3" id="convert-key-to-value"><span class="secno">7.3. </span><span class="content">Convert a key to a value</span><a class="self-link" href="#convert-key-to-value"></a></h3>
    <p>The steps to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="convert-a-key-to-a-value">convert a key to a value</dfn> are as follows. These
 steps take one argument, <var>key</var>, and return an ECMAScript value.</p>
@@ -7005,6 +7029,7 @@ specification.</p>
      <li><a href="https://tc39.github.io/ecma262/#sec-array-objects">array</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-arraybuffer-objects">arraybuffer</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-createdataproperty">createdataproperty</a>
+     <li><a href="https://tc39.github.io/ecma262/#current-realm">current realm</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-date-objects">date</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-get-o-p">get</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-hasownproperty">hasownproperty</a>
@@ -7012,6 +7037,7 @@ specification.</p>
      <li><a href="https://tc39.github.io/ecma262/#sec-isarray">isarray</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-number-type">number</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-object-objects">object</a>
+     <li><a href="https://tc39.github.io/ecma262/#sec-code-objects">realm</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">returnifabrupt</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type">string</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-tolength">tolength</a>
@@ -7039,14 +7065,14 @@ specification.</p>
      <li><a href="https://html.spec.whatwg.org/multipage/scripting.html#imagedata">ImageData</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope">WindowOrWorkerGlobalScope</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#cloneable-objects">cloneable objects</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#dom-document-domain">domain</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">event handler idl attribute</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>
      <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#strictly-split-a-string">strictly splitting</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structured clone</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#safe-passing-of-structured-data">structured clone algorithm</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">structuredclone</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#worker">worker</a>
     </ul>
@@ -7578,8 +7604,9 @@ specification.</p>
     <li><a href="#ref-for-value-7">2.10. Cursor</a> <a href="#ref-for-value-8">(2)</a> <a href="#ref-for-value-9">(3)</a>
     <li><a href="#ref-for-value-10">4.5. The IDBObjectStore interface</a> <a href="#ref-for-value-11">(2)</a> <a href="#ref-for-value-12">(3)</a> <a href="#ref-for-value-13">(4)</a>
     <li><a href="#ref-for-value-14">4.6. The IDBIndex interface</a> <a href="#ref-for-value-15">(2)</a> <a href="#ref-for-value-16">(3)</a> <a href="#ref-for-value-17">(4)</a>
-    <li><a href="#ref-for-value-18">6.3. Index Retrieval Operations</a>
-    <li><a href="#ref-for-value-19">6.7. Cursor Iteration Operation</a>
+    <li><a href="#ref-for-value-18">6.2. Object Store Retrieval Operations</a> <a href="#ref-for-value-19">(2)</a>
+    <li><a href="#ref-for-value-20">6.3. Index Retrieval Operations</a>
+    <li><a href="#ref-for-value-21">6.7. Cursor Iteration Operation</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="key">
