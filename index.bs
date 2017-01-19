@@ -20,7 +20,6 @@ Test Suite: https://github.com/w3c/web-platform-tests/tree/master/IndexedDB
 </pre>
 
 <pre class=link-defaults>
-spec:html; type:dfn; for:/; text:origin
 spec:html; type:dfn; for:/; text:task queue
 </pre>
 
@@ -29,9 +28,6 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     urlPrefix: dom.html
         type: interface
             text: Document; url: document
-    urlPrefix: workers.html
-        type: dfn
-            text: worker; url: worker
 spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
     type: dfn
         url: sec-algorithm-conventions
@@ -372,23 +368,14 @@ sorted in ascending order by code unit.
 <h3 id=database-construct>Database</h4>
 <!-- ============================================================ -->
 
-A database's [=origin=] is the same as the [=origin=] of the
-[=document=] or [=worker=]. Each [=origin=] has an associated
-set of databases.
-
-<aside class=note>
-  The database origin is not affected by changes to
-  the {{Document}}'s {{Document/domain}}.
-</aside>
-
-Each [=origin=] has an associated set of [=databases=]. A
+Each [=/origin=] has an associated set of [=databases=]. A
 <dfn>database</dfn> has zero or more [=/object stores=] which
 hold the data stored in the database.
 
 <div dfn-for=database>
 
 A [=database=] has a <dfn>name</dfn> which identifies it within a
-specific [=origin=]. The name can be any string value, including
+specific [=/origin=]. The name can be any string value, including
 the empty string, and stays constant for the lifetime of the database.
 Database names are always compared in a case-sensitive manner, as
 opaque sequences of 16-bit code units. Implementations must support
@@ -425,6 +412,15 @@ that [=database=]. It is also the only way to obtain a
 The act of opening a [=database=] creates a [=/connection=].
 There may be multiple [=/connections=] to a given [=database=] at
 any given time.
+
+A [=/connection=] can only access [=databases=] associated with the
+[=/origin=] of the global scope from which the [=/connection=] is
+opened.
+
+<aside class=note>
+  This is not affected by changes to the {{Document}}'s
+  {{Document/domain}}.
+</aside>
 
 <div dfn-for=connection>
 
@@ -1247,7 +1243,7 @@ An [=open request=]'s [=get the parent=] algorithm returns null.
 
 [=Open requests=] are processed in a <dfn>connection queue</dfn>.
 The queue contains all [=open requests=] associated with an
-[=origin=] and a [=database/name=]. Requests added to the
+[=/origin=] and a [=database/name=]. Requests added to the
 [=connection queue=] processed in order and each request must run
 to completion before the next request is processed. An open request
 may be blocked on other [=/connections=], requiring those
@@ -2129,7 +2125,7 @@ when invoked, must run these steps:
 3. Run the following substeps in parallel:
 
     1. Let |result| be the result of running the [=steps for
-        opening a database=], with the origin of the
+        opening a database=], with the [=/origin=] of the
         global scope used to access this {{IDBFactory}},
         |name|, |version| if given and undefined
         otherwise, and |request|.
@@ -6669,7 +6665,7 @@ before a site can use the feature.
 <dt>Origin-tracking of stored data</dt>
 <dd>
 
-User agents may record the [=origins=] of sites that contained content
+User agents may record the [=/origins=] of sites that contained content
 from third-party origins that caused data to be stored.
 
 If this information is then used to present the view of data
