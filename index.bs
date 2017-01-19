@@ -34,9 +34,6 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     urlPrefix: workers.html
         type: dfn
             text: worker; url: worker
-    urlPrefix: infrastructure.html
-        type: dfn
-            text: strictly splitting; url: strictly-split-a-string
 spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
     type: dfn
         url: sec-algorithm-conventions
@@ -67,8 +64,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     type: dfn
         text: sequence<DOMString>; url: idl-sequence
         text: sequence<any>; url: idl-sequence
-        text: octet; url: idl-octet
-        text: getting a copy of the bytes held by a buffer source; url: dfn-get-buffer-source-copy
         text: create exception; url: dfn-create-exception
 </pre>
 
@@ -604,7 +599,7 @@ A [=/key=] also has an associated <dfn>value</dfn>, which will
 be either:
 an {{unrestricted double}} if type is <i>number</i> or <i>date</i>,
 a {{DOMString}} if type is <i>string</i>,
-a list of [=octets=] if type is <i>binary</i>,
+a list of {{octet}}s if type is <i>binary</i>,
 or a list of other [=/keys=] if type is <i>array</i>.
 
 </div>
@@ -701,8 +696,8 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
         2. Let |i| be 0.
         3. While |i| is less than |length|, run these substeps:
 
-            1. Let |u| be the [=octet=] in |va| at index |i|.
-            2. Let |v| be the [=octet=] in |vb| at index |i|.
+            1. Let |u| be the {{octet}} in |va| at index |i|.
+            2. Let |v| be the {{octet}} in |vb| at index |i|.
             3. If |u| is greater than |v| then return 1.
             4. If |u| is less than |v| then return -1.
             5. Increase |i| by 1.
@@ -756,8 +751,8 @@ of running the steps to [=compare two keys=] with |a| and |b| is 0.
 </aside>
 
 <aside class=note>
-  Members of <i>binary</i> keys are compared as unsigned octet values
-  (in the range [0, 255]) rather than signed bytes (in the range
+  Members of <i>binary</i> keys are compared as unsigned {{octet}} values
+  (in the range [0, 255]) rather than signed {{byte}} values (in the range
   [-128, 127]).
 </aside>
 
@@ -6265,7 +6260,8 @@ ECMAScript value or failure, or the steps may throw an exception.
 2. If |keyPath| is the empty string, return |value| and skip the
     remaining steps.
 
-3. Let |identifiers| be the result of [=strictly splitting=]
+3. Let |identifiers| be the result of
+    <a lt="strictly split a string">strictly splitting</a>
     |keyPath| on U+002E FULL STOP characters (.).
 
 4. For each |identifier| in |identifiers|, jump to the appropriate step below:
@@ -6331,7 +6327,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 
 <div class=algorithm>
 
-1. Let |identifiers| be the result of [=strictly splitting=]
+1. Let |identifiers| be the result of <a lt="strictly split a string">strictly splitting</a>
     |keyPath| on U+002E FULL STOP characters (.).
 
 2. Assert: |identifiers| is not empty.
@@ -6508,9 +6504,9 @@ steps may throw an exception.
         If |input| is a [=buffer source type=]</dt>
       <dd>
 
-        1. Let |octets| be the result of running the steps for
-            [=getting a copy of the bytes held by a buffer source=]
-            with |value|. Rethrow any exceptions.
+        1. Let |octets| be the result of running the steps to
+            <a lt="get a copy of the buffer source">get a copy of the bytes held by the buffer source</a>
+            |value|. Rethrow any exceptions.
 
         2. Return a new [=/key=] with [=key/type=]
             <i>binary</i> and [=key/value=] |octets|.
