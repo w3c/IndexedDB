@@ -1606,6 +1606,7 @@ persistent B-tree data structure.</p>
       <li><a href="#dns-spoofing-attacks"><span class="secno">9.1</span> <span class="content">DNS spoofing attacks</span></a>
       <li><a href="#cross-directory-attacks"><span class="secno">9.2</span> <span class="content">Cross-directory attacks</span></a>
       <li><a href="#implementation-risks"><span class="secno">9.3</span> <span class="content">Implementation risks</span></a>
+      <li><a href="#persistence-risks"><span class="secno">9.4</span> <span class="content">Persistence risks</span></a>
      </ol>
     <li><a href="#revision-history"><span class="secno">10</span> <span class="content">Revision History</span></a>
     <li><a href="#acknowledgements"><span class="secno">11</span> <span class="content">Acknowledgements</span></a>
@@ -6412,6 +6413,31 @@ identifier to a known ID that the hostile site can then use to track
 the user’s actions on the victim site.</p>
    <p>Thus, strictly following the <span>origin</span> model described in
 this specification is important for user security.</p>
+   <h3 class="heading settled" data-level="9.4" id="persistence-risks"><span class="secno">9.4. </span><span class="content">Persistence risks</span><a class="self-link" href="#persistence-risks"></a></h3>
+   <p>Practical implementations will persist data to a non-volatile storage
+medium. Data will be serialized when stored and deserialized when
+retrieved, although the details of the serialization format will be
+user-agent specific. User agents are likely to change their
+serialization format over time. For example, the format may be updated
+to handle new data types, or to improve performance. To satisfy the
+operational requirements of this specification, implementations must
+therefore handle older serialization formats in some way. Improper
+handling of older data can result in security issues. In addition to
+basic serialization concerns, serialized data could encode assumptions
+which are not valid in newer versions of the user agent.</p>
+   <p>A practical example of this is the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">RegExp</a> type. The <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a> operation allows cloning <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">RegExp</a> objects. A typical user agent will compile a regular expression into
+native machine instructions, with assumptions about how the input data
+is passed and results returned. If this internal state was serialized
+as part of the data stored to the database, various problems could
+arise when the internal representation was later deserialized. For
+example, the means by which data was passed into the code could have
+changed. Security bugs in the compiler output could have been
+identified and fixed in updates to the user agent, but remain in the
+serialized internal state.</p>
+   <p>User agents must identify and handle older data appropriately. One
+approach is to include version identifiers in the serialization
+format, and to reconstruct any internal state from script-visible
+state when older data is encountered.</p>
    <h2 class="heading settled" data-level="10" id="revision-history"><span class="secno">10. </span><span class="content">Revision History</span><a class="self-link" href="#revision-history"></a></h2>
    <p>The following is an informative summary of the changes since the last
 publication of this specification. A complete revision history can be
@@ -7066,6 +7092,7 @@ specification.</p>
      <li><a href="https://tc39.github.io/ecma262/#sec-terms-and-definitions-number-type">number</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-object-objects">object</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-code-objects">realm</a>
+     <li><a href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">regexp</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">returnifabrupt</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-terms-and-definitions-string-type">string</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-tolength">tolength</a>
