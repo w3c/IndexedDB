@@ -2120,13 +2120,18 @@ when invoked, must run these steps:
 
 1. If |version| is 0 (zero), [=throw=] a [=TypeError=].
 
-2. Let |request| be a new [=open request=].
+2. Let |origin| be the [=/origin=] of the global scope used
+    to access this {{IDBFactory}}.
 
-3. Run the following substeps in parallel:
+3. If |origin| is an [=opaque origin=], [=throw=] a
+    "{{SecurityError}}" {{DOMException}} and abort these steps.
+
+4. Let |request| be a new [=open request=].
+
+5. Run the following substeps in parallel:
 
     1. Let |result| be the result of running the [=steps for
-        opening a database=], with the [=/origin=] of the
-        global scope used to access this {{IDBFactory}},
+        opening a database=], with |origin|,
         |name|, |version| if given and undefined
         otherwise, and |request|.
 
@@ -2172,7 +2177,7 @@ when invoked, must run these steps:
               active transaction at the time when they fire.
             </aside>
 
-4. Return a new {{IDBOpenDBRequest}} object for |request|.
+6. Return a new {{IDBOpenDBRequest}} object for |request|.
 
 </div>
 
@@ -2181,13 +2186,18 @@ when invoked, must run these steps:
 
 <div class=algorithm>
 
-1. Let |request| be a new [=open request=].
+1. Let |origin| be the [=/origin=] of the global scope used
+    to access this {{IDBFactory}}.
 
-3. Run the following substeps in parallel:
+2. If |origin| is an [=opaque origin=], [=throw=] a
+    "{{SecurityError}}" {{DOMException}} and abort these steps.
+
+3. Let |request| be a new [=open request=].
+
+4. Run the following substeps in parallel:
 
     1. Let |result| be the result of running the [=steps for
-        deleting a database=], with the origin of the
-        global scope used to access this {{IDBFactory}},
+        deleting a database=], with |origin|,
         |name|, and |request|.
 
     2. [=Queue a task=] to run these substeps:
@@ -2209,7 +2219,7 @@ when invoked, must run these steps:
               active transaction at the time when they fire.
             </aside>
 
-3. Return a new {{IDBOpenDBRequest}} object for |request|.
+5. Return a new {{IDBOpenDBRequest}} object for |request|.
 
 </div>
 
