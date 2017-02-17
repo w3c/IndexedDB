@@ -1455,7 +1455,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-02-15">15 February 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-02-17">17 February 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3063,14 +3063,19 @@ when invoked, must run these steps:</p>
      <li data-md="">
       <p>If <var>version</var> is 0 (zero), <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-native-error-types-used-in-this-standard-typeerror">TypeError</a>.</p>
      <li data-md="">
+      <p>Let <var>origin</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a> of the global scope used
+to access this <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-4">IDBFactory</a></code>.</p>
+     <li data-md="">
+      <p>If <var>origin</var> is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque">opaque origin</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a
+"<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code> and abort these steps.</p>
+     <li data-md="">
       <p>Let <var>request</var> be a new <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request-13">open request</a>.</p>
      <li data-md="">
       <p>Run the following substeps in parallel:</p>
       <ol>
        <li data-md="">
         <p>Let <var>result</var> be the result of running the <a data-link-type="dfn" href="#steps-for-opening-a-database" id="ref-for-steps-for-opening-a-database-1">steps for
-opening a database</a>, with the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a> of the
-global scope used to access this <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-4">IDBFactory</a></code>, <var>name</var>, <var>version</var> if given and undefined
+opening a database</a>, with <var>origin</var>, <var>name</var>, <var>version</var> if given and undefined
 otherwise, and <var>request</var>.</p>
         <aside class="note"> If <var>version</var> is not given and a <a data-link-type="dfn" href="#database" id="ref-for-database-35">database</a> with that name already exists, a connection will be opened
   without changing the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-6">version</a>. If <var>version</var> is not given and no <a data-link-type="dfn" href="#database" id="ref-for-database-36">database</a> with
@@ -3109,14 +3114,19 @@ when invoked, must run these steps:</p>
    <div class="algorithm">
     <ol>
      <li data-md="">
+      <p>Let <var>origin</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a> of the global scope used
+to access this <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-5">IDBFactory</a></code>.</p>
+     <li data-md="">
+      <p>If <var>origin</var> is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque">opaque origin</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a
+"<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code> and abort these steps.</p>
+     <li data-md="">
       <p>Let <var>request</var> be a new <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request-14">open request</a>.</p>
      <li data-md="">
       <p>Run the following substeps in parallel:</p>
       <ol>
        <li data-md="">
         <p>Let <var>result</var> be the result of running the <a data-link-type="dfn" href="#steps-for-deleting-a-database" id="ref-for-steps-for-deleting-a-database-1">steps for
-deleting a database</a>, with the origin of the
-global scope used to access this <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-5">IDBFactory</a></code>, <var>name</var>, and <var>request</var>.</p>
+deleting a database</a>, with <var>origin</var>, <var>name</var>, and <var>request</var>.</p>
        <li data-md="">
         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
         <ol>
@@ -6333,7 +6343,7 @@ cooperation from the user agent whatsoever, for instance by using
 session identifiers in URLs, a technique already commonly used for
 innocuous purposes but easily repurposed for user tracking (even
 retroactively). This information can then be shared with other
-sites, using using visitors' IP addresses and other user-specific
+sites, using visitors' IP addresses and other user-specific
 data (e.g. user-agent headers and configuration settings) to combine
 separate sessions into coherent user profiles.</p>
    <h3 class="heading settled" data-level="8.2" id="cookie-resurrection"><span class="secno">8.2. </span><span class="content">Cookie resurrection</span><a class="self-link" href="#cookie-resurrection"></a></h3>
@@ -7065,6 +7075,7 @@ specification.</p>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#dom-document-domain">domain</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">event handler idl attribute</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque">opaque origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>
      <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#strictly-split-a-string">strictly split a string</a>
@@ -7087,6 +7098,7 @@ specification.</p>
      <li><a href="https://heycam.github.io/webidl/#quotaexceedederror">QuotaExceededError</a>
      <li><a href="https://heycam.github.io/webidl/#readonlyerror">ReadOnlyError</a>
      <li><a href="https://heycam.github.io/webidl/#SameObject">SameObject</a>
+     <li><a href="https://heycam.github.io/webidl/#securityerror">SecurityError</a>
      <li><a href="https://heycam.github.io/webidl/#syntaxerror">SyntaxError</a>
      <li><a href="https://heycam.github.io/webidl/#transactioninactiveerror">TransactionInactiveError</a>
      <li><a href="https://heycam.github.io/webidl/#unknownerror">UnknownError</a>
