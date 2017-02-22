@@ -1494,88 +1494,130 @@ stated otherwise it is unset.
 <!-- ============================================================ -->
 
 When a [=/object store=] is created it can be specified to use a
-<dfn>key generator</dfn>. A [=key generator=] keeps an internal
-<dfn>current number</dfn>. The [=current number=] is always a positive
-integer. Whenever the key generator is used to generate a new
-[=/key=], the generator's [=current number=] is returned and
-<strong>then</strong> incremented to prepare for the next time a new
-[=/key=] is needed. Implementations must use the following rules for
-generating numbers when a [=key generator=] is used.
+<dfn>key generator</dfn>. A key generator is used to generate keys
+for records inserted into an object store if not otherwise specified.
 
-* Every object store that uses key generators use a separate
-    generator. I.e. interacting with one object store never affects
-    the key generator of any other object store.
+<div dfn-for="key generator">
 
-* The [=current number=] of a [=key generator=] is always set to
-    1 when the [=/object store=] for that key generator is first
-    created.
+A [=key generator=] has a <dfn>current number</dfn>. The
+[=key generator/current number=] is always a positive integer less
+than or equal to 2<sup>53</sup> (9007199254740992). The initial value
+of a [=key generator=]'s [=key generator/current number=] is 1, set
+when the associated [=/object store=] is created. The
+[=key generator/current number=] is incremented as keys are generated,
+and may be updated to a specific value by using explicit keys.
 
-* When a key generator is used to generate a new [=/key=] for
-    a [=/object store=], the key generator's [=current
-    number=] is used as the new key value and then the key
-    generator's [=current number=] is increased by 1.
+</div>
 
-* When a [=object-store/record=] is stored and a [=/key=] is specified
-    in the call to store the record, if [=key/type=] of the key
-    is <i>number</i> and the [=key/value=] is greater than or
-    equal to the key generator's [=current number=], then the key
-    generator's [=current number=] is set to the smallest integer
-    number [=greater than=] the explicit key. A key can be
-    specified both for object stores which use [=in-line keys=], by
-    setting the property on the stored value which the object store's
-    [=object-store/key path=] points to, and for object stores
-    which use [=out-of-line keys=], by passing a key argument to
-    the call to store the [=object-store/record=].
+<aside class=note>
+  Every object store that uses key generators uses a separate
+  generator. That is, interacting with one object store never affects
+  the key generator of any other object store.
+</aside>
 
-    <aside class=note>
-      Only specified keys of [=key/type=] <i>number</i> may affect the
-      [=current number=] of the key generator. Keys of [=key/type=]
-      <i>date</i>, <i>array</i> (regardless of the other keys they
-      contain), <i>binary</i>, or <i>string</i> (regardless of whether
-      they could be parsed as numbers) have no effect on the [=current
-      number=] of the key generator. Keys of [=key/type=]
-      <i>number</i> with [=key/value=] less than 1 do not affect the
-      [=current number=] since they are always lower than the
-      [=current number=].
-    </aside>
+Modifying a key generator's [=key generator/current number=] is considered part
+of a database operation. This means that if the operation fails
+and the operation is reverted, the [=key generator/current number=] is
+reverted to the value it had before the operation started. This
+applies both to modifications that happen due to the [=key generator/current
+number=] getting increased by 1 when the key generator is used,
+and to modifications that happen due to a [=object-store/record=] being
+stored with a key value specified in the call to store the
+[=object-store/record=].
 
-* Modifying a key generator's [=current number=] is considered part
-    of a database operation. This means that if the operation fails
-    and the operation is reverted, the [=current number=] is
-    reverted to the value it had before the operation started. This
-    applies both to modifications that happen due to the [=current
-    number=] getting increased by 1 when the key generator is used,
-    and to modifications that happen due to a [=object-store/record=] being
-    stored with a key value specified in the call to store the
-    [=object-store/record=].
+Likewise, if a [=/transaction=] is aborted, the [=key generator/current
+number=] of the key generator for each [=/object store=] in
+the transaction's [=transaction/scope=] is reverted to the value it had
+before the [=/transaction=] was started.
 
-* Likewise, if a [=/transaction=] is aborted, the [=current
-    number=] of the key generator for each [=/object store=] in
-    the transaction's [=transaction/scope=] is reverted to the value it had
-    before the [=/transaction=] was started.
+The [=key generator/current number=] for a key generator never decreases, other
+than as a result of database operations being reverted. Deleting a
+[=object-store/record=] from an [=/object store=] never affects the
+object store's key generator. Even clearing all records from an
+object store, for example using the {{IDBObjectStore/clear()}} method, does not
+affect the [=key generator/current number=] of the object store's key
+generator.
 
-* When the [=current number=] of a key generator reaches above the
-    value 2<sup>53</sup> (9007199254740992) any attempts to use the
-    key generator to generate a new [=/key=] will result in a
-    "{{ConstraintError}}" {{DOMException}}. It is still possible to insert
-    [=object-store/records=] into the object store by specifying an explicit
-    key, however the only way to use a key generator again for the
-    object store is to delete the object store and create a new one.
+When a [=object-store/record=] is stored and a [=/key=] is not specified
+in the call to store the record, a key is generated.
 
-    <aside class=note>
-      As long as key generators are used in a normal fashion this will
-      not be a problem. If you generate a new key 1000 times per
-      second day and night, you won't run into this limit for over
-      285000 years.
-    </aside>
+<div class=algorithm>
 
-* The [=current number=] for a key generator never decreases, other
-    than as a result of database operations being reverted. Deleting a
-    [=object-store/record=] from an [=/object store=] never affects the
-    object store's key generator. Even clearing all records from an
-    object store, for example using the {{IDBObjectStore/clear()}} method, does not
-    affect the [=current number=] of the object store's key
-    generator.
+  To <dfn>generate a key</dfn> for an [=/object store=] |store|, run the following steps:
+
+  1. Let |generator| be the [=key generator=] associated with |store|.
+
+  2. Let |key| be |generator|'s [=key generator/current number=].
+
+  3. If |key| is greater than 2<sup>53</sup> (9007199254740992), then return failure.
+
+  4. Increase |generator|'s [=key generator/current number=] by 1.
+
+  5. Return |key|.
+
+</div>
+
+When a [=object-store/record=] is stored and a [=/key=] is specified
+in the call to store the record, the associated [=key generator=] may
+be updated.
+
+<div class=algorithm>
+
+  To <dfn>possibly update the key generator</dfn> for an [=/object store=] |store| with |key|,
+  run the following steps:
+
+  1. If the [=key/type=] of |key| is not <i>number</i>, abort these steps.
+
+  2. Let |value| be the [=key/value=] of |key|.
+
+  3. Let |value| be the minimum of |value| and 2<sup>53</sup> (9007199254740992).
+
+  4. Let |value| be the largest integer not greater than |value|.
+
+  5. Let |generator| be the [=key generator=] associated with |store|.
+
+  6. If |value| is greater than or equal to |generator|'s [=key generator/current number=],
+      then set |generator|'s [=key generator/current number=] to |value| + 1.
+
+</div>
+
+<aside class=note>
+  A key can be specified both for object stores which use
+  [=in-line keys=], by setting the property on the stored value
+  which the object store's [=object-store/key path=] points to,
+  and for object stores which use [=out-of-line keys=], by passing
+  a key argument to the call to store the [=object-store/record=].
+
+  Only specified keys of [=key/type=] <i>number</i> may affect the
+  [=key generator/current number=] of the key generator. Keys of [=key/type=]
+  <i>date</i>, <i>array</i> (regardless of the other keys they
+  contain), <i>binary</i>, or <i>string</i> (regardless of whether
+  they could be parsed as numbers) have no effect on the [=key generator/current
+  number=] of the key generator. Keys of [=key/type=]
+  <i>number</i> with [=key/value=] less than 1 do not affect the
+  [=key generator/current number=] since they are always lower than the
+  [=key generator/current number=].
+</aside>
+
+When the [=key generator/current number=] of a key generator reaches above the
+value 2<sup>53</sup> (9007199254740992) any attempts to use the
+key generator to generate a new [=/key=] will result in a
+"{{ConstraintError}}" {{DOMException}}. It is still possible to insert
+[=object-store/records=] into the object store by specifying an explicit
+key, however the only way to use a key generator again for the
+object store is to delete the object store and create a new one.
+
+<aside class=note>
+  This limit arises because integers greater than 9007199254740992
+  cannot be uniquely represented as ECMAScript [=Numbers=].
+  As an example, <code>9007199254740992 + 1 === 9007199254740992</code>
+  in ECMAScript.
+
+  As long as key generators are used in a normal fashion this limit will
+  not be a problem. If you generate a new key 1000 times per
+  second day and night, you won't run into this limit for over
+  285000 years.
+</aside>
 
 A practical result of this is that the first key generated for an
 object store is always 1 (unless a higher numeric key is inserted
@@ -5716,24 +5758,20 @@ follows.
 
     1. If |key| is undefined, run these substeps:
 
-        1. If the [=key generator=]'s [=current number=] is
-            greater than 2<sup>53</sup> (9007199254740992), then this
-            operation failed with a "{{ConstraintError}}" {{DOMException}}. Abort this
+        1. Let |key| be the result of running the steps to
+            [=generate a key=] for |store|.
+
+        2. If |key| is failure, then this operation failed with a
+            "{{ConstraintError}}" {{DOMException}}. Abort this
             algorithm without taking any further steps.
 
-        2. Set |key| to the [=key generator=]'s [=current number=].
-
-        3. Increase the [=key generator=]'s [=current number=] by 1.
-
-        4. If |store| also uses [=in-line keys=], then run the
+        3. If |store| also uses [=in-line keys=], then run the
             steps to [=inject a key into a value using a key path=]
             with |value|, |key| and |store|'s [=object-store/key
             path=].
 
-    2. Otherwise, if the [=key/type=] of |key| is <i>number</i>
-        and the [=key/value=] is greater than or equal to the
-        [=key generator=]'s [=current number=], set the
-        [=current number=] to lowest integer greater than |key|.
+    2. Otherwise, run the steps to [=possibly update the key generator=]
+        for |store| with |key|.
 
 3. If the |no-overwrite flag| was given to these steps and is set, and
     a [=object-store/record=] already exists in |store| with its key [=equal to=]
