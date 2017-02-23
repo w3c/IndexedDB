@@ -1177,7 +1177,7 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version e5f1ea6cfe87cd694cb9d91f26be2d18374ebb1f" name="generator">
+  <meta content="Bikeshed version 82ede3779de8045d8044ebedaa78fd81cb559a4b" name="generator">
   <link href="logo-db.png" rel="icon">
 <style>
 table.props {
@@ -1455,7 +1455,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-02-22">22 February 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-02-23">23 February 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3077,9 +3077,12 @@ to access this <code class="idl"><a data-link-type="idl" href="#idbfactory" id="
         <p>Let <var>result</var> be the result of running the <a data-link-type="dfn" href="#steps-for-opening-a-database" id="ref-for-steps-for-opening-a-database-1">steps for
 opening a database</a>, with <var>origin</var>, <var>name</var>, <var>version</var> if given and undefined
 otherwise, and <var>request</var>.</p>
-        <aside class="note"> If <var>version</var> is not given and a <a data-link-type="dfn" href="#database" id="ref-for-database-35">database</a> with that name already exists, a connection will be opened
+        <details class="note">
+         <summary>What happens if <var>version</var> is not given?</summary>
+          If <var>version</var> is not given and a <a data-link-type="dfn" href="#database" id="ref-for-database-35">database</a> with that name already exists, a connection will be opened
   without changing the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-6">version</a>. If <var>version</var> is not given and no <a data-link-type="dfn" href="#database" id="ref-for-database-36">database</a> with
-  that name exists, a new <a data-link-type="dfn" href="#database" id="ref-for-database-37">database</a> will be created with <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-7">version</a> equal to 1. </aside>
+  that name exists, a new <a data-link-type="dfn" href="#database" id="ref-for-database-37">database</a> will be created with <a data-link-type="dfn" href="#database-version" id="ref-for-database-version-7">version</a> equal to 1. 
+        </details>
        <li data-md="">
         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
         <ol>
@@ -5402,11 +5405,12 @@ newly created during <var>transaction</var>, set <var>handle</var>’s <a data-l
         <p>Set <var>handle</var>’s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set-6">index set</a> to the set of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-41">indexes</a> that
 reference its <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store-22">object store</a>.</p>
       </ol>
-      <aside class="note">
-        This reverts the values of <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-6">name</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames-5">indexNames</a></code> returned by related <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-23">IDBObjectStore</a></code> objects. 
-       <p>Although script cannot access an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-99">object store</a> by using the <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-objectstore" id="ref-for-dom-idbtransaction-objectstore-3">objectStore()</a></code> method on an <code class="idl"><a data-link-type="idl" href="#idbtransaction" id="ref-for-idbtransaction-10">IDBTransaction</a></code> instance after
-  the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-73">transaction</a> is aborted, it may still have references to <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-24">IDBObjectStore</a></code> instances where the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-7">name</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames-6">indexNames</a></code> properties can be queried.</p>
-      </aside>
+      <aside class="note"> This reverts the values of <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-6">name</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames-5">indexNames</a></code> returned by related <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-23">IDBObjectStore</a></code> objects. </aside>
+      <details class="note">
+       <summary>How is this observable?</summary>
+        Although script cannot access an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-99">object store</a> by using the <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-objectstore" id="ref-for-dom-idbtransaction-objectstore-3">objectStore()</a></code> method on an <code class="idl"><a data-link-type="idl" href="#idbtransaction" id="ref-for-idbtransaction-10">IDBTransaction</a></code> instance after
+  the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-73">transaction</a> is aborted, it may still have references to <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-24">IDBObjectStore</a></code> instances where the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name-7">name</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames-6">indexNames</a></code> properties can be queried. 
+      </details>
      <li data-md="">
       <p>For each <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle-39">index handle</a> <var>handle</var> associated with <var>transaction</var>,
 including those for <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-42">indexes</a> that were created or deleted
@@ -5417,11 +5421,12 @@ during <var>transaction</var>, run these substeps:</p>
 during <var>transaction</var>, set <var>handle</var>’s <a data-link-type="dfn" href="#index-handle-name" id="ref-for-index-handle-name-2">name</a> to
 its <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index-14">index</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name-15">name</a>.</p>
       </ol>
-      <aside class="note">
-        This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-6">name</a></code> returned by related <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex-16">IDBIndex</a></code> objects. 
-       <p>Although script cannot access an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-43">index</a> by using the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-index" id="ref-for-dom-idbobjectstore-index-2">index()</a></code> method on an <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-25">IDBObjectStore</a></code> instance after the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-74">transaction</a> is aborted, it may still have references to <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex-17">IDBIndex</a></code> instances where the <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-7">name</a></code> property can
-  be queried.</p>
-      </aside>
+      <aside class="note"> This reverts the value of <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-6">name</a></code> returned by related <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex-16">IDBIndex</a></code> objects. </aside>
+      <details class="note">
+       <summary>How is this observable?</summary>
+        Although script cannot access an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-43">index</a> by using the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-index" id="ref-for-dom-idbobjectstore-index-2">index()</a></code> method on an <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore-25">IDBObjectStore</a></code> instance after the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-74">transaction</a> is aborted, it may still have references to <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex-17">IDBIndex</a></code> instances where the <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name-7">name</a></code> property can
+  be queried. 
+      </details>
     </ol>
    </div>
    <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name-3">name</a></code> property of the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase-14">IDBDatabase</a></code> instance is
@@ -6462,7 +6467,8 @@ edition, and Jonas Sicking, Eliot Graff, Andrei Popescu, and Jeremy
 Orlow, additional editors of the first edition.</p>
    <p>Garret Swart was extremely influential in the design of this specification.</p>
    <p>Thanks to Tab Atkins, Jr. for creating and maintaining <a href="https://github.com/tabatkins/bikeshed">Bikeshed</a>, the
-specification authoring tool used to create this document.</p>
+specification authoring tool used to create this document, and
+for his general authoring advice.</p>
    <p>Special thanks to
 Chris Anderson,
 Pablo Castro,
