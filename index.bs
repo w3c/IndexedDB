@@ -1150,31 +1150,38 @@ The following constraints define when a [=/transaction=] can be
 An <dfn>upgrade transaction</dfn> is a [=/transaction=] with [=transaction/mode=]
 {{"versionchange"}}.
 
-An [=upgrade transaction=] is automatically created when running
+An [=upgrade transaction=] is automatically created when running the
 [=steps for running an upgrade transaction=] after a [=/connection=]
-is opened to a [=database=] giving a greater [=database/version=] than
-the current [=database/version=]. This [=/transaction=] will be active
-inside the <code>[=upgradeneeded=]</code> event handler, allowing the
-creation of new [=/object stores=] and [=/indexes=].
+is opened to a [=/database=], if a [=database/version=] greater than
+the current [=database/version=] is specified. This [=/transaction=]
+will be active inside the <code>[=upgradeneeded=]</code> event
+handler.
 
-An [=upgrade transaction=] is never run concurrently with other
-transactions. When a database is opened with a [=database/version=]
-number higher than the current [=database/version=], a new [=upgrade
-transaction=] is automatically created and made available through the
-[=open request=] when the <code>[=upgradeneeded=]</code> event is
-fired. The <code>[=upgradeneeded=]</code> event isn't fired, and thus
-the [=upgrade transaction=] isn't started, until all other
-[=/connections=] to the same [=database=] are closed. This ensures
-that all other transactions are [=transaction/finished=].
+<aside class=note>
+  An [=upgrade transaction=] enables the creation, renaming, and
+  deletion of [=/object stores=] and [=/indexes=] in a [=/database=].
 
-As long as an [=upgrade transaction=] is running, attempts to open
-more [=/connections=] to the same [=database=] are delayed, and
-any attempts to use the same [=/connection=] to start additional
-transactions will result in an exception being thrown. Thus [=upgrade
-transactions=] not only ensure that no other transactions are
-running concurrently, but also ensure that no other transactions are
-queued against the same [=database=] as long as the transaction is
-running.
+  An [=upgrade transaction=] is exclusive. The [=steps for opening a
+  database=] ensure that only one [=/connection=] to the database is
+  open when an [=upgrade transaction=] is running.
+  The <code>[=upgradeneeded=]</code> event isn't fired, and thus the
+  [=upgrade transaction=] isn't started, until all other
+  [=/connections=] to the same [=/database=] are closed. This ensures
+  that all previous transactions are [=transaction/finished=]. As long
+  as an [=upgrade transaction=] is running, attempts to open more
+  [=/connections=] to the same [=/database=] are delayed, and any
+  attempts to use the same [=/connection=] to start additional
+  transactions by calling {{IDBDatabase/transaction()}} will throw an
+  exception. Thus [=upgrade transactions=] not only ensure that no
+  other transactions are running concurrently, but also ensure that no
+  new transactions are queued against the same [=/database=] as long
+  as the transaction is running.
+
+  This ensures that once an [=upgrade transaction=] is complete, the
+  set of [=/object stores=] and [=/indexes=] in a [=/database=] remain
+  constant for the lifetime of all subsequent [=/connections=] and
+  [=/transactions=].
+</aside>
 
 
 <!-- ============================================================ -->
