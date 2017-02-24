@@ -2941,8 +2941,15 @@ when invoked, must run these steps:
 
     3. If |kpk| is not failure, let |key| be |kpk|.
 
-    4. Otherwise, if |store| does not have a [=key
-        generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
+    4. Otherwise (|kpk| is failure), run these substeps:
+
+        1. If |store| does not have a [=key generator=], [=throw=]
+            a "{{DataError}}" {{DOMException}}.
+
+        2. Otherwise, if the steps to
+            [=check that a key could be injected into a value=] with
+            |clone| and  |store|'s [=object-store/key path=] return
+            false, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 12. Run the steps to [=asynchronously execute a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
@@ -3006,8 +3013,15 @@ when invoked, must run these steps:
     3. If |kpk| is not failure, let |key| be
         |kpk|.
 
-    4. Otherwise, if |store| does not have a [=key
-        generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
+    4. Otherwise (|kpk| is failure), run these substeps:
+
+        1. If |store| does not have a [=key generator=], [=throw=]
+            a "{{DataError}}" {{DOMException}}.
+
+        2. Otherwise, if the steps to
+            [=check that a key could be injected into a value=] with
+            |clone| and  |store|'s [=object-store/key path=] return
+            false, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 12. Run the steps to [=asynchronously execute a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
@@ -5744,17 +5758,7 @@ The steps to <dfn>store a record into an object store</dfn> with
 |store|, |value|, an optional |key|, and a |no-overwrite flag| are as
 follows.
 
-1. If |store| uses [=in-line keys=], run these substeps:
-
-    1. Let |kpk| be the result of running the steps to [=extract a
-        key from a value using a key path=] with |value| and
-        |store|'s [=object-store/key path=].
-
-    2. Assert: |kpk| will not be invalid or an exception.
-
-    3. If |kpk| is not failure, let |key| be |kpk|.
-
-2. If |store| uses a [=key generator=], run these substeps:
+1. If |store| uses a [=key generator=], run these substeps:
 
     1. If |key| is undefined, run these substeps:
 
@@ -5773,21 +5777,21 @@ follows.
     2. Otherwise, run the steps to [=possibly update the key generator=]
         for |store| with |key|.
 
-3. If the |no-overwrite flag| was given to these steps and is set, and
+2. If the |no-overwrite flag| was given to these steps and is set, and
     a [=object-store/record=] already exists in |store| with its key [=equal to=]
     |key|, then this operation failed with a "{{ConstraintError}}" {{DOMException}}.
     Abort this algorithm without taking any further steps.
 
-4. If a [=object-store/record=] already exists in |store| with its key [=equal
+3. If a [=object-store/record=] already exists in |store| with its key [=equal
     to=] |key|, then remove the [=object-store/record=] from |store| using the
     steps to [=delete records from an object store=].
 
-5. Store a record in |store| containing |key| as its key and |value|
+4. Store a record in |store| containing |key| as its key and |value|
     as its value. The record is stored in the object store's
     [=object-store/list of records=] such that the list is sorted
-    according key of the records in ascending order.
+    according to the key of the records in ascending order.
 
-6. For each |index| which [=reference=] |store|, run these substeps:
+5. For each |index| which [=reference=] |store|, run these substeps:
 
     1. Let |index key| be the result of running the steps to
         [=extract a key from a value using a key path=] with
@@ -5845,7 +5849,7 @@ follows.
           produce multiple rows; only the outer-most [=array key=] is.
         </aside>
 
-7. Return |key|.
+6. Return |key|.
 
 </div>
 
@@ -6315,7 +6319,7 @@ ECMAScript value or failure, or the steps may throw an exception.
     3. For each |item| in the |keyPath| sequence, run these substeps:
 
         1. Let |key| be the result of recursively running the steps to
-            [=extract a key from a value using a key path=] using
+            [=evaluate a key path on a value=] using
             |item| as |keyPath| and |value| as |value|.
 
         2. Assert: |key| is not an [=abrupt completion=].
@@ -6403,6 +6407,48 @@ ECMAScript value or failure, or the steps may throw an exception.
 <h3 id=inject-key-into-value>Inject a key into a value</h3>
 <!-- ============================================================ -->
 
+<aside class=note>
+  The [=/key paths=] used in this section are always strings and never
+  sequences, since it is not possible to create a [=/object store=] which has a
+  [=key generator=] and also has a [=object-store/key path=] that is a
+  sequence.
+</aside>
+
+<div class=algorithm>
+
+The steps to <dfn>check that a key could be injected into a value</dfn> are
+as follows. The algorithm takes a |value| and a |keyPath|, and outputs
+true or false.
+
+<div class=algorithm>
+
+1. Let |identifiers| be the result of <a lt="strictly split a string">strictly splitting</a>
+    |keyPath| on U+002E FULL STOP characters (.).
+
+2. Assert: |identifiers| is not empty.
+
+3. Remove the last member of |identifiers|.
+
+4. For each remaining |identifier| in |identifiers|, if any, run these
+    substeps:
+
+    1. If |value| is not an [=Object=] or an [=Array=], return false.
+
+    2. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
+
+    3. If |hop| is false, return true.
+
+    4. Let |value| be [=!=] [=Get=](|value|, |identifier|).
+
+5. Return true if |value| is an [=Object=] or an [=Array=], or false otherwise.
+
+</div>
+
+<aside class=note>
+  Assertions can be made in the above steps because this algorithm is
+  only applied to values that are the output of <a abstract-op>StructuredClone</a>.
+</aside>
+
 <div class=algorithm>
 
 The steps to <dfn>inject a key into a value using a key path</dfn> are
@@ -6419,8 +6465,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 4. For each remaining |identifier| in |identifiers|, run these
     substeps:
 
-    1. If |value| is not an [=Object=] object or an [=Array=]
-        object, then [=throw=] a "{{DataError}}" {{DOMException}}.
+    1. Assert: |value| is an [=Object=] or an [=Array=].
 
     2. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
@@ -6439,7 +6484,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 5. Assert: |value| is an [=Object=] or an [=Array=].
 
 6. Let |keyValue| be the result of running the steps to [=convert a
-    key to a value=].
+    key to a value=] with |key|.
 
 7. Let |status| be [=CreateDataProperty=](|value|, |last|, |keyValue|).
 
@@ -6448,15 +6493,10 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 </div>
 
 <aside class=note>
-  The [=/key path=] used here is always a string and never a sequence,
-  since it is not possible to create a [=/object store=] which has a
-  [=key generator=] and also has a [=object-store/key path=] that is a
-  sequence.
-</aside>
-
-<aside class=note>
   Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a abstract-op>StructuredClone</a>.
+  only applied to values that are the output of <a abstract-op>StructuredClone</a>,
+  and the steps to [=check that a key could be injected into a value=] have
+  been run.
 </aside>
 
 
@@ -6587,7 +6627,7 @@ steps may throw an exception.
 
         1. Let |octets| be the result of running the steps to
             <a lt="get a copy of the buffer source">get a copy of the bytes held by the buffer source</a>
-            |value|. Rethrow any exceptions.
+            |input|. Rethrow any exceptions.
 
         2. Return a new [=/key=] with [=key/type=]
             <i>binary</i> and [=key/value=] |octets|.
@@ -6674,6 +6714,7 @@ steps may throw an exception.
 
 2. Otherwise, return the result of running the steps to [=convert a
     value to a key=] with argument |input|.
+    Rethrow any exceptions.
 
 </div>
 
