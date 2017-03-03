@@ -2042,13 +2042,20 @@ Events are constructed as defined in <a
 href="https://www.w3.org/TR/domcore/#constructing-events">Constructing
 events</a>, in [[!DOM]].
 
-To <dfn>fire a version change event</dfn> named |e| at |target| given
-|oldVersion| and |newVersion|, dispatch an event at |target|. The
-event must use the {{IDBVersionChangeEvent}} interface with its
-{{Event/type}} set to |e|, its {{IDBVersionChangeEvent/oldVersion}}
-attribute set to |oldVersion|, and its
-{{IDBVersionChangeEvent/newVersion}} attribute set to |newVersion|.
-This event must not bubble or be cancelable.
+<div class=algorithm>
+
+  To <dfn>fire a version change event</dfn> named |e| at |target| given
+  |oldVersion| and |newVersion|, run the following steps:
+
+  1. Let |event| be the result of [=creating an event=] using
+      {{IDBVersionChangeEvent}}.
+  2. Set |event|'s {{Event/type}} attribute to |e|.
+  3. Set |event|'s {{Event/bubbles}} and {{Event/cancelable}} attributes to false.
+  4. Set |event|'s {{IDBVersionChangeEvent/oldVersion}} attribute to |oldVersion|.
+  5. Set |event|'s {{IDBVersionChangeEvent/newVersion}} attribute to |newVersion|.
+  6. [=Dispatch=] |event| at |target|.
+
+</div>
 
 
 <!-- ============================================================ -->
@@ -2155,17 +2162,13 @@ when invoked, must run these steps:
     2. [=Queue a task=] to run these substeps:
 
         1. If |result| is an error, set the [=request/error=]
-            of |request| to |result| and dispatch an event at
-            |request|. The event must use the [=Event=] interface
-            and set the {{Event/type}} attribute to
-            "<code>error</code>". The event does bubble but is not
-            cancelable.
+            of |request| to |result| and [=fire an event=] named
+            <code>error</code> at |request| with its
+            {{Event/bubbles}} attribute initialized to true.
 
         2. Otherwise, set the [=request/result=] of |request|
-            to |result| and dispatch an event at |request|. The event
-            must use the [=Event=] interface and set the
-            {{Event/type}} attribute to "<code>success</code>". The
-            event does not bubble and is not cancelable. If the steps
+            to |result| and [=fire an event=] named
+            <code>success</code> at |request|. If the steps
             above resulted in an [=upgrade transaction=] being run,
             then firing the "<code>success</code>" event must be done
             after the [=upgrade transaction=] completes.
@@ -2210,10 +2213,9 @@ when invoked, must run these steps:
 
     2. [=Queue a task=] to run these substeps:
         1. If |result| is an error set the [=request/error=] of
-            |request| to |result| and dispatch an event at |request|.
-            The event must use the [=Event=] interface and set the
-            {{Event/type}} attribute to "<code>error</code>". The
-            event does bubble but is not cancelable.
+            |request| to |result| and [=fire an event=]
+            named <code>error</code> at |request| with
+            its {{Event/bubbles}} attribute initialized to true.
 
         2. Otherwise, set the [=request/result=] of |request|
             to undefined and [=fire a version change event=] named
@@ -5164,10 +5166,8 @@ optional |forced flag|.
 3. Wait for all transactions [=transaction/created=] using |connection| to complete.
     Once they are complete, |connection| is [=connection/closed=].
 
-4. If the |forced flag| is set, then fire a <code>close</code> event
-    at |connection|. The event must use the [=Event=] interface and
-    have its type set to "<code>close</code>". The event must not
-    bubble or be cancelable.
+4. If the |forced flag| is set, then [=fire an event=] named
+    <code>close</code> at |connection|.
 
     <aside class=note>
       The "<code>close</code>" event only fires if the connection closes
@@ -5277,10 +5277,7 @@ This algorithm takes one argument, the |transaction| to commit.
 
 3. [=Queue a task=] to run the these substeps
 
-    1. Dispatch an event at |transaction|. The event must use the
-        [=Event=] interface and have its {{Event/type}} set to
-        "<code>complete</code>". The event does not bubble and is not
-        cancelable.
+    1. [=Fire an event=] named <code>complete</code> at |transaction|.
 
         <aside class=note>
           Even if an exception is thrown from one of the event handlers of
@@ -5331,9 +5328,9 @@ takes two arguments: the |transaction| to abort, and |error|.
     2. Set the [=request/result=] of |request| to undefined.
     3. Set the [=request/error=] of |request| to a newly
         <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
-    4. Dispatch an event at |request|. The event must use the
-        [=Event=] interface and have its {{Event/type}} set to
-        "<code>error</code>". The event bubbles and is cancelable.
+    4. [=Fire an event=] named <code>error</code> at |request|
+        with its {{Event/bubbles}} and {{Event/cancelable}}
+        attributes initialized to true.
 
     <aside class=note>
       This does not always result in any <code>error</code> events
@@ -5344,9 +5341,8 @@ takes two arguments: the |transaction| to abort, and |error|.
 
 5. [=Queue a task=] to run the following substeps:
 
-    1. Dispatch an event at |transaction|. The event must use the
-        [=Event=] interface and have its {{Event/type}} set to
-        "<code>abort</code>". The event does bubble but is not cancelable.
+    1. [=Fire an event=] named <code>abort</code> at |transaction|
+        with its {{Event/bubbles}} attribute initialized to true.
 
     2. If |transaction| is an [=upgrade transaction=], then
         let |request| be the [=request=] associated with |transaction|
@@ -5578,24 +5574,26 @@ are as follows.
 
 <div class=algorithm>
 
-To <dfn>fire a success event</dfn> at a [=request=],
+To <dfn>fire a success event</dfn> at a |request|,
 the implementation must run the following steps:
 
-1. Set |transaction| to the [=/transaction=] associated with
-    the [=request/source=].
+1. Let |event| be the result of [=creating an event=] using {{Event}}.
 
-2. Set the [=transaction/active flag=] of |transaction|.
+2. Set |event|'s {{Event/type}} attribute to "<code>success</code>".
 
-3. Dispatch an event at [=request=]. The event must use the
-    [=Event=] interface and have its {{Event/type}} set to
-    "<code>success</code>". The event does not bubble and is not
-    cancelable.
+3. Set |event|'s {{Event/bubbles}} and {{Event/cancelable}} attributes to false.
 
-4. Unset the [=transaction/active flag=] of |transaction|.
+4. Let |transaction| be |request|'s [=/transaction=].
 
-5. If an exception was propagated out from any event handler while
-    dispatching the event in step 3, abort the transaction by
-    following the steps to [=abort a transaction=] with
+5. Set |transaction|'s [=transaction/active flag=].
+
+6. [=Dispatch=] |event| at |request|.
+
+7. Unset |transaction|'s [=transaction/active flag=].
+
+8. If an exception was propagated out from any event handler while
+    dispatching |event| in step 6,
+    run the steps to [=abort a transaction=] with
     |transaction| and a newly <a for=exception>created</a>
     "{{AbortError}}" {{DOMException}}.
 
@@ -5611,20 +5609,23 @@ the implementation must run the following steps:
 To <dfn>fire an error event</dfn> at a |request|,
 the implementation must run the following steps:
 
-1. Set |transaction| to the [=/transaction=] associated with
-    the [=request/source=].
+1. Let |event| be the result of [=creating an event=] using {{Event}}.
 
-2. Set the [=transaction/active flag=] of |transaction|.
+2. Set |event|'s {{Event/type}} attribute to "<code>error</code>".
 
-3. Dispatch an event at |request|. The event must use the [=Event=]
-    interface and have its {{Event/type}} set to "<code>error</code>".
-    The event bubbles and is cancelable.
+3. Set |event|'s {{Event/bubbles}} and {{Event/cancelable}} attributes to true.
 
-4. Unset the [=transaction/active flag=] of |transaction|.
+4. Let |transaction| be |request|'s [=/transaction=].
 
-5. If an exception was propagated out from any event handler while
-    dispatching the event in step 3, abort the transaction by
-    following the steps to [=abort a transaction=] with
+5. Set |transaction|'s [=transaction/active flag=].
+
+6. [=Dispatch=] |event| at |request|.
+
+7. Unset |transaction|'s [=transaction/active flag=].
+
+8. If an exception was propagated out from any event handler while
+    dispatching |event| in step 6,
+    run the steps to [=abort a transaction=] with
     |transaction| and a newly <a for=exception>created</a>
     "{{AbortError}}" {{DOMException}} and terminate these steps. This is done even if the
     event's [=canceled flag=] is not set.
@@ -5637,7 +5638,7 @@ the implementation must run the following steps:
       {{Event/preventDefault()}} is never called.
     </aside>
 
-6. If the event's [=canceled flag=] is not set, run the steps
+9. If the event's [=canceled flag=] is not set, run the steps
     to [=abort a transaction=] using |transaction| and
     [=request=]'s [=request/error=].
 

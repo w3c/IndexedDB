@@ -1455,7 +1455,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-02-25">25 February 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-03-03">3 March 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3020,9 +3020,23 @@ the database is being deleted. See the steps to <a data-link-type="dfn" href="#r
 transaction</a>.</p>
    <p>Events are constructed as defined in <a href="https://www.w3.org/TR/domcore/#constructing-events">Constructing
 events</a>, in <a data-link-type="biblio" href="#biblio-dom">[DOM]</a>.</p>
-   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="fire-a-version-change-event">fire a version change event</dfn> named <var>e</var> at <var>target</var> given <var>oldVersion</var> and <var>newVersion</var>, dispatch an event at <var>target</var>. The
-event must use the <code class="idl"><a data-link-type="idl" href="#idbversionchangeevent" id="ref-for-idbversionchangeevent-1">IDBVersionChangeEvent</a></code> interface with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to <var>e</var>, its <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-oldversion" id="ref-for-dom-idbversionchangeevent-oldversion-2">oldVersion</a></code> attribute set to <var>oldVersion</var>, and its <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-newversion" id="ref-for-dom-idbversionchangeevent-newversion-2">newVersion</a></code> attribute set to <var>newVersion</var>.
-This event must not bubble or be cancelable.</p>
+   <div class="algorithm">
+    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="fire-a-version-change-event">fire a version change event</dfn> named <var>e</var> at <var>target</var> given <var>oldVersion</var> and <var>newVersion</var>, run the following steps:</p>
+    <ol>
+     <li data-md="">
+      <p>Let <var>event</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a> using <code class="idl"><a data-link-type="idl" href="#idbversionchangeevent" id="ref-for-idbversionchangeevent-1">IDBVersionChangeEvent</a></code>.</p>
+     <li data-md="">
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to <var>e</var>.</p>
+     <li data-md="">
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> and <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-cancelable">cancelable</a></code> attributes to false.</p>
+     <li data-md="">
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-oldversion" id="ref-for-dom-idbversionchangeevent-oldversion-2">oldVersion</a></code> attribute to <var>oldVersion</var>.</p>
+     <li data-md="">
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-newversion" id="ref-for-dom-idbversionchangeevent-newversion-2">newVersion</a></code> attribute to <var>newVersion</var>.</p>
+     <li data-md="">
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>target</var>.</p>
+    </ol>
+   </div>
    <h3 class="heading settled" data-level="4.3" id="factory-interface"><span class="secno">4.3. </span><span class="content">The <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-1">IDBFactory</a></code> interface</span><a class="self-link" href="#factory-interface"></a></h3>
    <p><a data-link-type="dfn" href="#database" id="ref-for-database-33">Database</a> objects are accessed through methods on the <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-2">IDBFactory</a></code> interface. A single object implementing this
 interface is present in the global scope of environments that support
@@ -3090,14 +3104,9 @@ otherwise, and <var>request</var>.</p>
         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
         <ol>
          <li data-md="">
-          <p>If <var>result</var> is an error, set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-4">error</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface
-and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to
-"<code>error</code>". The event does bubble but is not
-cancelable.</p>
+          <p>If <var>result</var> is an error, set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-4">error</a> of <var>request</var> to <var>result</var> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>error</code> at <var>request</var> with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> attribute initialized to true.</p>
          <li data-md="">
-          <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-5">result</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>. The event
-must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>success</code>". The
-event does not bubble and is not cancelable. If the steps
+          <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-5">result</a> of <var>request</var> to <var>result</var> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>success</code> at <var>request</var>. If the steps
 above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-17">upgrade transaction</a> being run,
 then firing the "<code>success</code>" event must be done
 after the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-18">upgrade transaction</a> completes.</p>
@@ -3136,9 +3145,8 @@ to access this <code class="idl"><a data-link-type="idl" href="#idbfactory" id="
         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these substeps:</p>
         <ol>
          <li data-md="">
-          <p>If <var>result</var> is an error set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-5">error</a> of <var>request</var> to <var>result</var> and dispatch an event at <var>request</var>.
-The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and set the <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>error</code>". The
-event does bubble but is not cancelable.</p>
+          <p>If <var>result</var> is an error set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-5">error</a> of <var>request</var> to <var>result</var> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>error</code> at <var>request</var> with
+its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> attribute initialized to true.</p>
          <li data-md="">
           <p>Otherwise, set the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result-6">result</a> of <var>request</var> to undefined and <a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event-1">fire a version change event</a> named <code>success</code> at <a data-link-type="dfn" href="#request" id="ref-for-request-20">request</a> with <var>result</var> and
 null.</p>
@@ -5132,10 +5140,7 @@ transaction</a> with <var>transaction</var> and newly <a data-link-type="dfn" hr
       <p>Wait for all transactions <a data-link-type="dfn" href="#transaction-created" id="ref-for-transaction-created-5">created</a> using <var>connection</var> to complete.
 Once they are complete, <var>connection</var> is <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed-7">closed</a>.</p>
      <li data-md="">
-      <p>If the <var>forced flag</var> is set, then fire a <code>close</code> event
-at <var>connection</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and
-have its type set to "<code>close</code>". The event must not
-bubble or be cancelable.</p>
+      <p>If the <var>forced flag</var> is set, then <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>close</code> at <var>connection</var>.</p>
       <aside class="note"> The "<code>close</code>" event only fires if the connection closes
   abnormally, e.g. if the origin’s storage is cleared, or there is
   corruption or an I/O error. If <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-close" id="ref-for-dom-idbdatabase-close-4">close()</a></code> is called explicitly
@@ -5206,9 +5211,7 @@ appropriate for the error, for example "<code class="idl"><a data-link-type="idl
       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the these substeps</p>
       <ol>
        <li data-md="">
-        <p>Dispatch an event at <var>transaction</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to
-"<code>complete</code>". The event does not bubble and is not
-cancelable.</p>
+        <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">Fire an event</a> named <code>complete</code> at <var>transaction</var>.</p>
         <aside class="note"> Even if an exception is thrown from one of the event handlers of
   this event, the transaction is still committed since writing the
   database changes happens before the event takes places. Only
@@ -5250,8 +5253,7 @@ run these substeps:</p>
        <li data-md="">
         <p>Set the <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-7">error</a> of <var>request</var> to a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
        <li data-md="">
-        <p>Dispatch an event at <var>request</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to
-"<code>error</code>". The event bubbles and is cancelable.</p>
+        <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">Fire an event</a> named <code>error</code> at <var>request</var> with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> and <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-cancelable">cancelable</a></code> attributes initialized to true.</p>
       </ol>
       <aside class="note"> This does not always result in any <code>error</code> events
   being fired. For example if a transaction is aborted due to an
@@ -5261,8 +5263,7 @@ run these substeps:</p>
       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps:</p>
       <ol>
        <li data-md="">
-        <p>Dispatch an event at <var>transaction</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to
-"<code>abort</code>". The event does bubble but is not cancelable.</p>
+        <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">Fire an event</a> named <code>abort</code> at <var>transaction</var> with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> attribute initialized to true.</p>
        <li data-md="">
         <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction-53">upgrade transaction</a>, then
 let <var>request</var> be the <a data-link-type="dfn" href="#request" id="ref-for-request-32">request</a> associated with <var>transaction</var> and set <var>request</var>’s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction-5">transaction</a> to null.</p>
@@ -5435,24 +5436,27 @@ its <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-
   creating a new <a data-link-type="dfn" href="#database" id="ref-for-database-68">database</a>. </aside>
    <h3 class="heading settled" data-level="5.9" id="fire-success-event"><span class="secno">5.9. </span><span class="content">Firing a success event</span><a class="self-link" href="#fire-success-event"></a></h3>
    <div class="algorithm">
-    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="fire-a-success-event">fire a success event</dfn> at a <a data-link-type="dfn" href="#request" id="ref-for-request-37">request</a>,
+    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="fire-a-success-event">fire a success event</dfn> at a <var>request</var>,
 the implementation must run the following steps:</p>
     <ol>
      <li data-md="">
-      <p>Set <var>transaction</var> to the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-76">transaction</a> associated with
-the <a data-link-type="dfn" href="#request-source" id="ref-for-request-source-5">source</a>.</p>
+      <p>Let <var>event</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a> using <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event">Event</a></code>.</p>
      <li data-md="">
-      <p>Set the <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-7">active flag</a> of <var>transaction</var>.</p>
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>success</code>".</p>
      <li data-md="">
-      <p>Dispatch an event at <a data-link-type="dfn" href="#request" id="ref-for-request-38">request</a>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to
-"<code>success</code>". The event does not bubble and is not
-cancelable.</p>
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> and <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-cancelable">cancelable</a></code> attributes to false.</p>
      <li data-md="">
-      <p>Unset the <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-8">active flag</a> of <var>transaction</var>.</p>
+      <p>Let <var>transaction</var> be <var>request</var>’s <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-76">transaction</a>.</p>
+     <li data-md="">
+      <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-7">active flag</a>.</p>
+     <li data-md="">
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>request</var>.</p>
+     <li data-md="">
+      <p>Unset <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-8">active flag</a>.</p>
      <li data-md="">
       <p>If an exception was propagated out from any event handler while
-dispatching the event in step 3, abort the transaction by
-following the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-12">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
+dispatching <var>event</var> in step 6,
+run the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-12">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="5.10" id="fire-error-event"><span class="secno">5.10. </span><span class="content">Firing an error event</span><a class="self-link" href="#fire-error-event"></a></h3>
@@ -5461,25 +5465,29 @@ following the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="r
 the implementation must run the following steps:</p>
     <ol>
      <li data-md="">
-      <p>Set <var>transaction</var> to the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-77">transaction</a> associated with
-the <a data-link-type="dfn" href="#request-source" id="ref-for-request-source-6">source</a>.</p>
+      <p>Let <var>event</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a> using <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event">Event</a></code>.</p>
      <li data-md="">
-      <p>Set the <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-9">active flag</a> of <var>transaction</var>.</p>
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to "<code>error</code>".</p>
      <li data-md="">
-      <p>Dispatch an event at <var>request</var>. The event must use the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event">Event</a> interface and have its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> set to "<code>error</code>".
-The event bubbles and is cancelable.</p>
+      <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a></code> and <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-cancelable">cancelable</a></code> attributes to true.</p>
      <li data-md="">
-      <p>Unset the <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-10">active flag</a> of <var>transaction</var>.</p>
+      <p>Let <var>transaction</var> be <var>request</var>’s <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-77">transaction</a>.</p>
+     <li data-md="">
+      <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-9">active flag</a>.</p>
+     <li data-md="">
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>request</var>.</p>
+     <li data-md="">
+      <p>Unset <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-10">active flag</a>.</p>
      <li data-md="">
       <p>If an exception was propagated out from any event handler while
-dispatching the event in step 3, abort the transaction by
-following the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-13">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code> and terminate these steps. This is done even if the
+dispatching <var>event</var> in step 6,
+run the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-13">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code> and terminate these steps. This is done even if the
 event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is not set.</p>
       <aside class="note"> This means that if an error event is fired and any of the event
   handlers throw an exception, <var>transaction</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-error" id="ref-for-dom-idbtransaction-error-3">error</a></code> property is set to an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code> rather than <var>request</var>’s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-10">error</a>, even if <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-preventdefault">preventDefault()</a></code> is never called. </aside>
      <li data-md="">
       <p>If the event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is not set, run the steps
-to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-14">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request-39">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-11">error</a>.</p>
+to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-14">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request-37">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-11">error</a>.</p>
     </ol>
    </div>
    <h2 class="heading settled" data-level="6" id="database-operations"><span class="secno">6. </span><span class="content">Database operations</span><a class="self-link" href="#database-operations"></a></h2>
@@ -7030,8 +7038,12 @@ specification.</p>
      <li><a href="https://dom.spec.whatwg.org/#event">Event</a>
      <li><a href="https://dom.spec.whatwg.org/#dictdef-eventinit">EventInit</a>
      <li><a href="https://dom.spec.whatwg.org/#eventtarget">EventTarget</a>
+     <li><a href="https://dom.spec.whatwg.org/#dom-event-bubbles">bubbles</a>
+     <li><a href="https://dom.spec.whatwg.org/#dom-event-cancelable">cancelable</a>
      <li><a href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a>
-     <li><a href="https://dom.spec.whatwg.org/#concept-event">event</a>
+     <li><a href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a>
+     <li><a href="https://dom.spec.whatwg.org/#concept-event-dispatch">dispatch</a>
+     <li><a href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a>
      <li><a href="https://dom.spec.whatwg.org/#get-the-parent">get the parent</a>
      <li><a href="https://dom.spec.whatwg.org/#dom-event-preventdefault">preventDefault()</a>
      <li><a href="https://dom.spec.whatwg.org/#dom-event-type">type</a>
@@ -8075,8 +8087,7 @@ specification.</p>
     <li><a href="#ref-for-request-32">5.5. Aborting a transaction</a>
     <li><a href="#ref-for-request-33">5.6. Asynchronously executing a request</a> <a href="#ref-for-request-34">(2)</a> <a href="#ref-for-request-35">(3)</a>
     <li><a href="#ref-for-request-36">5.7. Running an upgrade transaction</a>
-    <li><a href="#ref-for-request-37">5.9. Firing a success event</a> <a href="#ref-for-request-38">(2)</a>
-    <li><a href="#ref-for-request-39">5.10. Firing an error event</a>
+    <li><a href="#ref-for-request-37">5.10. Firing an error event</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-done-flag">
@@ -8096,8 +8107,6 @@ specification.</p>
     <li><a href="#ref-for-request-source-1">2.8.1. Open Requests</a>
     <li><a href="#ref-for-request-source-2">4.1. The IDBRequest interface</a> <a href="#ref-for-request-source-3">(2)</a>
     <li><a href="#ref-for-request-source-4">5.6. Asynchronously executing a request</a>
-    <li><a href="#ref-for-request-source-5">5.9. Firing a success event</a>
-    <li><a href="#ref-for-request-source-6">5.10. Firing an error event</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-result">
