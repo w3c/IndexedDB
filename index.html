@@ -1455,7 +1455,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 2.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-03-03">3 March 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-03-06">6 March 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3034,7 +3034,12 @@ events</a>, in <a data-link-type="biblio" href="#biblio-dom">[DOM]</a>.</p>
      <li data-md="">
       <p>Set <var>event</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-newversion" id="ref-for-dom-idbversionchangeevent-newversion-2">newVersion</a></code> attribute to <var>newVersion</var>.</p>
      <li data-md="">
-      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>target</var>.</p>
+      <p>Let <var>legacyOutputDidListenersThrowFlag</var> be unset.</p>
+     <li data-md="">
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>target</var> with <var>legacyOutputDidListenersThrowFlag</var>.</p>
+     <li data-md="">
+      <p>Return <var>legacyOutputDidListenersThrowFlag</var>.</p>
+      <aside class="note"> The return value of this algorithm is not always used. </aside>
     </ol>
    </div>
    <h3 class="heading settled" data-level="4.3" id="factory-interface"><span class="secno">4.3. </span><span class="content">The <code class="idl"><a data-link-type="idl" href="#idbfactory" id="ref-for-idbfactory-1">IDBFactory</a></code> interface</span><a class="self-link" href="#factory-interface"></a></h3>
@@ -5360,12 +5365,10 @@ transaction is <a data-link-type="dfn" href="#transaction-abort" id="ref-for-tra
        <li data-md="">
         <p>Set the <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag-16">done flag</a> on the <a data-link-type="dfn" href="#request" id="ref-for-request-36">request</a>.</p>
        <li data-md="">
-        <p><a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event-6">Fire a version change event</a> named <code><a data-link-type="dfn" href="#request-upgradeneeded" id="ref-for-request-upgradeneeded-10">upgradeneeded</a></code> at <var>request</var> with <var>old
+        <p>Let <var>didThrow</var> be the result of running the steps to <a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event-6">fire a version change event</a> named <code><a data-link-type="dfn" href="#request-upgradeneeded" id="ref-for-request-upgradeneeded-10">upgradeneeded</a></code> at <var>request</var> with <var>old
 version</var> and <var>version</var>.</p>
        <li data-md="">
-        <p>If an exception was propagated out from any event handler while
-dispatching the event in the previous step, abort the
-transaction by following the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-9">abort a
+        <p>If <var>didThrow</var> is set, run the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-9">abort a
 transaction</a> with the <var>error</var> property set to a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
       </ol>
      <li data-md="">
@@ -5448,14 +5451,15 @@ the implementation must run the following steps:</p>
      <li data-md="">
       <p>Let <var>transaction</var> be <var>request</var>’s <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-76">transaction</a>.</p>
      <li data-md="">
+      <p>Let <var>legacyOutputDidListenersThrowFlag</var> be initially unset.</p>
+     <li data-md="">
       <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-7">active flag</a>.</p>
      <li data-md="">
-      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>request</var>.</p>
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>request</var> with <var>legacyOutputDidListenersThrowFlag</var>.</p>
      <li data-md="">
       <p>Unset <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-8">active flag</a>.</p>
      <li data-md="">
-      <p>If an exception was propagated out from any event handler while
-dispatching <var>event</var> in step 6,
+      <p>If <var>legacyOutputDidListenersThrowFlag</var> is set,
 run the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-12">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code>.</p>
     </ol>
    </div>
@@ -5473,21 +5477,22 @@ the implementation must run the following steps:</p>
      <li data-md="">
       <p>Let <var>transaction</var> be <var>request</var>’s <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept-77">transaction</a>.</p>
      <li data-md="">
+      <p>Let <var>legacyOutputDidListenersThrowFlag</var> be initially unset.</p>
+     <li data-md="">
       <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-9">active flag</a>.</p>
      <li data-md="">
-      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <var>request</var>.</p>
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>event</var> at <a data-link-type="dfn" href="#request" id="ref-for-request-37">request</a> with <var>legacyOutputDidListenersThrowFlag</var>.</p>
      <li data-md="">
       <p>Unset <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag-10">active flag</a>.</p>
      <li data-md="">
-      <p>If an exception was propagated out from any event handler while
-dispatching <var>event</var> in step 6,
+      <p>If <var>legacyOutputDidListenersThrowFlag</var> is set,
 run the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-13">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dfn-DOMException">DOMException</a></code> and terminate these steps. This is done even if the
 event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is not set.</p>
       <aside class="note"> This means that if an error event is fired and any of the event
   handlers throw an exception, <var>transaction</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-error" id="ref-for-dom-idbtransaction-error-3">error</a></code> property is set to an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror">AbortError</a></code> rather than <var>request</var>’s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-10">error</a>, even if <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-preventdefault">preventDefault()</a></code> is never called. </aside>
      <li data-md="">
       <p>If the event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is not set, run the steps
-to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-14">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request-37">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-11">error</a>.</p>
+to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-14">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request-38">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-11">error</a>.</p>
     </ol>
    </div>
    <h2 class="heading settled" data-level="6" id="database-operations"><span class="secno">6. </span><span class="content">Database operations</span><a class="self-link" href="#database-operations"></a></h2>
@@ -8087,7 +8092,7 @@ specification.</p>
     <li><a href="#ref-for-request-32">5.5. Aborting a transaction</a>
     <li><a href="#ref-for-request-33">5.6. Asynchronously executing a request</a> <a href="#ref-for-request-34">(2)</a> <a href="#ref-for-request-35">(3)</a>
     <li><a href="#ref-for-request-36">5.7. Running an upgrade transaction</a>
-    <li><a href="#ref-for-request-37">5.10. Firing an error event</a>
+    <li><a href="#ref-for-request-37">5.10. Firing an error event</a> <a href="#ref-for-request-38">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-done-flag">

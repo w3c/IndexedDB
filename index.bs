@@ -2053,7 +2053,12 @@ events</a>, in [[!DOM]].
   3. Set |event|'s {{Event/bubbles}} and {{Event/cancelable}} attributes to false.
   4. Set |event|'s {{IDBVersionChangeEvent/oldVersion}} attribute to |oldVersion|.
   5. Set |event|'s {{IDBVersionChangeEvent/newVersion}} attribute to |newVersion|.
-  6. [=Dispatch=] |event| at |target|.
+  6. Let |legacyOutputDidListenersThrowFlag| be unset.
+  7. [=Dispatch=] |event| at |target| with |legacyOutputDidListenersThrowFlag|.
+  8. Return |legacyOutputDidListenersThrowFlag|.
+      <aside class=note>
+        The return value of this algorithm is not always used.
+      </aside>
 
 </div>
 
@@ -5451,12 +5456,11 @@ for the [=database=], and a |request|.
     1. Set |request|'s [=request/result=] to |connection|.
     2. Set |request|'s [=request/transaction=] to |transaction|.
     3. Set the [=request/done flag=] on the [=request=].
-    4. [=Fire a version change event=] named
+    4. Let |didThrow| be the result of running the steps to
+        [=fire a version change event=] named
         <code>[=upgradeneeded=]</code> at |request| with |old
         version| and |version|.
-    5. If an exception was propagated out from any event handler while
-        dispatching the event in the previous step, abort the
-        transaction by following the steps to [=abort a
+    5. If |didThrow| is set, run the steps to [=abort a
         transaction=] with the |error| property set to a newly
         <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
 
@@ -5585,14 +5589,15 @@ the implementation must run the following steps:
 
 4. Let |transaction| be |request|'s [=/transaction=].
 
-5. Set |transaction|'s [=transaction/active flag=].
+5. Let |legacyOutputDidListenersThrowFlag| be initially unset.
 
-6. [=Dispatch=] |event| at |request|.
+6. Set |transaction|'s [=transaction/active flag=].
 
-7. Unset |transaction|'s [=transaction/active flag=].
+7. [=Dispatch=] |event| at |request| with |legacyOutputDidListenersThrowFlag|.
 
-8. If an exception was propagated out from any event handler while
-    dispatching |event| in step 6,
+8. Unset |transaction|'s [=transaction/active flag=].
+
+9. If |legacyOutputDidListenersThrowFlag| is set,
     run the steps to [=abort a transaction=] with
     |transaction| and a newly <a for=exception>created</a>
     "{{AbortError}}" {{DOMException}}.
@@ -5617,14 +5622,15 @@ the implementation must run the following steps:
 
 4. Let |transaction| be |request|'s [=/transaction=].
 
-5. Set |transaction|'s [=transaction/active flag=].
+5. Let |legacyOutputDidListenersThrowFlag| be initially unset.
 
-6. [=Dispatch=] |event| at |request|.
+6. Set |transaction|'s [=transaction/active flag=].
 
-7. Unset |transaction|'s [=transaction/active flag=].
+7. [=Dispatch=] |event| at [=request=] with |legacyOutputDidListenersThrowFlag|.
 
-8. If an exception was propagated out from any event handler while
-    dispatching |event| in step 6,
+8. Unset |transaction|'s [=transaction/active flag=].
+
+9. If |legacyOutputDidListenersThrowFlag| is set,
     run the steps to [=abort a transaction=] with
     |transaction| and a newly <a for=exception>created</a>
     "{{AbortError}}" {{DOMException}} and terminate these steps. This is done even if the
@@ -5638,7 +5644,7 @@ the implementation must run the following steps:
       {{Event/preventDefault()}} is never called.
     </aside>
 
-9. If the event's [=canceled flag=] is not set, run the steps
+10. If the event's [=canceled flag=] is not set, run the steps
     to [=abort a transaction=] using |transaction| and
     [=request=]'s [=request/error=].
 
