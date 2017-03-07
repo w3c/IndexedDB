@@ -45,6 +45,7 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
         text: IsArray; url: sec-isarray
         text: String; url: sec-terms-and-definitions-string-type
         text: Number; url: sec-terms-and-definitions-number-type
+        text: RegExp; url: sec-regexp-regular-expression-objects
         text: Date; url: sec-date-objects
         text: Object; url: sec-object-objects
         text: TypeError; url: sec-native-error-types-used-in-this-standard-typeerror
@@ -6807,6 +6808,36 @@ the user's actions on the victim site.
 Thus, strictly following the <span>origin</span> model described in
 this specification is important for user security.
 
+<h3 id=persistence-risks>Persistence risks</h3>
+
+Practical implementations will persist data to a non-volatile storage
+medium. Data will be serialized when stored and deserialized when
+retrieved, although the details of the serialization format will be
+user-agent specific. User agents are likely to change their
+serialization format over time. For example, the format may be updated
+to handle new data types, or to improve performance. To satisfy the
+operational requirements of this specification, implementations must
+therefore handle older serialization formats in some way. Improper
+handling of older data can result in security issues. In addition to
+basic serialization concerns, serialized data could encode assumptions
+which are not valid in newer versions of the user agent.
+
+A practical example of this is the [=RegExp=] type. The <a
+abstract-op>StructuredClone</a> operation allows cloning [=RegExp=]
+objects. A typical user agent will compile a regular expression into
+native machine instructions, with assumptions about how the input data
+is passed and results returned. If this internal state was serialized
+as part of the data stored to the database, various problems could
+arise when the internal representation was later deserialized. For
+example, the means by which data was passed into the code could have
+changed. Security bugs in the compiler output could have been
+identified and fixed in updates to the user agent, but remain in the
+serialized internal state.
+
+User agents must identify and handle older data appropriately. One
+approach is to include version identifiers in the serialization
+format, and to reconstruct any internal state from script-visible
+state when older data is encountered.
 
 <!-- ============================================================ -->
 <h2 id=revision-history>Revision History</h2>
