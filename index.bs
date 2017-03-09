@@ -2235,7 +2235,7 @@ when invoked, must run these steps:
         1. If |result| is an error, set the [=request/error=]
             of |request| to |result| and [=fire an event=] named
             <code>error</code> at |request| with its
-            {{Event/bubbles}} attribute initialized to true.
+            {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
         2. Otherwise, set the [=request/result=] of |request|
             to |result| and [=fire an event=] named
@@ -2252,12 +2252,16 @@ when invoked, must run these steps:
               <code>versionchange</code> event.
             </aside>
 
-            <aside class=note>
-              The firing of "<code>success</code>" or "<code>error</code>"
-              events do not follow the normal steps to [=fire a success
-              event=] or [=fire an error event=] as there is no
-              active transaction at the time when they fire.
-            </aside>
+            <details class=note>
+              <summary>
+                Why aren't the steps to [=fire a success event=] or
+                [=fire an error event=] used?
+              </summary>
+              There is no transaction associated with the request (at
+              this point), so those steps &mdash; which activate an
+              associated transaction before dispatch and deactivate
+              the transaction after dispatch &mdash; do not apply.
+            </details>
 
 6. Return a new {{IDBOpenDBRequest}} object for |request|.
 
@@ -2286,19 +2290,28 @@ when invoked, must run these steps:
         1. If |result| is an error set the [=request/error=] of
             |request| to |result| and [=fire an event=]
             named <code>error</code> at |request| with
-            its {{Event/bubbles}} attribute initialized to true.
+            its {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
         2. Otherwise, set the [=request/result=] of |request|
             to undefined and [=fire a version change event=] named
             <code>success</code> at [=request=] with |result| and
             null.
 
-            <aside class=note>
-              The firing of "<code>success</code>" or "<code>error</code>"
-              events do not follow the normal steps to [=fire a success
-              event=] or [=fire an error event=] as there is no
-              active transaction at the time when they fire.
-            </aside>
+            <details class=note>
+              <summary>
+                Why aren't the steps to [=fire a success event=] or
+                [=fire an error event=] used?
+              </summary>
+              There is no transaction associated with the request, so
+              those steps &mdash; which activate an associated
+              transaction before dispatch and deactivate the
+              transaction after dispatch &mdash; do not apply.
+
+              Also, the <code>success</code> event here is a
+              {{IDBVersionChangeEvent}} which includes the
+              {{IDBVersionChangeEvent/oldVersion}} and
+              {{IDBVersionChangeEvent/newVersion}} details.
+            </details>
 
 5. Return a new {{IDBOpenDBRequest}} object for |request|.
 
@@ -2406,12 +2419,15 @@ The <dfn attribute for=IDBDatabase>version</dfn> attribute's getter
 must return this [=/connection=]'s
 [=connection/version=].
 
-<aside class=note>
+<details class=note>
+  <summary>
+    Is this the same as the [=/database=]'s [=database/version=]?
+  </summary>
   As long as the [=/connection=] is open, this is the same as the
-  connected [=database=]'s [=database/version=]. Once the
+  connected [=database=]'s [=database/version=]. But once the
   [=/connection=] has [=connection/closed=], this attribute will not
   reflect changes made with a later [=upgrade transaction=].
-</aside>
+</details>
 
 <div class=note>
   <dl class=domintro>
@@ -2447,12 +2463,16 @@ The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> attribute's
 getter must return a [=sorted list=] of the [=object-store/names=] of
 the [=/object stores=] in this [=/connection=]'s [=object store set=].
 
-<aside class=note>
+<details class=note>
+  <summary>
+    Is this the same as the [=database=]'s [=/object store=]
+    [=object-store/names=]?
+  </summary>
   As long as the [=/connection=] is open, this is the same as the
   connected [=database=]'s [=/object store=] [=object-store/names=].
-  Once the [=/connection=] has [=connection/closed=], this attribute
+  But once the [=/connection=] has [=connection/closed=], this attribute
   will not reflect changes made with a later [=upgrade transaction=].
-</aside>
+</details>
 
 
 <div class=algorithm>
@@ -2696,7 +2716,7 @@ interface IDBObjectStore {
   IDBIndex   createIndex(DOMString name,
                          (DOMString or sequence&lt;DOMString&gt;) keyPath,
                          optional IDBIndexParameters options);
-  void       deleteIndex(DOMString indexName);
+  void       deleteIndex(DOMString name);
 };
 
 dictionary IDBIndexParameters {
@@ -2743,13 +2763,16 @@ The <dfn attribute for=IDBObjectStore>name</dfn> attribute's getter
 must return this [=/object store handle=]'s
 [=object-store/name=].
 
-<aside class=note>
+<details class=note>
+  <summary>
+    Is this the same as the [=/object store=]'s [=object-store/name=]?
+  </summary>
   As long as the [=/transaction=] has not [=transaction/finished=],
   this is the same as the associated [=/object store=]'s
-  [=object-store/name=]. Once the [=/transaction=] has
+  [=object-store/name=]. But once the [=/transaction=] has
   [=transaction/finished=], this attribute will not reflect changes made with a
   later [=upgrade transaction=].
-</aside>
+</details>
 
 
 <div class=algorithm>
@@ -2816,13 +2839,17 @@ getter must return a [=sorted list=] of the [=index/names=]
 of [=/indexes=] in this [=/object store handle=]'s
 [=index set=].
 
-<aside class=note>
+<details class=note>
+  <summary>
+    Is this the same as [=/object store=]'s list
+    of [=/index=] [=index/names=]?
+  </summary>
   As long as the [=/transaction=] has not [=transaction/finished=],
   this is the same as the associated [=/object store=]'s list
-  of [=/index=] [=index/names=]. Once the
+  of [=/index=] [=index/names=]. But once the
   [=/transaction=] has [=transaction/finished=], this attribute will not
   reflect changes made with a later [=upgrade transaction=].
-</aside>
+</details>
 
 
 The <dfn attribute for=IDBObjectStore>transaction</dfn> attribute's
@@ -3803,13 +3830,16 @@ interface IDBIndex {
 The <dfn attribute for=IDBIndex>name</dfn> attribute's getter must
 return this [=index handle=]'s [=index/name=].
 
-<aside class=note>
+<details class=note>
+  <summary>
+    Is this the same as the [=/index=]'s [=index/name=]?
+  </summary>
   As long as the [=/transaction=] has not [=transaction/finished=],
   this is the same as the associated [=/index=]'s
-  [=index/name=]. Once the [=/transaction=] has
+  [=index/name=]. But once the [=/transaction=] has
   [=transaction/finished=], this attribute will not reflect changes made with a
   later [=upgrade transaction=].
-</aside>
+</details>
 
 
 <div class=algorithm>
@@ -7017,6 +7047,40 @@ document's Revision History</a>.
     <a href="https://github.com/w3c/IndexedDB/issues/77">bug #78</a>,
     <a href="https://github.com/w3c/IndexedDB/issues/77">bug #79</a>,
     <a href="https://github.com/w3c/IndexedDB/issues/77">bug #81</a>)
+
+* Ensure event firing is done in the context of queued tasks.
+    (<a href="https://github.com/w3c/IndexedDB/issues/83">bug #83</a>)
+
+* Define precedence for exceptions when multiple error conditions apply.
+    (<a href="https://github.com/w3c/IndexedDB/issues/11">bug #11</a>)
+
+* Remove <code>IDBEnvironment</code>; expose globals with
+    <code>partial interface</code> instead.
+    (<a href="https://github.com/w3c/IndexedDB/issues/94">bug #94</a>)
+
+* Clarify when {{IDBFactory/deleteDatabase()}} can fail.
+    (<a href="https://github.com/w3c/IndexedDB/issues/74">bug #74</a>)
+
+* Add non-normative documentation for every method.
+    (<a href="https://github.com/w3c/IndexedDB/issues/110">bug #110</a>)
+
+* Use [[HTML]]'s <a abstract-op>StructuredClone</a> hook.
+    (<a href="https://github.com/w3c/IndexedDB/issues/135">bug #135</a>)
+
+* Throw {{SecurityError}} if {{IDBFactory/open()}} or
+    {{IDBFactory/deleteDatabase()}} is called from an opaque origin.
+    (<a href="https://github.com/w3c/IndexedDB/issues/148">bug #148</a>)
+
+* Integrate with |legacyOutputDidListenersThrowFlag| hook in [[DOM]],
+    replacing monkey patching.
+    (<a href="https://github.com/w3c/IndexedDB/issues/140">bug #140</a>)
+
+* Define [=cleanup Indexed Database transactions=] hook for [[HTML]],
+    replacing monkey patching.
+    (<a href="https://github.com/w3c/IndexedDB/issues/87">bug #87</a>)
+
+* Fix handling of edge cases in key generation algorithm.
+    (<a href="https://github.com/w3c/IndexedDB/issues/147">bug #147</a>)
 
 
 <!-- ============================================================ -->
