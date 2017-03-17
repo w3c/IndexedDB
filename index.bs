@@ -361,7 +361,7 @@ from the database. Ideally the user will never see this.
 <h2 id=constructs>Constructs</h2>
 <!-- ============================================================ -->
 
-A <dfn>sorted list</dfn> is a {{DOMStringList}} containing strings
+A <dfn>sorted list</dfn> is a list containing strings
 sorted in ascending order by code unit.
 
 
@@ -755,17 +755,17 @@ of running the steps to [=compare two keys=] with |a| and |b| is 0.
 <h3 id=key-path-construct>Key Path</h3>
 <!-- ============================================================ -->
 
-A <dfn>key path</dfn> is a {{DOMString}} or
-[=sequence&lt;DOMString&gt;=] that defines how to extract a [=/key=]
+A <dfn>key path</dfn> is a string or list of strings
+that defines how to extract a [=/key=]
 from a [=/value=]. A <dfn>valid key path</dfn> is one of:
 
-* An empty {{DOMString}}.
-* An <dfn>identifier</dfn>, which is a {{DOMString}} matching the
+* An empty string.
+* An <dfn>identifier</dfn>, which is a string matching the
     [=IdentifierName=] production from the ECMAScript Language
     Specification [[!ECMA-262]].
-* A {{DOMString}} consisting of two or more [=identifiers=] separated
+* A string consisting of two or more [=identifiers=] separated
     by periods (ASCII character code 46, U+002E FULL STOP).
-* A non-empty [=sequence&lt;DOMString&gt;=] containing only strings
+* A non-empty list containing only strings
     conforming to the above requirements.
 
 <aside class=note>
@@ -2460,7 +2460,7 @@ must return this [=/connection=]'s
 </div>
 
 The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> attribute's
-getter must return a [=sorted list=] of the [=object-store/names=] of
+getter must return a {{DOMStringList}} associated with a [=sorted list=] of the [=object-store/names=] of
 the [=/object stores=] in this [=/connection=]'s [=object store set=].
 
 <details class=note>
@@ -2820,12 +2820,10 @@ The {{IDBObjectStore/name}} attribute's setter must run these steps:
 
 The <dfn attribute for=IDBObjectStore>keyPath</dfn> attribute's getter
 must return this [=/object store handle=]'s
-[=object-store-handle/object store=]'s [=object-store/key
-path=], or null if none.
-
-The conversion is done following the normal [[!WEBIDL]] binding logic
-for {{DOMString}} and [=sequence&lt;DOMString&gt;=] values, as
-appropriate.
+[=object-store-handle/object store=]'s [=object-store/key path=], or
+null if none. The [=/key path=] is converted as a {{DOMString}} (if a
+string) or a [=sequence&lt;DOMString&gt;=] (if a list of strings), per
+[[!WEBIDL]].
 
 The returned value is not the same instance that was used when the
 [=/object store=] was created. However, if this attribute returns
@@ -2835,7 +2833,7 @@ object has no effect on the [=/object store=].
 
 
 The <dfn attribute for=IDBObjectStore>indexNames</dfn> attribute's
-getter must return a [=sorted list=] of the [=index/names=]
+getter must return a {{DOMStringList}} associated with a [=sorted list=] of the [=index/names=]
 of [=/indexes=] in this [=/object store handle=]'s
 [=index set=].
 
@@ -3892,11 +3890,9 @@ store handle=].
 
 The <dfn attribute for=IDBIndex>keyPath</dfn> attribute's getter must
 return this [=index handle=]'s [=index-handle/index=]'s
-[=object-store/key path=].
-
-The conversion is done following the normal [[!WEBIDL]] binding logic
-for {{DOMString}} and [=sequence&lt;DOMString&gt;=] values, as
-appropriate.
+[=object-store/key path=]. The [=/key path=] is converted as a
+{{DOMString}} (if a string) or a [=sequence&lt;DOMString&gt;=] (if a
+list of strings), per [[!WEBIDL]].
 
 The returned value is not the same instance that was used when the
 [=/index=] was created. However, if this attribute returns an
@@ -5051,12 +5047,12 @@ The <dfn attribute for=IDBTransaction>objectStoreNames</dfn>
 attribute's getter must run the following steps:
 
 1. If this [=/transaction=] is an [=upgrade transaction=],
-    return a [=sorted list=] of the [=object-store/names=]
+    return a {{DOMStringList}} associated with a [=sorted list=] of the [=object-store/names=]
     of the [=/object stores=] in this
     [=/transaction=]'s [=/connection=]'s [=object store
     set=].
 
-2. Otherwise, return a [=sorted list=] of the
+2. Otherwise, return a {{DOMStringList}} associated with a [=sorted list=] of the
     [=object-store/names=] of the [=/object stores=] in
     this [=/transaction=]'s [=transaction/scope=].
 
@@ -6339,14 +6335,14 @@ The steps to <dfn>evaluate a key path on a value</dfn> with |value|
 and |keyPath| are as follows. The result of these steps is an
 ECMAScript value or failure, or the steps may throw an exception.
 
-1. If |keyPath| is a [=sequence&lt;DOMString&gt;=], run these substeps:
+1. If |keyPath| is a list of strings, run these substeps:
 
     1. Let |result| be a new [=Array=] object created as if by the
         expression <code>[]</code>.
 
     2. Let |i| be 0.
 
-    3. For each |item| in the |keyPath| sequence, run these substeps:
+    3. For each |item| in |keyPath|, run these substeps:
 
         1. Let |key| be the result of recursively running the steps to
             [=evaluate a key path on a value=] using
