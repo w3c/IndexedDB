@@ -1573,6 +1573,7 @@ persistent B-tree data structure.</p>
       <li><a href="#abort-upgrade-transaction"><span class="secno">5.8</span> <span class="content">Aborting an upgrade transaction</span></a>
       <li><a href="#fire-success-event"><span class="secno">5.9</span> <span class="content">Firing a success event</span></a>
       <li><a href="#fire-error-event"><span class="secno">5.10</span> <span class="content">Firing an error event</span></a>
+      <li><a href="#clone-value"><span class="secno">5.11</span> <span class="content">Clone a value</span></a>
      </ol>
     <li>
      <a href="#database-operations"><span class="secno">6</span> <span class="content">Database operations</span></a>
@@ -1973,10 +1974,11 @@ transaction</a> is running.</p>
    </div>
    <h3 class="heading settled" data-level="2.3" id="value-construct"><span class="secno">2.3. </span><span class="content">Values</span><a class="self-link" href="#value-construct"></a></h3>
    <p>Each record is associated with a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="value">value</dfn>. User agents must
-support any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#cloneable-objects">cloneable object</a>. This includes simple types
+support any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#serializable-objects">serializable object</a>. This includes simple types
 such as <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-terms-and-definitions-string-type">String</a> primitive values and <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-date-objects">Date</a> objects as well as <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-object-objects">Object</a> and <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> instances, <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-file">File</a></code> objects, <code class="idl"><a data-link-type="idl" href="https://w3c.github.io/FileAPI/#dfn-Blob">Blob</a></code> objects, <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/scripting.html#imagedata">ImageData</a></code> objects, and so on. Record <a data-link-type="dfn" href="#value" id="ref-for-value-3">values</a> are
 stored and retrieved by value rather than by reference; later changes
 to a value have no effect on the record stored in the database.</p>
+   <p>Record <a data-link-type="dfn" href="#value" id="ref-for-value-4">values</a> are <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">Records</a> output by the <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a> operation.</p>
    <h3 class="heading settled" data-level="2.4" id="key-construct"><span class="secno">2.4. </span><span class="content">Keys</span><a class="self-link" href="#key-construct"></a></h3>
    <p>In order to efficiently retrieve <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-2">records</a> stored in an indexed
 database, each <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-3">record</a> is organized according to its <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="key">key</dfn>.</p>
@@ -2164,7 +2166,7 @@ of running the steps to <a data-link-type="dfn" href="#compare-two-keys" id="ref
   [-128, 127]). </aside>
    <h3 class="heading settled" data-level="2.5" id="key-path-construct"><span class="secno">2.5. </span><span class="content">Key Path</span><a class="self-link" href="#key-path-construct"></a></h3>
    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="key-path">key path</dfn> is a string or list of strings
-that defines how to extract a <a data-link-type="dfn" href="#key" id="ref-for-key-21">key</a> from a <a data-link-type="dfn" href="#value" id="ref-for-value-4">value</a>. A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="valid-key-path">valid key path</dfn> is one of:</p>
+that defines how to extract a <a data-link-type="dfn" href="#key" id="ref-for-key-21">key</a> from a <a data-link-type="dfn" href="#value" id="ref-for-value-5">value</a>. A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="valid-key-path">valid key path</dfn> is one of:</p>
    <ul>
     <li data-md="">
      <p>An empty string.</p>
@@ -2180,7 +2182,7 @@ conforming to the above requirements.</p>
    </ul>
    <aside class="note"> Spaces are not allowed within a key path. </aside>
    <p><a data-link-type="dfn" href="#key-path" id="ref-for-key-path-1">Key path</a> values can only be accessed from properties explicitly
-copied by <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>, as well as the
+copied by <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a>, as well as the
 following type-specific properties:</p>
    <table class="props">
     <tbody>
@@ -2201,7 +2203,7 @@ following type-specific properties:</p>
       <td><code>length</code>
    </table>
    <h3 class="heading settled" data-level="2.6" id="index-construct"><span class="secno">2.6. </span><span class="content">Index</span><a class="self-link" href="#index-construct"></a></h3>
-   <p>It is sometimes useful to retrieve <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-4">records</a> in an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-13">object store</a> through other means than their <a data-link-type="dfn" href="#key" id="ref-for-key-22">key</a>. An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="index-concept">index</dfn> allows looking up <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-5">records</a> in an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-14">object store</a> using properties of the <a data-link-type="dfn" href="#value" id="ref-for-value-5">values</a> in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-15">object stores</a> <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-6">records</a>.</p>
+   <p>It is sometimes useful to retrieve <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-4">records</a> in an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-13">object store</a> through other means than their <a data-link-type="dfn" href="#key" id="ref-for-key-22">key</a>. An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="index-concept">index</dfn> allows looking up <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-5">records</a> in an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-14">object store</a> using properties of the <a data-link-type="dfn" href="#value" id="ref-for-value-6">values</a> in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-15">object stores</a> <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-6">records</a>.</p>
    <div>
     <p>An index is a specialized persistent key-value storage and has a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-lt="referenced|references" data-noexport="" id="index-referenced">referenced</dfn> <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-16">object store</a>. The
 index has a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport="" id="index-list-of-records">list of records</dfn> which hold the data stored in
@@ -2211,7 +2213,7 @@ updated or deleted. There can be several <a data-link-type="dfn" href="#index-co
 same <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-17">object store</a>, in which changes to the object store cause all
 such indexes to get updated.</p>
     <p>The <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport="" id="index-values">values</dfn> in the index’s <a data-link-type="dfn" href="#index-records" id="ref-for-index-records-1">records</a> are always values of <a data-link-type="dfn" href="#key" id="ref-for-key-23">keys</a> in the index’s <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced-2">referenced</a> object store. The <dfn data-dfn-for="index" data-dfn-type="dfn" data-noexport="" id="index-keys">keys<a class="self-link" href="#index-keys"></a></dfn> are derived from
-the referenced object store’s <a data-link-type="dfn" href="#value" id="ref-for-value-6">values</a> using a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport="" id="index-key-path">key path</dfn>.
+the referenced object store’s <a data-link-type="dfn" href="#value" id="ref-for-value-7">values</a> using a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport="" id="index-key-path">key path</dfn>.
 If a given <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-7">record</a> with key <var>X</var> in the object store referenced by
 the index has the value <var>A</var>, and <a data-link-type="dfn" href="#extract-a-key-from-a-value-using-a-key-path" id="ref-for-extract-a-key-from-a-value-using-a-key-path-1">evaluating</a> the index’s <a data-link-type="dfn" href="#index-key-path" id="ref-for-index-key-path-1">key path</a> on <var>A</var> yields the result <var>Y</var>, then the index will contain a record
 with key <var>Y</var> and value <var>X</var>.</p>
@@ -2626,11 +2628,11 @@ and it returns the record with the highest <a data-link-type="dfn" href="#key" i
 than</a> the one previously returned.</p>
     <p>For cursors iterating indexes the situation is a little bit more
 complicated since multiple records can have the same key and are
-therefore also sorted by <a data-link-type="dfn" href="#value" id="ref-for-value-7">value</a>. When iterating indexes the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-12">cursor</a> also has an <dfn class="dfn-paneled" data-dfn-for="cursor" data-dfn-type="dfn" data-noexport="" id="cursor-object-store-position">object store position</dfn>, which
-indicates the <a data-link-type="dfn" href="#value" id="ref-for-value-8">value</a> of the previously found <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-16">record</a> in
+therefore also sorted by <a data-link-type="dfn" href="#value" id="ref-for-value-8">value</a>. When iterating indexes the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-12">cursor</a> also has an <dfn class="dfn-paneled" data-dfn-for="cursor" data-dfn-type="dfn" data-noexport="" id="cursor-object-store-position">object store position</dfn>, which
+indicates the <a data-link-type="dfn" href="#value" id="ref-for-value-9">value</a> of the previously found <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-16">record</a> in
 the index. Both <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position-2">position</a> and the <a data-link-type="dfn" href="#cursor-object-store-position" id="ref-for-cursor-object-store-position-1">object store position</a> are used when finding the next appropriate record.</p>
     <p>A <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-13">cursor</a> has a <dfn class="dfn-paneled" data-dfn-for="cursor" data-dfn-type="dfn" data-noexport="" id="cursor-key">key</dfn> and a <dfn class="dfn-paneled" data-dfn-for="cursor" data-dfn-type="dfn" data-noexport="" id="cursor-value">value</dfn> which
-represent the <a data-link-type="dfn" href="#key" id="ref-for-key-36">key</a> and the <a data-link-type="dfn" href="#value" id="ref-for-value-9">value</a> of the last iterated <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-17">record</a>.</p>
+represent the <a data-link-type="dfn" href="#key" id="ref-for-key-36">key</a> and the <a data-link-type="dfn" href="#value" id="ref-for-value-10">value</a> of the last iterated <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-17">record</a>.</p>
     <p>A <a data-link-type="dfn" href="#cursor" id="ref-for-cursor-14">cursor</a> has a <dfn class="dfn-paneled" data-dfn-for="cursor" data-dfn-type="dfn" data-noexport="" id="cursor-got-value-flag">got value flag</dfn>. When this flag unset,
 the cursor is either in the process of loading the next value or it
 has reached the end of its <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-2">range</a>. When it is set, it indicates
@@ -3636,8 +3638,15 @@ value to a key</a> with <var>key</var>. Rethrow any exceptions.</p>
      <li data-md="">
       <p>Let <var>targetRealm</var> be a user-agent defined <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#realm">Realm</a>.</p>
      <li data-md="">
-      <p>Let <var>clone</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).
+      <p>Let <var>clone</var> be a <a data-link-type="dfn" href="#clone" id="ref-for-clone-1">clone</a> of <var>value</var> in <var>targetRealm</var>.
 Rethrow any exceptions.</p>
+      <details class="note">
+       <summary>Why create a copy of the value?</summary>
+        The value must be serialized when stored. Treating it as a copy
+  here allows other algorithms in this specification to treat it as
+  an ECMAScript value, but implementations may optimize this
+  if the difference in behavior is not observable. 
+      </details>
      <li data-md="">
       <p>If <var>store</var> uses <a data-link-type="dfn" href="#object-store-in-line-keys" id="ref-for-object-store-in-line-keys-4">in-line keys</a>, run these substeps:</p>
       <ol>
@@ -3703,8 +3712,15 @@ value to a key</a> with <var>key</var>. Rethrow any exceptions.</p>
      <li data-md="">
       <p>Let <var>targetRealm</var> be a user-agent defined <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#realm">Realm</a>.</p>
      <li data-md="">
-      <p>Let <var>clone</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).
+      <p>Let <var>clone</var> be a <a data-link-type="dfn" href="#clone" id="ref-for-clone-2">clone</a> of <var>value</var> in <var>targetRealm</var>.
 Rethrow any exceptions.</p>
+      <details class="note">
+       <summary>Why create a copy of the value?</summary>
+        The value must be serialized when stored. Treating it as a copy
+  here allows other algorithms in this specification to treat it as
+  an ECMAScript value, but implementations may optimize this
+  if the difference in behavior is not observable. 
+      </details>
      <li data-md="">
       <p>If <var>store</var> uses <a data-link-type="dfn" href="#object-store-in-line-keys" id="ref-for-object-store-in-line-keys-6">in-line keys</a>, run these substeps:</p>
       <ol>
@@ -3791,9 +3807,9 @@ the steps to <a data-link-type="dfn" href="#clear-an-object-store" id="ref-for-c
      <dl class="domintro">
       <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-get" id="ref-for-dom-idbobjectstore-get-2">get</a></code>(<var>query</var>) 
       <dd>
-        Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-10">value</a> of the first <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-32">record</a> matching the
+        Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-11">value</a> of the first <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-32">record</a> matching the
        given <a data-link-type="dfn" href="#key" id="ref-for-key-51">key</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range-21">key range</a> in <var>query</var>. 
-       <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-9">result</a></code> will be the <a data-link-type="dfn" href="#value" id="ref-for-value-11">value</a>, or <code>undefined</code> if there was no matching <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-33">record</a>.</p>
+       <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-9">result</a></code> will be the <a data-link-type="dfn" href="#value" id="ref-for-value-12">value</a>, or <code>undefined</code> if there was no matching <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-33">record</a>.</p>
       <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-getkey" id="ref-for-dom-idbobjectstore-getkey-2">getKey</a></code>(<var>query</var>) 
       <dd>
         Retrieves the <a data-link-type="dfn" href="#key" id="ref-for-key-52">key</a> of the first <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-34">record</a> matching the
@@ -3801,10 +3817,10 @@ the steps to <a data-link-type="dfn" href="#clear-an-object-store" id="ref-for-c
        <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-10">result</a></code> will be the <a data-link-type="dfn" href="#key" id="ref-for-key-54">key</a>, or <code>undefined</code> if there was no matching <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-35">record</a>.</p>
       <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-getall" id="ref-for-dom-idbobjectstore-getall-2">getAll</a></code>(<var>query</var> [, <var>count</var>]) 
       <dd>
-        Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-12">values</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-36">records</a> matching the
+        Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-13">values</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-36">records</a> matching the
        given <a data-link-type="dfn" href="#key" id="ref-for-key-55">key</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range-23">key range</a> in <var>query</var> (up to <var>count</var> if given). 
        <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-11">result</a></code> will
-       be an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> of the <a data-link-type="dfn" href="#value" id="ref-for-value-13">values</a>.</p>
+       be an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> of the <a data-link-type="dfn" href="#value" id="ref-for-value-14">values</a>.</p>
       <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-getallkeys" id="ref-for-dom-idbobjectstore-getallkeys-2">getAllKeys</a></code>(<var>query</var> [, <var>count</var>]) 
       <dd>
         Retrieves the <a data-link-type="dfn" href="#key" id="ref-for-key-56">keys</a> of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-37">records</a> matching the
@@ -4305,9 +4321,9 @@ otherwise.</p>
     <dl class="domintro">
      <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbindex-get" id="ref-for-dom-idbindex-get-2">get</a></code>(<var>query</var>) 
      <dd>
-       Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-14">value</a> of the first <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-52">record</a> matching the
+       Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-15">value</a> of the first <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-52">record</a> matching the
        given <a data-link-type="dfn" href="#key" id="ref-for-key-67">key</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range-26">key range</a> in <var>query</var>. 
-      <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-16">result</a></code> will be the <a data-link-type="dfn" href="#value" id="ref-for-value-15">value</a>, or <code>undefined</code> if there was no matching <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-53">record</a>.</p>
+      <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-16">result</a></code> will be the <a data-link-type="dfn" href="#value" id="ref-for-value-16">value</a>, or <code>undefined</code> if there was no matching <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-53">record</a>.</p>
      <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbindex-getkey" id="ref-for-dom-idbindex-getkey-2">getKey</a></code>(<var>query</var>) 
      <dd>
        Retrieves the <a data-link-type="dfn" href="#key" id="ref-for-key-68">key</a> of the first <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-54">record</a> matching the
@@ -4315,8 +4331,8 @@ otherwise.</p>
       <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-17">result</a></code> will be the <a data-link-type="dfn" href="#key" id="ref-for-key-70">key</a>, or <code>undefined</code> if there was no matching <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-55">record</a>.</p>
      <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbindex-getall" id="ref-for-dom-idbindex-getall-2">getAll</a></code>(<var>query</var> [, <var>count</var>]) 
      <dd>
-       Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-16">values</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-56">records</a> matching the given <a data-link-type="dfn" href="#key" id="ref-for-key-71">key</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range-28">key range</a> in <var>query</var> (up to <var>count</var> if given). 
-      <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-18">result</a></code> will be an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> of the <a data-link-type="dfn" href="#value" id="ref-for-value-17">values</a>.</p>
+       Retrieves the <a data-link-type="dfn" href="#value" id="ref-for-value-17">values</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-56">records</a> matching the given <a data-link-type="dfn" href="#key" id="ref-for-key-71">key</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range-28">key range</a> in <var>query</var> (up to <var>count</var> if given). 
+      <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result-18">result</a></code> will be an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects">Array</a> of the <a data-link-type="dfn" href="#value" id="ref-for-value-18">values</a>.</p>
      <dt> <var>request</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbindex-getallkeys" id="ref-for-dom-idbindex-getallkeys-2">getAllKeys</a></code>(<var>query</var> [, <var>count</var>]) 
      <dd>
        Retrieves the <a data-link-type="dfn" href="#key" id="ref-for-key-72">keys</a> of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-57">records</a> matching the given <a data-link-type="dfn" href="#key" id="ref-for-key-73">key</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range-29">key range</a> in <var>query</var> (up to <var>count</var> if given). 
@@ -4953,8 +4969,15 @@ the cursor is being iterated or has iterated past its end, <a data-link-type="df
      <li data-md="">
       <p>Let <var>targetRealm</var> be a user-agent defined <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#realm">Realm</a>.</p>
      <li data-md="">
-      <p>Let <var>clone</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).
+      <p>Let <var>clone</var> be a <a data-link-type="dfn" href="#clone" id="ref-for-clone-3">clone</a> of <var>value</var> in <var>targetRealm</var>.
 Rethrow any exceptions.</p>
+      <details class="note">
+       <summary>Why create a copy of the value?</summary>
+        The value must be serialized when stored. Treating it as a copy
+  here allows other algorithms in this specification to treat it as
+  an ECMAScript value, but implementations may optimize this
+  if the difference in behavior is not observable. 
+      </details>
      <li data-md="">
       <p>If the <a data-link-type="dfn" href="#cursor-effective-object-store" id="ref-for-cursor-effective-object-store-7">effective object store</a> of this cursor uses <a data-link-type="dfn" href="#object-store-in-line-keys" id="ref-for-object-store-in-line-keys-8">in-line
 keys</a>, run these substeps:</p>
@@ -5581,13 +5604,26 @@ event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-fl
 to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction-14">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request-38">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error-11">error</a>.</p>
     </ol>
    </div>
+   <h3 class="heading settled" data-level="5.11" id="clone-value"><span class="secno">5.11. </span><span class="content">Clone a value</span><a class="self-link" href="#clone-value"></a></h3>
+   <div class="algorithm">
+    <p>To make a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="clone">clone</dfn> of <var>value</var> in <var>targetRealm</var>,
+  the implementation must run the following steps:</p>
+    <ol>
+     <li data-md="">
+      <p>Let <var>serialized</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">?</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a>(<var>value</var>).</p>
+     <li data-md="">
+      <p>Let <var>clone</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">?</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>(<var>serialized</var>, <var>targetRealm</var>).</p>
+     <li data-md="">
+      <p>Return <var>clone</var>.</p>
+    </ol>
+   </div>
    <h2 class="heading settled" data-level="6" id="database-operations"><span class="secno">6. </span><span class="content">Database operations</span><a class="self-link" href="#database-operations"></a></h2>
    <p>This section describes various operations done on the data in <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-105">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-47">indexes</a> in a <a data-link-type="dfn" href="#database" id="ref-for-database-71">database</a>.
 These operations are run by the steps to <a data-link-type="dfn" href="#asynchronously-execute-a-request" id="ref-for-asynchronously-execute-a-request-26">asynchronously execute
 a request</a>.</p>
-   <aside class="note"> Invocations of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>() in the operation steps below
-  can be asserted not to throw (as indicated by the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> prefix)
-  because they operate only on previously cloned data. </aside>
+   <aside class="note"> Invocations of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>() in the operation
+  steps below can be asserted not to throw (as indicated by the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> prefix)
+  because they operate only on previous output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a>(). </aside>
    <h3 class="heading settled" data-level="6.1" id="object-store-storage-operation"><span class="secno">6.1. </span><span class="content">Object Store Storage Operation</span><a class="self-link" href="#object-store-storage-operation"></a></h3>
    <div class="algorithm">
     <p>The steps to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="store-a-record-into-an-object-store">store a record into an object store</dfn> with <var>store</var>, <var>value</var>, an optional <var>key</var>, and a <var>no-overwrite flag</var> are as
@@ -5622,7 +5658,8 @@ Abort this algorithm without taking any further steps.</p>
 to</a> <var>key</var>, then remove the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-80">record</a> from <var>store</var> using the
 steps to <a data-link-type="dfn" href="#delete-records-from-an-object-store" id="ref-for-delete-records-from-an-object-store-3">delete records from an object store</a>.</p>
      <li data-md="">
-      <p>Store a record in <var>store</var> containing <var>key</var> as its key and <var>value</var> as its value. The record is stored in the object store’s <a data-link-type="dfn" href="#object-store-list-of-records" id="ref-for-object-store-list-of-records-1">list of records</a> such that the list is sorted
+      <p>Store a record in <var>store</var> containing <var>key</var> as its key and <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a>(<var>value</var>)
+as its value. The record is stored in the object store’s <a data-link-type="dfn" href="#object-store-list-of-records" id="ref-for-object-store-list-of-records-1">list of records</a> such that the list is sorted
 according to the key of the records in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than-9">ascending</a> order.</p>
      <li data-md="">
       <p>For each <var>index</var> which <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced-9">reference</a> <var>store</var>, run these substeps:</p>
@@ -5676,9 +5713,9 @@ any.</p>
      <li data-md="">
       <p>If <var>record</var> was not found, return undefined.</p>
      <li data-md="">
-      <p>Let <var>value</var> be of <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-18">value</a>.</p>
+      <p>Let <var>serialized</var> be of <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-19">value</a>.</p>
      <li data-md="">
-      <p>Return <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
+      <p>Return <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>(<var>serialized</var>, <var>targetRealm</var>).</p>
     </ol>
    </div>
    <div class="algorithm">
@@ -5695,9 +5732,9 @@ store</dfn> with <var>targetRealm</var>, <var>store</var>, <var>range</var> and 
       <p>For each <var>record</var> in <var>records</var>, run these substeps:</p>
       <ol>
        <li data-md="">
-        <p>Let <var>value</var> be <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-19">value</a>.</p>
+        <p>Let <var>serialized</var> be <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-20">value</a>.</p>
        <li data-md="">
-        <p>Let <var>entry</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
+        <p>Let <var>entry</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>(<var>serialized</var>, <var>targetRealm</var>).</p>
        <li data-md="">
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
@@ -5750,9 +5787,9 @@ records</a> whose key is <a data-link-type="dfn" href="#in" id="ref-for-in-7">in
      <li data-md="">
       <p>If <var>record</var> was not found, return undefined.</p>
      <li data-md="">
-      <p>Let <var>value</var> be <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-3">referenced value</a>.</p>
+      <p>Let <var>serialized</var> be <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-3">referenced value</a>.</p>
      <li data-md="">
-      <p>Return <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
+      <p>Return <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>(<var>serialized</var>, <var>targetRealm</var>).</p>
     </ol>
    </div>
    <div class="algorithm">
@@ -5769,9 +5806,9 @@ index</dfn> with <var>targetRealm</var>, <var>index</var>, <var>range</var> and 
       <p>For each <var>record</var> in <var>records</var>, run these substeps:</p>
       <ol>
        <li data-md="">
-        <p>Let <var>value</var> be <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-4">referenced value</a>.</p>
+        <p>Let <var>serialized</var> be <var>record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-4">referenced value</a>.</p>
        <li data-md="">
-        <p>Let <var>entry</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>).</p>
+        <p>Let <var>entry</var> be <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>(<var>serialized</var>, <var>targetRealm</var>).</p>
        <li data-md="">
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
@@ -5790,7 +5827,7 @@ records</a> whose key is <a data-link-type="dfn" href="#in" id="ref-for-in-9">in
       <p>If <var>record</var> was not found, return undefined.</p>
      <li data-md="">
       <p>Return the of running the steps to <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value-7">convert a
-    key to a value</a> with <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-20">value</a>.</p>
+    key to a value</a> with <var>record</var>’s <a data-link-type="dfn" href="#value" id="ref-for-value-21">value</a>.</p>
     </ol>
    </div>
    <div class="algorithm">
@@ -5865,7 +5902,7 @@ follows.</p>
      <li data-md="">
       <p>Let <var>records</var> be the list of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-92">records</a> in <var>source</var>.</p>
       <aside class="note"> <var>records</var> is always sorted in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than-12">ascending</a> <a data-link-type="dfn" href="#key" id="ref-for-key-87">key</a> order.
-  In the case of <var>source</var> being an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-50">index</a>, <var>records</var> is secondarily sorted in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than-13">ascending</a> <a data-link-type="dfn" href="#value" id="ref-for-value-21">value</a> order
+  In the case of <var>source</var> being an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-50">index</a>, <var>records</var> is secondarily sorted in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than-13">ascending</a> <a data-link-type="dfn" href="#value" id="ref-for-value-22">value</a> order
   (where the value in an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept-51">index</a> is the <a data-link-type="dfn" href="#key" id="ref-for-key-88">key</a> of the <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record-93">record</a> in the referenced <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-106">object store</a>). </aside>
      <li data-md="">
       <p>Let <var>range</var> be <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range-11">range</a>.</p>
@@ -5983,9 +6020,9 @@ store position</a> to <var>object store position</var>.</p>
       <p>If <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-key-only-flag" id="ref-for-cursor-key-only-flag-9">key only flag</a> is unset, run these substeps:</p>
       <ol>
        <li data-md="">
-        <p>Let <var>value</var> be <var>found record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-5">referenced value</a>.</p>
+        <p>Let <var>serialized</var> be <var>found record</var>’s <a data-link-type="dfn" href="#index-referenced-value" id="ref-for-index-referenced-value-5">referenced value</a>.</p>
        <li data-md="">
-        <p>Set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value-10">value</a> to <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>(<var>value</var>, <var>targetRealm</var>)</p>
+        <p>Set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value-10">value</a> to <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-algorithm-conventions">!</a> <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>(<var>serialized</var>, <var>targetRealm</var>)</p>
       </ol>
      <li data-md="">
       <p>Set <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag-16">got value flag</a>.</p>
@@ -6103,7 +6140,7 @@ remaining steps.</p>
     </ol>
    </div>
    <aside class="note"> Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a> and only access "own" properties. </aside>
+  only applied to values that are the output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a> and only access "own" properties. </aside>
    <h3 class="heading settled" data-level="7.2" id="inject-key-into-value"><span class="secno">7.2. </span><span class="content">Inject a key into a value</span><a class="self-link" href="#inject-key-into-value"></a></h3>
    <aside class="note"> The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path-7">key paths</a> used in this section are always strings and never
   sequences, since it is not possible to create a <a data-link-type="dfn" href="#object-store" id="ref-for-object-store-109">object store</a> which has a <a data-link-type="dfn" href="#key-generator" id="ref-for-key-generator-22">key generator</a> and also has a <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path-21">key path</a> that is a
@@ -6138,7 +6175,7 @@ substeps:</p>
      </ol>
     </div>
     <aside class="note"> Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>. </aside>
+  only applied to values that are the output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>. </aside>
     <div class="algorithm">
      <p>The steps to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="inject-a-key-into-a-value-using-a-key-path">inject a key into a value using a key path</dfn> are
 as follows. The algorithm takes a <var>value</var>, a <var>key</var> and a <var>keyPath</var>.</p>
@@ -6184,7 +6221,7 @@ key to a value</a> with <var>key</var>.</p>
      </ol>
     </div>
     <aside class="note"> Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>,
+  only applied to values that are the output of <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>,
   and the steps to <a data-link-type="dfn" href="#check-that-a-key-could-be-injected-into-a-value" id="ref-for-check-that-a-key-could-be-injected-into-a-value-3">check that a key could be injected into a value</a> have
   been run. </aside>
     <h3 class="heading settled" data-level="7.3" id="convert-key-to-value"><span class="secno">7.3. </span><span class="content">Convert a key to a value</span><a class="self-link" href="#convert-key-to-value"></a></h3>
@@ -6534,7 +6571,7 @@ therefore handle older serialization formats in some way. Improper
 handling of older data can result in security issues. In addition to
 basic serialization concerns, serialized data could encode assumptions
 which are not valid in newer versions of the user agent.</p>
-    <p>A practical example of this is the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">RegExp</a> type. The <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a> operation allows cloning <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">RegExp</a> objects. A typical user agent will compile a regular expression into
+    <p>A practical example of this is the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">RegExp</a> type. The <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a> operation allows serializing <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">RegExp</a> objects. A typical user agent will compile a regular expression into
 native machine instructions, with assumptions about how the input data
 is passed and results returned. If this internal state was serialized
 as part of the data stored to the database, various problems could
@@ -6621,9 +6658,6 @@ and define abstract types such as <a data-link-type="dfn" href="#key" id="ref-fo
       <p>Add non-normative documentation for every method.
 (<a href="https://github.com/w3c/IndexedDB/issues/110">bug #110</a>)</p>
      <li data-md="">
-      <p>Use <a data-link-type="biblio" href="#biblio-html">[HTML]</a>'s <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a> hook.
-(<a href="https://github.com/w3c/IndexedDB/issues/135">bug #135</a>)</p>
-     <li data-md="">
       <p>Throw <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#securityerror">SecurityError</a></code> if <code class="idl"><a data-link-type="idl" href="#dom-idbfactory-open" id="ref-for-dom-idbfactory-open-5">open()</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbfactory-deletedatabase" id="ref-for-dom-idbfactory-deletedatabase-4">deleteDatabase()</a></code> is called from an opaque origin.
 (<a href="https://github.com/w3c/IndexedDB/issues/148">bug #148</a>)</p>
      <li data-md="">
@@ -6637,6 +6671,9 @@ replacing monkey patching.
      <li data-md="">
       <p>Fix handling of edge cases in key generation algorithm.
 (<a href="https://github.com/w3c/IndexedDB/issues/147">bug #147</a>)</p>
+     <li data-md="">
+      <p>Use <a data-link-type="biblio" href="#biblio-html">[HTML]</a>'s <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a> and <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a> hooks.
+(<a href="https://github.com/w3c/IndexedDB/issues/170">bug #170</a>)</p>
     </ul>
     <h2 class="heading settled" data-level="11" id="acknowledgements"><span class="secno">11. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
     <p>Special thanks to Nikunj Mehta, the original author of the first
@@ -6759,6 +6796,7 @@ specification.</p>
    <li><a href="#cleanup-indexed-database-transactions">cleanup Indexed Database transactions</a><span>, in §2.7</span>
    <li><a href="#dom-idbobjectstore-clear">clear()</a><span>, in §4.5</span>
    <li><a href="#clear-an-object-store">clear an object store</a><span>, in §6.6</span>
+   <li><a href="#clone">clone</a><span>, in §5.11</span>
    <li><a href="#dom-idbdatabase-close">close()</a><span>, in §4.4</span>
    <li><a href="#close-a-database-connection">close a database connection</a><span>, in §5.2</span>
    <li><a href="#connection-closed">closed</a><span>, in §2.1.1</span>
@@ -7243,6 +7281,7 @@ specification.</p>
      <li><a href="https://tc39.github.io/ecma262/#sec-terms-and-definitions-number-type">number</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-object-objects">object</a>
      <li><a href="https://tc39.github.io/ecma262/#realm">realm</a>
+     <li><a href="https://tc39.github.io/ecma262/#sec-list-and-record-specification-type">record</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-regexp-regular-expression-objects">regexp</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">returnifabrupt</a>
      <li><a href="https://tc39.github.io/ecma262/#sec-terms-and-definitions-string-type">string</a>
@@ -7269,16 +7308,17 @@ specification.</p>
      <li><a href="https://html.spec.whatwg.org/multipage/dom.html#document">Document</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a>
      <li><a href="https://html.spec.whatwg.org/multipage/scripting.html#imagedata">ImageData</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclone">StructuredClone</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserialize">StructuredDeserialize</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserialize">StructuredSerialize</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope">WindowOrWorkerGlobalScope</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#cloneable-objects">cloneable objects</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#dom-document-domain">domain</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">event handler idl attribute</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque">opaque origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin">origin</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#serializable-objects">serializable objects</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a>
     </ul>
    <li>
@@ -7823,15 +7863,15 @@ specification.</p>
    <b><a href="#value">#value</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-value-1">2.2. Object Store</a> <a href="#ref-for-value-2">(2)</a>
-    <li><a href="#ref-for-value-3">2.3. Values</a>
-    <li><a href="#ref-for-value-4">2.5. Key Path</a>
-    <li><a href="#ref-for-value-5">2.6. Index</a> <a href="#ref-for-value-6">(2)</a>
-    <li><a href="#ref-for-value-7">2.10. Cursor</a> <a href="#ref-for-value-8">(2)</a> <a href="#ref-for-value-9">(3)</a>
-    <li><a href="#ref-for-value-10">4.5. The IDBObjectStore interface</a> <a href="#ref-for-value-11">(2)</a> <a href="#ref-for-value-12">(3)</a> <a href="#ref-for-value-13">(4)</a>
-    <li><a href="#ref-for-value-14">4.6. The IDBIndex interface</a> <a href="#ref-for-value-15">(2)</a> <a href="#ref-for-value-16">(3)</a> <a href="#ref-for-value-17">(4)</a>
-    <li><a href="#ref-for-value-18">6.2. Object Store Retrieval Operations</a> <a href="#ref-for-value-19">(2)</a>
-    <li><a href="#ref-for-value-20">6.3. Index Retrieval Operations</a>
-    <li><a href="#ref-for-value-21">6.7. Cursor Iteration Operation</a>
+    <li><a href="#ref-for-value-3">2.3. Values</a> <a href="#ref-for-value-4">(2)</a>
+    <li><a href="#ref-for-value-5">2.5. Key Path</a>
+    <li><a href="#ref-for-value-6">2.6. Index</a> <a href="#ref-for-value-7">(2)</a>
+    <li><a href="#ref-for-value-8">2.10. Cursor</a> <a href="#ref-for-value-9">(2)</a> <a href="#ref-for-value-10">(3)</a>
+    <li><a href="#ref-for-value-11">4.5. The IDBObjectStore interface</a> <a href="#ref-for-value-12">(2)</a> <a href="#ref-for-value-13">(3)</a> <a href="#ref-for-value-14">(4)</a>
+    <li><a href="#ref-for-value-15">4.6. The IDBIndex interface</a> <a href="#ref-for-value-16">(2)</a> <a href="#ref-for-value-17">(3)</a> <a href="#ref-for-value-18">(4)</a>
+    <li><a href="#ref-for-value-19">6.2. Object Store Retrieval Operations</a> <a href="#ref-for-value-20">(2)</a>
+    <li><a href="#ref-for-value-21">6.3. Index Retrieval Operations</a>
+    <li><a href="#ref-for-value-22">6.7. Cursor Iteration Operation</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="key">
@@ -9486,6 +9526,13 @@ specification.</p>
    <ul>
     <li><a href="#ref-for-fire-an-error-event-1">4.3. The IDBFactory interface</a> <a href="#ref-for-fire-an-error-event-2">(2)</a>
     <li><a href="#ref-for-fire-an-error-event-3">5.6. Asynchronously executing a request</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="clone">
+   <b><a href="#clone">#clone</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-clone-1">4.5. The IDBObjectStore interface</a> <a href="#ref-for-clone-2">(2)</a>
+    <li><a href="#ref-for-clone-3">4.8. The IDBCursor interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="store-a-record-into-an-object-store">
