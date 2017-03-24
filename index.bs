@@ -369,6 +369,23 @@ from the database. Ideally the user will never see this.
 A <dfn>sorted list</dfn> is a list containing strings
 sorted in ascending order by code unit.
 
+A <dfn>name</dfn> is a string equivalent to a {{DOMString}};
+that is, an arbitrary sequence of 16-bit code units of any length,
+including the empty string. [=/Names=] are always compared as
+opaque sequences of 16-bit code units.
+
+<aside class=note>
+  As a result, [=/name=] comparison is sensitive to variations in case
+  as well as other minor variations such as normalization form, the
+  inclusion or omission of controls, and other variations in Unicode
+  text. [[Charmod-Norm]]
+
+  If an implementation uses a storage mechanism which does not support
+  arbitrary strings, the implementation must use an escaping mechanism
+  or something similar to map the provided name to a string that it
+  can store.
+</aside>
+
 
 <!-- ============================================================ -->
 <h3 id=database-construct>Database</h3>
@@ -381,18 +398,8 @@ hold the data stored in the database.
 <div dfn-for=database>
 
 A [=database=] has a <dfn>name</dfn> which identifies it within a
-specific [=/origin=]. The name can be any string value, including
-the empty string, and stays constant for the lifetime of the database.
-Database names are always compared in a case-sensitive manner, as
-opaque sequences of 16-bit code units. Implementations must support
-all names.
-
-<aside class=note>
-  If an implementation uses a storage mechanism which can't handle
-  arbitrary database names, the implementation must use an escaping
-  mechanism or something similar to map the provided name to a name
-  that it can handle.
-</aside>
+specific [=/origin=]. The name is a [=/name=],
+and stays constant for the lifetime of the database.
 
 A [=database=] has a <dfn>version</dfn>. When a database is first
 created, its [=database/version=] is 0 (zero).
@@ -500,11 +507,9 @@ data stored in the object store. Each <dfn>record</dfn> consists of a
 [=ascending=] order. There can never be multiple records in a given object
 store with the same key.
 
-An [=/object store=] has a <dfn>name</dfn>. The name can be any string
-value, including the empty string. At any one time, the name is unique
-within the [=database=] to which it belongs. Object store names are
-always compared in a case-sensitive manner, as opaque sequences of
-16-bit code units.
+An [=/object store=] has a <dfn>name</dfn>, which is a [=/name=].
+At any one time, the name is unique
+within the [=database=] to which it belongs.
 
 An [=/object store=] optionally has a <dfn>key path</dfn>. If the
 object store has a key path it is said to use <dfn>in-line keys</dfn>.
@@ -855,11 +860,9 @@ contain multiple records with the same key. Such records are
 additionally sorted according to the [=/index=]'s [=object-store/record=]'s value
 (meaning the key of the record in the referenced [=/object store=]).
 
-An [=/index=] has a <dfn>name</dfn>. The name can be any
-string value, including the empty string. At any one time, the name is
+An [=/index=] has a <dfn>name</dfn>, which is a [=/name=].
+At any one time, the name is
 unique within index's [=referenced=] [=/object store=].
-Index names are always compared in a case-sensitive manner, as opaque
-sequences of 16-bit code units.
 
 An [=/index=] has a <dfn>unique flag</dfn>. When this flag is
 set, the index enforces that no two [=object-store/records=] in the index has
