@@ -1179,7 +1179,7 @@ with [=transaction/cleanup event loop=] matching the current
 <aside class=note>
   This behavior is invoked by [[HTML]]. It ensures that
   [=/transactions=] created by a script call
-  to{{IDBDatabase/transaction()}} are deactivated once the task that
+  to {{IDBDatabase/transaction()}} are deactivated once the task that
   invoked the script has completed. The steps are run at most once for
   each [=/transaction=].
 </aside>
@@ -2628,26 +2628,25 @@ instance on which it was called.
 The <dfn method for=IDBDatabase>transaction(|storeNames|,
 |mode|)</dfn> method, when invoked, must run these steps:
 
-1. If |mode| parameter is not {{"readonly"}} or {{"readwrite"}},
-    [=throw=] a [=TypeError=].
+1. If a running [=upgrade transaction=] is associated with the [=/connection=],
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-2. If this method is called on {{IDBDatabase}} object for which an
-    [=upgrade transaction=] is still running, [=throw=] an
-    "{{InvalidStateError}}" {{DOMException}}.
-
-3. If this method is called on an {{IDBDatabase}} instance where the
+2. If the [=/connection=]'s
     [=close pending flag=] is set, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-4. Let |scope| be the set of unique strings in |storeNames| if it is a
+3. Let |scope| be the set of unique strings in |storeNames| if it is a
     sequence, or a set containing one string equal to |storeNames|
     otherwise.
 
-5. If any string in |scope| is not the name of an [=/object
+4. If any string in |scope| is not the name of an [=/object
     store=] in the [=connected=] [=database=], [=throw=] a
     "{{NotFoundError}}" {{DOMException}}.
 
-6. If |scope| is empty, [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
+5. If |scope| is empty, [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
+
+6. If |mode| is not {{"readonly"}} or {{"readwrite"}},
+    [=throw=] a [=TypeError=].
 
 7. Let |transaction| be a newly [=transaction/created=] [=/transaction=] with
     |connection|, |mode| and the set of [=/object stores=] named in
