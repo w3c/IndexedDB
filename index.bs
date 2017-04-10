@@ -28,11 +28,6 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     urlPrefix: dom.html
         type: interface
             text: Document; url: document
-    urlPrefix: infrastructure.html
-        type: abstract-op
-            text: StructuredClone; url: structuredclone
-        type: dfn
-            text: cloneable objects; url: cloneable-objects
 spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
     type: dfn
         url: sec-algorithm-conventions
@@ -61,6 +56,7 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
         text: Realm; url: realm
         text: current Realm; url: current-realm
         text: Array.prototype.sort; url: sec-array.prototype.sort
+        text: Record; url: sec-list-and-record-specification-type
 spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     type: dfn
         text: sequence<DOMString>; url: idl-sequence
@@ -576,12 +572,15 @@ transaction=] is running.
 <!-- ============================================================ -->
 
 Each record is associated with a <dfn>value</dfn>. User agents must
-support any [=cloneable object=]. This includes simple types
+support any [=serializable object=]. This includes simple types
 such as [=String=] primitive values and [=Date=] objects as well as
 [=Object=] and [=Array=] instances, {{File}} objects, {{Blob}}
 objects, {{ImageData}} objects, and so on. Record [=/values=] are
 stored and retrieved by value rather than by reference; later changes
 to a value have no effect on the record stored in the database.
+
+Record [=/values=] are [=/Records=] output by the
+<a abstract-op>StructuredSerialize</a> operation.
 
 
 <!-- ============================================================ -->
@@ -793,7 +792,7 @@ from a [=/value=]. A <dfn>valid key path</dfn> is one of:
 </aside>
 
 [=/Key path=] values can only be accessed from properties explicitly
-copied by <a abstract-op>StructuredClone</a>, as well as the
+copied by <a abstract-op>StructuredSerialize</a>, as well as the
 following type-specific properties:
 
 <table class=props>
@@ -2969,8 +2968,16 @@ when invoked, must run these steps:
 
 9. Let |targetRealm| be a user-agent defined [=Realm=].
 
-10. Let |clone| be <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+10. Let |clone| be a [=clone=] of |value| in |targetRealm|.
     Rethrow any exceptions.
+
+    <details class=note>
+      <summary>Why create a copy of the value?</summary>
+      The value must be serialized when stored. Treating it as a copy
+      here allows other algorithms in this specification to treat it as
+      an ECMAScript value, but implementations may optimize this
+      if the difference in behavior is not observable.
+    </details>
 
 11. If |store| uses [=in-line keys=], run these substeps:
 
@@ -3040,8 +3047,16 @@ when invoked, must run these steps:
 
 9. Let |targetRealm| be a user-agent defined [=Realm=].
 
-10. Let |clone| be <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+10. Let |clone| be a [=clone=] of |value| in |targetRealm|.
     Rethrow any exceptions.
+
+    <details class=note>
+      <summary>Why create a copy of the value?</summary>
+      The value must be serialized when stored. Treating it as a copy
+      here allows other algorithms in this specification to treat it as
+      an ECMAScript value, but implementations may optimize this
+      if the difference in behavior is not observable.
+    </details>
 
 11. If |store| uses [=in-line keys=], run these substeps:
 
@@ -4904,8 +4919,16 @@ invoked, must run these steps:
 
 7. Let |targetRealm| be a user-agent defined [=Realm=].
 
-8. Let |clone| be <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+8. Let |clone| be a [=clone=] of |value| in |targetRealm|.
     Rethrow any exceptions.
+
+    <details class=note>
+      <summary>Why create a copy of the value?</summary>
+      The value must be serialized when stored. Treating it as a copy
+      here allows other algorithms in this specification to treat it as
+      an ECMAScript value, but implementations may optimize this
+      if the difference in behavior is not observable.
+    </details>
 
 9. If the [=effective object store=] of this cursor uses [=in-line
     keys=], run these substeps:
@@ -5775,6 +5798,23 @@ the implementation must run the following steps:
 
 </div>
 
+<!-- ============================================================ -->
+<h3 id=clone-value>Clone a value</h3>
+<!-- ============================================================ -->
+
+<div class=algorithm>
+
+  To make a <dfn>clone</dfn> of |value| in |targetRealm|,
+  the implementation must run the following steps:
+
+  1. Let |serialized| be [=?=] <a abstract-op>StructuredSerialize</a>(|value|).
+
+  2. Let |clone| be [=?=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
+
+  3. Return |clone|.
+
+</div>
+
 
 <!-- ============================================================ -->
 <h2 id=database-operations>Database operations</h2>
@@ -5786,9 +5826,10 @@ These operations are run by the steps to [=asynchronously execute
 a request=].
 
 <aside class=note>
-  Invocations of <a abstract-op>StructuredClone</a>() in the operation steps below
-  can be asserted not to throw (as indicated by the [=!=] prefix)
-  because they operate only on previously cloned data.
+  Invocations of <a abstract-op>StructuredDeserialize</a>() in the operation
+  steps below can be asserted not to throw (as indicated by the [=!=] prefix)
+  because they operate only on previous output of
+  <a abstract-op>StructuredSerialize</a>().
 </aside>
 
 <!-- ============================================================ -->
@@ -5829,7 +5870,8 @@ follows.
     to=] |key|, then remove the [=object-store/record=] from |store| using the
     steps to [=delete records from an object store=].
 
-4. Store a record in |store| containing |key| as its key and |value|
+4. Store a record in |store| containing |key| as its key and
+    [=!=] <a abstract-op>StructuredSerialize</a>(|value|)
     as its value. The record is stored in the object store's
     [=object-store/list of records=] such that the list is sorted
     according to the key of the records in [=ascending=] order.
@@ -5912,9 +5954,9 @@ The steps to <dfn>retrieve a value from an object store</dfn> with
 
 2. If |record| was not found, return undefined.
 
-3. Let |value| be of |record|'s [=/value=].
+3. Let |serialized| be of |record|'s [=/value=].
 
-4. Return [=!=] <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+4. Return [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
 
 </div>
 
@@ -5934,8 +5976,8 @@ store</dfn> with |targetRealm|, |store|, |range| and optional |count| are as fol
 
 4. For each |record| in |records|, run these substeps:
 
-    1. Let |value| be |record|'s [=/value=].
-    2. Let |entry| be [=!=] <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+    1. Let |serialized| be |record|'s [=/value=].
+    2. Let |entry| be [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
     3. Append |entry| to |list|.
 
 5. Return |list| converted to a [=sequence&lt;any&gt;=].
@@ -5998,9 +6040,9 @@ with |targetRealm|, |index| and |range| are as follows.
 
 2. If |record| was not found, return undefined.
 
-3. Let |value| be |record|'s [=referenced value=].
+3. Let |serialized| be |record|'s [=referenced value=].
 
-4. Return [=!=] <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+4. Return [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
 
 </div>
 
@@ -6019,8 +6061,8 @@ index</dfn> with |targetRealm|, |index|, |range| and optional |count| are as fol
 
 4. For each |record| in |records|, run these substeps:
 
-    1. Let |value| be |record|'s [=referenced value=].
-    2. Let |entry| be [=!=] <a abstract-op>StructuredClone</a>(|value|, |targetRealm|).
+    1. Let |serialized| be |record|'s [=referenced value=].
+    2. Let |entry| be [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
     3. Append |entry| to |list|.
 
 5. Return |list| converted to a [=sequence&lt;any&gt;=].
@@ -6294,9 +6336,9 @@ follows.
 
 13. If |cursor|'s [=key only flag=] is unset, run these substeps:
 
-    1. Let |value| be |found record|'s [=referenced value=].
+    1. Let |serialized| be |found record|'s [=referenced value=].
     2. Set |cursor|'s [=cursor/value=] to
-        [=!=] <a abstract-op>StructuredClone</a>(|value|, |targetRealm|)
+        [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|)
 
 14. Set |cursor|'s [=got value flag=].
 
@@ -6441,7 +6483,7 @@ ECMAScript value or failure, or the steps may throw an exception.
 
 <aside class=note>
   Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a abstract-op>StructuredClone</a>
+  only applied to values that are the output of <a abstract-op>StructuredDeserialize</a>
   and only access "own" properties.
 </aside>
 
@@ -6489,7 +6531,7 @@ true or false.
 
 <aside class=note>
   Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a abstract-op>StructuredClone</a>.
+  only applied to values that are the output of <a abstract-op>StructuredDeserialize</a>.
 </aside>
 
 <div class=algorithm>
@@ -6537,7 +6579,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 
 <aside class=note>
   Assertions can be made in the above steps because this algorithm is
-  only applied to values that are the output of <a abstract-op>StructuredClone</a>,
+  only applied to values that are the output of <a abstract-op>StructuredDeserialize</a>,
   and the steps to [=check that a key could be injected into a value=] have
   been run.
 </aside>
@@ -6970,7 +7012,7 @@ basic serialization concerns, serialized data could encode assumptions
 which are not valid in newer versions of the user agent.
 
 A practical example of this is the [=RegExp=] type. The <a
-abstract-op>StructuredClone</a> operation allows cloning [=RegExp=]
+abstract-op>StructuredSerialize</a> operation allows serializing [=RegExp=]
 objects. A typical user agent will compile a regular expression into
 native machine instructions, with assumptions about how the input data
 is passed and results returned. If this internal state was serialized
@@ -7077,9 +7119,6 @@ document's Revision History</a>.
 * Add non-normative documentation for every method.
     (<a href="https://github.com/w3c/IndexedDB/issues/110">bug #110</a>)
 
-* Use [[HTML]]'s <a abstract-op>StructuredClone</a> hook.
-    (<a href="https://github.com/w3c/IndexedDB/issues/135">bug #135</a>)
-
 * Throw {{SecurityError}} if {{IDBFactory/open()}} or
     {{IDBFactory/deleteDatabase()}} is called from an opaque origin.
     (<a href="https://github.com/w3c/IndexedDB/issues/148">bug #148</a>)
@@ -7094,6 +7133,10 @@ document's Revision History</a>.
 
 * Fix handling of edge cases in key generation algorithm.
     (<a href="https://github.com/w3c/IndexedDB/issues/147">bug #147</a>)
+
+* Use [[HTML]]'s <a abstract-op>StructuredSerialize</a> and
+    <a abstract-op>StructuredDeserialize</a> hooks.
+    (<a href="https://github.com/w3c/IndexedDB/issues/170">bug #170</a>)
 
 
 <!-- ============================================================ -->
