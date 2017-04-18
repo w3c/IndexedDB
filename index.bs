@@ -18,6 +18,7 @@ Editor: Ali Alabbas, Microsoft Corp. https://microsoft.com, alia@microsoft.com
 Editor: Joshua Bell, Google Inc. https://google.com, jsbell@google.com
 Group: webplatform
 Test Suite: https://github.com/w3c/web-platform-tests/tree/master/IndexedDB
+Complain About: accidental-2119 yes
 </pre>
 
 <pre class=link-defaults>
@@ -234,13 +235,13 @@ tx.onabort = function() {
 };
 </pre>
 
-The database connection may be closed when it is no longer needed.
+The database connection can be closed when it is no longer needed.
 
 <pre class=lang-javascript>
 db.close();
 </pre>
 
-In the future, the database may have grown to contain other object
+In the future, the database might have grown to contain other object
 stores and indexes. The following example shows one way to handle
 migrating from an older version of the database.
 
@@ -281,7 +282,7 @@ If a new client wants to upgrade the database (via the "<code>[=upgradeneeded=]<
 event), it cannot do so until all other clients close their connection to the
 current version of the database.
 
-To avoid blocking a new client from upgrading, clients should listen for the
+To avoid blocking a new client from upgrading, clients can listen for the
 [=connection/version change event=]. This fires when another client is wanting to upgrade the
 database. To allow this to continue, react to the "<code>versionchange</code>" event by doing
 something that ultimately closes this client's [=/connection=] to the database.
@@ -292,14 +293,14 @@ One way of doing this is to reload the page:
 db.onversionchange = function() {
   // First, save any unsaved data:
   saveUnsavedData().then(function() {
-    // If the document isn't being actively used, it may be appropriate to reload
+    // If the document isn't being actively used, it could be appropriate to reload
     // the page without the user's interaction.
     if (!document.hasFocus()) {
       location.reload();
       // Reloading will close the database, and also reload with the new JavaScript
       // and database definitions.
     } else {
-      // If the document has focus, it may be too disruptive to reload the page.
+      // If the document has focus, it can be too disruptive to reload the page.
       // Maybe ask the user to do it manually:
       displayMessage("Please reload this page for the latest version.");
     }
@@ -379,7 +380,7 @@ opaque sequences of 16-bit code units.
   text. [[Charmod-Norm]]
 
   If an implementation uses a storage mechanism which does not support
-  arbitrary strings, the implementation must use an escaping mechanism
+  arbitrary strings, the implementation can use an escaping mechanism
   or something similar to map the provided name to a string that it
   can store.
 </aside>
@@ -636,7 +637,7 @@ following the steps to [=convert a value to a key=].
       [=Uint8Array=]).
   * [=Array=] objects, where every item is defined, is itself a valid
       key, and does not directly or indirectly contain itself. This
-      includes empty arrays. Arrays may contain other arrays.
+      includes empty arrays. Arrays can contain other arrays.
 
   Attempting to convert other ECMAScript values to a [=/key=]
   will fail.
@@ -1015,9 +1016,9 @@ Transactions are expected to be short lived. This is encouraged by the
 described below.
 
 <aside class=note>
-  Authors can still cause transactions to run for a long time; however,
-  this usage pattern is not generally recommended as it can lead to a
-  bad user experience.
+  Authors can still cause transactions to run for a long time;
+  however, this usage pattern is not advised as it can lead to a poor
+  user experience.
 </aside>
 
 The <dfn>lifetime</dfn> of a
@@ -1271,7 +1272,7 @@ A [=request=]'s [=get the parent=] algorithm returns the request's
   request=] is used for both the <code>[=upgradeneeded=]</code>
   event and final result of the open operation itself. In both cases,
   the request's [=request/done flag=] will be unset then set again, and the
-  [=request/result=] may change.
+  [=request/result=] can change.
 </aside>
 
 <!-- ============================================================ -->
@@ -1609,7 +1610,7 @@ be updated.
   and for object stores which use [=out-of-line keys=], by passing
   a key argument to the call to store the [=object-store/record=].
 
-  Only specified keys of [=key/type=] <i>number</i> may affect the
+  Only specified keys of [=key/type=] <i>number</i> can affect the
   [=key generator/current number=] of the key generator. Keys of [=key/type=]
   <i>date</i>, <i>array</i> (regardless of the other keys they
   contain), <i>binary</i>, or <i>string</i> (regardless of whether
@@ -2897,8 +2898,10 @@ and false otherwise.
     </dt>
     <dd>
        Adds or updates a [=object-store/record=] in |store| with the given |value|
-       and |key|. If the store uses [=in-line keys=], then |key| must
-       not be specified, or a "{{DataError}}" {{DOMException}} will be thrown.
+       and |key|.
+       
+       If the store uses [=in-line keys=] and |key| is specified a
+       "{{DataError}}" {{DOMException}} will be thrown.
 
        If {{IDBObjectStore/put()}} is used, any existing [=object-store/record=]
        with the [=/key=] will be replaced. If {{IDBObjectStore/add()}}
@@ -2977,9 +2980,9 @@ when invoked, must run these steps:
 
     <details class=note>
       <summary>Why create a copy of the value?</summary>
-      The value must be serialized when stored. Treating it as a copy
+      The value is be serialized when stored. Treating it as a copy
       here allows other algorithms in this specification to treat it as
-      an ECMAScript value, but implementations may optimize this
+      an ECMAScript value, but implementations can optimize this
       if the difference in behavior is not observable.
     </details>
 
@@ -3056,9 +3059,9 @@ when invoked, must run these steps:
 
     <details class=note>
       <summary>Why create a copy of the value?</summary>
-      The value must be serialized when stored. Treating it as a copy
+      The value is serialized when stored. Treating it as a copy
       here allows other algorithms in this specification to treat it as
-      an ECMAScript value, but implementations may optimize this
+      an ECMAScript value, but implementations can optimize this
       if the difference in behavior is not observable.
     </details>
 
@@ -4928,9 +4931,9 @@ invoked, must run these steps:
 
     <details class=note>
       <summary>Why create a copy of the value?</summary>
-      The value must be serialized when stored. Treating it as a copy
+      The value is serialized when stored. Treating it as a copy
       here allows other algorithms in this specification to treat it as
-      an ECMAScript value, but implementations may optimize this
+      an ECMAScript value, but implementations can optimize this
       if the difference in behavior is not observable.
     </details>
 
@@ -5112,7 +5115,7 @@ attribute's getter must run the following steps:
 <aside class=note>
   The contents of each list returned by this attribute does not
   change, but subsequent calls to this attribute during an [=upgrade
-  transaction=] may return lists with different contents as
+  transaction=] can return lists with different contents as
   [=/object stores=] are created and deleted.
 </aside>
 
@@ -5211,7 +5214,7 @@ event handler for the <code>error</code> event.
   To determine if a [=/transaction=] has completed successfully,
   listen to the [=/transaction=]'s <code>complete</code> event
   rather than the <code>success</code> event of a particular
-  [=request=], because the [=/transaction=] may still fail after
+  [=request=], because the [=/transaction=] can still fail after
   the <code>success</code> event fires.
 </aside>
 
@@ -5270,8 +5273,8 @@ database |name|, a database |version|, and a |request|.
         <aside class=note>
           Firing this event might cause one or more of the other
           objects in |openConnections| to be closed, in which case the
-          <code>versionchange</code> event must not be fired at those
-          objects if that hasn't yet been done.
+          <code>versionchange</code> event is not fired at those
+          objects, even if that hasn't yet been done.
         </aside>
 
     3. Wait for all of the events to be fired.
@@ -5387,8 +5390,8 @@ requested the [=database=] to be deleted, a database |name|, and a
     <aside class=note>
       Firing this event might cause one or more of the other objects
       in |openConnections| to be closed, in which case the
-      <code>versionchange</code> event must not be fired at those
-      objects if that hasn't yet been done.
+      <code>versionchange</code> event is not fired at those
+      objects, even if that hasn't yet been done.
     </aside>
 
 7. Wait for all of the events to be fired.
@@ -5692,7 +5695,7 @@ are as follows.
       <summary>How is this observable?</summary>
       Although script cannot access an [=/object store=] by using the
       {{objectStore()}} method on an {{IDBTransaction}} instance after
-      the [=/transaction=] is aborted, it may still have references to
+      the [=/transaction=] is aborted, it can still have references to
       {{IDBObjectStore}} instances where the {{IDBObjectStore/name}}
       and {{IDBObjectStore/indexNames}} properties can be queried.
     </details>
@@ -5714,7 +5717,7 @@ are as follows.
       <summary>How is this observable?</summary>
       Although script cannot access an [=/index=] by using the
       {{index()}} method on an {{IDBObjectStore}} instance after the
-      [=/transaction=] is aborted, it may still have references to
+      [=/transaction=] is aborted, it can still have references to
       {{IDBIndex}} instances where the {{IDBIndex/name}} property can
       be queried.
     </details>
