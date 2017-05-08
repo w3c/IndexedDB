@@ -2235,56 +2235,57 @@ when invoked, must run these steps:
 
 4. Let |request| be a new [=open request=].
 
-5. Return a new {{IDBOpenDBRequest}} object for |request|,
-    but continue these steps [=in parallel=].
+5. Run these steps [=in parallel=]:
 
-6. Let |result| be the result of running the steps to
-    [=open a database=], with |origin|,
-    |name|, |version| if given and undefined
-    otherwise, and |request|.
-
-    <details class=note>
-      <summary>What happens if |version| is not given?</summary>
-      If |version| is not given and a [=database=]
-      with that name already exists, a connection will be opened
-      without changing the [=database/version=]. If
-      |version| is not given and no [=database=] with
-      that name exists, a new [=database=] will be created with
-      [=database/version=] equal to 1.
-    </details>
-
-7. [=Queue a task=] to run these steps:
-
-    1. If |result| is an error, set the [=request/error=]
-        of |request| to |result| and [=fire an event=] named
-        <code>error</code> at |request| with its
-        {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
-
-    2. Otherwise, set the [=request/result=] of |request|
-        to |result| and [=fire an event=] named
-        <code>success</code> at |request|. If the steps
-        above resulted in an [=upgrade transaction=] being run,
-        then firing the "<code>success</code>" event must be done
-        after the [=upgrade transaction=] completes.
-
-        <aside class=note>
-          The last requirement is to ensure that in case another
-          version upgrade is about to happen, the success event is
-          fired on the connection first so that the script gets a
-          chance to register a listener for the
-          <code>versionchange</code> event.
-        </aside>
+    1. Let |result| be the result of running the steps to
+        [=open a database=], with |origin|,
+        |name|, |version| if given and undefined
+        otherwise, and |request|.
 
         <details class=note>
-          <summary>
-            Why aren't the steps to [=fire a success event=] or
-            [=fire an error event=] used?
-          </summary>
-          There is no transaction associated with the request (at
-          this point), so those steps &mdash; which activate an
-          associated transaction before dispatch and deactivate
-          the transaction after dispatch &mdash; do not apply.
+          <summary>What happens if |version| is not given?</summary>
+          If |version| is not given and a [=database=]
+          with that name already exists, a connection will be opened
+          without changing the [=database/version=]. If
+          |version| is not given and no [=database=] with
+          that name exists, a new [=database=] will be created with
+          [=database/version=] equal to 1.
         </details>
+
+    2. [=Queue a task=] to run these steps:
+
+        1. If |result| is an error, set the [=request/error=]
+            of |request| to |result| and [=fire an event=] named
+            <code>error</code> at |request| with its
+            {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
+
+        2. Otherwise, set the [=request/result=] of |request|
+            to |result| and [=fire an event=] named
+            <code>success</code> at |request|. If the steps
+            above resulted in an [=upgrade transaction=] being run,
+            then firing the "<code>success</code>" event must be done
+            after the [=upgrade transaction=] completes.
+
+            <aside class=note>
+              The last requirement is to ensure that in case another
+              version upgrade is about to happen, the success event is
+              fired on the connection first so that the script gets a
+              chance to register a listener for the
+              <code>versionchange</code> event.
+            </aside>
+
+            <details class=note>
+              <summary>
+                Why aren't the steps to [=fire a success event=] or
+                [=fire an error event=] used?
+              </summary>
+              There is no transaction associated with the request (at
+              this point), so those steps &mdash; which activate an
+              associated transaction before dispatch and deactivate
+              the transaction after dispatch &mdash; do not apply.
+            </details>
+
+6. Return a new {{IDBOpenDBRequest}} object for |request|.
 
 </div>
 
@@ -2301,39 +2302,40 @@ when invoked, must run these steps:
 
 3. Let |request| be a new [=open request=].
 
-4. Return a new {{IDBOpenDBRequest}} object for |request|,
-    but continue these steps [=in parallel=].
+4. Run these steps [=in parallel=]:
 
-5. Let |result| be the result of running the steps to
-    [=delete a database=], with |origin|,
-    |name|, and |request|.
+    1. Let |result| be the result of running the steps to
+        [=delete a database=], with |origin|,
+        |name|, and |request|.
 
-6. [=Queue a task=] to run these steps:
-    1. If |result| is an error set the [=request/error=] of
-        |request| to |result| and [=fire an event=]
-        named <code>error</code> at |request| with
-        its {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
+    2. [=Queue a task=] to run these steps:
+        1. If |result| is an error set the [=request/error=] of
+            |request| to |result| and [=fire an event=]
+            named <code>error</code> at |request| with
+            its {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
-    2. Otherwise, set the [=request/result=] of |request|
-        to undefined and [=fire a version change event=] named
-        <code>success</code> at [=request=] with |result| and
-        null.
+        2. Otherwise, set the [=request/result=] of |request|
+            to undefined and [=fire a version change event=] named
+            <code>success</code> at [=request=] with |result| and
+            null.
 
-        <details class=note>
-          <summary>
-            Why aren't the steps to [=fire a success event=] or
-            [=fire an error event=] used?
-          </summary>
-          There is no transaction associated with the request, so
-          those steps &mdash; which activate an associated
-          transaction before dispatch and deactivate the
-          transaction after dispatch &mdash; do not apply.
+            <details class=note>
+              <summary>
+                Why aren't the steps to [=fire a success event=] or
+                [=fire an error event=] used?
+              </summary>
+              There is no transaction associated with the request, so
+              those steps &mdash; which activate an associated
+              transaction before dispatch and deactivate the
+              transaction after dispatch &mdash; do not apply.
 
-          Also, the <code>success</code> event here is a
-          {{IDBVersionChangeEvent}} which includes the
-          {{IDBVersionChangeEvent/oldVersion}} and
-          {{IDBVersionChangeEvent/newVersion}} details.
-        </details>
+              Also, the <code>success</code> event here is a
+              {{IDBVersionChangeEvent}} which includes the
+              {{IDBVersionChangeEvent/oldVersion}} and
+              {{IDBVersionChangeEvent/newVersion}} details.
+            </details>
+
+5. Return a new {{IDBOpenDBRequest}} object for |request|.
 
 </div>
 
@@ -5430,7 +5432,7 @@ This algorithm takes one argument, the |transaction| to commit.
     appropriate for the error, for example "{{QuotaExceededError}}" or
     "{{UnknownError}}" {{DOMException}}.
 
-3. [=Queue a task=] to run these steps
+3. [=Queue a task=] to run these steps:
 
     1. [=Fire an event=] named <code>complete</code> at |transaction|.
 
@@ -5535,36 +5537,38 @@ created [=request=] belongs to is [=transaction/aborted=] using the steps to
 
 4. Add |request| to the end of |transaction|'s [=request list=].
 
-5. Return |request|, but continue these steps [=in parallel=].
+5. Run these steps [=in parallel=]:
 
-6. Wait until all previously added [=requests=] in |transaction|
-    have their [=request/done flag=] set.
+    6. Wait until all previously added [=requests=] in |transaction|
+        have their [=request/done flag=] set.
 
-7. Let |result| be the result of performing |operation|.
+    7. Let |result| be the result of performing |operation|.
 
-8. If |result| is an error, then revert all changes made by
-    |operation|.
+    8. If |result| is an error, then revert all changes made by
+        |operation|.
 
-    <aside class=note>
-      This only reverts the changes done by this request, not any
-      other changes made by the transaction.
-    </aside>
+        <aside class=note>
+          This only reverts the changes done by this request, not any
+          other changes made by the transaction.
+        </aside>
 
-9. [=Queue a task=] to run these steps:
+    9. [=Queue a task=] to run these steps:
 
-    1. Set the [=request/done flag=] on |request|.
+        1. Set the [=request/done flag=] on |request|.
 
-    2. If |result| is an error, then:
+        2. If |result| is an error, then:
 
-        1. Set the [=request/result=] of |request| to undefined.
-        2. Set the [=request/error=] of |request| to |result|.
-        3. [=Fire an error event=] at |request|.
+            1. Set the [=request/result=] of |request| to undefined.
+            2. Set the [=request/error=] of |request| to |result|.
+            3. [=Fire an error event=] at |request|.
 
-    3. Otherwise:
+        3. Otherwise:
 
-        1. Set the [=request/result=] of |request| to |result|.
-        2. Set the [=request/error=] of |request| to undefined.
-        3. [=Fire a success event=] at |request|.
+            1. Set the [=request/result=] of |request| to |result|.
+            2. Set the [=request/error=] of |request| to undefined.
+            3. [=Fire a success event=] at |request|.
+
+6. Return |request|.
 
 </div>
 
