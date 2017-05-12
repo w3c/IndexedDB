@@ -418,8 +418,11 @@ created, its [=database/version=] is 0 (zero).
 <aside class=note>
   Each [=database=] has one version at a time; a [=database=] can't
   exist in multiple versions at once. The only way to change the
-  version is using an [=upgrade transaction=].
+  version is using an [=/upgrade transaction=].
 </aside>
+
+A [=database=] has at most one associated <dfn>upgrade transaction</dfn>,
+which is either null or an [=/upgrade transaction=], and is initially null.
 
 </div>
 
@@ -484,7 +487,7 @@ connection=] with the [=/connection=] and with the |forced flag| set.
 A [=/connection=] has an <dfn>object store set</dfn>, which is
 initialized to the set of [=/object stores=] in the associated
 [=database=] when the [=/connection=] is created. The contents of the
-set will remain constant except when an [=upgrade transaction=] is
+set will remain constant except when an [=/upgrade transaction=] is
 running.
 
 A [=/connection=]'s [=get the parent=] algorithm returns
@@ -508,7 +511,7 @@ storing data in a [=database=].
 <div dfn-for=object-store>
 
 Each database has a set of [=/object stores=]. The set of [=/object
-stores=] can be changed, but only using an [=upgrade transaction=],
+stores=] can be changed, but only using an [=/upgrade transaction=],
 i.e. in response to an <code>[=upgradeneeded=]</code> event. When a
 new database is created it doesn't contain any [=/object stores=].
 
@@ -562,12 +565,12 @@ An [=/object store handle=] has an <dfn>index set</dfn>, which is
 initialized to the set of [=/indexes=] that reference the associated
 [=object-store-handle/object store=] when the [=/object store handle=]
 is created. The contents of the set will remain constant except when
-an [=upgrade transaction=] is running.
+an [=/upgrade transaction=] is running.
 
 An [=/object store handle=] has a <dfn>name</dfn>, which is
 initialized to the [=object-store/name=] of the associated
 [=object-store-handle/object store=] when the [=/object store handle=]
-is created. The name will remain constant except when an [=upgrade
+is created. The name will remain constant except when an [=/upgrade
 transaction=] is running.
 
 </div>
@@ -916,7 +919,7 @@ particular [=/index=] within a [=/transaction=].
 An [=index handle=] has a <dfn>name</dfn>, which is initialized to the
 [=index/name=] of the associated [=index-handle/index=] when the
 [=index handle=] is created. The name will remain constant except when
-an [=upgrade transaction=] is running.
+an [=/upgrade transaction=] is running.
 
 </div>
 
@@ -1196,7 +1199,7 @@ with [=transaction/cleanup event loop=] matching the current
 An <dfn>upgrade transaction</dfn> is a [=/transaction=] with [=transaction/mode=]
 {{"versionchange"}}.
 
-An [=upgrade transaction=] is automatically created when running the
+An [=/upgrade transaction=] is automatically created when running the
 steps to [=run an upgrade transaction=] after a [=/connection=]
 is opened to a [=/database=], if a [=database/version=] greater than
 the current [=database/version=] is specified. This [=/transaction=]
@@ -1204,26 +1207,26 @@ will be active inside the <code>[=upgradeneeded=]</code> event
 handler.
 
 <aside class=note>
-  An [=upgrade transaction=] enables the creation, renaming, and
+  An [=/upgrade transaction=] enables the creation, renaming, and
   deletion of [=/object stores=] and [=/indexes=] in a [=/database=].
 
-  An [=upgrade transaction=] is exclusive. The steps to [=open a
+  An [=/upgrade transaction=] is exclusive. The steps to [=open a
   database=] ensure that only one [=/connection=] to the database is
-  open when an [=upgrade transaction=] is running.
+  open when an [=/upgrade transaction=] is running.
   The <code>[=upgradeneeded=]</code> event isn't fired, and thus the
-  [=upgrade transaction=] isn't started, until all other
+  [=/upgrade transaction=] isn't started, until all other
   [=/connections=] to the same [=/database=] are closed. This ensures
   that all previous transactions are [=transaction/finished=]. As long
-  as an [=upgrade transaction=] is running, attempts to open more
+  as an [=/upgrade transaction=] is running, attempts to open more
   [=/connections=] to the same [=/database=] are delayed, and any
   attempts to use the same [=/connection=] to start additional
   transactions by calling {{IDBDatabase/transaction()}} will throw an
-  exception. Thus [=upgrade transactions=] not only ensure that no
+  exception. Thus [=/upgrade transactions=] not only ensure that no
   other transactions are running concurrently, but also ensure that no
   new transactions are queued against the same [=/database=] as long
   as the transaction is running.
 
-  This ensures that once an [=upgrade transaction=] is complete, the
+  This ensures that once an [=/upgrade transaction=] is complete, the
   set of [=/object stores=] and [=/indexes=] in a [=/database=] remain
   constant for the lifetime of all subsequent [=/connections=] and
   [=/transactions=].
@@ -1268,7 +1271,7 @@ A [=request=]'s [=get the parent=] algorithm returns the request's
   Requests are not typically re-used, but there are exceptions. When a
   [=cursor=] is iterated, the success of the iteration is reported
   on the same [=request=] object used to open the cursor. And when
-  an [=upgrade transaction=] is necessary, the same [=open
+  an [=/upgrade transaction=] is necessary, the same [=open
   request=] is used for both the <code>[=upgradeneeded=]</code>
   event and final result of the open operation itself. In both cases,
   the request's [=request/done flag=] will be unset then set again, and the
@@ -2031,7 +2034,7 @@ enum IDBRequestReadyState {
     <dd>
         Returns the {{IDBTransaction}} the request was made within.
         If this as an [=open request=], then it returns an
-        [=upgrade transaction=] while it is running, or null otherwise.
+        [=/upgrade transaction=] while it is running, or null otherwise.
     </dd>
 
     <dt><var>request</var> . {{IDBRequest/readyState}}</dt>
@@ -2262,9 +2265,9 @@ when invoked, must run these steps:
         2. Otherwise, set the [=request/result=] of |request|
             to |result| and [=fire an event=] named
             <code>success</code> at |request|. If the steps
-            above resulted in an [=upgrade transaction=] being run,
+            above resulted in an [=/upgrade transaction=] being run,
             then firing the "<code>success</code>" event must be done
-            after the [=upgrade transaction=] completes.
+            after the [=/upgrade transaction=] completes.
 
             <aside class=note>
               The last requirement is to ensure that in case another
@@ -2448,7 +2451,7 @@ must return this [=/connection=]'s
   As long as the [=/connection=] is open, this is the same as the
   connected [=database=]'s [=database/version=]. But once the
   [=/connection=] has [=connection/closed=], this attribute will not
-  reflect changes made with a later [=upgrade transaction=].
+  reflect changes made with a later [=/upgrade transaction=].
 </details>
 
 <div class=note>
@@ -2467,7 +2470,7 @@ must return this [=/connection=]'s
         and returns a new {{IDBObjectStore}}.
 
         Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
-        [=upgrade transaction=].
+        [=/upgrade transaction=].
     </dd>
 
     <dt><var>connection</var> .
@@ -2476,7 +2479,7 @@ must return this [=/connection=]'s
         Deletes the [=/object store=] with the given |name|.
 
         Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
-        [=upgrade transaction=].
+        [=/upgrade transaction=].
     </dd>
   </dl>
 </div>
@@ -2493,7 +2496,7 @@ the [=/object stores=] in this [=/connection=]'s [=object store set=].
   As long as the [=/connection=] is open, this is the same as the
   connected [=database=]'s [=/object store=] [=object-store/names=].
   But once the [=/connection=] has [=connection/closed=], this attribute
-  will not reflect changes made with a later [=upgrade transaction=].
+  will not reflect changes made with a later [=/upgrade transaction=].
 </details>
 
 
@@ -2505,10 +2508,9 @@ The <dfn method for=IDBDatabase>createObjectStore(|name|,
 1. Let |database| be the [=database=] associated with this
     [=/connection=].
 
-2. Let |transaction| be the [=upgrade transaction=] associated with
-    |database|. If one does not exist or it is
-    [=transaction/finished=], [=throw=] an "{{InvalidStateError}}"
-    {{DOMException}}.
+2. Let |transaction| be |database|'s [=database/upgrade transaction=]
+    if it is not null, or [=throw=] an "{{InvalidStateError}}"
+    {{DOMException}} otherwise.
 
 3. If |transaction| is not [=transaction/active=], [=throw=] a
     "{{TransactionInactiveError}}" {{DOMException}}.
@@ -2545,7 +2547,7 @@ The <dfn method for=IDBDatabase>createObjectStore(|name|,
 
 This method creates and returns a new [=/object store=] with the given
 name in the [=connected=] [=database=]. Note that this method must
-only be called from within an [=upgrade transaction=].
+only be called from within an [=/upgrade transaction=].
 
 This method synchronously modifies the
 {{IDBDatabase/objectStoreNames}} property on the {{IDBDatabase}}
@@ -2574,10 +2576,9 @@ method, when invoked, must run these steps:
 1. Let |database| be the [=database=] associated with this
     [=/connection=].
 
-2. Let |transaction| be the [=upgrade transaction=] associated with
-    |database|. If one does not exist or it is
-    [=transaction/finished=], [=throw=] an "{{InvalidStateError}}"
-    {{DOMException}}.
+2. Let |transaction| be |database|'s [=database/upgrade transaction=]
+    if it is not null, or [=throw=] an "{{InvalidStateError}}"
+    {{DOMException}} otherwise.
 
 3. If |transaction| is not [=transaction/active=], [=throw=] a
     "{{TransactionInactiveError}}" {{DOMException}}.
@@ -2599,7 +2600,7 @@ method, when invoked, must run these steps:
 
 This method destroys the [=/object store=] with the given name in the
 [=connected=] [=database=]. Note that this method must only be called
-from within an [=upgrade transaction=].
+from within an [=/upgrade transaction=].
 
 This method synchronously modifies the
 {{IDBDatabase/objectStoreNames}} property on the {{IDBDatabase}}
@@ -2632,7 +2633,7 @@ instance on which it was called.
 The <dfn method for=IDBDatabase>transaction(|storeNames|,
 |mode|)</dfn> method, when invoked, must run these steps:
 
-1. If a running [=upgrade transaction=] is associated with the [=/connection=],
+1. If a running [=/upgrade transaction=] is associated with the [=/connection=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 2. If the [=/connection=]'s
@@ -2757,7 +2758,7 @@ dictionary IDBIndexParameters {
     <dd>
         Updates the [=object-store/name=] of the store to |newName|.
 
-        Throws "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
+        Throws "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
         transaction=].
     </dd>
     <dt><var>store</var> . {{IDBObjectStore/keyPath}}</dt>
@@ -2792,7 +2793,7 @@ must return this [=/object store handle=]'s
   this is the same as the associated [=/object store=]'s
   [=object-store/name=]. But once the [=/transaction=] has
   [=transaction/finished=], this attribute will not reflect changes made with a
-  later [=upgrade transaction=].
+  later [=/upgrade transaction=].
 </details>
 
 
@@ -2811,7 +2812,7 @@ The {{IDBObjectStore/name}} attribute's setter must run these steps:
 4. If |store| has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-5. If |transaction| is not an [=upgrade transaction=],
+5. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 6. If |transaction| is not [=transaction/active=],
@@ -2867,7 +2868,7 @@ of [=/indexes=] in this [=/object store handle=]'s
   this is the same as the associated [=/object store=]'s list
   of [=/index=] [=index/names=]. But once the
   [=/transaction=] has [=transaction/finished=], this attribute will not
-  reflect changes made with a later [=upgrade transaction=].
+  reflect changes made with a later [=/upgrade transaction=].
 </details>
 
 
@@ -3590,11 +3591,11 @@ or not given, an [=unbounded key range=] is used.
       Creates a new [=/index=] in |store| with the given |name|,
       |keyPath| and |options| and returns a new {{IDBIndex}}. If the
       |keyPath| and |options| define constraints that cannot be
-      satisfied with the data already in |store| the [=upgrade
+      satisfied with the data already in |store| the [=/upgrade
       transaction=] will [=transaction/abort=] with
       a "{{ConstraintError}}" {{DOMException}}.
 
-      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
+      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
       transaction=].
     </dd>
 
@@ -3604,7 +3605,7 @@ or not given, an [=unbounded key range=] is used.
     <dd>
       Deletes the [=/index=] in |store| with the given |name|.
 
-      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
+      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
       transaction=].
     </dd>
 
@@ -3622,7 +3623,7 @@ The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
 2. Let |store| be this [=/object store handle=]'s
     [=object-store-handle/object store=].
 
-3. If |transaction| is not an [=upgrade transaction=],
+3. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |store| has been deleted, [=throw=] an
@@ -3664,7 +3665,7 @@ The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
 
 This method creates and returns a new [=/index=] with the
 given name in the [=/object store=]. Note that this method
-must only be called from within an [=upgrade transaction=].
+must only be called from within an [=/upgrade transaction=].
 
 The index that is requested to be created can contain constraints on
 the data allowed in the index's [=referenced=] object store, such
@@ -3674,14 +3675,14 @@ which violates these constraints, this must not cause the
 implementation of {{IDBObjectStore/createIndex()}} to throw an
 exception or affect what it returns. The implementation must still
 create and return an {{IDBIndex}} object, and the implementation must
-[=queue a task=] to abort the [=upgrade transaction=] which was
+[=queue a task=] to abort the [=/upgrade transaction=] which was
 used for the {{IDBObjectStore/createIndex()}} call.
 
 This method synchronously modifies the {{IDBObjectStore/indexNames}}
 property on the {{IDBObjectStore}} instance on which it was called.
 Although this method does not return an {{IDBRequest}} object, the
 index creation itself is processed as an asynchronous request within
-the [=upgrade transaction=].
+the [=/upgrade transaction=].
 
 In some implementations it is possible for the implementation to
 asynchronously run into problems creating the index after the
@@ -3770,7 +3771,7 @@ when invoked, must run these steps:
 2. Let |store| be this [=/object store handle=]'s
     [=object-store-handle/object store=].
 
-3. If |transaction| is not an [=upgrade transaction=],
+3. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 4. If |store| has been deleted, [=throw=] an
@@ -3792,13 +3793,13 @@ when invoked, must run these steps:
 
 This method destroys the [=/index=] with the given name in the
 [=/object store=]. Note that this method must only be called from
-within an [=upgrade transaction=].
+within an [=/upgrade transaction=].
 
 This method synchronously modifies the {{IDBObjectStore/indexNames}}
 property on the {{IDBObjectStore}} instance on which it was called.
 Although this method does not return an {{IDBRequest}} object, the
 index destruction itself is processed as an asynchronous request
-within the [=upgrade transaction=].
+within the [=/upgrade transaction=].
 
 
 <!-- ============================================================ -->
@@ -3842,7 +3843,7 @@ interface IDBIndex {
     <dd>
       Updates the [=index/name=] of the store to |newName|.
 
-      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=upgrade
+      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
       transaction=].
     </dd>
     <dt><var>index</var> . {{IDBIndex/objectStore}}</dt>
@@ -3875,7 +3876,7 @@ return this [=index handle=]'s [=index/name=].
   this is the same as the associated [=/index=]'s
   [=index/name=]. But once the [=/transaction=] has
   [=transaction/finished=], this attribute will not reflect changes made with a
-  later [=upgrade transaction=].
+  later [=/upgrade transaction=].
 </details>
 
 
@@ -3891,7 +3892,7 @@ The {{IDBIndex/name}} attribute's setter must run these steps:
 3. Let |index| be this [=index handle=]'s
     [=index-handle/index=].
 
-4. If |transaction| is not an [=upgrade transaction=],
+4. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 5. If |transaction| is not [=transaction/active=], [=throw=] a
@@ -5066,14 +5067,14 @@ enum IDBTransactionMode {
     <dt><var>transaction</var> . {{IDBTransaction/objectStoreNames}}</dt>
     <dd>
       Returns a list of the names of [=/object stores=] in the
-      transaction's [=transaction/scope=]. For an [=upgrade transaction=]
+      transaction's [=transaction/scope=]. For an [=/upgrade transaction=]
       this is all object stores in the [=database=].
     </dd>
     <dt><var>transaction</var> . {{IDBTransaction/mode}}</dt>
     <dd>
       Returns the [=transaction/mode=] the transaction was created with
       ({{"readonly"}} or {{"readwrite"}}), or {{"versionchange"}} for
-      an [=upgrade transaction=].
+      an [=/upgrade transaction=].
     </dd>
     <dt><var>transaction</var> . {{IDBTransaction/db}}</dt>
     <dd>
@@ -5093,7 +5094,7 @@ enum IDBTransactionMode {
 The <dfn attribute for=IDBTransaction>objectStoreNames</dfn>
 attribute's getter must run these steps:
 
-1. If this [=/transaction=] is an [=upgrade transaction=],
+1. If this [=/transaction=] is an [=/upgrade transaction=],
     return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=]
     of the [=/object stores=] in this
     [=/transaction=]'s [=/connection=]'s [=object store
@@ -5114,7 +5115,7 @@ attribute's getter must run these steps:
 
 <aside class=note>
   The contents of each list returned by this attribute does not
-  change, but subsequent calls to this attribute during an [=upgrade
+  change, but subsequent calls to this attribute during an [=/upgrade
   transaction=] can return lists with different contents as
   [=/object stores=] are created and deleted.
 </aside>
@@ -5294,7 +5295,7 @@ database |name|, a database |version|, and a |request|.
         return a newly <a for=exception>created</a>
         "{{AbortError}}" {{DOMException}} and abort these steps.
 
-    8. If the [=upgrade transaction=] was aborted, run the steps
+    8. If the [=/upgrade transaction=] was aborted, run the steps
         to [=close a database connection=] with |connection|,
         create and return a newly <a for=exception>created</a>
         "{{AbortError}}" {{DOMException}} and abort these steps.
@@ -5434,7 +5435,10 @@ This algorithm takes one argument, the |transaction| to commit.
 
 3. [=Queue a task=] to run these steps:
 
-    1. [=Fire an event=] named <code>complete</code> at |transaction|.
+    1. If |transaction| is an [=/upgrade transaction=], set the
+        [=database=]'s [=database/upgrade transaction=] to null.
+
+    2. [=Fire an event=] named <code>complete</code> at |transaction|.
 
         <aside class=note>
           Even if an exception is thrown from one of the event handlers of
@@ -5444,7 +5448,7 @@ This algorithm takes one argument, the |transaction| to commit.
           "<code>complete</code>" event fired.
         </aside>
 
-    2. If |transaction| is an [=upgrade transaction=], then
+    3. If |transaction| is an [=/upgrade transaction=], then
         let |request| be the [=request=] associated with |transaction|
         and set |request|'s [=request/transaction=] to null.
 
@@ -5462,13 +5466,13 @@ This algorithm
 takes two arguments: the |transaction| to abort, and |error|.
 
 1. All the changes made to the [=database=] by the [=/transaction=]
-    are reverted. For [=upgrade transactions=] this includes changes
+    are reverted. For [=/upgrade transactions=] this includes changes
     to the set of [=/object stores=] and [=/indexes=], as well as the
     change to the [=database/version=]. Any [=/object stores=] and
     [=/indexes=] which were created during the transaction are now
     considered deleted for the purposes of other algorithms.
 
-2. If |transaction| is an [=upgrade transaction=], run the steps
+2. If |transaction| is an [=/upgrade transaction=], run the steps
     to [=abort an upgrade transaction=] with |transaction|.
 
     <aside class=note>
@@ -5502,10 +5506,13 @@ takes two arguments: the |transaction| to abort, and |error|.
 
 5. [=Queue a task=] to run these steps:
 
-    1. [=Fire an event=] named <code>abort</code> at |transaction|
+    1. If |transaction| is an [=/upgrade transaction=], set the
+        [=database=]'s [=database/upgrade transaction=] to null.
+
+    2. [=Fire an event=] named <code>abort</code> at |transaction|
         with its {{Event/bubbles}} attribute initialized to true.
 
-    2. If |transaction| is an [=upgrade transaction=], then
+    3. If |transaction| is an [=/upgrade transaction=], then
         let |request| be the [=request=] associated with |transaction|
         and set |request|'s [=request/transaction=] to null.
 
@@ -5586,14 +5593,16 @@ for the [=database=], and a |request|.
 
 1. Let |db| be |connection|'s [=database=].
 
-2. Let |transaction| be a new [=upgrade transaction=] with
+2. Let |transaction| be a new [=/upgrade transaction=] with
     |connection| used as [=/connection=]. The [=transaction/scope=] of
     |transaction| includes every [=/object store=] in
     |connection|.
 
-3. Unset |transaction|'s [=transaction/active flag=].
+3. Set |database|'s [=database/upgrade transaction=] to |transaction|.
 
-4. Start |transaction|.
+4. Unset |transaction|'s [=transaction/active flag=].
+
+5. Start |transaction|.
 
     <aside class=note>
       Note that until this [=/transaction=] is finished, no
@@ -5601,13 +5610,13 @@ for the [=database=], and a |request|.
       [=database=].
     </aside>
 
-5. Let |old version| be |db|'s [=database/version=].
+6. Let |old version| be |db|'s [=database/version=].
 
-6. Set the version of |db| to |version|. This change is
+7. Set the version of |db| to |version|. This change is
     considered part of the [=/transaction=], and so if the
     transaction is [=transaction/aborted=], this change is reverted.
 
-7. [=Queue a task=] to run these steps:
+8. [=Queue a task=] to run these steps:
 
     1. Set |request|'s [=request/result=] to |connection|.
     2. Set |request|'s [=request/transaction=] to |transaction|.
@@ -5622,13 +5631,13 @@ for the [=database=], and a |request|.
         transaction=] with the |error| property set to a newly
         <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
 
-8. Wait for |transaction| to [=transaction/finish=].
+9. Wait for |transaction| to [=transaction/finish=].
 
     <aside class=note>
       Some of the algorithms invoked during the [=/transaction=]'s
       [=transaction/lifetime=], such as the steps to [=commit a
       transaction=] and the steps to [=abort a transaction=],
-      include steps specific to [=upgrade transactions=].
+      include steps specific to [=/upgrade transactions=].
     </aside>
 
 </div>
@@ -5725,7 +5734,7 @@ are as follows.
 
 <aside class=note>
   The {{IDBDatabase/name}} property of the {{IDBDatabase}} instance is
-  not modified, even if the aborted [=upgrade transaction=] was
+  not modified, even if the aborted [=/upgrade transaction=] was
   creating a new [=database=].
 </aside>
 
@@ -7158,6 +7167,11 @@ document's Revision History</a>.
     hook.
     (<a href="https://github.com/w3c/IndexedDB/issues/197">issue #197</a>,
      <a href="https://github.com/w3c/IndexedDB/issues/197">issue #152</a>)
+
+* Define [=database=]'s associated [=database/upgrade transaction=] to
+    align exceptions thrown from {{IDBDatabase/createObjectStore()}} and
+    {{IDBDatabase/deleteObjectStore()}} with tests and implementations.
+    (<a href="https://github.com/w3c/IndexedDB/issues/192">issue #192</a>)
 
 
 <!-- ============================================================ -->
