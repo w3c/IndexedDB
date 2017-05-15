@@ -1273,9 +1273,9 @@ A [=request=]'s [=get the parent=] algorithm returns the request's
   on the same [=request=] object used to open the cursor. And when
   an [=/upgrade transaction=] is necessary, the same [=open
   request=] is used for both the <code>[=upgradeneeded=]</code>
-  event and final result of the open operation itself. In both cases,
+  event and final result of the open operation itself. In some cases,
   the request's [=request/done flag=] will be unset then set again, and the
-  [=request/result=] can change.
+  [=request/result=] can change or [=request/error=] could be set insead.
 </aside>
 
 <!-- ============================================================ -->
@@ -2258,6 +2258,7 @@ when invoked, must run these steps:
     2. [=Queue a task=] to run these steps:
 
         1. If |result| is an error,
+            set |request|'s [=request/result=] to undefined,
             set |request|'s [=request/error=] to |result|,
             set |request|'s [=request/done flag=],
             and [=fire an event=] named
@@ -5262,7 +5263,8 @@ database |name|, a database |version|, and a |request|.
     "{{UnknownError}}" {{DOMException}}).
 
 7. If |db|'s [=database/version=] is greater than |version|,
-    abort these steps and return a new "{{VersionError}}" {{DOMException}}.
+    return a newly [=exception/created=] "{{VersionError}}" {{DOMException}}
+    and abort these steps.
 
 8. Let |connection| be a new [=/connection=] to |db|.
 
@@ -5299,13 +5301,13 @@ database |name|, a database |version|, and a |request|.
     6. Run the steps to [=run an upgrade transaction=]
         using |connection|, |version| and |request|.
 
-    7. If |connection| was [=connection/closed=], create and
-        return a newly <a for=exception>created</a>
+    7. If |connection| was [=connection/closed=],
+        return a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and abort these steps.
 
     8. If the [=/upgrade transaction=] was aborted, run the steps
         to [=close a database connection=] with |connection|,
-        create and return a newly <a for=exception>created</a>
+        return a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and abort these steps.
 
 11. Return |connection|.
