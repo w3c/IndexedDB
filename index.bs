@@ -1273,9 +1273,9 @@ A [=request=]'s [=get the parent=] algorithm returns the request's
   on the same [=request=] object used to open the cursor. And when
   an [=/upgrade transaction=] is necessary, the same [=open
   request=] is used for both the <code>[=upgradeneeded=]</code>
-  event and final result of the open operation itself. In both cases,
+  event and final result of the open operation itself. In some cases,
   the request's [=request/done flag=] will be unset then set again, and the
-  [=request/result=] can change.
+  [=request/result=] can change or [=request/error=] could be set insead.
 </aside>
 
 <!-- ============================================================ -->
@@ -2257,13 +2257,18 @@ when invoked, must run these steps:
 
     2. [=Queue a task=] to run these steps:
 
-        1. If |result| is an error, set the [=request/error=]
-            of |request| to |result| and [=fire an event=] named
+        1. If |result| is an error,
+            set |request|'s [=request/result=] to undefined,
+            set |request|'s [=request/error=] to |result|,
+            set |request|'s [=request/done flag=],
+            and [=fire an event=] named
             <code>error</code> at |request| with its
             {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
-        2. Otherwise, set the [=request/result=] of |request|
-            to |result| and [=fire an event=] named
+        2. Otherwise,
+            set |request|'s [=request/result=] to |result|,
+            set |request|'s [=request/done flag=],
+            and [=fire an event=] named
             <code>success</code> at |request|. If the steps
             above resulted in an [=/upgrade transaction=] being run,
             then firing the "<code>success</code>" event must be done
@@ -2312,13 +2317,17 @@ when invoked, must run these steps:
         |name|, and |request|.
 
     2. [=Queue a task=] to run these steps:
-        1. If |result| is an error set the [=request/error=] of
-            |request| to |result| and [=fire an event=]
+        1. If |result| is an error,
+            set |request|'s [=request/error=] to |result|,
+            set |request|'s [=request/done flag=],
+            and [=fire an event=]
             named <code>error</code> at |request| with
             its {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
-        2. Otherwise, set the [=request/result=] of |request|
-            to undefined and [=fire a version change event=] named
+        2. Otherwise,
+            set |request|'s [=request/result=] to undefined,
+            set |request|'s [=request/done flag=],
+            and [=fire a version change event=] named
             <code>success</code> at [=request=] with |result| and
             null.
 
@@ -5254,7 +5263,8 @@ database |name|, a database |version|, and a |request|.
     "{{UnknownError}}" {{DOMException}}).
 
 7. If |db|'s [=database/version=] is greater than |version|,
-    abort these steps and return a new "{{VersionError}}" {{DOMException}}.
+    return a newly [=exception/created=] "{{VersionError}}" {{DOMException}}
+    and abort these steps.
 
 8. Let |connection| be a new [=/connection=] to |db|.
 
@@ -5291,13 +5301,13 @@ database |name|, a database |version|, and a |request|.
     6. Run the steps to [=run an upgrade transaction=]
         using |connection|, |version| and |request|.
 
-    7. If |connection| was [=connection/closed=], create and
-        return a newly <a for=exception>created</a>
+    7. If |connection| was [=connection/closed=],
+        return a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and abort these steps.
 
     8. If the [=/upgrade transaction=] was aborted, run the steps
         to [=close a database connection=] with |connection|,
-        create and return a newly <a for=exception>created</a>
+        return a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and abort these steps.
 
 11. Return |connection|.
@@ -5512,9 +5522,12 @@ takes two arguments: the |transaction| to abort, and |error|.
     2. [=Fire an event=] named <code>abort</code> at |transaction|
         with its {{Event/bubbles}} attribute initialized to true.
 
-    3. If |transaction| is an [=/upgrade transaction=], then
-        let |request| be the [=request=] associated with |transaction|
-        and set |request|'s [=request/transaction=] to null.
+    2. If |transaction| is an [=/upgrade transaction=], then:
+
+        1. Let |request| be the [=request=] associated with |transaction|.
+        2. Set |request|'s [=request/transaction=] to null.
+        3. Set |request|'s [=request/result=] to undefined.
+        4. Unset |request|'s [=request/done flag=].
 
 </div>
 
@@ -7172,6 +7185,10 @@ document's Revision History</a>.
     align exceptions thrown from {{IDBDatabase/createObjectStore()}} and
     {{IDBDatabase/deleteObjectStore()}} with tests and implementations.
     (<a href="https://github.com/w3c/IndexedDB/issues/192">issue #192</a>)
+
+* Set [=request/result]/[=request/done flag=] appropriately for requests
+    from {{IDBFactory/open()}} and {{IDBFactory/deleteDatabase()}}.
+    (<a href="https://github.com/w3c/IndexedDB/issues/161">issue #161</a>)
 
 
 <!-- ============================================================ -->
