@@ -25,6 +25,17 @@ Complain About: accidental-2119 yes
 spec:html; type:dfn; for:/; text:task queue
 </pre>
 
+<pre class='biblio'>
+{
+  "BIGINT": {
+    "href": "https://tc39.github.io/proposal-bigint/",
+    "title": "BigInt Specification",
+    "publisher": "TC39",
+    "status": "Stage 3 proposal"
+  }
+}
+</pre>
+
 <pre class=anchors>
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     urlPrefix: dom.html
@@ -63,6 +74,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     type: dfn
         text: sequence<DOMString>; url: idl-sequence
         text: sequence<any>; url: idl-sequence
+spec: bigint; urlPrefix: https://tc39.github.io/proposal-bigint/
+    type: dfn
+        text: BigInt; url: #sec-ecmascript-language-types-bigint-type
 </pre>
 
 <style>
@@ -604,6 +618,7 @@ database, each [=object-store/record=] is organized according to its
 
 A [=/key=] has an associated <dfn>type</dfn> which is one of:
 <i>number</i>,
+<i>bigint</i>,
 <i>date</i>,
 <i>string</i>,
 <i>binary</i>,
@@ -622,6 +637,7 @@ be either:
 an {{unrestricted double}} if type is <i>number</i> or <i>date</i>,
 a {{DOMString}} if type is <i>string</i>,
 a list of {{octet}}s if type is <i>binary</i>,
+an integer if the type is <i>bigint</i>,
 or a list of other [=/keys=] if type is <i>array</i>.
 
 </div>
@@ -642,6 +658,7 @@ following the steps to [=convert a value to a key=].
   * [=Array=] objects, where every item is defined, is itself a valid
       key, and does not directly or indirectly contain itself. This
       includes empty arrays. Arrays can contain other arrays.
+  * [=BigInt=] primitive values.
 
   Attempting to convert other ECMAScript values to a [=/key=]
   will fail.
@@ -660,37 +677,45 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
 2. Let |tb| be the [=key/type=] of |b|.
 
 3. If |ta| is <i>array</i> and |tb| is <i>binary</i>, <i>string</i>,
-    <i>date</i> or <i>number</i>, return 1.
+    <i>date</i>, <i>number</i> or <i>bigint</i>, return 1.
 
 4. If |tb| is <i>array</i> and |ta| is <i>binary</i>, <i>string</i>,
-    <i>date</i> or <i>number</i>, return -1.
+    <i>date</i>, <i>number</i> or <i>bigint</i>, return -1.
 
-5. If |ta| is <i>binary</i> and |tb| is <i>string</i>, <i>date</i> or
-    <i>number</i>, return 1.
+5. If |ta| is <i>binary</i> and |tb| is <i>string</i>, <i>date</i>,
+    <i>number</i> or <i>bigint</i>, return 1.
 
-6. If |tb| is <i>binary</i> and |ta| is <i>string</i>, <i>date</i> or
-    <i>number</i>, return -1.
+6. If |tb| is <i>binary</i> and |ta| is <i>string</i>, <i>date</i>,
+    <i>number</i> or <i>bigint</i>, return -1.
 
-7. If |ta| is <i>string</i> and |tb| is <i>date</i> or <i>number</i>,
+7. If |ta| is <i>string</i> and |tb| is <i>date</i>, <i>number</i>
+    or <i>bigint</i>, return 1.
+
+8. If |tb| is <i>string</i> and |ta| is <i>date</i>, <i>number</i>,
+    or <i>bigint</i>, return -1.
+
+9. If |ta| is <i>date</i> and |tb| is <i>number</i> or <i>bigint</i>,
     return 1.
-8. If |tb| is <i>string</i> and |ta| is <i>date</i> or <i>number</i>,
+
+10. If |tb| is <i>date</i> and |ta| is <i>number</i> or <i>bigint</i>,
     return -1.
 
-9. If |ta| is <i>date</i> and |tb| is <i>number</i>, return 1.
+11. If |ta| is <i>bigint</i> and |tb| is <i>number</i>, return 1.
 
-10. If |tb| is <i>date</i> and |ta| is <i>number</i>, return -1.
+12. If |tb| is <i>bigint</i> and |ta| is <i>number</i>, return -1.
 
-11. Assert: |ta| and |tb| are equal.
+13. Assert: |ta| and |tb| are equal.
 
-12. Let |va| be the [=key/value=] of |a|.
+14. Let |va| be the [=key/value=] of |a|.
 
-13. Let |vb| be the [=key/value=] of |b|.
+15. Let |vb| be the [=key/value=] of |b|.
 
-14. Switch on |ta|:
+16. Switch on |ta|:
 
     <dl class=switch>
       <dt><i>number</i></dt>
       <dt><i>date</i></dt>
+      <dt><i>bigint</i></dt>
       <dd>
         1. If |va| is greater than |vb|, then return 1.
         2. If |va| is less than |vb|, then return -1.
@@ -763,7 +788,8 @@ of running the steps to [=compare two keys=] with |a| and |b| is 0.
 <aside class=note>
   As a result of the above rules, negative infinity is the lowest
   possible value for a [=/key=].
-  <i>Number</i> keys are less than <i>date</i> keys.
+  <i>Number</i> keys are less than <i>bigint</i> keys.
+  <i>BigInt</i> keys are less than <i>date</i> keys.
   <i>Date</i> keys are less than <i>string</i> keys.
   <i>String</i> keys are less than <i>binary</i> keys.
   <i>Binary</i> keys are less than <i>array</i> keys.
@@ -1617,8 +1643,8 @@ be updated.
   Only specified keys of [=key/type=] <i>number</i> can affect the
   [=key generator/current number=] of the key generator. Keys of [=key/type=]
   <i>date</i>, <i>array</i> (regardless of the other keys they
-  contain), <i>binary</i>, or <i>string</i> (regardless of whether
-  they could be parsed as numbers) have no effect on the [=key generator/current
+  contain), <i>binary</i>, <i>string</i> (regardless of whether
+  they could be parsed as numbers), or <i>bigint</i> have no effect on the [=key generator/current
   number=] of the key generator. Keys of [=key/type=]
   <i>number</i> with [=key/value=] less than 1 do not affect the
   [=key generator/current number=] since they are always lower than the
@@ -6635,6 +6661,9 @@ steps take one argument, |key|, and return an ECMAScript value.
       <dt><i>number</i></dt>
       <dd>Return an ECMAScript Number value equal to |value|</dd>
 
+      <dt><i>bigint</i></dt>
+      <dd>Return an ECMAScript [=BigInt=] value equal to |value|</dd>
+
       <dt><i>string</i></dt>
       <dd>Return an ECMAScript String value equal to |value|</dd>
 
@@ -6710,6 +6739,15 @@ steps may throw an exception.
         1. If |input| is NaN then return invalid.
         2. Otherwise, return a new [=/key=] with
             [=key/type=] <i>number</i> and [=key/value=]
+            |input|.
+
+      </dd>
+
+      <!-- BigInt -->
+      <dt>If [=/Type=](|input|) is BigInt</dt>
+      <dd>
+        1. Return a new [=/key=] with
+            [=key/type=] <i>bigint</i> and [=key/value=]
             |input|.
 
       </dd>
