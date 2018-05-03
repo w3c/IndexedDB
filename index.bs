@@ -1162,15 +1162,21 @@ The following constraints define when a [=/transaction=] can be
 
 </div>
 
-To <dfn export>cleanup Indexed Database transactions</dfn>,
-run these steps for each [=/transaction=]
-with [=transaction/cleanup event loop=] matching the current
-[=event loop=].
+To <dfn export>cleanup Indexed Database transactions</dfn>, run these steps.
+They will return true if any transactions were cleaned up, or false otherwise.
 
 <div class=algorithm>
-    1. Unset the [=/transaction=]'s [=transaction/active flag=].
+    1. If there are no [=/transactions=] with [=transaction/cleanup
+        event loop=] matching the current [=event loop=], return false.
 
-    2. Clear the [=/transaction=]'s [=transaction/cleanup event loop=].
+    2. For each [=/transaction=] with [=transaction/cleanup event loop=]
+        matching the current[=event loop=]:
+
+        1. Unset the [=/transaction=]'s [=transaction/active flag=].
+
+        2. Clear the [=/transaction=]'s [=transaction/cleanup event loop=].
+
+    3. Return true.
 </div>
 
 <aside class=note>
@@ -6995,6 +7001,7 @@ Chris Anderson,
 Pablo Castro,
 Victor Costan,
 Kristof Degrave,
+Domenic Denicola,
 Jake Drew,
 Ben Dilts,
 Jo&atilde;o Eiras,
