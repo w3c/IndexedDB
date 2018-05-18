@@ -17,13 +17,13 @@ Editor: Ali Alabbas, Microsoft Corp. https://microsoft.com, alia@microsoft.com
 Editor: Joshua Bell, Google Inc. https://google.com, jsbell@google.com
 Group: webplatform
 Test Suite: https://github.com/web-platform-tests/wpt/tree/master/IndexedDB
-Favicon: logo-db.png
 Complain About: accidental-2119 yes
 Markup Shorthands: css no, markdown yes
 </pre>
 
 <pre class=link-defaults>
 spec:html; type:dfn; for:/; text:task queue
+spec:infra; type:dfn; text:list
 </pre>
 
 <pre class=anchors>
@@ -2173,7 +2173,14 @@ interface IDBFactory {
                                     optional [EnforceRange] unsigned long long version);
   [NewObject] IDBOpenDBRequest deleteDatabase(DOMString name);
 
+  Promise<sequence<IDBDatabaseInfo>> databases();
+
   short cmp(any first, any second);
+};
+
+dictionary IDBDatabaseInfo {
+  DOMString name;
+  unsigned long long version;
 };
 </xmp>
 
@@ -2212,6 +2219,18 @@ interface IDBFactory {
         [=request/blocked=] until all they close. If the request
         is successful |request|'s {{IDBRequest/result}}
         will be null.
+    </dd>
+    <dt><var>result</var> = await indexedDB . {{IDBFactory/databases()|databases}}()</dt>
+    <dd>
+    <p>
+        Returns a promise which resolves to a list of objects giving a snapshot
+        of the names and versions of databases within the origin.
+
+        This API is intended for web applications to introspect the use of databases,
+        for example to clean up from earlier versions of a site's code. Note that
+        the result is a snapshot; there are no guarantees about the sequencing of the
+        collection of the data or the delivery of the response with respect to requests
+        to create, upgrade, or delete databases by this context or others.
     </dd>
   </dl>
 </div>
@@ -2343,6 +2362,41 @@ when invoked, must run these steps:
 1. Return a new {{IDBOpenDBRequest}} object for |request|.
 
 </div>
+
+<div class=algorithm>
+
+The <dfn method for=IDBFactory>databases()</dfn> method,
+when invoked, must run these steps:
+
+1. Let |origin| be the [=/origin=] of the global scope used
+    to access this {{IDBFactory}}.
+
+1. If |origin| is an [=opaque origin=], return a new promise rejected with a "{{NotSupportedError}}" {{DOMException}}.
+
+1. Let |p| be a new promise.
+
+1. Run these steps [=in parallel=]:
+
+    1. Let |databases| be a new [=list=].
+
+    1. For each [=database=] |db| in |origin|:
+
+        1. Let |info| be a new {{IDBDatabaseInfo}} dictionary.
+        1. Set |info|'s {{IDBDatabaseInfo/name}} to |db|'s [=database/name=].
+        1. Set |info|'s {{IDBDatabaseInfo/version}} to |db|'s [=database/version=].
+        1. [=list/Append=] |info| to |databases|.
+
+    1. Resolve |p| with |databases|.
+
+1. Return |p|.
+
+</div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBFactory/databases()}} method is new in this edition.
+  &#x1F6A7;
+</aside>
 
 <div class=note>
   <dl class=domintro>
@@ -6978,6 +7032,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 
 * The [=cleanup Indexed Database transactions=] algorithm now returns a value for integration with other specs. ([PR #232](https://github.com/w3c/IndexedDB/pull/232))
 * Updated [partial interface definition](#global-scope) since {{WindowOrWorkerGlobalScope}} is now a `mixin` ([PR #238](https://github.com/w3c/IndexedDB/pull/238)).
+* Added {{IDBFactory/databases()}} method. ([Issue #31](https://github.com/w3c/IndexedDB/issues/31))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
