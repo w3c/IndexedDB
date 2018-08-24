@@ -141,7 +141,7 @@ not already exist, it is created and an event handler creates the
 object store and indexes. Finally, the opened connection is saved for
 use in subsequent examples.
 
-<pre class=lang-javascript>
+```js
 var request = indexedDB.open("library");
 
 request.onupgradeneeded = function() {
@@ -160,11 +160,11 @@ request.onupgradeneeded = function() {
 request.onsuccess = function() {
   db = request.result;
 };
-</pre>
+```
 
 The following example populates the database using a transaction.
 
-<pre class=lang-javascript>
+```js
 var tx = db.transaction("books", "readwrite");
 var store = tx.objectStore("books");
 
@@ -175,12 +175,12 @@ store.put({title: "Bedrock Nights", author: "Barney", isbn: 345678});
 tx.oncomplete = function() {
   // All requests have succeeded and the transaction has committed.
 };
-</pre>
+```
 
 The following example looks up a single book in the database by title
 using an index.
 
-<pre class=lang-javascript>
+```js
 var tx = db.transaction("books", "readonly");
 var store = tx.objectStore("books");
 var index = store.index("by_title");
@@ -196,12 +196,12 @@ request.onsuccess = function() {
     report(null);
   }
 };
-</pre>
+```
 
 The following example looks up all books in the database by author
 using an index and a cursor.
 
-<pre class=lang-javascript>
+```js
 var tx = db.transaction("books", "readonly");
 var store = tx.objectStore("books");
 var index = store.index("by_author");
@@ -218,12 +218,12 @@ request.onsuccess = function() {
     report(null);
   }
 };
-</pre>
+```
 
 The following example shows how errors could be handled when a request
 fails.
 
-<pre class=lang-javascript>
+```js
 var tx = db.transaction("books", "readwrite");
 var store = tx.objectStore("books");
 var request = store.put({title: "Water Buffaloes", author: "Slate", isbn: 987654});
@@ -236,35 +236,35 @@ tx.onabort = function() {
   // Otherwise the transaction will automatically abort due the failed request.
   report(tx.error);
 };
-</pre>
+```
 
 The database connection can be closed when it is no longer needed.
 
-<pre class=lang-javascript>
+```js
 db.close();
-</pre>
+```
 
 In the future, the database might have grown to contain other object
 stores and indexes. The following example shows one way to handle
 migrating from an older version of the database.
 
-<pre class=lang-javascript>
+```js
 var request = indexedDB.open("library", 3); // Request version 3.
 
 request.onupgradeneeded = function(event) {
   var db = request.result;
-  if (event.oldVersion &lt; 1) {
+  if (event.oldVersion < 1) {
     // Version 1 is the first version of the database.
     var store = db.createObjectStore("books", {keyPath: "isbn"});
     var titleIndex = store.createIndex("by_title", "title", {unique: true});
     var authorIndex = store.createIndex("by_author", "author");
   }
-  if (event.oldVersion &lt; 2) {
+  if (event.oldVersion < 2) {
     // Version 2 introduces a new index of books by year.
     var bookStore = request.transaction.objectStore("books");
     var yearIndex = bookStore.createIndex("by_year", "year");
   }
-  if (event.oldVersion &lt; 3) {
+  if (event.oldVersion < 3) {
     // Version 3 introduces a new object store for magazines with two indexes.
     var magazines = db.createObjectStore("magazines");
     var publisherIndex = magazines.createIndex("by_publisher", "publisher");
@@ -275,7 +275,7 @@ request.onupgradeneeded = function(event) {
 request.onsuccess = function() {
   db = request.result; // db.version will be 3.
 };
-</pre>
+```
 </aside>
 
 <aside class=example id=handling-versionchange>
@@ -292,7 +292,7 @@ something that ultimately closes this client's [=/connection=] to the database.
 
 One way of doing this is to reload the page:
 
-<pre class=lang-javascript>
+```js
 db.onversionchange = function() {
   // First, save any unsaved data:
   saveUnsavedData().then(function() {
@@ -317,13 +317,13 @@ function saveUnsavedData() {
 function displayMessage() {
   // Show a non-modal message to the user.
 }
-</pre>
+```
 
 Another way is to call the [=/connection=]'s {{IDBDatabase/close()}} method. However, you need to make
 sure your app is aware of this, as subsequent attempts to access the database
 will fail.
 
-<pre class=lang-javascript>
+```js
 db.onversionchange = function() {
   saveUnsavedData().then(function() {
     db.close();
@@ -334,14 +334,14 @@ db.onversionchange = function() {
 function stopUsingTheDatabase() {
   // Put the app into a state where it no longer uses the database.
 }
-</pre>
+```
 
 The new client (the one attempting the upgrade) can use the "`blocked`" event to
 detect if other clients are preventing the upgrade from happening. The "`blocked`"
 event fires if other clients still hold a connection to the database after their
 "`versionchange`" events have fired.
 
-<pre class=lang-javascript>
+```js
 var request = indexedDB.open("library", 4); // Request version 4.
 var blockedTimeout;
 
@@ -361,7 +361,7 @@ request.onupgradeneeded = function(event) {
 function hideMessage() {
   // Hide a previously displayed message.
 }
-</pre>
+```
 
 The user will only see the above message if another client fails to disconnect
 from the database. Ideally the user will never see this.
@@ -1650,31 +1650,31 @@ transaction is rolled back.
 
 Each object store gets its own key generator:
 
-<pre class=lang-javascript>
+```js
 store1 = db.createObjectStore("store1", { autoIncrement: true });
 store1.put("a"); // Will get key 1
 store2 = db.createObjectStore("store2", { autoIncrement: true });
 store2.put("a"); // Will get key 1
 store1.put("b"); // Will get key 2
 store2.put("b"); // Will get key 2
-</pre>
+```
 
 If an insertion fails due to constraint violations or IO error, the
 key generator is not updated.
 
-<pre class=lang-javascript>
+```js
 transaction.onerror = function(e) { e.preventDefault() };
 store = db.createObjectStore("store1", { autoIncrement: true });
 index = store.createIndex("index1", "ix", { unique: true });
 store.put({ ix: "a"}); // Will get key 1
 store.put({ ix: "a"}); // Will fail
 store.put({ ix: "b"}); // Will get key 2
-</pre>
+```
 
 Removing items from an objectStore never affects the key generator.
 Including when {{IDBObjectStore/clear()}} is called.
 
-<pre class=lang-javascript>
+```js
 store = db.createObjectStore("store1", { autoIncrement: true });
 store.put("a"); // Will get key 1
 store.delete(1);
@@ -1683,13 +1683,13 @@ store.clear();
 store.put("c"); // Will get key 3
 store.delete(IDBKeyRange.lowerBound(0));
 store.put("d"); // Will get key 4
-</pre>
+```
 
 Inserting an item with an explicit key affects the key generator if,
 and only if, the key is numeric and higher than the last generated
 key.
 
-<pre class=lang-javascript>
+```js
 store = db.createObjectStore("store1", { autoIncrement: true });
 store.put("a"); // Will get key 1
 store.put("b", 3); // Will use key 3
@@ -1706,14 +1706,14 @@ store.put("j", [1000]); // Will use key [1000]
 store.put("k"); // Will get key 11
 // All of these would behave the same if the objectStore used a
 // keyPath and the explicit key was passed inline in the object
-</pre>
+```
 
 Aborting a transaction rolls back any increases to the key generator
 which happened during the transaction. This is to make all rollbacks
 consistent since rollbacks that happen due to crash never has a chance
 to commit the increased key generator value.
 
-<pre class=lang-javascript>
+```js
 db.createObjectStore("store", { autoIncrement: true });
 trans1 = db.transaction(["store"], "readwrite");
 store_t1 = trans1.objectStore("store");
@@ -1724,7 +1724,7 @@ trans2 = db.transaction(["store"], "readwrite");
 store_t2 = trans2.objectStore("store");
 store_t2.put("c"); // Will get key 1
 store_t2.put("d"); // Will get key 2
-</pre>
+```
 </aside>
 
 <aside class=example id=example-inline-keygen>
@@ -1748,14 +1748,14 @@ When the object is saved in the [=/object store=] the `bar`
 property is assigned a value of 1 because that is the next [=/key=]
 generated by the [=key generator=].
 
-<pre class=lang-javascript>
+```js
 var store = db.createObjectStore("store", { keyPath: "foo.bar",
                                             autoIncrement: true });
 store.put({ foo: {} }).onsuccess = function(e) {
   var key = e.target.result;
   console.assert(key === 1);
 };
-</pre>
+```
 
 If the following conditions are true:
 
@@ -1773,14 +1773,14 @@ store=] is "`foo.bar`". The actual object has a value of
 `bar` property keeps its value of 10, because that is the
 key value.
 
-<pre class=lang-javascript>
+```js
 var store = db.createObjectStore("store", { keyPath: "foo.bar",
                                             autoIncrement: true });
 store.put({ foo: { bar: 10 } }).onsuccess = function(e) {
   var key = e.target.result;
   console.assert(key === 10);
 };
-</pre>
+```
 
 The following example illustrates the scenario when the specified
 in-line [=/key=] is defined through a [=object-store/key
@@ -1798,7 +1798,7 @@ properties are created each as a child of the other until a value for
 `foo.bar.baz` is the next key generated by the object
 store.
 
-<pre class=lang-javascript>
+```js
 var store = db.createObjectStore("store", { keyPath: "foo.bar.baz",
                                             autoIncrement: true });
 store.put({ zip: {} }).onsuccess = function(e) {
@@ -1810,7 +1810,7 @@ store.put({ zip: {} }).onsuccess = function(e) {
     console.assert(value.foo.bar.baz === 1);
   };
 };
-</pre>
+```
 
 Attempting to store a property on a primitive value will fail and
 throw an error. In the first example below the [=object-store/key
@@ -1821,7 +1821,7 @@ Properties are not allowed on an array. In the second example below,
 the actual object is an array, `[10]`. Trying to define a
 property on the array fails.
 
-<pre class=lang-javascript>
+```js
 var store = db.createObjectStore("store", { keyPath: "foo", autoIncrement: true });
 
 // The key generation will attempt to create and store the key path
@@ -1831,7 +1831,7 @@ store.put(4); // will throw DataError
 // The key generation will attempt to create and store the key path
 // property on this array.
 store.put([10]); // will throw DataError
-</pre>
+```
 </aside>
 
 
@@ -1975,14 +1975,14 @@ In the following example, we open a [=database=] asynchronously.
 Various event handlers are registered for responding to various
 situations.
 
-<pre class=lang-javascript>
+```js
 var request = indexedDB.open('AddressBook', 15);
 request.onsuccess = function(evt) {...};
 request.onerror = function(evt) {...};
-</pre>
+```
 </aside>
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBRequest : EventTarget {
   readonly attribute any result;
@@ -2000,7 +2000,7 @@ enum IDBRequestReadyState {
   "pending",
   "done"
 };
-</pre>
+</xmp>
 
 <div class=note>
   <dl class=domintro>
@@ -2078,14 +2078,14 @@ extended interface to allow listening to the
 <code>[=request/blocked=]</code> event and
 <code>[=upgradeneeded=]</code> event.
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBOpenDBRequest : IDBRequest {
   // Event handlers:
   attribute EventHandler onblocked;
   attribute EventHandler onupgradeneeded;
 };
-</pre>
+</xmp>
 
 The <dfn attribute for=IDBOpenDBRequest>onblocked</dfn> attribute is
 the event handler for the <code>[=request/blocked=]</code> event.
@@ -2101,7 +2101,7 @@ attribute is the event handler for the
 
 This specification fires events with the following custom interfaces:
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker),
  Constructor(DOMString type, optional IDBVersionChangeEventInit eventInitDict)]
 interface IDBVersionChangeEvent : Event {
@@ -2113,7 +2113,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
   unsigned long long oldVersion = 0;
   unsigned long long? newVersion = null;
 };
-</pre>
+</xmp>
 
 The <dfn attribute for=IDBVersionChangeEvent>oldVersion</dfn>
 attribute getter returns the previous version of the database.
@@ -2156,17 +2156,17 @@ Events are constructed as defined in [[DOM#constructing-events]].
 interface is present in the global scope of environments that support
 Indexed DB operations.
 
-<pre class=idl id=global-scope>
+<xmp class=idl id=global-scope>
 partial interface mixin WindowOrWorkerGlobalScope {
   [SameObject] readonly attribute IDBFactory indexedDB;
 };
-</pre>
+</xmp>
 
 The <dfn attribute for=WindowOrWorkerGlobalScope>indexedDB</dfn>
 attribute provides applications a mechanism for accessing capabilities
 of indexed databases.
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBFactory {
   [NewObject] IDBOpenDBRequest open(DOMString name,
@@ -2175,7 +2175,7 @@ interface IDBFactory {
 
   short cmp(any first, any second);
 };
-</pre>
+</xmp>
 
 
 <div class=note>
@@ -2393,14 +2393,14 @@ has one or more event listeners registers whose type is one of
 If an {{IDBDatabase}} object is garbage collected, the associated
 [=/connection=] must be [=connection/closed=].
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBDatabase : EventTarget {
   readonly attribute DOMString name;
   readonly attribute unsigned long long version;
   readonly attribute DOMStringList objectStoreNames;
 
-  [NewObject] IDBTransaction transaction((DOMString or sequence&lt;DOMString&gt;) storeNames,
+  [NewObject] IDBTransaction transaction((DOMString or sequence<DOMString>) storeNames,
                                          optional IDBTransactionMode mode = "readonly");
   void close();
 
@@ -2416,10 +2416,10 @@ interface IDBDatabase : EventTarget {
 };
 
 dictionary IDBObjectStoreParameters {
-  (DOMString or sequence&lt;DOMString&gt;)? keyPath = null;
+  (DOMString or sequence<DOMString>)? keyPath = null;
   boolean autoIncrement = false;
 };
-</pre>
+</xmp>
 
 <div class=note>
   <dl class=domintro>
@@ -2702,7 +2702,7 @@ the event handler for the `versionchange` event.
 The {{IDBObjectStore}}
 interface represents an [=/object store handle=].
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBObjectStore {
   attribute DOMString name;
@@ -2731,7 +2731,7 @@ interface IDBObjectStore {
   IDBIndex index(DOMString name);
 
   [NewObject] IDBIndex createIndex(DOMString name,
-                                   (DOMString or sequence&lt;DOMString&gt;) keyPath,
+                                   (DOMString or sequence<DOMString>) keyPath,
                                    optional IDBIndexParameters options);
   void deleteIndex(DOMString name);
 };
@@ -2740,7 +2740,7 @@ dictionary IDBIndexParameters {
   boolean unique = false;
   boolean multiEntry = false;
 };
-</pre>
+</xmp>
 
 
 <div class=note>
@@ -3662,11 +3662,11 @@ must be used as error.
 
   The asynchronous creation of indexes is observable in the following example:
 
-  <pre class=lang-javascript>
+```js
     var request1 = objectStore.put({name: "betty"}, 1);
     var request2 = objectStore.put({name: "betty"}, 2);
     var index = objectStore.createIndex("by_name", "name", {unique: true});
-  </pre>
+```
 
   At the point where {{createIndex()}} called, neither of the
   [=requests=] have executed. When the second request executes, a
@@ -3768,7 +3768,7 @@ within the [=/upgrade transaction=].
 The {{IDBIndex}} interface represents an [=index handle=].
 
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBIndex {
   attribute DOMString name;
@@ -3790,7 +3790,7 @@ interface IDBIndex {
   [NewObject] IDBRequest openKeyCursor(optional any query,
                                        optional IDBCursorDirection direction = "next");
 };
-</pre>
+</xmp>
 
 <div class=note>
   <dl class=domintro>
@@ -4286,7 +4286,7 @@ or not given, an [=unbounded key range=] is used.
 The {{IDBKeyRange}} interface represents a
 [=key range=].
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBKeyRange {
   readonly attribute any lower;
@@ -4305,7 +4305,7 @@ interface IDBKeyRange {
 
   boolean _includes(any key);
 };
-</pre>
+</xmp>
 
 <div class=note>
   <dl class=domintro>
@@ -4487,7 +4487,7 @@ is only ever one {{IDBCursor}} instance representing a given
 the same time.
 
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBCursor {
   readonly attribute (IDBObjectStore or IDBIndex) source;
@@ -4509,7 +4509,7 @@ enum IDBCursorDirection {
   "prev",
   "prevunique"
 };
-</pre>
+</xmp>
 
 
 <div class=note>
@@ -4929,12 +4929,12 @@ A [=cursor=] that has the [=key only flag=] unset implements the
 {{IDBCursorWithValue}} interface as well.
 
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBCursorWithValue : IDBCursor {
   readonly attribute any value;
 };
-</pre>
+</xmp>
 
 <div class=note>
   <dl class=domintro>
@@ -4962,7 +4962,7 @@ the contents of the database.
 
 [=/transaction=] objects implement the following interface:
 
-<pre class=idl>
+<xmp class=idl>
 [Exposed=(Window,Worker)]
 interface IDBTransaction : EventTarget {
   readonly attribute DOMStringList objectStoreNames;
@@ -4984,7 +4984,7 @@ enum IDBTransactionMode {
   "readwrite",
   "versionchange"
 };
-</pre>
+</xmp>
 
 <div class=note>
   <dl class=domintro>
