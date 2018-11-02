@@ -1216,7 +1216,7 @@ Possible extra rowspan handling
   <meta content="Bikeshed version 92dbd78f32f2416c6e5d4ce13e7de2a35acd74df" name="generator">
   <link href="https://www.w3.org/TR/IndexedDB-3/" rel="canonical">
   <link href="logo-db.png" rel="icon">
-  <meta content="17e6c6ba569fa129927c8794cb41f91528098d51" name="document-revision">
+  <meta content="d864796a991ba67c4f4b580c62c6b1ff414c1bc6" name="document-revision">
 <style>
 /* Default ED/WD stylesheets set "both"; not needed for logo floated right */
 div.head h1 { clear: left; }
@@ -3226,23 +3226,34 @@ otherwise, and <var>request</var>.</p>
         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task①">Queue a task</a> to run these steps:</p>
         <ol>
          <li data-md>
-          <p>If <var>result</var> is an error,
-set <var>request</var>’s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result④">result</a> to undefined,
-set <var>request</var>’s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error④">error</a> to <var>result</var>,
-set <var>request</var>’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑧">done flag</a>,
-and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire">fire an event</a> named <code>error</code> at <var>request</var> with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles" id="ref-for-dom-event-bubbles①">bubbles</a></code> and <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-cancelable" id="ref-for-dom-event-cancelable①">cancelable</a></code> attributes initialized to true.</p>
+          <p>If <var>result</var> is an error, then run these steps:</p>
+          <ol>
+           <li data-md>
+            <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result④">result</a> to undefined.</p>
+           <li data-md>
+            <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error④">error</a> to <var>result</var>.</p>
+           <li data-md>
+            <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑧">done flag</a>.</p>
+           <li data-md>
+            <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire">Fire an event</a> named <code>error</code> at <var>request</var> with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles" id="ref-for-dom-event-bubbles①">bubbles</a></code> and <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-cancelable" id="ref-for-dom-event-cancelable①">cancelable</a></code> attributes initialized to true.</p>
+          </ol>
          <li data-md>
-          <p>Otherwise,
-set <var>request</var>’s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result⑤">result</a> to <var>result</var>,
-set <var>request</var>’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑨">done flag</a>,
-and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire①">fire an event</a> named <code>success</code> at <var>request</var>. If the steps
-above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑦">upgrade transaction</a> being run,
-then firing the "<code>success</code>" event must be done
-after the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑧">upgrade transaction</a> completes.</p>
-          <aside class="note"> The last requirement is to ensure that in case another
-  version upgrade is about to happen, the success event is
-  fired on the connection first so that the script gets a
-  chance to register a listener for the <code>versionchange</code> event. </aside>
+          <p>Otherwise, run these steps:</p>
+          <ol>
+           <li data-md>
+            <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result⑤">result</a> to <var>result</var>.</p>
+           <li data-md>
+            <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑨">done flag</a>.</p>
+           <li data-md>
+            <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire①">Fire an event</a> named <code>success</code> at <var>request</var>.</p>
+          </ol>
+          <aside class="note"> If the steps above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑦">upgrade
+    transaction</a> being run, these steps will run after
+    that transaction finishes. This ensures that in the
+    case where another version upgrade is about to happen,
+    the success event is fired on the connection first so
+    that the script gets a chance to register a listener
+    for the <code>versionchange</code> event. </aside>
           <details class="note">
            <summary> Why aren’t the steps to <a data-link-type="dfn" href="#fire-a-success-event" id="ref-for-fire-a-success-event">fire a success event</a> or <a data-link-type="dfn" href="#fire-an-error-event" id="ref-for-fire-an-error-event">fire an error event</a> used? </summary>
             There is no transaction associated with the request (at
@@ -3418,7 +3429,7 @@ must return this <a data-link-type="dfn" href="#connection" id="ref-for-connecti
     <summary> Is this the same as the <a data-link-type="dfn" href="#database" id="ref-for-database④③">database</a>'s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version⑦">version</a>? </summary>
      As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection④①">connection</a> is open, this is the same as the
   connected <a data-link-type="dfn" href="#database" id="ref-for-database④④">database</a>'s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version⑧">version</a>. But once the <a data-link-type="dfn" href="#connection" id="ref-for-connection④②">connection</a> has <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed②">closed</a>, this attribute will not
-  reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑨">upgrade transaction</a>. 
+  reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑧">upgrade transaction</a>. 
    </details>
    <div class="note" role="note">
     <dl class="domintro">
@@ -3427,11 +3438,11 @@ must return this <a data-link-type="dfn" href="#connection" id="ref-for-connecti
      <dt><var>store</var> = <var>connection</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-createobjectstore" id="ref-for-dom-idbdatabase-createobjectstore①">createObjectStore</a></code>(<var>name</var> [, <var>options</var>])
      <dd>
        Creates a new <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤③">object store</a> with the given <var>name</var> and <var>options</var> and returns a new <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore③">IDBObjectStore</a></code>. 
-      <p>Throws a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑤">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②⓪">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⓪">upgrade transaction</a>.</p>
+      <p>Throws a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑤">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②⓪">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑨">upgrade transaction</a>.</p>
      <dt><var>connection</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-deleteobjectstore" id="ref-for-dom-idbdatabase-deleteobjectstore①">deleteObjectStore</a></code>(<var>name</var>)
      <dd>
        Deletes the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤④">object store</a> with the given <var>name</var>. 
-      <p>Throws a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑥">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②①">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②①">upgrade transaction</a>.</p>
+      <p>Throws a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑥">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②①">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⓪">upgrade transaction</a>.</p>
     </dl>
    </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-objectstorenames"><code>objectStoreNames</code></dfn> attribute’s
@@ -3442,7 +3453,7 @@ the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤⑤"
      As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection④④">connection</a> is open, this is the same as the
   connected <a data-link-type="dfn" href="#database" id="ref-for-database④⑥">database</a>'s <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤⑦">object store</a> <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name③">names</a>.
   But once the <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑤">connection</a> has <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed③">closed</a>, this attribute
-  will not reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②②">upgrade transaction</a>. 
+  will not reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②①">upgrade transaction</a>. 
    </details>
    <div class="algorithm">
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export data-lt="createObjectStore(name, options)|createObjectStore(name)" id="dom-idbdatabase-createobjectstore"><code>createObjectStore(<var>name</var>, <var>options</var>)</code></dfn> method, when invoked, must run these steps:</p>
@@ -3479,7 +3490,7 @@ not null, set the created <a data-link-type="dfn" href="#object-store" id="ref-f
    </div>
    <p>This method creates and returns a new <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥③">object store</a> with the given
 name in the <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑦">connected</a> <a data-link-type="dfn" href="#database" id="ref-for-database④⑧">database</a>. Note that this method must
-only be called from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②③">upgrade transaction</a>.</p>
+only be called from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②②">upgrade transaction</a>.</p>
    <p>This method synchronously modifies the <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-objectstorenames" id="ref-for-dom-idbdatabase-objectstorenames②">objectStoreNames</a></code> property on the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase⑥">IDBDatabase</a></code> instance on which it was called.</p>
    <p>In some implementations it is possible for the implementation to run
 into problems after queuing a task to create the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥④">object store</a> after the <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-createobjectstore" id="ref-for-dom-idbdatabase-createobjectstore②">createObjectStore()</a></code> method has returned. For example in
@@ -3514,7 +3525,7 @@ store set</a>.</p>
     </ol>
    </div>
    <p>This method destroys the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥⑨">object store</a> with the given name in the <a data-link-type="dfn" href="#connection" id="ref-for-connection⑤⓪">connected</a> <a data-link-type="dfn" href="#database" id="ref-for-database⑤⓪">database</a>. Note that this method must only be called
-from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②④">upgrade transaction</a>.</p>
+from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②③">upgrade transaction</a>.</p>
    <p>This method synchronously modifies the <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-objectstorenames" id="ref-for-dom-idbdatabase-objectstorenames③">objectStoreNames</a></code> property on the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase⑦">IDBDatabase</a></code> instance on which it was called.</p>
    <div class="note" role="note">
     <dl class="domintro">
@@ -3529,7 +3540,7 @@ from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-u
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export data-lt="transaction(storeNames, mode)|transaction(storeNames)" id="dom-idbdatabase-transaction"><code>transaction(<var>storeNames</var>, <var>mode</var>)</code></dfn> method, when invoked, must run these steps:</p>
     <ol>
      <li data-md>
-      <p>If a running <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑤">upgrade transaction</a> is associated with the <a data-link-type="dfn" href="#connection" id="ref-for-connection⑤②">connection</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①⑦">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑨">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③①">DOMException</a></code>.</p>
+      <p>If a running <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②④">upgrade transaction</a> is associated with the <a data-link-type="dfn" href="#connection" id="ref-for-connection⑤②">connection</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①⑦">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑨">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③①">DOMException</a></code>.</p>
      <li data-md>
       <p>If the <a data-link-type="dfn" href="#connection" id="ref-for-connection⑤③">connection</a>'s <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag③">close pending flag</a> is set, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①⑧">throw</a> an
 "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①⓪">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③②">DOMException</a></code>.</p>
@@ -3617,7 +3628,7 @@ the event handler for the <code>versionchange</code> event.</p>
      <dt><var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name②">name</a></code> = <var>newName</var>
      <dd>
        Updates the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⓪">name</a> of the store to <var>newName</var>. 
-      <p>Throws "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①①">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑤">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑥">upgrade
+      <p>Throws "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①①">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑤">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑤">upgrade
         transaction</a>.</p>
      <dt><var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-keypath" id="ref-for-dom-idbobjectstore-keypath①">keyPath</a></code>
      <dd> Returns the <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path①①">key path</a> of the store, or null if none. 
@@ -3635,7 +3646,7 @@ must return this <a data-link-type="dfn" href="#object-store-handle" id="ref-for
     <summary> Is this the same as the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦③">object store</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①②">name</a>? </summary>
      As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④①">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish④">finished</a>,
   this is the same as the associated <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦④">object store</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①③">name</a>. But once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④②">transaction</a> has <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish⑤">finished</a>, this attribute will not reflect changes made with a
-  later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑦">upgrade transaction</a>. 
+  later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑥">upgrade transaction</a>. 
    </details>
    <div class="algorithm">
     <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name③">name</a></code> attribute’s setter must run these steps:</p>
@@ -3649,7 +3660,7 @@ must return this <a data-link-type="dfn" href="#object-store-handle" id="ref-for
      <li data-md>
       <p>If <var>store</var> has been deleted, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②②">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①②">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑥">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑧">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②③">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①③">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑦">DOMException</a></code>.</p>
+      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑦">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②③">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror①③">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑦">DOMException</a></code>.</p>
      <li data-md>
       <p>If <var>transaction</var> is not <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active⑦">active</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②④">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#transactioninactiveerror" id="ref-for-transactioninactiveerror④">TransactionInactiveError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑧">DOMException</a></code>.</p>
      <li data-md>
@@ -3680,7 +3691,7 @@ getter must return a <code class="idl"><a data-link-type="idl" href="https://htm
      As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④③">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish⑥">finished</a>,
   this is the same as the associated <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑨">object store</a>'s list
   of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②①">index</a> <a data-link-type="dfn" href="#index-name" id="ref-for-index-name③">names</a>. But once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④④">transaction</a> has <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish⑦">finished</a>, this attribute will not
-  reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑨">upgrade transaction</a>. 
+  reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑧">upgrade transaction</a>. 
    </details>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-transaction"><code>transaction</code></dfn> attribute’s
 getter must return this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle①⑥">object store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction②">transaction</a>.</p>
@@ -4160,15 +4171,15 @@ or not given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for
      <dt> <var>index</var> = <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-createindex" id="ref-for-dom-idbobjectstore-createindex①">createIndex</a></code>(<var>name</var>, <var>keyPath</var> [, <var>options</var>]) 
      <dd>
        Creates a new <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②③">index</a> in <var>store</var> with the given <var>name</var>, <var>keyPath</var> and <var>options</var> and returns a new <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex⑤">IDBIndex</a></code>. If the <var>keyPath</var> and <var>options</var> define constraints that cannot be
-      satisfied with the data already in <var>store</var> the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⓪">upgrade
+      satisfied with the data already in <var>store</var> the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑨">upgrade
       transaction</a> will <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort⑤">abort</a> with
       a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#constrainterror" id="ref-for-constrainterror⑤">ConstraintError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧④">DOMException</a></code>. 
-      <p>Throws an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑤">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑤">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③①">upgrade
+      <p>Throws an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑤">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑤">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⓪">upgrade
       transaction</a>.</p>
      <dt> <var>store</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-deleteindex" id="ref-for-dom-idbobjectstore-deleteindex①">deleteIndex</a></code>(<var>name</var>) 
      <dd>
        Deletes the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②④">index</a> in <var>store</var> with the given <var>name</var>. 
-      <p>Throws an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑥">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑥">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③②">upgrade
+      <p>Throws an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑥">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑥">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③①">upgrade
       transaction</a>.</p>
     </dl>
    </div>
@@ -4180,7 +4191,7 @@ or not given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for
      <li data-md>
       <p>Let <var>store</var> be this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle⑤②">object store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store①⑥">object store</a>.</p>
      <li data-md>
-      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③③">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑥④">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑦">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑦">DOMException</a></code>.</p>
+      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③②">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑥④">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑦">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑦">DOMException</a></code>.</p>
      <li data-md>
       <p>If <var>store</var> has been deleted, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑥⑤">throw</a> an
 "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror②⑧">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⑧">DOMException</a></code>.</p>
@@ -4212,19 +4223,19 @@ set, set <var>index</var>’s <a data-link-type="dfn" href="#index-multientry-fl
    </div>
    <p>This method creates and returns a new <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②⑦">index</a> with the
 given name in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑧⓪">object store</a>. Note that this method
-must only be called from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③④">upgrade transaction</a>.</p>
+must only be called from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③③">upgrade transaction</a>.</p>
    <p>The index that is requested to be created can contain constraints on
 the data allowed in the index’s <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced⑥">referenced</a> object store, such
 as requiring uniqueness of the values referenced by the index’s <a data-link-type="dfn" href="#index-key-path" id="ref-for-index-key-path④">key path</a>. If the <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced⑦">referenced</a> object store already contains data
 which violates these constraints, this must not cause the
 implementation of <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-createindex" id="ref-for-dom-idbobjectstore-createindex②">createIndex()</a></code> to throw an
 exception or affect what it returns. The implementation must still
-create and return an <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex⑥">IDBIndex</a></code> object, and the implementation must <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task③">queue a task</a> to abort the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑤">upgrade transaction</a> which was
+create and return an <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex⑥">IDBIndex</a></code> object, and the implementation must <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task③">queue a task</a> to abort the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③④">upgrade transaction</a> which was
 used for the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-createindex" id="ref-for-dom-idbobjectstore-createindex③">createIndex()</a></code> call.</p>
    <p>This method synchronously modifies the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames②">indexNames</a></code> property on the <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore⑦">IDBObjectStore</a></code> instance on which it was called.
 Although this method does not return an <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest②⑥">IDBRequest</a></code> object, the
 index creation itself is processed as an asynchronous request within
-the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑥">upgrade transaction</a>.</p>
+the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑤">upgrade transaction</a>.</p>
    <p>In some implementations it is possible for the implementation to
 asynchronously run into problems creating the index after the
 createIndex method has returned. For example in implementations where
@@ -4287,7 +4298,7 @@ when invoked, must run these steps:</p>
      <li data-md>
       <p>Let <var>store</var> be this <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle⑥⓪">object store handle</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store①⑧">object store</a>.</p>
      <li data-md>
-      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑦">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑦③">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③①">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑨⑧">DOMException</a></code>.</p>
+      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑥">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑦③">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③①">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑨⑧">DOMException</a></code>.</p>
      <li data-md>
       <p>If <var>store</var> has been deleted, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑦④">throw</a> an
 "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③②">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑨⑨">DOMException</a></code>.</p>
@@ -4303,11 +4314,11 @@ when invoked, must run these steps:</p>
     </ol>
    </div>
    <p>This method destroys the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③①">index</a> with the given name in the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑧①">object store</a>. Note that this method must only be called from
-within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑧">upgrade transaction</a>.</p>
+within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑦">upgrade transaction</a>.</p>
    <p>This method synchronously modifies the <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames③">indexNames</a></code> property on the <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore①①">IDBObjectStore</a></code> instance on which it was called.
 Although this method does not return an <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest②⑦">IDBRequest</a></code> object, the
 index destruction itself is processed as an asynchronous request
-within the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑨">upgrade transaction</a>.</p>
+within the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑧">upgrade transaction</a>.</p>
    <h3 class="heading settled" data-level="4.6" id="index-interface"><span class="secno">4.6. </span><span class="content">The <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex①①">IDBIndex</a></code> interface</span><a class="self-link" href="#index-interface"></a></h3>
    <p>The <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex①②">IDBIndex</a></code> interface represents an <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle⑦">index handle</a>.</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed⑥"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
@@ -4339,7 +4350,7 @@ within the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgra
      <dt><var>index</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name②">name</a></code> = <var>newName</var>
      <dd>
        Updates the <a data-link-type="dfn" href="#index-name" id="ref-for-index-name⑨">name</a> of the store to <var>newName</var>. 
-      <p>Throws an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③③">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪②">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⓪">upgrade
+      <p>Throws an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③③">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪②">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③⑨">upgrade
       transaction</a>.</p>
      <dt><var>index</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbindex-objectstore" id="ref-for-dom-idbindex-objectstore①">objectStore</a></code>
      <dd> Returns the <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore①③">IDBObjectStore</a></code> the index belongs to. 
@@ -4357,7 +4368,7 @@ return this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handl
     <summary> Is this the same as the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③②">index</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①①">name</a>? </summary>
      As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑨">transaction</a> has not <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish⑨">finished</a>,
   this is the same as the associated <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③③">index</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①②">name</a>. But once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑤⓪">transaction</a> has <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish①⓪">finished</a>, this attribute will not reflect changes made with a
-  later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④①">upgrade transaction</a>. 
+  later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⓪">upgrade transaction</a>. 
    </details>
    <div class="algorithm">
     <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name③">name</a></code> attribute’s setter must run these steps:</p>
@@ -4369,7 +4380,7 @@ return this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handl
      <li data-md>
       <p>Let <var>index</var> be this <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle①⓪">index handle</a>'s <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index①">index</a>.</p>
      <li data-md>
-      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④②">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑦⑦">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③④">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪③">DOMException</a></code>.</p>
+      <p>If <var>transaction</var> is not an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④①">upgrade transaction</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑦⑦">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③④">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪③">DOMException</a></code>.</p>
      <li data-md>
       <p>If <var>transaction</var> is not <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active②④">active</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑦⑧">throw</a> a
 "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#transactioninactiveerror" id="ref-for-transactioninactiveerror②①">TransactionInactiveError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪④">DOMException</a></code>.</p>
@@ -5154,11 +5165,11 @@ the contents of the database.</p>
     <dl class="domintro">
      <dt><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-objectstorenames" id="ref-for-dom-idbtransaction-objectstorenames①">objectStoreNames</a></code>
      <dd> Returns a list of the names of <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨①">object stores</a> in the
-      transaction’s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope①①">scope</a>. For an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④③">upgrade transaction</a> this is all object stores in the <a data-link-type="dfn" href="#database" id="ref-for-database⑤③">database</a>. 
+      transaction’s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope①①">scope</a>. For an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④②">upgrade transaction</a> this is all object stores in the <a data-link-type="dfn" href="#database" id="ref-for-database⑤③">database</a>. 
      <dt><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-mode" id="ref-for-dom-idbtransaction-mode①">mode</a></code>
      <dd> Returns the <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑧">mode</a> the transaction was created with
       (<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly④">"readonly"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite⑤">"readwrite"</a></code>), or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange②">"versionchange"</a></code> for
-      an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④④">upgrade transaction</a>. 
+      an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④③">upgrade transaction</a>. 
      <dt><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-db" id="ref-for-dom-idbtransaction-db①">db</a></code>
      <dd> Returns the transaction’s <a data-link-type="dfn" href="#transaction-connection" id="ref-for-transaction-connection①">connection</a>. 
      <dt><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-error" id="ref-for-dom-idbtransaction-error①">error</a></code>
@@ -5170,7 +5181,7 @@ the contents of the database.</p>
     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-objectstorenames"><code>objectStoreNames</code></dfn> attribute’s getter must run these steps:</p>
     <ol>
      <li data-md>
-      <p>If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑤⑦">transaction</a> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑤">upgrade transaction</a>,
+      <p>If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑤⑦">transaction</a> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④④">upgrade transaction</a>,
 return a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑤">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list②">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑦">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨②">object stores</a> in this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑤⑧">transaction</a>'s <a data-link-type="dfn" href="#connection" id="ref-for-connection⑤⑥">connection</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set②">object store
 set</a>.</p>
      <li data-md>
@@ -5179,7 +5190,7 @@ this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction
     </ol>
    </div>
    <aside class="note"> The contents of each list returned by this attribute does not
-  change, but subsequent calls to this attribute during an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑥">upgrade
+  change, but subsequent calls to this attribute during an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑤">upgrade
   transaction</a> can return lists with different contents as <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨④">object stores</a> are created and deleted. </aside>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-mode"><code>mode</code></dfn> attribute’s getter
 must return the <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑨">mode</a> of the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⓪">transaction</a>.</p>
@@ -5299,7 +5310,7 @@ event</a> named <code><a data-link-type="dfn" href="#request-blocked" id="ref-fo
         <p>If <var>connection</var> was <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed⑤">closed</a>,
 return a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception" id="ref-for-dfn-create-exception①">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror③">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⑧②">DOMException</a></code> and abort these steps.</p>
        <li data-md>
-        <p>If the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑦">upgrade transaction</a> was aborted, run the steps
+        <p>If the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑥">upgrade transaction</a> was aborted, run the steps
 to <a data-link-type="dfn" href="#close-a-database-connection" id="ref-for-close-a-database-connection③">close a database connection</a> with <var>connection</var>,
 return a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception" id="ref-for-dfn-create-exception②">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror④">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⑧③">DOMException</a></code> and abort these steps.</p>
       </ol>
@@ -5389,7 +5400,7 @@ appropriate for the error, for example "<code class="idl"><a data-link-type="idl
       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task⑧">Queue a task</a> to run these steps:</p>
       <ol>
        <li data-md>
-        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑧">upgrade transaction</a>, set the <a data-link-type="dfn" href="#database" id="ref-for-database⑥④">database</a>'s <a data-link-type="dfn" href="#database-upgrade-transaction" id="ref-for-database-upgrade-transaction②">upgrade transaction</a> to null.</p>
+        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑦">upgrade transaction</a>, set the <a data-link-type="dfn" href="#database" id="ref-for-database⑥④">database</a>'s <a data-link-type="dfn" href="#database-upgrade-transaction" id="ref-for-database-upgrade-transaction②">upgrade transaction</a> to null.</p>
        <li data-md>
         <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire④">Fire an event</a> named <code>complete</code> at <var>transaction</var>.</p>
         <aside class="note"> Even if an exception is thrown from one of the event handlers of
@@ -5398,7 +5409,7 @@ appropriate for the error, for example "<code class="idl"><a data-link-type="idl
   after the transaction has been successfully written is the
   "<code>complete</code>" event fired. </aside>
        <li data-md>
-        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑨">upgrade transaction</a>, then
+        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑧">upgrade transaction</a>, then
 let <var>request</var> be the <a data-link-type="dfn" href="#request" id="ref-for-request②⑧">request</a> associated with <var>transaction</var> and set <var>request</var>’s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction③">transaction</a> to null.</p>
       </ol>
     </ol>
@@ -5410,12 +5421,12 @@ This algorithm
 takes two arguments: the <var>transaction</var> to abort, and <var>error</var>.</p>
     <ol>
      <li data-md>
-      <p>All the changes made to the <a data-link-type="dfn" href="#database" id="ref-for-database⑥⑤">database</a> by the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦④">transaction</a> are reverted. For <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤⓪">upgrade transactions</a> this includes changes
+      <p>All the changes made to the <a data-link-type="dfn" href="#database" id="ref-for-database⑥⑤">database</a> by the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦④">transaction</a> are reverted. For <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑨">upgrade transactions</a> this includes changes
 to the set of <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨⑦">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept④⓪">indexes</a>, as well as the
 change to the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version①⑧">version</a>. Any <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨⑧">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept④①">indexes</a> which were created during the transaction are now
 considered deleted for the purposes of other algorithms.</p>
      <li data-md>
-      <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤①">upgrade transaction</a>, run the steps
+      <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤⓪">upgrade transaction</a>, run the steps
 to <a data-link-type="dfn" href="#abort-an-upgrade-transaction" id="ref-for-abort-an-upgrade-transaction①">abort an upgrade transaction</a> with <var>transaction</var>.</p>
       <aside class="note"> This reverts changes to all <a data-link-type="dfn" href="#connection" id="ref-for-connection⑥⑦">connection</a>, <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle⑥③">object store
   handle</a>, and <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle③⑦">index handle</a> instances associated with <var>transaction</var>. </aside>
@@ -5443,14 +5454,14 @@ run these steps:</p>
       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task①⓪">Queue a task</a> to run these steps:</p>
       <ol>
        <li data-md>
-        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤②">upgrade transaction</a>, set the <a data-link-type="dfn" href="#database" id="ref-for-database⑥⑥">database</a>'s <a data-link-type="dfn" href="#database-upgrade-transaction" id="ref-for-database-upgrade-transaction③">upgrade transaction</a> to null.</p>
+        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤①">upgrade transaction</a>, set the <a data-link-type="dfn" href="#database" id="ref-for-database⑥⑥">database</a>'s <a data-link-type="dfn" href="#database-upgrade-transaction" id="ref-for-database-upgrade-transaction③">upgrade transaction</a> to null.</p>
        <li data-md>
         <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire⑥">Fire an event</a> named <code>abort</code> at <var>transaction</var> with its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-bubbles" id="ref-for-dom-event-bubbles④">bubbles</a></code> attribute initialized to true.</p>
        <li data-md>
-        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤③">upgrade transaction</a>, then:</p>
+        <p>If <var>transaction</var> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤②">upgrade transaction</a>, then:</p>
         <ol>
          <li data-md>
-          <p>Let <var>request</var> be the <a data-link-type="dfn" href="#request" id="ref-for-request②⑨">request</a> associated with <var>transaction</var>.</p>
+          <p>Let <var>request</var> be the <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request①③">open request</a> associated with <var>transaction</var>.</p>
          <li data-md>
           <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction④">transaction</a> to null.</p>
          <li data-md>
@@ -5461,14 +5472,14 @@ run these steps:</p>
       </ol>
     </ol>
    </div>
-   <h3 class="heading settled" data-level="5.6" id="async-execute-request"><span class="secno">5.6. </span><span class="content">Asynchronously executing a <a data-link-type="dfn" href="#request" id="ref-for-request③⓪">request</a></span><a class="self-link" href="#async-execute-request"></a></h3>
+   <h3 class="heading settled" data-level="5.6" id="async-execute-request"><span class="secno">5.6. </span><span class="content">Asynchronously executing a <a data-link-type="dfn" href="#request" id="ref-for-request②⑨">request</a></span><a class="self-link" href="#async-execute-request"></a></h3>
    <div class="algorithm">
     <p>The steps to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="asynchronously-execute-a-request">asynchronously execute a request</dfn> are as follows.
 The
 algorithm takes a <var>source</var> object and an <var>operation</var> to perform on a
 database, and an optional <var>request</var>.</p>
     <p>These steps can be aborted at any point if the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦⑤">transaction</a> the
-created <a data-link-type="dfn" href="#request" id="ref-for-request③①">request</a> belongs to is <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort⑧">aborted</a> using the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction⑦">abort a transaction</a>.</p>
+created <a data-link-type="dfn" href="#request" id="ref-for-request③⓪">request</a> belongs to is <a data-link-type="dfn" href="#transaction-abort" id="ref-for-transaction-abort⑧">aborted</a> using the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction⑦">abort a transaction</a>.</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦⑥">transaction</a> associated with <var>source</var>.</p>
@@ -5482,7 +5493,7 @@ created <a data-link-type="dfn" href="#request" id="ref-for-request③①">reque
       <p>Run these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③">in parallel</a>:</p>
       <ol>
        <li data-md>
-        <p>Wait until all previously added <a data-link-type="dfn" href="#request" id="ref-for-request③②">requests</a> in <var>transaction</var> have their <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag①⑧">done flag</a> set.</p>
+        <p>Wait until all previously added <a data-link-type="dfn" href="#request" id="ref-for-request③①">requests</a> in <var>transaction</var> have their <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag①⑧">done flag</a> set.</p>
        <li data-md>
         <p>Let <var>result</var> be the result of performing <var>operation</var>.</p>
        <li data-md>
@@ -5530,7 +5541,7 @@ for the <a data-link-type="dfn" href="#database" id="ref-for-database⑥⑧">dat
      <li data-md>
       <p>Let <var>db</var> be <var>connection</var>’s <a data-link-type="dfn" href="#database" id="ref-for-database⑥⑨">database</a>.</p>
      <li data-md>
-      <p>Let <var>transaction</var> be a new <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤④">upgrade transaction</a> with <var>connection</var> used as <a data-link-type="dfn" href="#connection" id="ref-for-connection⑥⑧">connection</a>. The <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope①⑤">scope</a> of <var>transaction</var> includes every <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨⑨">object store</a> in <var>connection</var>.</p>
+      <p>Let <var>transaction</var> be a new <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤③">upgrade transaction</a> with <var>connection</var> used as <a data-link-type="dfn" href="#connection" id="ref-for-connection⑥⑧">connection</a>. The <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope①⑤">scope</a> of <var>transaction</var> includes every <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨⑨">object store</a> in <var>connection</var>.</p>
      <li data-md>
       <p>Set <var>database</var>’s <a data-link-type="dfn" href="#database-upgrade-transaction" id="ref-for-database-upgrade-transaction④">upgrade transaction</a> to <var>transaction</var>.</p>
      <li data-md>
@@ -5569,7 +5580,7 @@ transaction</a> with the <var>error</var> property set to a newly <a data-link-t
       <p>Wait for <var>transaction</var> to <a data-link-type="dfn" href="#transaction-finish" id="ref-for-transaction-finish①③">finish</a>.</p>
       <aside class="note"> Some of the algorithms invoked during the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦⑨">transaction</a>'s <a data-link-type="dfn" href="#transaction-lifetime" id="ref-for-transaction-lifetime①">lifetime</a>, such as the steps to <a data-link-type="dfn" href="#commit-a-transaction" id="ref-for-commit-a-transaction①">commit a
   transaction</a> and the steps to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction⑨">abort a transaction</a>,
-  include steps specific to <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤⑤">upgrade transactions</a>. </aside>
+  include steps specific to <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤④">upgrade transactions</a>. </aside>
     </ol>
    </div>
    <h3 class="heading settled" data-level="5.8" id="abort-upgrade-transaction"><span class="secno">5.8. </span><span class="content">Aborting an upgrade transaction</span><a class="self-link" href="#abort-upgrade-transaction"></a></h3>
@@ -5629,7 +5640,7 @@ its <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-
     </ol>
    </div>
    <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name②">name</a></code> property of the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase①①">IDBDatabase</a></code> instance is
-  not modified, even if the aborted <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤⑥">upgrade transaction</a> was
+  not modified, even if the aborted <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤⑤">upgrade transaction</a> was
   creating a new <a data-link-type="dfn" href="#database" id="ref-for-database⑦③">database</a>. </aside>
    <h3 class="heading settled" data-level="5.9" id="fire-success-event"><span class="secno">5.9. </span><span class="content">Firing a success event</span><a class="self-link" href="#fire-success-event"></a></h3>
    <div class="algorithm">
@@ -5675,7 +5686,7 @@ the implementation must run these steps:</p>
      <li data-md>
       <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag①⓪">active flag</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch②">Dispatch</a> <var>event</var> at <a data-link-type="dfn" href="#request" id="ref-for-request③③">request</a> with <var>legacyOutputDidListenersThrowFlag</var>.</p>
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch②">Dispatch</a> <var>event</var> at <a data-link-type="dfn" href="#request" id="ref-for-request③②">request</a> with <var>legacyOutputDidListenersThrowFlag</var>.</p>
      <li data-md>
       <p>Unset <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-active-flag" id="ref-for-transaction-active-flag①①">active flag</a>.</p>
      <li data-md>
@@ -5686,7 +5697,7 @@ event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-fl
   handlers throw an exception, <var>transaction</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-error" id="ref-for-dom-idbtransaction-error②">error</a></code> property is set to an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror①⓪">AbortError</a></code> rather than <var>request</var>’s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error①⓪">error</a>, even if <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-preventdefault" id="ref-for-dom-event-preventdefault">preventDefault()</a></code> is never called. </aside>
      <li data-md>
       <p>If the event’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag" id="ref-for-canceled-flag①">canceled flag</a> is not set, run the steps
-to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction①③">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request③④">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error①①">error</a>.</p>
+to <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction①③">abort a transaction</a> using <var>transaction</var> and <a data-link-type="dfn" href="#request" id="ref-for-request③③">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error①①">error</a>.</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="5.11" id="clone-value"><span class="secno">5.11. </span><span class="content">Clone a value</span><a class="self-link" href="#clone-value"></a></h3>
@@ -9171,16 +9182,16 @@ specification.</p>
     <li><a href="#ref-for-upgrade-transaction⑦">2.7.2. Upgrade Transactions</a> <a href="#ref-for-upgrade-transaction⑧">(2)</a> <a href="#ref-for-upgrade-transaction⑨">(3)</a> <a href="#ref-for-upgrade-transaction①⓪">(4)</a> <a href="#ref-for-upgrade-transaction①①">(5)</a> <a href="#ref-for-upgrade-transaction①②">(6)</a> <a href="#ref-for-upgrade-transaction①③">(7)</a> <a href="#ref-for-upgrade-transaction①④">(8)</a>
     <li><a href="#ref-for-upgrade-transaction①⑤">2.8. Requests</a>
     <li><a href="#ref-for-upgrade-transaction①⑥">4.1. The IDBRequest interface</a>
-    <li><a href="#ref-for-upgrade-transaction①⑦">4.3. The IDBFactory interface</a> <a href="#ref-for-upgrade-transaction①⑧">(2)</a>
-    <li><a href="#ref-for-upgrade-transaction①⑨">4.4. The IDBDatabase interface</a> <a href="#ref-for-upgrade-transaction②⓪">(2)</a> <a href="#ref-for-upgrade-transaction②①">(3)</a> <a href="#ref-for-upgrade-transaction②②">(4)</a> <a href="#ref-for-upgrade-transaction②③">(5)</a> <a href="#ref-for-upgrade-transaction②④">(6)</a> <a href="#ref-for-upgrade-transaction②⑤">(7)</a>
-    <li><a href="#ref-for-upgrade-transaction②⑥">4.5. The IDBObjectStore interface</a> <a href="#ref-for-upgrade-transaction②⑦">(2)</a> <a href="#ref-for-upgrade-transaction②⑧">(3)</a> <a href="#ref-for-upgrade-transaction②⑨">(4)</a> <a href="#ref-for-upgrade-transaction③⓪">(5)</a> <a href="#ref-for-upgrade-transaction③①">(6)</a> <a href="#ref-for-upgrade-transaction③②">(7)</a> <a href="#ref-for-upgrade-transaction③③">(8)</a> <a href="#ref-for-upgrade-transaction③④">(9)</a> <a href="#ref-for-upgrade-transaction③⑤">(10)</a> <a href="#ref-for-upgrade-transaction③⑥">(11)</a> <a href="#ref-for-upgrade-transaction③⑦">(12)</a> <a href="#ref-for-upgrade-transaction③⑧">(13)</a> <a href="#ref-for-upgrade-transaction③⑨">(14)</a>
-    <li><a href="#ref-for-upgrade-transaction④⓪">4.6. The IDBIndex interface</a> <a href="#ref-for-upgrade-transaction④①">(2)</a> <a href="#ref-for-upgrade-transaction④②">(3)</a>
-    <li><a href="#ref-for-upgrade-transaction④③">4.9. The IDBTransaction interface</a> <a href="#ref-for-upgrade-transaction④④">(2)</a> <a href="#ref-for-upgrade-transaction④⑤">(3)</a> <a href="#ref-for-upgrade-transaction④⑥">(4)</a>
-    <li><a href="#ref-for-upgrade-transaction④⑦">5.1. Opening a database</a>
-    <li><a href="#ref-for-upgrade-transaction④⑧">5.4. Committing a transaction</a> <a href="#ref-for-upgrade-transaction④⑨">(2)</a>
-    <li><a href="#ref-for-upgrade-transaction⑤⓪">5.5. Aborting a transaction</a> <a href="#ref-for-upgrade-transaction⑤①">(2)</a> <a href="#ref-for-upgrade-transaction⑤②">(3)</a> <a href="#ref-for-upgrade-transaction⑤③">(4)</a>
-    <li><a href="#ref-for-upgrade-transaction⑤④">5.7. Running an upgrade transaction</a> <a href="#ref-for-upgrade-transaction⑤⑤">(2)</a>
-    <li><a href="#ref-for-upgrade-transaction⑤⑥">5.8. Aborting an upgrade transaction</a>
+    <li><a href="#ref-for-upgrade-transaction①⑦">4.3. The IDBFactory interface</a>
+    <li><a href="#ref-for-upgrade-transaction①⑧">4.4. The IDBDatabase interface</a> <a href="#ref-for-upgrade-transaction①⑨">(2)</a> <a href="#ref-for-upgrade-transaction②⓪">(3)</a> <a href="#ref-for-upgrade-transaction②①">(4)</a> <a href="#ref-for-upgrade-transaction②②">(5)</a> <a href="#ref-for-upgrade-transaction②③">(6)</a> <a href="#ref-for-upgrade-transaction②④">(7)</a>
+    <li><a href="#ref-for-upgrade-transaction②⑤">4.5. The IDBObjectStore interface</a> <a href="#ref-for-upgrade-transaction②⑥">(2)</a> <a href="#ref-for-upgrade-transaction②⑦">(3)</a> <a href="#ref-for-upgrade-transaction②⑧">(4)</a> <a href="#ref-for-upgrade-transaction②⑨">(5)</a> <a href="#ref-for-upgrade-transaction③⓪">(6)</a> <a href="#ref-for-upgrade-transaction③①">(7)</a> <a href="#ref-for-upgrade-transaction③②">(8)</a> <a href="#ref-for-upgrade-transaction③③">(9)</a> <a href="#ref-for-upgrade-transaction③④">(10)</a> <a href="#ref-for-upgrade-transaction③⑤">(11)</a> <a href="#ref-for-upgrade-transaction③⑥">(12)</a> <a href="#ref-for-upgrade-transaction③⑦">(13)</a> <a href="#ref-for-upgrade-transaction③⑧">(14)</a>
+    <li><a href="#ref-for-upgrade-transaction③⑨">4.6. The IDBIndex interface</a> <a href="#ref-for-upgrade-transaction④⓪">(2)</a> <a href="#ref-for-upgrade-transaction④①">(3)</a>
+    <li><a href="#ref-for-upgrade-transaction④②">4.9. The IDBTransaction interface</a> <a href="#ref-for-upgrade-transaction④③">(2)</a> <a href="#ref-for-upgrade-transaction④④">(3)</a> <a href="#ref-for-upgrade-transaction④⑤">(4)</a>
+    <li><a href="#ref-for-upgrade-transaction④⑥">5.1. Opening a database</a>
+    <li><a href="#ref-for-upgrade-transaction④⑦">5.4. Committing a transaction</a> <a href="#ref-for-upgrade-transaction④⑧">(2)</a>
+    <li><a href="#ref-for-upgrade-transaction④⑨">5.5. Aborting a transaction</a> <a href="#ref-for-upgrade-transaction⑤⓪">(2)</a> <a href="#ref-for-upgrade-transaction⑤①">(3)</a> <a href="#ref-for-upgrade-transaction⑤②">(4)</a>
+    <li><a href="#ref-for-upgrade-transaction⑤③">5.7. Running an upgrade transaction</a> <a href="#ref-for-upgrade-transaction⑤④">(2)</a>
+    <li><a href="#ref-for-upgrade-transaction⑤⑤">5.8. Aborting an upgrade transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request">
@@ -9196,9 +9207,8 @@ specification.</p>
     <li><a href="#ref-for-request②①">4.5. The IDBObjectStore interface</a> <a href="#ref-for-request②②">(2)</a> <a href="#ref-for-request②③">(3)</a>
     <li><a href="#ref-for-request②④">4.9. The IDBTransaction interface</a> <a href="#ref-for-request②⑤">(2)</a> <a href="#ref-for-request②⑥">(3)</a> <a href="#ref-for-request②⑦">(4)</a>
     <li><a href="#ref-for-request②⑧">5.4. Committing a transaction</a>
-    <li><a href="#ref-for-request②⑨">5.5. Aborting a transaction</a>
-    <li><a href="#ref-for-request③⓪">5.6. Asynchronously executing a request</a> <a href="#ref-for-request③①">(2)</a> <a href="#ref-for-request③②">(3)</a>
-    <li><a href="#ref-for-request③③">5.10. Firing an error event</a> <a href="#ref-for-request③④">(2)</a>
+    <li><a href="#ref-for-request②⑨">5.6. Asynchronously executing a request</a> <a href="#ref-for-request③⓪">(2)</a> <a href="#ref-for-request③①">(3)</a>
+    <li><a href="#ref-for-request③②">5.10. Firing an error event</a> <a href="#ref-for-request③③">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-done-flag">
@@ -9268,6 +9278,7 @@ specification.</p>
     <li><a href="#ref-for-request-open-request①">2.8.1. Open Requests</a> <a href="#ref-for-request-open-request②">(2)</a> <a href="#ref-for-request-open-request③">(3)</a> <a href="#ref-for-request-open-request④">(4)</a> <a href="#ref-for-request-open-request⑤">(5)</a> <a href="#ref-for-request-open-request⑥">(6)</a> <a href="#ref-for-request-open-request⑦">(7)</a>
     <li><a href="#ref-for-request-open-request⑧">4.1. The IDBRequest interface</a> <a href="#ref-for-request-open-request⑨">(2)</a> <a href="#ref-for-request-open-request①⓪">(3)</a>
     <li><a href="#ref-for-request-open-request①①">4.3. The IDBFactory interface</a> <a href="#ref-for-request-open-request①②">(2)</a>
+    <li><a href="#ref-for-request-open-request①③">5.5. Aborting a transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-blocked">
