@@ -2272,29 +2272,28 @@ when invoked, must run these steps:
 
     1. [=Queue a task=] to run these steps:
 
-        1. If |result| is an error,
-            set |request|'s [=request/result=] to undefined,
-            set |request|'s [=request/error=] to |result|,
-            set |request|'s [=request/done flag=],
-            and [=fire an event=] named
-            `error` at |request| with its
-            {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
+        1. If |result| is an error, then run these steps:
 
-        1. Otherwise,
-            set |request|'s [=request/result=] to |result|,
-            set |request|'s [=request/done flag=],
-            and [=fire an event=] named
-            `success` at |request|. If the steps
-            above resulted in an [=/upgrade transaction=] being run,
-            then firing the "`success`" event must be done
-            after the [=/upgrade transaction=] completes.
+            1. Set |request|'s [=request/result=] to undefined.
+            1. Set |request|'s [=request/error=] to |result|.
+            1. Set |request|'s [=request/done flag=].
+            1. [=Fire an event=] named `error` at |request| with its
+                {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
+
+        1. Otherwise, run these steps:
+
+            1. Set |request|'s [=request/result=] to |result|.
+            1. Set |request|'s [=request/done flag=].
+            1. [=Fire an event=] named `success` at |request|.
 
             <aside class=note>
-              The last requirement is to ensure that in case another
-              version upgrade is about to happen, the success event is
-              fired on the connection first so that the script gets a
-              chance to register a listener for the
-              `versionchange` event.
+                If the steps above resulted in an [=/upgrade
+                transaction=] being run, these steps will run after
+                that transaction finishes. This ensures that in the
+                case where another version upgrade is about to happen,
+                the success event is fired on the connection first so
+                that the script gets a chance to register a listener
+                for the `versionchange` event.
             </aside>
 
             <details class=note>
@@ -5494,7 +5493,7 @@ takes two arguments: the |transaction| to abort, and |error|.
 
     1. If |transaction| is an [=/upgrade transaction=], then:
 
-        1. Let |request| be the [=/request=] associated with |transaction|.
+        1. Let |request| be the [=request/open request=] associated with |transaction|.
         1. Set |request|'s [=request/transaction=] to null.
         1. Set |request|'s [=request/result=] to undefined.
         1. Unset |request|'s [=request/done flag=].
