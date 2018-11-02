@@ -977,14 +977,14 @@ following:
 </dl>
 
 A [=/transaction=] has an <dfn>active flag</dfn>, which determines
-if new [=requests=] can be made against the transaction. A
+if new [=/requests=] can be made against the transaction. A
 transaction is said to be <dfn>active</dfn> if its [=transaction/active flag=]
 is set.
 
 A [=/transaction=] optionally has a <dfn>cleanup event loop</dfn>
 which is an [=event loop=].
 
-A [=/transaction=] has a <dfn>request list</dfn> of [=requests=]
+A [=/transaction=] has a <dfn>request list</dfn> of [=/requests=]
 which have been made against the transaction.
 
 A [=/transaction=] has a <dfn>error</dfn> which is set if the
@@ -1020,12 +1020,12 @@ The <dfn>lifetime</dfn> of a
 1. A transaction is <dfn>created</dfn> with a [=transaction/scope=] and a [=transaction/mode=].
     When a transaction is created its [=transaction/active flag=] is initially set.
 
-1. The implementation must allow [=requests=] to be [=request/placed=]
+1. The implementation must allow [=/requests=] to be [=request/placed=]
     against the transaction whenever the [=transaction/active flag=] is set. This
     is the case even if the transaction has not yet been [=transaction/started=].
     Until the transaction is [=transaction/started=] the implementation must not
     execute these requests; however, the implementation must keep
-    track of the [=requests=] and their order. Requests may be placed
+    track of the [=/requests=] and their order. Requests may be placed
     against a transaction only while that transaction is [=transaction/active=].
     If an attempt is made to place a request against a transaction
     when that transaction is not [=transaction/active=], the implementation must
@@ -1037,7 +1037,7 @@ The <dfn>lifetime</dfn> of a
     lt="start|started">start</dfn> the transaction asynchronously.
 
 1. Once the transaction has been [=transaction/started=] the implementation can
-    start executing the [=requests=] placed against the transaction.
+    start executing the [=/requests=] placed against the transaction.
     Unless otherwise defined, requests must be executed in the order
     in which they were made against the transaction. Likewise, their
     results must be returned in the order the requests were placed
@@ -1058,7 +1058,7 @@ The <dfn>lifetime</dfn> of a
     stores=] and [=/indexes=].
 
 1. A transaction can fail for reasons not tied to a particular
-    [=request=]. For example due to IO errors when committing the
+    [=/request=]. For example due to IO errors when committing the
     transaction, or due to running into a quota limit where the
     implementation can't tie exceeding the quota to a partcular
     request. In this case the implementation must run the steps to
@@ -1098,7 +1098,7 @@ The following constraints define when a [=/transaction=] can be
     concurrently, even if the transaction's [=transaction/scope=] overlap and
     include the same [=/object stores=]. As long as a [=read-only
     transaction=] is running, the data that the implementation returns
-    through [=requests=] created with that transaction must remain
+    through [=/requests=] created with that transaction must remain
     constant. That is, two requests to read the same piece of data
     must yield the same result both for the case when data is found
     and the result is that data, and for the case when data is not
@@ -1238,35 +1238,35 @@ operation.
 
 <div dfn-for=request>
 
-A [=request=] has a <dfn>done flag</dfn> which is initially unset.
+A [=/request=] has a <dfn>done flag</dfn> which is initially unset.
 
-A [=request=] has a <dfn>source</dfn> object.
+A [=/request=] has a <dfn>source</dfn> object.
 
-A [=request=] has a <dfn>result</dfn> and an <dfn>error</dfn>, neither
+A [=/request=] has a <dfn>result</dfn> and an <dfn>error</dfn>, neither
 of which are accessible until the [=request/done flag=] is set.
 
-A [=request=] has a <dfn>transaction</dfn> which is initially null.
+A [=/request=] has a <dfn>transaction</dfn> which is initially null.
 This will be set when a request is <dfn>placed</dfn> against a
 [=/transaction=] using the steps to [=asynchronously execute a
 request=].
 
-When a request is made, a new [=request=] is returned with its [=request/done
+When a request is made, a new [=/request=] is returned with its [=request/done
 flag=] unset. If a request completes successfully, the [=request/done flag=]
 is set, the [=request/result=] is set to the result of the request,
 and an event with type `success` is fired at the
-[=request=].
+[=/request=].
 
 If an error occurs while performing the operation, the [=request/done flag=]
 is set, the [=request/error=] is set to the error, and an event with
 type `error` is fired at the request.
 
-A [=request=]'s [=get the parent=] algorithm returns the request's
+A [=/request=]'s [=get the parent=] algorithm returns the request's
 [=request/transaction=].
 
 <aside class=note>
   Requests are not typically re-used, but there are exceptions. When a
   [=cursor=] is iterated, the success of the iteration is reported
-  on the same [=request=] object used to open the cursor. And when
+  on the same [=/request=] object used to open the cursor. And when
   an [=/upgrade transaction=] is necessary, the same [=open
   request=] is used for both the <code>[=upgradeneeded=]</code>
   event and final result of the open operation itself. In some cases,
@@ -1278,7 +1278,7 @@ A [=request=]'s [=get the parent=] algorithm returns the request's
 ### Open Requests ### {#open-requests}
 <!-- ============================================================ -->
 
-An <dfn>open request</dfn> is a special type of [=request=] used
+An <dfn>open request</dfn> is a special type of [=/request=] used
 when opening a [=/connection=] or deleting a [=database=].
 In addition to `success` and `error` events,
 <dfn>`blocked`</dfn> and <dfn>`upgradeneeded`</dfn> may be fired at an [=open
@@ -1502,6 +1502,9 @@ and the <dfn>effective key</dfn> of the cursor is the cursor's
 the [=effective object store=] of the cursor is that index's
 [=referenced=] object store and the [=effective key=] is the cursor's
 [=object store position=].
+
+A [=cursor=] has a <dfn>request</dfn>, which is the [=/request=] used
+to open the cursor.
 
 A [=cursor=] also has a <dfn>key only flag</dfn>, that indicates
 whether the cursor's [=cursor/value=] is exposed via the API. Unless
@@ -2053,12 +2056,12 @@ Otherwise, the attribute's getter must return the [=request/error=] of
 the request, or null if no error occurred.
 
 The <dfn attribute for=IDBRequest>source</dfn> attribute's getter must
-return the [=request/source=] of the [=request=], or null if no
+return the [=request/source=] of the [=/request=], or null if no
 [=request/source=] is set.
 
 The <dfn attribute for=IDBRequest>transaction</dfn> attribute's getter
-must return the [=request/transaction=] of the [=request=]. This
-property can be null for certain requests, such as for [=requests=]
+must return the [=request/transaction=] of the [=/request=]. This
+property can be null for certain requests, such as for [=/requests=]
 returned from {{IDBFactory/open()}}.
 
 The <dfn attribute for=IDBRequest>readyState</dfn> attribute's getter
@@ -2340,7 +2343,7 @@ when invoked, must run these steps:
             set |request|'s [=request/result=] to undefined,
             set |request|'s [=request/done flag=],
             and [=fire a version change event=] named
-            `success` at [=request=] with |result| and
+            `success` at [=/request=] with |result| and
             null.
 
             <details class=note>
@@ -3530,11 +3533,15 @@ The <dfn method for=IDBObjectStore>openCursor(|query|,
     [=cursor/value=]. The [=cursor/source=] of |cursor| is
     |store|. The [=cursor/range=] of |cursor| is |range|.
 
-1. Run the steps to [=asynchronously execute a request=] and
-    return the {{IDBRequest}} created by these steps. The steps are
-    run with this [=/object store handle=] as |source| and the
-    steps to [=iterate a cursor=] as |operation|, using
-    the [=current Realm=] as |targetRealm|, and |cursor|.
+1. Let |request| be the result of running the steps to
+    [=asynchronously execute a request=] with this [=/object store
+    handle=] as |source| and the steps to [=iterate a cursor=] as
+    |operation|, using the [=current Realm=] as |targetRealm|, and
+    |cursor|.
+
+1. Set |cursor|'s [=cursor/request=] to |request|.
+
+1. Return |request|.
 
 </div>
 
@@ -3575,11 +3582,15 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
     |range|. The [=key only flag=] of |cursor| is
     set.
 
-1. Run the steps to [=asynchronously execute a request=] and
-    return the {{IDBRequest}} created by these steps. The steps are
-    run with this [=/object store handle=] as |source| and
-    the steps to [=iterate a cursor=] as |operation|,
-    using the [=current Realm=] as |targetRealm|, and |cursor|.
+1. Let |request| be the result of running the steps to
+    [=asynchronously execute a request=] with this [=/object store
+    handle=] as |source| and the steps to [=iterate a cursor=] as
+    |operation|, using the [=current Realm=] as |targetRealm|, and
+    |cursor|.
+
+1. Set |cursor|'s [=cursor/request=] to |request|.
+
+1. Return |request|.
 
 </div>
 
@@ -3724,11 +3735,11 @@ must be used as error.
 ```
 
   At the point where {{createIndex()}} called, neither of the
-  [=requests=] have executed. When the second request executes, a
+  [=/requests=] have executed. When the second request executes, a
   duplicate name is created. Since the index creation is considered an
-  asynchronous [=request=], the index's <a data-lt="unique
+  asynchronous [=/request=], the index's <a data-lt="unique
   flag">uniqueness constraint</a> does not cause the second
-  [=request=] to fail. Instead, the [=/transaction=] will
+  [=/request=] to fail. Instead, the [=/transaction=] will
   be [=transaction/aborted=] when the index is created and the constraint
   fails.
 </aside>
@@ -4279,11 +4290,14 @@ method, when invoked, must run these steps:
     [=cursor/value=]. The [=cursor/source=] of |cursor| is
     |index|. The [=cursor/range=] of |cursor| is |range|.
 
-1. Run the steps to [=asynchronously execute a request=] and
-    return the {{IDBRequest}} created by these steps. The steps are
-    run with this [=index handle=] as |source| and the steps to
-    [=iterate a cursor=] as |operation|, using the [=current Realm=]
-    as |targetRealm|, and |cursor|.
+1. Let |request| be the result of running the steps to
+    [=asynchronously execute a request=] with this [=index handle=] as
+    |source| and the steps to [=iterate a cursor=] as |operation|,
+    using the [=current Realm=] as |targetRealm|, and |cursor|.
+
+1. Set |cursor|'s [=cursor/request=] to |request|.
+
+1. Return |request|.
 
 </div>
 
@@ -4321,11 +4335,14 @@ method, when invoked, must run these steps:
     |index|. The [=cursor/range=] of |cursor| is |range|. The [=key only
     flag=] of |cursor| is set.
 
-1. Run the steps to [=asynchronously execute a request=] and
-    return the {{IDBRequest}} created by these steps. The steps are
-    run with this [=index handle=] as |source| and the
-    steps to [=iterate a cursor=] as |operation|, using the
-    [=current Realm=] as |targetRealm|, and |cursor|.
+1. Let |request| be the result of running the steps to
+    [=asynchronously execute a request=] with this [=index handle=] as
+    |source| and the steps to [=iterate a cursor=] as |operation|,
+    using the [=current Realm=] as |targetRealm|, and |cursor|.
+
+1. Set |cursor|'s [=cursor/request=] to |request|.
+
+1. Return |request|.
 
 </div>
 
@@ -4682,16 +4699,15 @@ invoked, must run these steps:
 1. If the cursor's [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If this cursor's [=got value flag=] is unset, indicating that
+1. If this cursor's [=cursor/got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. Unset the [=got value flag=] on the cursor.
+1. Unset this [=cursor=]'s [=cursor/got value flag=].
 
-1. Let |request| be the [=request=] created when this
-    [=cursor=] was created.
+1. Let |request| be this [=cursor=]'s [=cursor/request=].
 
-1. Unset the [=request/done flag=] on |request|.
+1. Unset |request|'s [=request/done flag=].
 
 1. Run the steps to [=asynchronously execute a request=] with
     the cursor's [=cursor/source=] as |source|, the steps
@@ -4705,7 +4721,7 @@ invoked, must run these steps:
   loaded - for example, calling {{advance()}} twice from the
   same onsuccess handler - results in an "{{InvalidStateError}}" {{DOMException}}
   being thrown on the second call because the cursor's
-  [=got value flag=] has been unset.
+  [=cursor/got value flag=] has been unset.
 </aside>
 
 
@@ -4724,7 +4740,7 @@ invoked, must run these steps:
     [=effective object store=] has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If this cursor's [=got value flag=] is unset, indicating that
+1. If this cursor's [=cursor/got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
@@ -4745,12 +4761,11 @@ invoked, must run these steps:
         cursor's [=cursor/position=] and this cursor's [=cursor/direction=] is
         {{"prev"}} or {{"prevunique"}}, [=throw=] a "{{DataError}}" {{DOMException}}.
 
-1. Unset the [=got value flag=] on the cursor.
+1. Unset this [=cursor=]'s [=cursor/got value flag=].
 
-1. Let |request| be the [=request=] created when this
-    [=cursor=] was created.
+1. Let |request| be this [=cursor=]'s [=cursor/request=].
 
-1. Unset the [=request/done flag=] on |request|.
+1. Unset |request|'s [=request/done flag=].
 
 1. Run the steps to [=asynchronously execute a request=] with
     the cursor's [=cursor/source=] as |source|, the steps
@@ -4765,7 +4780,7 @@ invoked, must run these steps:
   loaded - for example, calling {{continue()}} twice from the
   same onsuccess handler - results in an "{{InvalidStateError}}" {{DOMException}}
   being thrown on the second call because the cursor's
-  [=got value flag=] has been unset.
+  [=cursor/got value flag=] has been unset.
 </aside>
 
 
@@ -4789,7 +4804,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 1. If this cursor's [=cursor/direction=] is not {{"next"}} or {{"prev"}},
     [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
-1. If this cursor's [=got value flag=] is unset, indicating that
+1. If this cursor's [=cursor/got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
@@ -4826,14 +4841,13 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
     [=cursor/direction=] is {{"prev"}}, [=throw=] a
     "{{DataError}}" {{DOMException}}.
 
-1. Unset the [=got value flag=] on the cursor.
+1. Unset this [=cursor=]'s [=cursor/got value flag=].
 
-1. Let |request| be the [=request=] created when this
-    [=cursor=] was created.
+1. Let |request| be this [=cursor=]'s [=cursor/request=].
 
-1. Unset the [=request/done flag=] on |request|.
+1. Unset |request|'s [=request/done flag=].
 
-20. Run the steps to [=asynchronously execute a request=] with
+1. Run the steps to [=asynchronously execute a request=] with
     the cursor's [=cursor/source=] as |source|, the steps
     to [=iterate a cursor=] as |operation| and |request|,
     using the [=current Realm=] as |targetRealm|,
@@ -4897,7 +4911,7 @@ invoked, must run these steps:
 1. If the cursor's [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If this cursor's [=got value flag=] is unset, indicating that
+1. If this cursor's [=cursor/got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
@@ -4964,7 +4978,7 @@ must run these steps:
 1. If the cursor's [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If this cursor's [=got value flag=] is unset, indicating that
+1. If this cursor's [=cursor/got value flag=] is unset, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
@@ -5105,7 +5119,7 @@ none.
 
 <aside class=note>
   If this [=/transaction=] was aborted due to a failed
-  [=request=], this will be the same as the [=request=]'s
+  [=/request=], this will be the same as the [=/request=]'s
   [=request/error=]. If this [=/transaction=] was aborted
   due to an uncaught exception in an event handler, the error will be
   a "{{AbortError}}" {{DOMException}}. If the [=/transaction=] was aborted due to
@@ -5123,7 +5137,7 @@ none.
     </dd>
     <dt><var>transaction</var> . {{IDBTransaction/abort()}}</dt>
     <dd>
-      Aborts the transaction. All pending [=requests=] will fail with
+      Aborts the transaction. All pending [=/requests=] will fail with
       a "{{AbortError}}" {{DOMException}} and all changes made to the database will be
       reverted.
     </dd>
@@ -5187,7 +5201,7 @@ event handler for the `error` event.
   To determine if a [=/transaction=] has completed successfully,
   listen to the [=/transaction=]'s `complete` event
   rather than the `success` event of a particular
-  [=request=], because the [=/transaction=] can still fail after
+  [=/request=], because the [=/transaction=] can still fail after
   the `success` event fires.
 </aside>
 
@@ -5287,7 +5301,7 @@ The steps to <dfn>close a database connection</dfn> are as follows.
 These steps take two arguments, a |connection| object, and an
 optional |forced flag|.
 
-1. Set the [=close pending flag=] of |connection|.
+1. Set |connection|'s [=close pending flag=].
 
 1. If the |forced flag| is set, then for each |transaction|
     [=transaction/created=] using |connection| run the steps to [=abort a
@@ -5415,7 +5429,7 @@ This algorithm takes one argument, the |transaction| to commit.
         </aside>
 
     1. If |transaction| is an [=/upgrade transaction=], then
-        let |request| be the [=request=] associated with |transaction|
+        let |request| be the [=/request=] associated with |transaction|
         and set |request|'s [=request/transaction=] to null.
 
 </div>
@@ -5455,9 +5469,9 @@ takes two arguments: the |transaction| to abort, and |error|.
     execute a request=] for |request| and [=queue a task=] to
     run these steps:
 
-    1. Set the [=request/done flag=] on |request|.
-    1. Set the [=request/result=] of |request| to undefined.
-    1. Set the [=request/error=] of |request| to a newly
+    1. Set |request|'s [=request/done flag=].
+    1. Set |request|'s [=request/result=] to undefined.
+    1. Set |request|'s [=request/error=] to a newly
         <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
     1. [=Fire an event=] named `error` at |request|
         with its {{Event/bubbles}} and {{Event/cancelable}}
@@ -5480,7 +5494,7 @@ takes two arguments: the |transaction| to abort, and |error|.
 
     1. If |transaction| is an [=/upgrade transaction=], then:
 
-        1. Let |request| be the [=request=] associated with |transaction|.
+        1. Let |request| be the [=/request=] associated with |transaction|.
         1. Set |request|'s [=request/transaction=] to null.
         1. Set |request|'s [=request/result=] to undefined.
         1. Unset |request|'s [=request/done flag=].
@@ -5489,7 +5503,7 @@ takes two arguments: the |transaction| to abort, and |error|.
 
 
 <!-- ============================================================ -->
-## Asynchronously executing a [=request=] ## {#async-execute-request}
+## Asynchronously executing a [=/request=] ## {#async-execute-request}
 <!-- ============================================================ -->
 
 <div class=algorithm>
@@ -5500,7 +5514,7 @@ algorithm takes a |source| object and an |operation| to perform on a
 database, and an optional |request|.
 
 These steps can be aborted at any point if the [=/transaction=] the
-created [=request=] belongs to is [=transaction/aborted=] using the steps to
+created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 [=abort a transaction=].
 
 1. Let |transaction| be the [=/transaction=] associated with
@@ -5515,7 +5529,7 @@ created [=request=] belongs to is [=transaction/aborted=] using the steps to
 
 1. Run these steps [=in parallel=]:
 
-    1. Wait until all previously added [=requests=] in |transaction|
+    1. Wait until all previously added [=/requests=] in |transaction|
         have their [=request/done flag=] set.
 
     1. Let |result| be the result of performing |operation|.
@@ -5530,18 +5544,18 @@ created [=request=] belongs to is [=transaction/aborted=] using the steps to
 
     1. [=Queue a task=] to run these steps:
 
-        1. Set the [=request/done flag=] on |request|.
+        1. Set |request|'s [=request/done flag=].
 
         1. If |result| is an error, then:
 
-            1. Set the [=request/result=] of |request| to undefined.
-            1. Set the [=request/error=] of |request| to |result|.
+            1. Set |request|'s [=request/result=] to undefined.
+            1. Set |request|'s [=request/error=] to |result|.
             1. [=Fire an error event=] at |request|.
 
         1. Otherwise:
 
-            1. Set the [=request/result=] of |request| to |result|.
-            1. Set the [=request/error=] of |request| to undefined.
+            1. Set |request|'s [=request/result=] to |result|.
+            1. Set |request|'s [=request/error=] to undefined.
             1. [=Fire a success event=] at |request|.
 
 1. Return |request|.
@@ -5581,7 +5595,7 @@ for the [=database=], and a |request|.
 
 1. Let |old version| be |db|'s [=database/version=].
 
-1. Set the version of |db| to |version|. This change is
+1. Set |db|'s [=database/version=] to |version|. This change is
     considered part of the [=/transaction=], and so if the
     transaction is [=transaction/aborted=], this change is reverted.
 
@@ -5589,7 +5603,7 @@ for the [=database=], and a |request|.
 
     1. Set |request|'s [=request/result=] to |connection|.
     1. Set |request|'s [=request/transaction=] to |transaction|.
-    1. Set the [=request/done flag=] on the [=request=].
+    1. Set |request|'s [=request/done flag=].
     1. Set |transaction|'s [=transaction/active flag=].
     1. Let |didThrow| be the result of running the steps to
         [=fire a version change event=] named
@@ -5762,7 +5776,7 @@ the implementation must run these steps:
 
 1. Set |transaction|'s [=transaction/active flag=].
 
-1. [=Dispatch=] |event| at [=request=] with |legacyOutputDidListenersThrowFlag|.
+1. [=Dispatch=] |event| at [=/request=] with |legacyOutputDidListenersThrowFlag|.
 
 1. Unset |transaction|'s [=transaction/active flag=].
 
@@ -5782,7 +5796,7 @@ the implementation must run these steps:
 
 1. If the event's [=canceled flag=] is not set, run the steps
     to [=abort a transaction=] using |transaction| and
-    [=request=]'s [=request/error=].
+    [=/request=]'s [=request/error=].
 
 </div>
 
@@ -6328,7 +6342,7 @@ follows.
     1. Set |cursor|'s [=cursor/value=] to
         [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|)
 
-1. Set |cursor|'s [=got value flag=].
+1. Set |cursor|'s [=cursor/got value flag=].
 
 1. Return |cursor|.
 
