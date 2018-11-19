@@ -2378,22 +2378,27 @@ when invoked, must run these steps:
     to access this {{IDBFactory}}.
 
 1. If |origin| is an [=opaque origin=],
-    then return a new promise rejected with a "{{NotSupportedError}}" {{DOMException}}.
+    then return a new promise rejected with a "{{SecurityError}}" {{DOMException}}.
 
 1. Let |p| be a new promise.
 
 1. Run these steps [=in parallel=]:
 
-    1. Let |databases| be a new [=/list=].
+    1. Let |databases| be the [=/set=] of [=databases=] in |origin|.
+        If this cannot be determined for any reason, then reject |p| with
+        an appropriate error (e.g. a "{{UnknownError}}" {{DOMException}})
+        and terminate these steps.
 
-    1. For each [=database=] |db| in |origin|:
+    1. Let |result| be a new [=/list=].
+
+    1. [=set/For each=] |db| of |databases|:
 
         1. Let |info| be a new {{IDBDatabaseInfo}} dictionary.
         1. Set |info|'s {{IDBDatabaseInfo/name}} dictionary member to |db|'s [=database/name=].
         1. Set |info|'s {{IDBDatabaseInfo/version}} dictionary member to |db|'s [=database/version=].
-        1. [=list/Append=] |info| to |databases|.
+        1. [=list/Append=] |info| to |result|.
 
-    1. Resolve |p| with |databases|.
+    1. Resolve |p| with |result|.
 
 1. Return |p|.
 
@@ -5252,10 +5257,10 @@ database |name|, a database |version|, and a |request|.
 
 1. If |db|'s [=database/version=] is less than |version|, then:
 
-    1. Let |openConnections| be the set of all [=/connections=],
+    1. Let |openConnections| be the [=/set=] of all [=/connections=],
         except |connection|, associated with |db|.
 
-    1. For each |entry| in |openConnections| that does not have its
+    1. [=set/For each=] |entry| of |openConnections| that does not have its
         [=close pending flag=] set, [=queue a task=] to [=fire a
         version change event=] named <a event>`versionchange`</a> at
         |entry| with |db|'s [=database/version=] and |version|.
@@ -5362,10 +5367,10 @@ requested the [=database=] to be deleted, a database |name|, and a
 1. Let |db| be the [=database=] [=database/named=] |name| in
     |origin|, if one exists. Otherwise, return 0 (zero).
 
-1. Let |openConnections| be the set of all [=/connections=]
+1. Let |openConnections| be the [=/set=] of all [=/connections=]
     associated with |db|.
 
-1. For each |entry| in |openConnections| that does not have its
+1. [=set/For each=] |entry| of |openConnections| that does not have its
     [=close pending flag=] set, [=queue a task=] to [=fire a version
     change event=] named <a event>`versionchange`</a> at |entry| with
     |db|'s [=database/version=] and null.
@@ -5467,7 +5472,7 @@ takes two arguments: the |transaction| to abort, and |error|.
 1. If |error| is not null, set |transaction|'s
     [=transaction/error=] to |error|.
 
-1. For each |request| in |transaction|'s [=request list=] with
+1. [=list/For each=] |request| of |transaction|'s [=request list=] with
     [=request/done flag=] unset, abort the steps to [=asynchronously
     execute a request=] for |request| and [=queue a task=] to
     run these steps:
@@ -5881,7 +5886,7 @@ follows.
     [=object-store/list of records=] such that the list is sorted
     according to the key of the records in [=ascending=] order.
 
-1. For each |index| which [=reference=] |store|:
+1. For each |index| which [=references=] |store|:
 
     1. Let |index key| be the result of running the steps to
         [=extract a key from a value using a key path=] with
@@ -5973,13 +5978,13 @@ store</dfn> with |targetRealm|, |store|, |range| and optional |count| are as fol
 
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
 
-1. Let |records| be a list containing the first |count| [=object-store/records=]
+1. Let |records| be a [=/list=] containing the first |count| [=object-store/records=]
     in |store|'s [=object-store/list of records=] whose [=/key=] is
     [=in=] |range|.
 
 1. Let |list| be an empty list.
 
-1. For each |record| in |records|:
+1. [=list/For each=] |record| of |records|:
 
     1. Let |serialized| be |record|'s [=/value=].
     1. Let |entry| be [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
@@ -6018,9 +6023,9 @@ with |store|, |range| and optional |count| are as follows:
     in |store|'s [=object-store/list of records=] whose [=/key=] is
     [=in=] |range|.
 
-1. Let |list| be an empty list.
+1. Let |list| be an empty [=/list=].
 
-1. For each |record| in |records|:
+1. [=list/For each=] |record| of |records|:
 
     1. Let |entry| be the result of running the steps to [=convert a
         key to a value=] with |record|'s key.
@@ -6062,9 +6067,9 @@ index</dfn> with |targetRealm|, |index|, |range| and optional |count| are as fol
 1. Let |records| be a list containing the first |count| [=object-store/records=]
     in |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
 
-1. Let |list| be an empty list.
+1. Let |list| be an empty [=/list=].
 
-1. For each |record| in |records|:
+1. [=list/For each=] |record| of |records|:
 
     1. Let |serialized| be |record|'s [=referenced value=].
     1. Let |entry| be [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
@@ -6105,9 +6110,9 @@ The steps to <dfn>retrieve multiple values from an index</dfn> with
 1. Let |records| be a list containing the first |count| [=index/records=] in
     |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
 
-1. Let |list| be an empty list.
+1. Let |list| be an empty [=/list=].
 
-1. For each |record| in |records|:
+1. [=list/For each=] |record| of |records|:
 
     1. Let |entry| be the result of running the steps to [=convert a
         key to a value=] with |record|'s value.
@@ -6399,14 +6404,14 @@ The steps to <dfn>evaluate a key path on a value</dfn> with |value|
 and |keyPath| are as follows. The result of these steps is an
 ECMAScript value or failure, or the steps may throw an exception.
 
-1. If |keyPath| is a list of strings, then:
+1. If |keyPath| is a [=/list=] of strings, then:
 
     1. Let |result| be a new [=Array=] object created as if by the
         expression `[]`.
 
     1. Let |i| be 0.
 
-    1. For each |item| in |keyPath|:
+    1. [=list/For each=] |item| of |keyPath|:
 
         1. Let |key| be the result of recursively running the steps to
             [=evaluate a key path on a value=] using
@@ -6439,7 +6444,7 @@ ECMAScript value or failure, or the steps may throw an exception.
     <a lt="strictly split a string">strictly splitting</a>
     |keyPath| on U+002E FULL STOP characters (.).
 
-1. For each |identifier| in |identifiers|, jump to the appropriate step below:
+1. [=list/For each=] |identifier| of |identifiers|, jump to the appropriate step below:
 
     <dl class=switch>
       <dt>If [=/Type=](|value|) is String, and |identifier| is "`length`"</dt>
@@ -6519,7 +6524,7 @@ true or false.
 
 1. Remove the last member of |identifiers|.
 
-1. For each remaining |identifier| in |identifiers|, if any:
+1. [=list/For each=] remaining |identifier| of |identifiers|, if any:
 
     1. If |value| is not an [=Object=] or an [=Array=], return false.
 
@@ -6551,7 +6556,7 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 1. Let |last| be the last member of |identifiers| and remove it from
     the list.
 
-1. For each remaining |identifier| in |identifiers|:
+1. [=list/For each=] remaining |identifier| of |identifiers|:
 
     1. Assert: |value| is an [=Object=] or an [=Array=].
 
