@@ -976,15 +976,10 @@ following:
   </dd>
 </dl>
 
-A [=/transaction=] has an <dfn>active flag</dfn>, which determines
-if new [=/requests=] can be made against the transaction. A
-transaction is said to be <dfn>active</dfn> if its [=transaction/active flag=]
-is set.
-
 A [=/transaction=] optionally has a <dfn>cleanup event loop</dfn>
 which is an [=event loop=].
 
-A [=/transaction=] has a <dfn>request list</dfn> of [=/requests=]
+A [=/transaction=] has a <dfn>request list</dfn> of pending [=/requests=]
 which have been made against the transaction.
 
 A [=/transaction=] has a <dfn>error</dfn> which is set if the
@@ -1000,11 +995,43 @@ A <dfn>read/write transaction</dfn>
 is a [=/transaction=] with [=transaction/mode=] {{"readwrite"}}.
 
 <!-- ============================================================ -->
-### Transaction Lifetime ### {#transaction-lifetime-concept}
+### Transaction Lifecycle ### {#transaction-lifecycle}
 <!-- ============================================================ -->
 
+A [=/transaction=] has a <dfn>state</dfn>, which is one
+of the following:
+
+<dl>
+  <dt><dfn>active</dfn>
+  <dd>
+    A transaction is in this state when it is first [=transaction/created=],
+    and during dispatch of an event from a [=/request=] associated with the transaction.
+
+    New [=/requests=] can be made against the transaction when it is in this state.
+
+  <dt><dfn>inactive</dfn>
+  <dd>
+    A transaction is in this state after control returns to the event
+    loop after its creation, and when events are not being dispatched.
+
+    No [=/requests=] can be made against the transaction when it is in this state.
+
+  <dt><dfn>committing</dfn>
+  <dd>
+    Once all [=/requests=] associated with a transaction have completed,
+    the transaction will enter this state as it attempts to [=commit=].
+
+    No [=/requests=] can be made against the transaction when it is in this state.
+
+  <dt><dfn>finished</dfn>
+  <dd>
+    Once a transaction has committed or aborted, it enters this state.
+
+    No [=/requests=] can be made against the transaction when it is in this state.
+</dl>
+
 Transactions are expected to be short lived. This is encouraged by the
-<a for=transaction lt=commit>automatic committing</a> functionality
+[=transaction/commit|automatic committing=] functionality
 described below.
 
 <aside class=note>
@@ -1016,79 +1043,113 @@ described below.
 The <dfn>lifetime</dfn> of a
 [=/transaction=] is as follows:
 
-1. A transaction is <dfn>created</dfn> with a [=transaction/scope=] and a [=transaction/mode=].
-    When a transaction is created its [=transaction/active flag=] is initially set.
+1. A transaction is <dfn>created</dfn> with a [=transaction/scope=] and a
+    [=transaction/mode=]. When a transaction is created its
+    [=transaction/state=] is initially [=transaction/active=].
 
-1. The implementation must allow [=/requests=] to be [=request/placed=]
-    against the transaction whenever the [=transaction/active flag=] is set. This
-    is the case even if the transaction has not yet been [=transaction/started=].
-    Until the transaction is [=transaction/started=] the implementation must not
-    execute these requests; however, the implementation must keep
-    track of the [=/requests=] and their order. Requests may be placed
-    against a transaction only while that transaction is [=transaction/active=].
-    If an attempt is made to place a request against a transaction
-    when that transaction is not [=transaction/active=], the implementation must
-    reject the attempt by throwing a "{{TransactionInactiveError}}" {{DOMException}}.
+1. When an implementation is able to enforce the constraints for the
+    transaction's [=transaction/scope=] and [=transaction/mode=],
+    defined [below](#transaction-scheduling), the implementation must
+    [=queue a task=] to <dfn lt="start|started">start</dfn> the
+    transaction asynchronously.
 
-1. Once an implementation is able to enforce the constraints defined
-    for the transaction [=transaction/scope=] and [=transaction/mode=], defined below, the
-    implementation must [=queue a task=] to <dfn
-    lt="start|started">start</dfn> the transaction asynchronously.
-
-1. Once the transaction has been [=transaction/started=] the implementation can
-    start executing the [=/requests=] placed against the transaction.
-    Unless otherwise defined, requests must be executed in the order
-    in which they were made against the transaction. Likewise, their
+    Once the transaction has been [=transaction/started=] the
+    implementation can begin executing the [=/requests=] placed
+    against the transaction. Requests must be executed in the order in
+    which they were made against the transaction. Likewise, their
     results must be returned in the order the requests were placed
     against a specific transaction. There is no guarantee about the
     order that results from requests in different transactions are
-    returned. Similarly, the transaction [=transaction/modes=] ensure that two
-    requests placed against different transactions can execute in any
-    order without affecting what resulting data is stored in the
-    database.
+    returned.
+
+    <aside class=note>
+        Transaction [=transaction/modes=] ensure that two
+        requests placed against different transactions can execute in any
+        order without affecting what resulting data is stored in the
+        database.
+    </aside>
+
+1. When each [=/request=] associated with a transaction is [=request/processed=],
+    a <a event>`success`</a> or <a event>`error`</a> [=event=] will be
+    fired. While the event is being [=dispatched=], the transaction
+    [=transaction/state=] is set to [=transaction/active=], allowing
+    additional requests to be made against the transaction. Once the
+    event dispatch is complete, the transaction's
+    [=transaction/state=] is set to [=transaction/inactive=] again.
 
 1. A transaction can be <dfn lt="abort|aborting|aborted">aborted</dfn>
-    at any time before it is [=transaction/finished=], even if the transaction
-    isn't currently [=transaction/active=] or hasn't yet [=transaction/started=]. When a
-    transaction is aborted the implementation must undo (roll back)
-    any changes that were made to the [=database=] during that
+    at any time before it is [=transaction/finished=], even if the
+    transaction isn't currently [=transaction/active=] or hasn't yet
+    [=transaction/started=].
+
+    An explicit call to {{IDBTransaction/abort()}} will initiate an
+    [=transaction/abort=]. An abort will also be initiated following a
+    failed request that is not handled by script.
+
+    When a transaction is aborted the implementation must undo (roll
+    back) any changes that were made to the [=database=] during that
     transaction. This includes both changes to the contents of
     [=/object stores=] as well as additions and removals of [=/object
     stores=] and [=/indexes=].
 
-1. A transaction can fail for reasons not tied to a particular
-    [=/request=]. For example due to IO errors when committing the
-    transaction, or due to running into a quota limit where the
-    implementation can't tie exceeding the quota to a partcular
-    request. In this case the implementation must run the steps to
-    [=abort a transaction=] using the transaction as |transaction|
-    and the appropriate error type as |error|. For example if quota
-    was exceeded then a "{{QuotaExceededError}}" {{DOMException}} should be used as
-    |error|, and if an IO error happened, an "{{UnknownError}}" {{DOMException}} should be
-    used as |error|.
+1. The implementation must attempt to <dfn lt="commit|committed">commit</dfn>
+    a transaction when all [=/requests=] placed against the
+    transaction have completed and their returned results handled, no
+    new requests have been placed against the transaction, and the
+    transaction has not been [=transaction/aborted=]
 
-1. When a transaction has been started and it can no longer become
-    [=transaction/active=], the implementation must attempt to <dfn
-    lt="commit|committing|committed">commit</dfn> it, as long as the
-    transaction has not been [=transaction/aborted=]. This usually happens after
-    all requests placed against the transaction have been executed and
-    their returned results handled, and no new requests have been
-    placed against the transaction. When a transaction is committed,
-    the implementation must atomically write any changes to the
-    [=database=] made by requests placed against the transaction. That
-    is, either all of the changes must be written, or if an error
-    occurs, such as a disk write error, the implementation must not
-    write any of the changes to the database. If such an error occurs,
-    the implementation must [=transaction/abort=] the transaction by following the
-    steps to [=abort a transaction=], otherwise it must
-    [=transaction/commit=] the transaction by following the steps to
-    [=commit a transaction=].
+    An explicit call to {{IDBTransaction/commit()}} will initiate a
+    [=transaction/commit=] without waiting for request results to be
+    handled by script.
 
-1. When a transaction is [=transaction/committed=] or [=transaction/aborted=], it
-    is said to be <dfn lt="finish|finished">finished</dfn>. If a
-    transaction can't be finished, for example due to the
-    implementation crashing or the user taking some explicit action to
-    cancel it, the implementation must [=transaction/abort=] the transaction.
+    When committing, the transaction [=transaction/state=] is set to
+    [=transaction/committing=]. The implementation must atomically
+    write any changes to the [=database=] made by requests placed
+    against the transaction. That is, either all of the changes must
+    be written, or if an error occurs, such as a disk write error, the
+    implementation must not write any of the changes to the database,
+    and the steps to [=abort a transaction=] will be followed.
+
+1. When a transaction is [=transaction/committed=] or [=transaction/aborted=],
+    its [=transaction/state=] is set to [=transaction/finished=].
+
+
+The implementation must allow [=/requests=] to be [=request/placed=]
+against the transaction whenever it is [=transaction/active=]. This is
+the case even if the transaction has not yet been
+[=transaction/started=]. Until the transaction is
+[=transaction/started=] the implementation must not execute these
+requests; however, the implementation must keep track of the
+[=/requests=] and their order.
+
+To <dfn export>cleanup Indexed Database transactions</dfn>, run these steps.
+They will return true if any transactions were cleaned up, or false otherwise.
+
+<div class=algorithm>
+    1. If there are no [=/transactions=] with [=transaction/cleanup
+        event loop=] matching the current [=event loop=], return false.
+
+    1. For each [=/transaction=] with [=transaction/cleanup event loop=]
+        matching the current [=event loop=]:
+
+        1. Set the [=/transaction=]'s [=transaction/state=] to [=transaction/inactive=].
+
+        1. Clear the [=/transaction=]'s [=transaction/cleanup event loop=].
+
+    1. Return true.
+</div>
+
+<aside class=note>
+  This behavior is invoked by [[HTML]]. It ensures that
+  [=/transactions=] created by a script call
+  to {{IDBDatabase/transaction()}} are deactivated once the task that
+  invoked the script has completed. The steps are run at most once for
+  each [=/transaction=].
+</aside>
+
+<!-- ============================================================ -->
+### Transaction Scheduling ### {#transaction-scheduling}
+<!-- ============================================================ -->
 
 An event with type <dfn event>`complete`</dfn> is fired at
 a [=/transaction=] that has successfully [=transaction/committed=].
@@ -1167,31 +1228,6 @@ The following constraints define when a [=/transaction=] can be
 
 </div>
 
-To <dfn export>cleanup Indexed Database transactions</dfn>, run these steps.
-They will return true if any transactions were cleaned up, or false otherwise.
-
-<div class=algorithm>
-    1. If there are no [=/transactions=] with [=transaction/cleanup
-        event loop=] matching the current [=event loop=], return false.
-
-    1. For each [=/transaction=] with [=transaction/cleanup event loop=]
-        matching the current [=event loop=]:
-
-        1. Unset the [=/transaction=]'s [=transaction/active flag=].
-
-        1. Clear the [=/transaction=]'s [=transaction/cleanup event loop=].
-
-    1. Return true.
-</div>
-
-<aside class=note>
-  This behavior is invoked by [[HTML]]. It ensures that
-  [=/transactions=] created by a script call
-  to {{IDBDatabase/transaction()}} are deactivated once the task that
-  invoked the script has completed. The steps are run at most once for
-  each [=/transaction=].
-</aside>
-
 
 <!-- ============================================================ -->
 ### Upgrade Transactions ### {#upgrade-transaction-construct}
@@ -1243,7 +1279,13 @@ operation.
 
 <div dfn-for=request>
 
+A [=/request=] has a <dfn>processed flag</dfn> which is initially unset.
+This flag is set when the operation associated with the request has been executed.
+
+A [=/request=] is said to be <dfn>processed</dfn> when its [=request/processed flag=] is set.
+
 A [=/request=] has a <dfn>done flag</dfn> which is initially unset.
+This flag is set when the result of the operation associated with the request is available.
 
 A [=/request=] has a <dfn>source</dfn> object.
 
@@ -2334,6 +2376,8 @@ when invoked, must run these steps:
         [=delete a database=], with |origin|,
         |name|, and |request|.
 
+    1. Set |request|'s [=request/processed flag=].
+
     1. [=Queue a task=] to run these steps:
         1. If |result| is an error,
             set |request|'s [=request/error=] to |result|,
@@ -2580,8 +2624,8 @@ The <dfn method for=IDBDatabase>createObjectStore(|name|,
     if it is not null, or [=throw=] an "{{InvalidStateError}}"
     {{DOMException}} otherwise.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |keyPath| be |options|'s {{IDBObjectStoreParameters/keyPath}}
     member if it is not undefined or null, or null otherwise.
@@ -2648,8 +2692,8 @@ method, when invoked, must run these steps:
     if it is not null, or [=throw=] an "{{InvalidStateError}}"
     {{DOMException}} otherwise.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |store| be the [=/object store=]
     [=object-store/named=] |name| in |database|,
@@ -2876,7 +2920,7 @@ The {{IDBObjectStore/name}} attribute's setter must run these steps:
 1. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=],
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
     [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |store|'s [=object-store/name=] is equal to |name|,
@@ -3006,8 +3050,8 @@ when invoked, must run these steps:
 1. If |store| has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=],
-    [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |transaction| is a [=read-only transaction=],
     [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
@@ -3085,8 +3129,8 @@ when invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |transaction| is a [=read-only transaction=],
     [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
@@ -3165,8 +3209,8 @@ invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |transaction| is a [=read-only transaction=],
     [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
@@ -3208,8 +3252,8 @@ must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |transaction| is a [=read-only transaction=],
     [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
@@ -3302,8 +3346,8 @@ invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -3348,8 +3392,8 @@ invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -3384,8 +3428,8 @@ method, when invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3421,8 +3465,8 @@ method, when invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3457,8 +3501,8 @@ invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3527,8 +3571,8 @@ The <dfn method for=IDBObjectStore>openCursor(|query|,
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3572,8 +3616,8 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -3662,8 +3706,8 @@ The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If an [=/index=] [=index/named=]
     |name| already exists in |store|, [=throw=] a
@@ -3725,7 +3769,7 @@ into the database asynchronously, or where the implementation might
 need to ask the user for permission for quota reasons. Such
 implementations must still create and return an {{IDBIndex}} object,
 and once the implementation determines that creating the index has
-failed, it must abort the transaction using the steps to [=abort
+failed, it must run the steps to [=abort
 a transaction=] using an appropriate error as |error|. For example
 if creating the [=/index=] failed due to quota reasons,
 a "{{QuotaExceededError}}" {{DOMException}} must be used as error and if the index can't be
@@ -3767,8 +3811,8 @@ invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| has [=transaction/finished=], [=throw=] an
-    "{{InvalidStateError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is [=transaction/finished=],
+    then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |index| be the [=/index=]
     [=index/named=] |name| in this [=/object
@@ -3810,8 +3854,8 @@ when invoked, must run these steps:
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |index| be the [=/index=] [=index/named=] |name|
     in |store| if one exists, or [=throw=] a "{{NotFoundError}}" {{DOMException}}
@@ -3928,8 +3972,8 @@ The {{IDBIndex/name}} attribute's setter must run these steps:
 1. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4061,8 +4105,8 @@ must run these steps:
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query| and
@@ -4107,8 +4151,8 @@ invoked, must run these steps:
 1. If |index| or |index|'s [=/object store=] has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to [=convert a
     value to a key range=] with |query| and |null disallowed flag|
@@ -4142,8 +4186,8 @@ when invoked, must run these steps:
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4179,8 +4223,8 @@ method, when invoked, must run these steps:
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4215,8 +4259,8 @@ invoked, must run these steps:
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4284,8 +4328,8 @@ method, when invoked, must run these steps:
 1. If |index| or |index|'s [=/object store=] has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4328,8 +4372,8 @@ method, when invoked, must run these steps:
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. Let |range| be the result of running the steps to
     [=convert a value to a key range=] with |query|.
@@ -4701,8 +4745,8 @@ invoked, must run these steps:
 1. Let |transaction| be this [=cursor=]'s
     [=cursor/transaction=].
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If the cursor's [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4715,7 +4759,7 @@ invoked, must run these steps:
 
 1. Let |request| be this [=cursor=]'s [=cursor/request=].
 
-1. Unset |request|'s [=request/done flag=].
+1. Unset |request|'s [=request/processed flag=] and [=request/done flag=].
 
 1. Run the steps to [=asynchronously execute a request=] with
     the cursor's [=cursor/source=] as |source|, the steps
@@ -4741,8 +4785,8 @@ invoked, must run these steps:
 1. Let |transaction| be this [=cursor=]'s
     [=cursor/transaction=].
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If the cursor's [=cursor/source=] or
     [=effective object store=] has been deleted, [=throw=] an
@@ -4773,7 +4817,7 @@ invoked, must run these steps:
 
 1. Let |request| be this [=cursor=]'s [=cursor/request=].
 
-1. Unset |request|'s [=request/done flag=].
+1. Unset |request|'s [=request/processed flag=] and [=request/done flag=].
 
 1. Run the steps to [=asynchronously execute a request=] with
     the cursor's [=cursor/source=] as |source|, the steps
@@ -4800,8 +4844,8 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 1. Let |transaction| be this [=cursor=]'s
     [=cursor/transaction=].
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If the cursor's [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4853,7 +4897,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 
 1. Let |request| be this [=cursor=]'s [=cursor/request=].
 
-1. Unset |request|'s [=request/done flag=].
+1. Unset |request|'s [=request/processed flag=] and [=request/done flag=].
 
 1. Run the steps to [=asynchronously execute a request=] with
     the cursor's [=cursor/source=] as |source|, the steps
@@ -4910,8 +4954,8 @@ invoked, must run these steps:
 1. Let |transaction| be this [=cursor=]'s
     [=cursor/transaction=].
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |transaction| is a [=read-only transaction=], [=throw=] a
     "{{ReadOnlyError}}" {{DOMException}}.
@@ -4977,8 +5021,8 @@ must run these steps:
 1. Let |transaction| be this [=cursor=]'s
     [=cursor/transaction=].
 
-1. If |transaction| is not [=transaction/active=], [=throw=] a
-    "{{TransactionInactiveError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
 1. If |transaction| is a [=read-only transaction=], [=throw=] a
     "{{ReadOnlyError}}" {{DOMException}}.
@@ -5048,6 +5092,7 @@ interface IDBTransaction : EventTarget {
   readonly attribute DOMException error;
 
   IDBObjectStore objectStore(DOMString name);
+  void commit();
   void abort();
 
   // Event handlers:
@@ -5143,11 +5188,27 @@ none.
     <dd>
       Returns an {{IDBObjectStore}} in the [=/transaction=]'s [=transaction/scope=].
     </dd>
+
     <dt><var>transaction</var> . {{IDBTransaction/abort()}}</dt>
     <dd>
       Aborts the transaction. All pending [=/requests=] will fail with
       a "{{AbortError}}" {{DOMException}} and all changes made to the database will be
       reverted.
+    </dd>
+
+    <dt><var>transaction</var> . {{IDBTransaction/commit()}}</dt>
+    <dd>
+      Attempts to commit the transaction. All pending [=/requests=] will be allowed
+      to complete, but no new requests will be accepted. This can be used to force a
+      transaction to quickly finish, without waiting for pending requests to fire
+      <a event>`success`</a> events before attempting to commit normally.
+
+      The transaction will abort if a pending request fails, for example due to a
+      constraint error. The <a event>`success`</a> events for successful requests
+      will still fire, but throwing an exception in an event handler will not abort
+      the transaction. Similarly, <a event>`error`</a> events for failed requests
+      will still fire, but calling `preventDefault()` will not prevent the
+      transaction from aborting.
     </dd>
   </dl>
 </div>
@@ -5157,8 +5218,8 @@ none.
 The <dfn method for=IDBTransaction>objectStore(|name|)</dfn> method,
 when invoked, must run these steps:
 
-1. If |transaction| has [=transaction/finished=], [=throw=] an
-    "{{InvalidStateError}}" {{DOMException}}.
+1. If |transaction|'s [=transaction/state=] is [=transaction/finished=],
+    then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |store| be the [=/object store=]
     [=object-store/named=] |name| in this
@@ -5188,13 +5249,42 @@ when invoked, must run these steps:
 The <dfn method for=IDBTransaction>abort()</dfn> method, when invoked,
 must run these steps:
 
-1. If this [=/transaction=] is [=transaction/finished=], [=throw=]
-    an "{{InvalidStateError}}" {{DOMException}}.
+1. If this [=/transaction=]'s [=transaction/state=] is [=transaction/committing=]
+    or [=transaction/finished=],
+    then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. Unset the [=/transaction=]'s [=transaction/active flag=] and run the
+1. Set the [=/transaction=]'s [=transaction/state=] to [=transaction/active=] and run the
     steps to [=abort a transaction=] with null as |error|.
 
 </div>
+
+<div class=algorithm>
+
+The <dfn method for=IDBTransaction>commit()</dfn> method, when invoked,
+must run these steps:
+
+1. If this [=/transaction=]'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+
+1. Run the steps to [=commit a transaction=] with this [=/transaction=].
+
+</div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBTransaction/commit()}} method is new in this edition.
+  &#x1F6A7;
+</aside>
+
+<aside class=note>
+    It is not normally necessary to call {{IDBTransaction/commit()}}
+    on a [=/transaction=]. A transaction will automatically commit
+    when all outstanding requests have been satisfied and no new
+    requests have been made. This call can be used to start the
+    [=transaction/commit=] process without waiting for events
+    from outstanding [=/requests=] to be dispatched.
+</aside>
+
 
 The <dfn attribute for=IDBTransaction>onabort</dfn> attribute is the
 event handler for the <a event>`abort`</a> event.
@@ -5412,33 +5502,44 @@ requested the [=database=] to be deleted, a database |name|, and a
 The steps to <dfn>commit a transaction</dfn> are as follows.
 This algorithm takes one argument, the |transaction| to commit.
 
-1. All the changes made to the [=database=] by |transaction| are
-    written to the [=database=].
+1. Set |transaction|'s [=transaction/state=] to [=transaction/committing=].
 
-1. If an error occurs while writing the changes to the
-    [=database=], abort the transaction by following the steps
-    to [=abort a transaction=] with |transaction| and an
-    appropriate for the error, for example "{{QuotaExceededError}}" or
-    "{{UnknownError}}" {{DOMException}}.
+1. Run the following steps [=in parallel=]:
 
-1. [=Queue a task=] to run these steps:
+    1. Wait until every item in |transaction|'s [=transaction/request list=]
+        is [=request/processed=].
 
-    1. If |transaction| is an [=/upgrade transaction=], set the
-        [=database=]'s [=database/upgrade transaction=] to null.
+    1. If |transaction|'s [=transaction/state=] is no longer [=transaction/committing=],
+        then terminate these steps.
 
-    1. [=Fire an event=] named <a event>`complete`</a> at |transaction|.
+    1. Attempt to write any outstanding changes made by |transaction| to the [=database=].
 
-        <aside class=note>
-          Even if an exception is thrown from one of the event handlers of
-          this event, the transaction is still committed since writing the
-          database changes happens before the event takes places. Only
-          after the transaction has been successfully written is the
-          <a event>`complete`</a> event fired.
-        </aside>
+    1. If an error occurs while writing the changes to the [=database=],
+        then run the steps
+        to [=abort a transaction=] with |transaction| and an
+        appropriate type for the error, for example "{{QuotaExceededError}}" or
+        "{{UnknownError}}" {{DOMException}}, and terminate these steps.
 
-    1. If |transaction| is an [=/upgrade transaction=], then
-        let |request| be the [=/request=] associated with |transaction|
-        and set |request|'s [=request/transaction=] to null.
+    1. [=Queue a task=] to run these steps:
+
+        1. If |transaction| is an [=/upgrade transaction=], set the
+            [=database=]'s [=database/upgrade transaction=] to null.
+
+        1. Set |transaction|'s [=transaction/state=] to [=transaction/finished=].
+
+        1. [=Fire an event=] named <a event>`complete`</a> at |transaction|.
+
+            <aside class=note>
+              Even if an exception is thrown from one of the event handlers of
+              this event, the transaction is still committed since writing the
+              database changes happens before the event takes places. Only
+              after the transaction has been successfully written is the
+              <a event>`complete`</a> event fired.
+            </aside>
+
+        1. If |transaction| is an [=/upgrade transaction=], then
+            let |request| be the [=/request=] associated with |transaction|
+            and set |request|'s [=request/transaction=] to null.
 
 </div>
 
@@ -5469,13 +5570,15 @@ takes two arguments: the |transaction| to abort, and |error|.
       |transaction|.
     </aside>
 
+1. Set |transaction|'s [=transaction/state=] to [=transaction/finished=].
+
 1. If |error| is not null, set |transaction|'s
     [=transaction/error=] to |error|.
 
-1. [=list/For each=] |request| of |transaction|'s [=request list=] with
-    [=request/done flag=] unset, abort the steps to [=asynchronously
-    execute a request=] for |request| and [=queue a task=] to
-    run these steps:
+1. [=list/For each=] |request| of |transaction|'s [=request list=],
+    abort the steps to [=asynchronously execute a request=] for |request|,
+    set |request|'s [=request/processed flag=] if not already set,
+    and [=queue a task=] to run these steps:
 
     1. Set |request|'s [=request/done flag=].
     1. Set |request|'s [=request/result=] to undefined.
@@ -5505,7 +5608,7 @@ takes two arguments: the |transaction| to abort, and |error|.
         1. Let |request| be the [=request/open request=] associated with |transaction|.
         1. Set |request|'s [=request/transaction=] to null.
         1. Set |request|'s [=request/result=] to undefined.
-        1. Unset |request|'s [=request/done flag=].
+        1. Unset |request|'s [=request/processed flag=] and [=request/done flag=].
 
 </div>
 
@@ -5528,7 +5631,7 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 1. Let |transaction| be the [=/transaction=] associated with
     |source|.
 
-1. Assert: |transaction| is [=transaction/active=].
+1. Assert: |transaction|'s [=transaction/state=] is [=transaction/active=].
 
 1. If |request| was not given, let |request| be a new |request| with
     [=request/source=] as |source|.
@@ -5537,20 +5640,28 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 
 1. Run these steps [=in parallel=]:
 
-    1. Wait until all previously added [=/requests=] in |transaction|
-        have their [=request/done flag=] set.
+    1. Wait until |request| is the first item in |transaction|'s [=transaction/request list=]
+        that is not [=request/processed=].
 
     1. Let |result| be the result of performing |operation|.
 
-    1. If |result| is an error, then revert all changes made by
-        |operation|.
+    1. If |result| is an error and |transaction|'s [=transaction/state=] is [=committing=],
+        then run the steps to [=abort a transaction=] with |transaction| and |error|,
+        and terminate these steps.
+
+    1. If |result| is an error,
+        then revert all changes made by |operation|.
 
         <aside class=note>
           This only reverts the changes done by this request, not any
           other changes made by the transaction.
         </aside>
 
+    1. Set |request|'s [=request/processed flag=].
+
     1. [=Queue a task=] to run these steps:
+
+        1. Remove |request| from |transaction|'s [=transaction/request list=].
 
         1. Set |request|'s [=request/done flag=].
 
@@ -5591,7 +5702,7 @@ for the [=database=], and a |request|.
 
 1. Set |database|'s [=database/upgrade transaction=] to |transaction|.
 
-1. Unset |transaction|'s [=transaction/active flag=].
+1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
 
 1. Start |transaction|.
 
@@ -5607,17 +5718,19 @@ for the [=database=], and a |request|.
     considered part of the [=/transaction=], and so if the
     transaction is [=transaction/aborted=], this change is reverted.
 
+1. Set |request|'s [=request/processed flag=].
+
 1. [=Queue a task=] to run these steps:
 
     1. Set |request|'s [=request/result=] to |connection|.
     1. Set |request|'s [=request/transaction=] to |transaction|.
     1. Set |request|'s [=request/done flag=].
-    1. Set |transaction|'s [=transaction/active flag=].
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
     1. Let |didThrow| be the result of running the steps to
         [=fire a version change event=] named
         <a event>`upgradeneeded`</a> at |request| with |old
         version| and |version|.
-    1. Unset |transaction|'s [=transaction/active flag=].
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
     1. If |didThrow| is set, run the steps to [=abort a
         transaction=] with the |error| property set to a newly
         <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
@@ -5749,16 +5862,23 @@ the implementation must run these steps:
 
 1. Let |legacyOutputDidListenersThrowFlag| be initially unset.
 
-1. Set |transaction|'s [=transaction/active flag=].
+1. If |transaction|'s [=transaction/state=] is [=transaction/inactive=],
+    then set |transaction|'s [=transaction/state=] to [=transaction/active=].
 
 1. [=Dispatch=] |event| at |request| with |legacyOutputDidListenersThrowFlag|.
 
-1. Unset |transaction|'s [=transaction/active flag=].
+1. If |transaction|'s [=transaction/state=] is [=transaction/active=],
+    then run these steps:
 
-1. If |legacyOutputDidListenersThrowFlag| is set,
-    run the steps to [=abort a transaction=] with
-    |transaction| and a newly <a for=exception>created</a>
-    "{{AbortError}}" {{DOMException}}.
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+
+    1. If |legacyOutputDidListenersThrowFlag| is set,
+        then run the steps to [=abort a transaction=] with
+        |transaction| and a newly <a for=exception>created</a>
+        "{{AbortError}}" {{DOMException}}.
+
+    1. If |transaction|'s [=transaction/request list=] is empty,
+        then run the steps to [=commit a transaction=] with |transaction|.
 
 </div>
 
@@ -5782,29 +5902,37 @@ the implementation must run these steps:
 
 1. Let |legacyOutputDidListenersThrowFlag| be initially unset.
 
-1. Set |transaction|'s [=transaction/active flag=].
+1. If |transaction|'s [=transaction/state=] is [=transaction/inactive=],
+    then set |transaction|'s [=transaction/state=] to [=transaction/active=].
 
 1. [=Dispatch=] |event| at [=/request=] with |legacyOutputDidListenersThrowFlag|.
 
-1. Unset |transaction|'s [=transaction/active flag=].
+1. If |transaction|'s [=transaction/state=] is [=transaction/active=],
+    then run these steps:
 
-1. If |legacyOutputDidListenersThrowFlag| is set,
-    run the steps to [=abort a transaction=] with
-    |transaction| and a newly <a for=exception>created</a>
-    "{{AbortError}}" {{DOMException}} and terminate these steps. This is done even if the
-    event's [=canceled flag=] is not set.
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
 
-    <aside class=note>
-      This means that if an error event is fired and any of the event
-      handlers throw an exception, |transaction|'s
-      {{IDBTransaction/error}} property is set to an {{AbortError}}
-      rather than |request|'s [=request/error=], even if
-      {{Event/preventDefault()}} is never called.
-    </aside>
+    1. If |legacyOutputDidListenersThrowFlag| is set,
+        then run the steps to [=abort a transaction=] with
+        |transaction| and a newly <a for=exception>created</a>
+        "{{AbortError}}" {{DOMException}} and terminate these steps.
+        This is done even if the event's [=canceled flag=] is not set.
 
-1. If the event's [=canceled flag=] is not set, run the steps
-    to [=abort a transaction=] using |transaction| and
-    [=/request=]'s [=request/error=].
+        <aside class=note>
+          This means that if an error event is fired and any of the event
+          handlers throw an exception, |transaction|'s
+          {{IDBTransaction/error}} property is set to an {{AbortError}}
+          rather than |request|'s [=request/error=], even if
+          {{Event/preventDefault()}} is never called.
+        </aside>
+
+    1. If the event's [=canceled flag=] is not set,
+        then run the steps to [=abort a transaction=] using
+        |transaction| and [=/request=]'s [=request/error=], and
+        terminate these steps.
+
+    1. If |transaction|'s [=transaction/request list=] is empty,
+        then run the steps to [=commit a transaction=] with |transaction|.
 
 </div>
 
@@ -7056,6 +7184,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * The [=cleanup Indexed Database transactions=] algorithm now returns a value for integration with other specs. ([PR #232](https://github.com/w3c/IndexedDB/pull/232))
 * Updated [partial interface definition](#global-scope) since {{WindowOrWorkerGlobalScope}} is now a `mixin` ([PR #238](https://github.com/w3c/IndexedDB/pull/238)).
 * Added {{IDBFactory/databases()}} method. ([Issue #31](https://github.com/w3c/IndexedDB/issues/31))
+* Added {{IDBTransaction/commit()}} method. ([Issue #234](https://github.com/w3c/IndexedDB/issues/234))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
@@ -7076,6 +7205,7 @@ for his general authoring advice.
 
 Special thanks to
 Chris Anderson,
+Andreas Butler,
 Pablo Castro,
 Victor Costan,
 Kristof Degrave,
@@ -7109,6 +7239,7 @@ Arun Ranganathan,
 Kagami Sascha Rosylight,
 Margo Seltzer,
 Maciej Stachowiak,
+Andrew Sutherland,
 Bevis Tseng,
 Ben Turner,
 Kyaw Tun,
