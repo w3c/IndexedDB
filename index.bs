@@ -4617,6 +4617,7 @@ interface IDBCursor {
   readonly attribute IDBCursorDirection direction;
   readonly attribute any key;
   readonly attribute any primaryKey;
+  readonly attribute IDBRequest request;
 
   void advance([EnforceRange] unsigned long count);
   void continue(optional any key);
@@ -4657,12 +4658,16 @@ enum IDBCursorDirection {
       Returns the [=cursor/effective key=] of the cursor.
       Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
     </dd>
+    <dt><var>cursor</var> . {{IDBCursor/request}}
+    <dd>
+      Returns the [=cursor/request=] that was used to obtain this cursor.
+    </dd>
   </dl>
 </div>
 
 
 The <dfn attribute for=IDBCursor>source</dfn> attribute's getter must
-return the [=cursor/source=] of this [=cursor=]. This
+return the [=cursor/source=] of the [=cursor=]. This
 attribute never returns null or throws an exception, even if the
 cursor is currently being iterated, has iterated past its end, or its
 [=/transaction=] is not [=transaction/active=].
@@ -4689,6 +4694,15 @@ the cursor's [=effective key=] is changed. This means that if the
 object is modified, those modifications will be seen by anyone
 inspecting the value of the cursor. However modifying such an object
 does not modify the contents of the database.
+
+The <dfn attribute for=IDBCursor>request</dfn> attribute's getter must
+return the [=cursor/request=] of the [=cursor=].
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBCursor/request}} attribute is new in this edition.
+  &#x1F6A7;
+</aside>
 
 <div class=note>
   The following methods advance a [=cursor=]. Once the cursor has
@@ -7184,6 +7198,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Updated [partial interface definition](#global-scope) since {{WindowOrWorkerGlobalScope}} is now a `mixin` ([PR #238](https://github.com/w3c/IndexedDB/pull/238)).
 * Added {{IDBFactory/databases()}} method. ([Issue #31](https://github.com/w3c/IndexedDB/issues/31))
 * Added {{IDBTransaction/commit()}} method. ([Issue #234](https://github.com/w3c/IndexedDB/issues/234))
+* Added {{IDBCursor/request}} attribute. ([Issue #255](https://github.com/w3c/IndexedDB/issues/255))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
@@ -7204,6 +7219,7 @@ for his general authoring advice.
 
 Special thanks to
 Chris Anderson,
+Jake Archibald,
 Andreas Butler,
 Pablo Castro,
 Victor Costan,
