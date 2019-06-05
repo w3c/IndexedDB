@@ -3035,15 +3035,26 @@ and false otherwise.
   </dl>
 </div>
 
-<div class=algorithm>
 
 The <dfn method for=IDBObjectStore>put(|value|, |key|)</dfn> method,
-when invoked, must run these steps:
+when invoked, must return the result of running the steps to [=add or
+put=] with this [=/object store handle=], |value|, |key| and the
+|no-overwrite flag| unset.
 
-1. Let |transaction| be this [=/object store handle=]'s
+The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method,
+when invoked, must return the result of running the steps to [=add or
+put=] with this [=/object store handle=], |value|, |key| and the
+|no-overwrite flag| set.
+
+<div class=algorithm>
+
+The steps to <dfn>add or put</dfn> are as follows. The algorithm
+takes four arguments: |handle|, |value|, |key|, and |no-overwrite flag|.
+
+1. Let |transaction| be |handle|'s
     [=object-store-handle/transaction=].
 
-1. Let |store| be this [=/object store handle=]'s
+1. Let |store| be this |handle|'s's
     [=object-store-handle/object store=].
 
 1. If |store| has been deleted,
@@ -3107,90 +3118,10 @@ when invoked, must run these steps:
 
 1. Run the steps to [=asynchronously execute a request=] and
     return the {{IDBRequest}} created by these steps. The steps are
-    run with this [=/object store handle=] as |source| and the
+    run with |handle| as |source| and the
     steps to [=store a record into an object store=] as
     |operation|, using |store|, the |clone| as |value|, |key|, and
-    with the |no-overwrite flag| unset.
-
-</div>
-
-<div class=algorithm>
-
-The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method,
-when invoked, must run these steps:
-
-1. Let |transaction| be this [=/object store handle=]'s
-    [=object-store-handle/transaction=].
-
-1. Let |store| be this [=/object store handle=]'s
-    [=object-store-handle/object store=].
-
-1. If |store| has been deleted, [=throw=] an
-    "{{InvalidStateError}}" {{DOMException}}.
-
-1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
-    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
-
-1. If |transaction| is a [=read-only transaction=],
-    [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
-
-1. If |store| uses [=in-line keys=] and |key| was given,
-    [=throw=] a "{{DataError}}" {{DOMException}}.
-
-1. If |store| uses [=out-of-line keys=] and has no [=key
-    generator=] and |key| was not given, [=throw=] a
-    "{{DataError}}" {{DOMException}}.
-
-1. If |key| was given, then:
-
-    1. Let |r| be the result of running the steps to [=convert a
-        value to a key=] with |key|. Rethrow any exceptions.
-
-    1. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
-
-    1. Let |key| be |r|.
-
-1. Let |targetRealm| be a user-agent defined [=Realm=].
-
-1. Let |clone| be a [=clone=] of |value| in |targetRealm|.
-    Rethrow any exceptions.
-
-    <details class=note>
-      <summary>Why create a copy of the value?</summary>
-      The value is serialized when stored. Treating it as a copy
-      here allows other algorithms in this specification to treat it as
-      an ECMAScript value, but implementations can optimize this
-      if the difference in behavior is not observable.
-    </details>
-
-1. If |store| uses [=in-line keys=], then:
-
-    1. Let |kpk| be the result of running the steps to [=extract a
-        key from a value using a key path=] with |clone| and
-        |store|'s [=object-store/key path=]. Rethrow any
-        exceptions.
-
-    1. If |kpk| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
-
-    1. If |kpk| is not failure, let |key| be
-        |kpk|.
-
-    1. Otherwise (|kpk| is failure):
-
-        1. If |store| does not have a [=key generator=], [=throw=]
-            a "{{DataError}}" {{DOMException}}.
-
-        1. Otherwise, if the steps to
-            [=check that a key could be injected into a value=] with
-            |clone| and  |store|'s [=object-store/key path=] return
-            false, [=throw=] a "{{DataError}}" {{DOMException}}.
-
-1. Run the steps to [=asynchronously execute a request=] and
-    return the {{IDBRequest}} created by these steps. The steps are
-    run with this [=/object store handle=] as |source| and the
-    steps to [=store a record into an object store=] as
-    |operation|, using |store|, |clone| as |value|, |key|, and with
-    the |no-overwrite flag| set.
+    |no-overwrite flag|.
 
 </div>
 
@@ -7256,6 +7187,7 @@ Kagami Sascha Rosylight,
 Margo Seltzer,
 Maciej Stachowiak,
 Andrew Sutherland,
+Yaron Tausky,
 Bevis Tseng,
 Ben Turner,
 Kyaw Tun,
