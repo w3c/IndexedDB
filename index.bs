@@ -371,7 +371,7 @@ from the database. Ideally the user will never see this.
 # Constructs # {#constructs}
 <!-- ============================================================ -->
 
-A <dfn>name</dfn> is a string equivalent to a {{DOMString}};
+A <dfn>name</dfn> is a [=string=] equivalent to a {{DOMString}};
 that is, an arbitrary sequence of 16-bit code units of any length,
 including the empty string. [=/Names=] are always compared as
 opaque sequences of 16-bit code units.
@@ -610,8 +610,8 @@ A [=/key=] also has an associated <dfn>value</dfn>, which will
 be either:
 an {{unrestricted double}} if type is *number* or *date*,
 a {{DOMString}} if type is *string*,
-a list of {{octet}}s if type is *binary*,
-or a list of other [=/keys=] if type is *array*.
+a [=byte sequence=] if type is *binary*,
+or a [=/list=] of other [=/keys=] if type is *array*.
 
 </div>
 
@@ -637,8 +637,8 @@ following the steps to [=convert a value to a key=].
 </aside>
 
 An <dfn>array key</dfn> is a [=/key=] with [=key/type=] *array*.
-The <dfn>subkeys</dfn> of an [=array key=] are the members of the
-[=array key=]'s [=key/value=] list.
+The <dfn>subkeys</dfn> of an [=array key=] are the [=list/items=] of the
+[=array key=]'s [=key/value=].
 
 <div class=algorithm>
 
@@ -648,28 +648,17 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
 
 1. Let |tb| be the [=key/type=] of |b|.
 
-1. If |ta| is *array* and |tb| is *binary*, *string*,
-    *date* or *number*, return 1.
+1. If |ta| does not equal |tb|, then run these steps:
 
-1. If |tb| is *array* and |ta| is *binary*, *string*,
-    *date* or *number*, return -1.
-
-1. If |ta| is *binary* and |tb| is *string*, *date* or
-    *number*, return 1.
-
-1. If |tb| is *binary* and |ta| is *string*, *date* or
-    *number*, return -1.
-
-1. If |ta| is *string* and |tb| is *date* or *number*,
-    return 1.
-1. If |tb| is *string* and |ta| is *date* or *number*,
-    return -1.
-
-1. If |ta| is *date* and |tb| is *number*, return 1.
-
-1. If |tb| is *date* and |ta| is *number*, return -1.
-
-1. Assert: |ta| and |tb| are equal.
+    1. If |ta| is *array*, then return 1.
+    1. If |tb| is *array*, then return -1.
+    1. If |ta| is *binary*, then return 1.
+    1. If |tb| is *binary*, then return -1.
+    1. If |ta| is *string*, then return 1.
+    1. If |tb| is *string*, then return -1.
+    1. If |ta| is *date*, then return 1.
+    1. [=/Assert=]: |tb| is *date*.
+    1. Return -1.
 
 1. Let |va| be the [=key/value=] of |a|.
 
@@ -688,50 +677,32 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
 
       <dt>*string*</dt>
       <dd>
-        1. Let |length| be the lesser of |va|'s length and |vb|'s length.
-        1. Let |i| be 0.
-        1. While |i| is less than |length|, then:
-            1. Let |u| be the code unit of |va| at index |i|.
-            1. Let |v| be the code unit of |vb| at index |i|.
-            1. If |u| is greater than |v| then return 1.
-            1. If |u| is less than |v| then return -1.
-            1. Increase |i| by 1.
-        1. If |va|'s length is greater than |vb|'s length, then return 1.
-        1. If |va|'s length is less than |vb|'s length, then return -1.
+        1. If |va| is [=code unit less than=] |vb|, then return -1.
+        1. If |vb| is [=code unit less than=] |va|, then return 1.
         1. Return 0.
       </dd>
 
       <dt>*binary*</dt>
       <dd>
-        1. Let |length| be the lesser of |va|'s length and |vb|'s length.
-        1. Let |i| be 0.
-        1. While |i| is less than |length|, then:
-
-            1. Let |u| be the {{octet}} in |va| at index |i|.
-            1. Let |v| be the {{octet}} in |vb| at index |i|.
-            1. If |u| is greater than |v| then return 1.
-            1. If |u| is less than |v| then return -1.
-            1. Increase |i| by 1.
-
-        1. If |va|'s length is greater than |vb|'s length, then return 1.
-        1. If |va|'s length is less than |vb|'s length, then return -1.
+        1. If |va| is [=byte less than=] |vb|, then return -1.
+        1. If |vb| is [=byte less than=] |va|, then return 1.
         1. Return 0.
       </dd>
 
       <dt>*array*</dt>
       <dd>
-        1. Let |length| be the lesser of |va|'s length and |vb|'s length.
+        1. Let |length| be the lesser of |va|'s [=list/size=] and |vb|'s [=list/size=].
         1. Let |i| be 0.
         1. While |i| is less than |length|, then:
 
-            1. Let |u| be the [=/key=] in |va| at index |i|.
-            1. Let |v| be the [=/key=] in |vb| at index |i|.
+            1. Let |u| be the [=/key=] at |va|[|i|].
+            1. Let |v| be the [=/key=] in |vb|[|i|].
             1. Let |c| be the result of recursively running the steps to [=compare two keys=] with |u| and |v|.
             1. If |c| is not 0, return |c|.
             1. Increase |i| by 1.
 
-        1. If |va|'s length is greater than |vb|'s length, then return 1.
-        1. If |va|'s length is less than |vb|'s length, then return -1.
+        1. If |va|'s [=list/size=] is greater than |vb|'s [=list/size=], then return 1.
+        1. If |va|'s [=list/size=] is less than |vb|'s [=list/size=], then return -1.
         1. Return 0.
       </dd>
     </dl>
@@ -762,9 +733,9 @@ of running the steps to [=compare two keys=] with |a| and |b| is 0.
 </aside>
 
 <aside class=note>
-  Members of *binary* keys are compared as unsigned {{octet}} values
-  (in the range [0, 255]) rather than signed {{byte}} values (in the range
-  [-128, 127]).
+  Members of *binary* keys are compared as unsigned [=byte=] values
+  (in the range 0 to 255 inclusive) rather than signed {{byte}} values (in the range
+  -128 to 127 inclusive).
 </aside>
 
 
@@ -5579,7 +5550,7 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 1. Let |transaction| be the [=/transaction=] associated with
     |source|.
 
-1. Assert: |transaction|'s [=transaction/state=] is [=transaction/active=].
+1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
 
 1. If |request| was not given, let |request| be a new |request| with
     [=request/source=] as |source|.
@@ -6270,7 +6241,7 @@ follows.
 
 1. Let |direction| be |cursor|'s [=cursor/direction=].
 
-1. Assert: if |primaryKey| is given, |source| is an [=/index=]
+1. [=/Assert=]: if |primaryKey| is given, |source| is an [=/index=]
     and |direction| is {{"next"}} or {{"prev"}}.
 
 1. Let |records| be the list of [=object-store/records=] in |source|.
@@ -6493,7 +6464,7 @@ ECMAScript value or failure, or the steps may throw an exception.
             [=evaluate a key path on a value=] using
             |item| as |keyPath| and |value| as |value|.
 
-        1. Assert: |key| is not an [=abrupt completion=].
+        1. [=/Assert=]: |key| is not an [=abrupt completion=].
 
         1. If |key| is failure, abort the overall algorithm and return
             failure.
@@ -6502,7 +6473,7 @@ ECMAScript value or failure, or the steps may throw an exception.
 
         1. Let |status| be [=CreateDataProperty=](|result|, |p|, |key|).
 
-        1. Assert: |status| is true.
+        1. [=/Assert=]: |status| is true.
 
         1. Increase |i| by 1.
 
@@ -6561,7 +6532,7 @@ ECMAScript value or failure, or the steps may throw an exception.
 
     </dl>
 
-1. Assert: |value| is not an [=abrupt completion=].
+1. [=/Assert=]: |value| is not an [=abrupt completion=].
 
 1. Return |value|.
 
@@ -6596,9 +6567,9 @@ true or false.
 1. Let |identifiers| be the result of <a lt="strictly split a string">strictly splitting</a>
     |keyPath| on U+002E FULL STOP characters (.).
 
-1. Assert: |identifiers| is not empty.
+1. [=/Assert=]: |identifiers| is not empty.
 
-1. Remove the last member of |identifiers|.
+1. Remove the last [=list/item=] of |identifiers|.
 
 1. [=list/For each=] remaining |identifier| of |identifiers|, if any:
 
@@ -6627,14 +6598,14 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
 1. Let |identifiers| be the result of <a lt="strictly split a string">strictly splitting</a>
     |keyPath| on U+002E FULL STOP characters (.).
 
-1. Assert: |identifiers| is not empty.
+1. [=/Assert=]: |identifiers| is not empty.
 
-1. Let |last| be the last member of |identifiers| and remove it from
+1. Let |last| be the last [=list/item=] of |identifiers| and remove it from
     the list.
 
 1. [=list/For each=] remaining |identifier| of |identifiers|:
 
-    1. Assert: |value| is an [=Object=] or an [=Array=].
+    1. [=/Assert=]: |value| is an [=Object=] or an [=Array=].
 
     1. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
@@ -6646,18 +6617,18 @@ as follows. The algorithm takes a |value|, a |key| and a |keyPath|.
          1. Let |status| be [=CreateDataProperty=](|value|, |identifier|,
             |o|).
 
-         1. Assert: |status| is true.
+         1. [=/Assert=]: |status| is true.
 
     1. Let |value| be [=!=] [=Get=](|value|, |identifier|).
 
-1. Assert: |value| is an [=Object=] or an [=Array=].
+1. [=/Assert=]: |value| is an [=Object=] or an [=Array=].
 
 1. Let |keyValue| be the result of running the steps to [=convert a
     key to a value=] with |key|.
 
 1. Let |status| be [=CreateDataProperty=](|value|, |last|, |keyValue|).
 
-1. Assert: |status| is true.
+1. [=/Assert=]: |status| is true.
 
 </div>
 
@@ -6695,17 +6666,17 @@ steps take one argument, |key|, and return an ECMAScript value.
       <dd>
         1. Let |date| be the result of executing the ECMAScript Date
             constructor with the single argument |value|.
-        1. Assert: |date| is not an [=abrupt completion=].
+        1. [=/Assert=]: |date| is not an [=abrupt completion=].
         1. Return |date|.
 
       </dd>
 
       <dt>*binary*</dt>
       <dd>
-        1. Let |len| be the length of |value|.
+        1. Let |len| be |value|'s [=byte sequence/length=].
         1. Let |buffer| be the result of executing the ECMAScript
             ArrayBuffer constructor with |len|.
-        1. Assert: |buffer| is not an [=abrupt completion=].
+        1. [=/Assert=]: |buffer| is not an [=abrupt completion=].
         1. Set the entries in |buffer|'s
             \[[ArrayBufferData]] internal slot to the entries
             in |value|.
@@ -6717,17 +6688,16 @@ steps take one argument, |key|, and return an ECMAScript value.
       <dd>
         1. Let |array| be the result of executing the ECMAScript Array
             constructor with no arguments.
-        1. Assert: |array| is not an [=abrupt completion=].
-        1. Let |len| be the length of |value|.
+        1. [=/Assert=]: |array| is not an [=abrupt completion=].
+        1. Let |len| be |value|'s [=list/size=].
         1. Let |index| be 0.
         1. While |index| is less than |len|:
 
             1. Let |entry| be the result of running the steps to
-                [=convert a key to a value=] with the |index|th
-                entry of |value| as input.
+                [=convert a key to a value=] with |value|[|index|].
             1. Let |status| be [=CreateDataProperty=](|array|, |index|,
                 |entry|).
-            1. Assert: |status| is true.
+            1. [=/Assert=]: |status| is true.
             1. Increase |index| by 1.
 
         1. Return |array|.
@@ -6746,12 +6716,12 @@ steps take one argument, |key|, and return an ECMAScript value.
 
 The steps to <dfn>convert a value to a key</dfn> are as follows. These
 steps take two arguments, an ECMAScript value |input|, and an optional
-set |seen|. The result of these steps is a [=/key=] or invalid, or the
+[=/set=] |seen|. The result of these steps is a [=/key=] or invalid, or the
 steps may throw an exception.
 
-1. If |seen| was not given, let |seen| be a new empty set.
+1. If |seen| was not given, then let |seen| be a new empty [=/set=].
 
-1. If |input| is in |seen| return invalid.
+1. If |seen| [=set/contains=] |input|, then return invalid.
 
 1. Jump to the appropriate step below:
 
@@ -6794,12 +6764,12 @@ steps may throw an exception.
         If |input| is a [=buffer source type=]</dt>
       <dd>
 
-        1. Let |octets| be the result of running the steps to
+        1. Let |bytes| be the result of running the steps to
             <a lt="get a copy of the buffer source">get a copy of the bytes held by the buffer source</a>
             |input|. Rethrow any exceptions.
 
         1. Return a new [=/key=] with [=key/type=]
-            *binary* and [=key/value=] |octets|.
+            *binary* and [=key/value=] |bytes|.
 
       </dd>
 
@@ -6809,7 +6779,7 @@ steps may throw an exception.
 
         1. Let |len| be [=?=] [=ToLength=]( [=?=] [=Get=](|input|,
             "`length`")).
-        1. Add |input| to |seen|.
+        1. [=set/Append=] |input| to |seen|.
         1. Let |keys| be a new empty list.
         1. Let |index| be 0.
         1. While |index| is less than |len|:
@@ -6829,7 +6799,7 @@ steps may throw an exception.
             1. If |key| is invalid abort these steps and return
                 invalid.
 
-            1. Append |key| to |keys|.
+            1. [=list/Append=] |key| to |keys|.
 
             1. Increase |index| by 1.
 
@@ -6856,9 +6826,9 @@ steps may throw an exception.
 
     1. Let |len| be [=?=] ToLength( [=?=] [=Get=](|input|, "`length`")).
 
-    1. Let |seen| be a new set containing only |input|.
+    1. Let |seen| be a new [=/set=] containing only |input|.
 
-    1. Let |keys| be a new empty set.
+    1. Let |keys| be a new empty [=/list=].
 
     1. Let |index| be 0.
 
@@ -6873,13 +6843,12 @@ steps may throw an exception.
                  |entry| and |seen|.
 
              1. If |key| is not invalid or an [=abrupt completion=],
-                 add |key| to |keys| if there are no other members of
-                 |keys| [=equal to=] |key|.
+                 and there is no [=list/item=] in |keys| [=equal to=] |key|,
+                 then [=list/append=] |key| to |keys|.
 
         1. Increase |index| by 1.
 
-    1. Return a new [=array key=] with [=key/value=] set to
-        a list of the members of |keys|.
+    1. Return a new [=array key=] with [=key/value=] set to |keys|.
 
 1. Otherwise, return the result of running the steps to [=convert a
     value to a key=] with argument |input|.
