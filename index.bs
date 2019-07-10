@@ -1939,7 +1939,7 @@ usage.
 
 <aside class=note>
   Given that multiple Indexed DB operations can throw the same type of
-  error, and that a even single operation can throw the same type of
+  error, and that even a single operation can throw the same type of
   error for multiple reasons, implementations are encouraged to
   provide more specific messages to enable developers to identify the
   cause of errors.
@@ -2022,7 +2022,7 @@ enum IDBRequestReadyState {
     : |request| . {{IDBRequest/source}}
     ::
         Returns the {{IDBObjectStore}}, {{IDBIndex}}, or {{IDBCursor}}
-        the request was made against, or null if is was an [=open
+        the request was made against, or null if it was an [=open
         request=].
 
     : |request| . {{IDBRequest/transaction}}
@@ -2198,7 +2198,7 @@ dictionary IDBDatabaseInfo {
         with a lower version and there are open [=/connections=]
         that don't close in response to a
         <a event>`versionchange`</a> event, the request will be
-        blocked until all they close, then an upgrade
+        blocked until they all close, then an upgrade
         will occur. If the database already exists with a higher
         version the request will fail. If the request is
         successful |request|'s {{IDBRequest/result}} will
@@ -2211,7 +2211,7 @@ dictionary IDBDatabaseInfo {
         database already exists and there are open
         [=/connections=] that don't close in response to a
         <a event>`versionchange`</a> event, the request will be
-        blocked until all they close. If the request
+        blocked until they all close. If the request
         is successful |request|'s {{IDBRequest/result}}
         will be null.
 
@@ -2716,6 +2716,11 @@ must run these steps:
 
 </div>
 
+<aside class=note>
+The [=/connection=] will not actually [=connection/close=] until all outstanding [=/transactions=] have completed. Subsequent calls to {{IDBDatabase/close()}} will have no effect.
+</aside>
+
+
 The <dfn attribute for=IDBDatabase>onabort</dfn> attribute is the
 event handler for the <a event>`abort`</a> event.
 
@@ -2999,7 +3004,7 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 
     <details class=note>
       <summary>Why create a copy of the value?</summary>
-      The value is be serialized when stored. Treating it as a copy
+      The value is serialized when stored. Treating it as a copy
       here allows other algorithms in this specification to treat it as
       an ECMAScript value, but implementations can optimize this
       if the difference in behavior is not observable.
@@ -3823,7 +3828,7 @@ return this [=index handle=]'s
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/get()|get}}(|query|)
     ::
         Retrieves the [=/value=] of the first [=object-store/record=] matching the
@@ -3833,7 +3838,7 @@ return this [=index handle=]'s
         [=/value=], or `undefined` if there was no matching
         [=object-store/record=].
 
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/getKey()|getKey}}(|query|)
     ::
         Retrieves the [=/key=] of the first [=object-store/record=] matching the
@@ -3843,7 +3848,7 @@ return this [=index handle=]'s
         [=/key=], or `undefined` if there was no matching
         [=object-store/record=].
 
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/getAll()|getAll}}(|query| [, |count|])
     ::
         Retrieves the [=/values=] of the [=object-store/records=] matching the given
@@ -3852,7 +3857,7 @@ return this [=index handle=]'s
         If successful, |request|'s {{IDBRequest/result}} will be an
         [=Array=] of the [=/values=].
 
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/getAllKeys()|getAllKeys}}(|query| [,
           |count|])
     ::
@@ -3862,7 +3867,7 @@ return this [=index handle=]'s
         If successful, |request|'s {{IDBRequest/result}} will be an
         [=Array=] of the [=/keys=].
 
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/count()|count}}(|query|)
     ::
         Retrieves the number of [=object-store/records=] matching the given [=/key=]
@@ -4065,7 +4070,7 @@ given, an [=unbounded key range=] is used.
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/openCursor()|openCursor}}([|query|
               [, |direction| = "next"]])
     ::
@@ -4077,7 +4082,7 @@ given, an [=unbounded key range=] is used.
         {{IDBCursorWithValue}}, or null if there were no matching
         [=object-store/records=].
 
-    : |request| = |store| .
+    : |request| = |index| .
           {{IDBIndex/openKeyCursor()|openKeyCursor}}([|query|
               [, |direction| = "next"]])
     ::
@@ -4409,7 +4414,7 @@ enum IDBCursorDirection {
     ::
         Returns the {{IDBObjectStore}} or {{IDBIndex}} the cursor was opened from.
 
-    : |range| . {{IDBCursor/direction}}
+    : |cursor| . {{IDBCursor/direction}}
     ::
         Returns the [=cursor/direction=]
         ({{"next"}}, {{"nextunique"}}, {{"prev"}} or {{"prevunique"}})
@@ -6936,6 +6941,7 @@ Tobie Langel,
 Kang-Hao Lu,
 Andrea Marchesini,
 Glenn Maynard,
+Isiah Meadows,
 Ms2ger,
 Odin Omdal,
 Danillo Paiva,
