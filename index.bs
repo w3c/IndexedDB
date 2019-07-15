@@ -393,12 +393,12 @@ sorted in ascending order by 16-bit code unit.
 
 <details class=note>
     <summary>Details</summary>
-    <p>This matches the [=Array.prototype.sort=] on an [=Array=] of
+    This matches the [=Array.prototype.sort=] on an [=Array=] of
     [=Strings=]. This ordering compares the 16-bit code units in each
     string, producing a highly efficient, consistent, and deterministic
     sort order. The resulting list will not match any particular
     alphabet or lexicographical order, particularly for code points
-    represented by a surrogate pair.</p>
+    represented by a surrogate pair.
 </details>
 
 
@@ -667,42 +667,39 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
 1. Switch on |ta|:
 
     <dl class=switch>
-      <dt>*number*</dt>
-      <dt>*date*</dt>
-      <dd>
-        1. If |va| is greater than |vb|, then return 1.
-        1. If |va| is less than |vb|, then return -1.
-        1. Return 0.
-      </dd>
+      : *number*
+      : *date*
+      ::
+          1. If |va| is greater than |vb|, then return 1.
+          1. If |va| is less than |vb|, then return -1.
+          1. Return 0.
 
-      <dt>*string*</dt>
-      <dd>
-        1. If |va| is [=code unit less than=] |vb|, then return -1.
-        1. If |vb| is [=code unit less than=] |va|, then return 1.
-        1. Return 0.
-      </dd>
+      : *string*
+      ::
+          1. If |va| is [=code unit less than=] |vb|, then return -1.
+          1. If |vb| is [=code unit less than=] |va|, then return 1.
+          1. Return 0.
 
-      <dt>*binary*</dt>
-      <dd>
-        1. If |va| is [=byte less than=] |vb|, then return -1.
-        1. If |vb| is [=byte less than=] |va|, then return 1.
-        1. Return 0.
-      </dd>
+      : *binary*
+      ::
+          1. If |va| is [=byte less than=] |vb|, then return -1.
+          1. If |vb| is [=byte less than=] |va|, then return 1.
+          1. Return 0.
 
-      <dt>*array*</dt>
-      <dd>
-        1. Let |length| be the lesser of |va|'s [=list/size=] and |vb|'s [=list/size=].
-        1. Let |i| be 0.
-        1. While |i| is less than |length|, then:
+      : *array*
+      ::
+          1. Let |length| be the lesser of |va|'s [=list/size=] and |vb|'s [=list/size=].
+          1. Let |i| be 0.
+          1. While |i| is less than |length|, then:
 
-            1. Let |c| be the result of recursively running [=compare two keys=] with |va|[|i|] and |vb|[|i|].
-            1. If |c| is not 0, return |c|.
-            1. Increase |i| by 1.
+              1. Let |c| be the result of recursively running [=compare two keys=] with |va|[|i|] and |vb|[|i|].
+              1. If |c| is not 0, return |c|.
+              1. Increase |i| by 1.
 
-        1. If |va|'s [=list/size=] is greater than |vb|'s [=list/size=], then return 1.
-        1. If |va|'s [=list/size=] is less than |vb|'s [=list/size=], then return -1.
-        1. Return 0.
-      </dd>
+          1. If |va|'s [=list/size=] is greater than |vb|'s [=list/size=], then return 1.
+          1. If |va|'s [=list/size=] is less than |vb|'s [=list/size=], then return -1.
+          1. Return 0.
+
     </dl>
 
 </div>
@@ -912,19 +909,17 @@ is set when the transaction is created and remains fixed for the life
 of the transaction. A [=/transaction=]'s [=transaction/mode=] is one of the
 following:
 
-<dl>
-  <dt>{{"readonly"}}</dt>
-  <dd>
+: {{"readonly"}}
+::
     The transaction is only allowed to read data. No modifications can
     be done by this type of transaction. This has the advantage that
     several [=read-only transactions=] can run at the same time even
     if their [=transaction/scopes=] are overlapping, i.e. if they are using the
     same object stores. This type of transaction can be created any
     time once a database has been opened.
-  </dd>
 
-  <dt>{{"readwrite"}}</dt>
-  <dd>
+: {{"readwrite"}}
+::
     The transaction is allowed to read, modify and delete data from
     existing object stores. However object stores and indexes can't be
     added or removed. Multiple {{"readwrite"}} transactions
@@ -932,18 +927,15 @@ following:
     since that would mean that they can modify each other's data in
     the middle of the transaction. This type of transaction can be
     created any time once a database has been opened.
-  </dd>
 
-  <dt>{{"versionchange"}}</dt>
-  <dd>
+: {{"versionchange"}}
+::
     The transaction is allowed to read, modify and delete data from
     existing object stores, and can also create and remove object
     stores and indexes. It is the only type of transaction that can do
     so. This type of transaction can't be manually created, but
     instead is created automatically when an
     <a event>`upgradeneeded`</a> event is fired.
-  </dd>
-</dl>
 
 A [=/transaction=] optionally has a <dfn>cleanup event loop</dfn>
 which is an [=event loop=].
@@ -970,34 +962,32 @@ is a [=/transaction=] with [=transaction/mode=] {{"readwrite"}}.
 A [=/transaction=] has a <dfn>state</dfn>, which is one
 of the following:
 
-<dl>
-  <dt><dfn>active</dfn>
-  <dd>
+: <dfn>active</dfn>
+::
     A transaction is in this state when it is first [=transaction/created=],
     and during dispatch of an event from a [=/request=] associated with the transaction.
 
     New [=/requests=] can be made against the transaction when it is in this state.
 
-  <dt><dfn>inactive</dfn>
-  <dd>
+: <dfn>inactive</dfn>
+::
     A transaction is in this state after control returns to the event
     loop after its creation, and when events are not being dispatched.
 
     No [=/requests=] can be made against the transaction when it is in this state.
 
-  <dt><dfn>committing</dfn>
-  <dd>
+: <dfn>committing</dfn>
+::
     Once all [=/requests=] associated with a transaction have completed,
     the transaction will enter this state as it attempts to [=commit=].
 
     No [=/requests=] can be made against the transaction when it is in this state.
 
-  <dt><dfn>finished</dfn>
-  <dd>
+: <dfn>finished</dfn>
+::
     Once a transaction has committed or aborted, it enters this state.
 
     No [=/requests=] can be made against the transaction when it is in this state.
-</dl>
 
 Transactions are expected to be short lived. This is encouraged by the
 [=transaction/commit|automatic committing=] functionality
@@ -1442,17 +1432,15 @@ the cursor initial position is at the start of its
 [=cursor/source=] or at its end. A cursor's
 [=cursor/direction=] is one of the following:
 
-<dl>
-  <dt>{{"next"}}</dt>
-  <dd>
+: {{"next"}}
+::
     This direction causes the cursor to be opened at the start of the
     [=cursor/source=]. When iterated, the [=cursor=] should yield all
     records, including duplicates, in monotonically increasing order
     of keys.
-  </dd>
 
-  <dt>{{"nextunique"}}</dt>
-  <dd>
+: {{"nextunique"}}
+::
     This direction causes the cursor to be opened at the start of the
     [=cursor/source=]. When iterated, the [=cursor=] should not yield
     records with the same key, but otherwise yield all records, in
@@ -1461,18 +1449,16 @@ the cursor initial position is at the start of its
     [=cursor/source=] is an [=/object store=] or an [=/index=] with
     its [=unique flag=] set to true, this direction has exactly the same
     behavior as {{"next"}}.
-  </dd>
 
-  <dt>{{"prev"}}</dt>
-  <dd>
+: {{"prev"}}
+::
     This direction causes the cursor to be opened at the end of the
     [=cursor/source=]. When iterated, the [=cursor=] should yield all
     records, including duplicates, in monotonically decreasing order
     of keys.
-  </dd>
 
-  <dt>{{"prevunique"}}</dt>
-  <dd>
+: {{"prevunique"}}
+::
     This direction causes the cursor to be opened at the end of the
     [=cursor/source=]. When iterated, the [=cursor=] should not
     yield records with the same key, but otherwise yield all records,
@@ -1481,8 +1467,6 @@ the cursor initial position is at the start of its
     [=cursor/source=] is an [=/object store=] or an
     [=/index=] with its [=unique flag=] set to true, this direction
     has exactly the same behavior as {{"prev"}}.
-  </dd>
-</dl>
 
 A [=cursor=] has a <dfn>position</dfn> within its range. It is
 possible for the list of records which the cursor is iterating over to
@@ -2022,43 +2006,36 @@ enum IDBRequestReadyState {
 };
 </xmp>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>request</var> . {{IDBRequest/result}}</dt>
-    <dd>
+<dl class="domintro note">
+    : |request| . {{IDBRequest/result}}
+    ::
         When a request is completed, returns the [=request/result=],
         or `undefined` if the request failed. Throws a
         "{{InvalidStateError}}" {{DOMException}} if the request is still pending.
-    </dd>
 
-    <dt><var>request</var> . {{IDBRequest/error}}</dt>
-    <dd>
+    : |request| . {{IDBRequest/error}}
+    ::
         When a request is completed, returns the [=request/error=] (a
         {{DOMException}}), or null if the request succeeded. Throws
         a "{{InvalidStateError}}" {{DOMException}} if the request is still pending.
-    </dd>
 
-    <dt><var>request</var> . {{IDBRequest/source}}</dt>
-    <dd>
+    : |request| . {{IDBRequest/source}}
+    ::
         Returns the {{IDBObjectStore}}, {{IDBIndex}}, or {{IDBCursor}}
         the request was made against, or null if it was an [=open
         request=].
-    </dd>
 
-    <dt><var>request</var> . {{IDBRequest/transaction}}</dt>
-    <dd>
+    : |request| . {{IDBRequest/transaction}}
+    ::
         Returns the {{IDBTransaction}} the request was made within.
         If this as an [=open request=], then it returns an
         [=/upgrade transaction=] while it is running, or null otherwise.
-    </dd>
 
-    <dt><var>request</var> . {{IDBRequest/readyState}}</dt>
-    <dd>
+    : |request| . {{IDBRequest/readyState}}
+    ::
         Returns {{"pending"}} until a request is complete,
         then returns {{"done"}}.
-    </dd>
-  </dl>
-</div>
+</dl>
 
 The <dfn attribute for=IDBRequest>result</dfn> attribute's getter must
 [=throw=] an "{{InvalidStateError}}" {{DOMException}} if the [=/request=]'s [=request/done flag=] is
@@ -2204,19 +2181,18 @@ dictionary IDBDatabaseInfo {
 </xmp>
 
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>request</var> = indexedDB .
-        {{IDBFactory/open()|open}}(<var>name</var>)</dt>
-    <dd>
+<dl class="domintro note">
+    : |request| = indexedDB .
+        {{IDBFactory/open()|open}}(|name|)
+    ::
         Attempts to open a [=/connection=] to the named [=/database=]
         with the current version, or 1 if it does not already exist.
         If the request is successful |request|'s
         {{IDBRequest/result}} will be the [=/connection=].
-    </dd>
-    <dt><var>request</var> = indexedDB .
-        {{IDBFactory/open()|open}}(<var>name</var>, <var>version</var>)</dt>
-    <dd>
+
+    : |request| = indexedDB .
+        {{IDBFactory/open()|open}}(|name|, |version|)
+    ::
         Attempts to open a [=/connection=] to the named [=/database=]
         with the specified version. If the database already exists
         with a lower version and there are open [=/connections=]
@@ -2227,10 +2203,10 @@ dictionary IDBDatabaseInfo {
         version the request will fail. If the request is
         successful |request|'s {{IDBRequest/result}} will
         be the [=/connection=].
-    </dd>
-    <dt><var>request</var> = indexedDB .
-        {{IDBFactory/deleteDatabase()|deleteDatabase}}(<var>name</var>)</dt>
-    <dd>
+
+    : |request| = indexedDB .
+        {{IDBFactory/deleteDatabase()|deleteDatabase}}(|name|)
+    ::
         Attempts to delete the named [=/database=]. If the
         database already exists and there are open
         [=/connections=] that don't close in response to a
@@ -2238,10 +2214,9 @@ dictionary IDBDatabaseInfo {
         blocked until they all close. If the request
         is successful |request|'s {{IDBRequest/result}}
         will be null.
-    </dd>
-    <dt><var>result</var> = await indexedDB . {{IDBFactory/databases()|databases}}()</dt>
-    <dd>
-    <p>
+
+    : |result| = await indexedDB . {{IDBFactory/databases()|databases}}()
+    ::
         Returns a promise which resolves to a list of objects giving a snapshot
         of the names and versions of databases within the origin.
 
@@ -2250,9 +2225,7 @@ dictionary IDBDatabaseInfo {
         the result is a snapshot; there are no guarantees about the sequencing of the
         collection of the data or the delivery of the response with respect to requests
         to create, upgrade, or delete databases by this context or others.
-    </dd>
-  </dl>
-</div>
+</dl>
 
 <div class=algorithm>
 
@@ -2424,20 +2397,17 @@ when invoked, must run these steps:
   &#x1F6A7;
 </aside>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>result</var> = indexedDB .
-        {{IDBFactory/cmp()|cmp}}(<var>key1</var>, <var>key2</var>)</dt>
-    <dd>
+<dl class="domintro note">
+    : |result| = indexedDB .
+        {{IDBFactory/cmp()|cmp}}(|key1|, |key2|)
+    ::
         Compares two values as [=/keys=]. Returns -1 if
         |key1| precedes |key2|, 1 if
         |key2| precedes |key1|, and 0 if
         the keys are equal.
 
         Throws a "{{DataError}}" {{DOMException}} if either input is not a valid [=/key=].
-    </dd>
-  </dl>
-</div>
+</dl>
 
 <div class=algorithm>
 
@@ -2501,18 +2471,13 @@ dictionary IDBObjectStoreParameters {
 };
 </xmp>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>connection</var> . {{IDBDatabase/name}}</dt>
-    <dd>
-        Returns the [=database/name=] of the database.
-    </dd>
-    <dt><var>connection</var> . {{IDBDatabase/version}}</dt>
-    <dd>
-        Returns the [=database/version=] of the database.
-    </dd>
-  </dl>
-</div>
+<dl class="domintro note">
+    : |connection| . {{IDBDatabase/name}}
+    :: Returns the [=database/name=] of the database.
+
+    : |connection| . {{IDBDatabase/version}}
+    :: Returns the [=database/version=] of the database.
+</dl>
 
 The <dfn attribute for=IDBDatabase>name</dfn> attribute's getter must
 return the [=database/name=] of the [=connected=]
@@ -2536,35 +2501,29 @@ must return this [=/connection=]'s
   reflect changes made with a later [=/upgrade transaction=].
 </details>
 
-<div class=note>
-  <dl class=domintro>
-
-    <dt><var>connection</var> . {{IDBDatabase/objectStoreNames}}</dt>
-    <dd>
+<dl class="domintro note">
+    : |connection| . {{IDBDatabase/objectStoreNames}}
+    ::
         Returns a list of the names of [=/object stores=] in the database.
-    </dd>
 
-    <dt><var>store</var> = <var>connection</var> .
-        {{IDBDatabase/createObjectStore()|createObjectStore}}(<var>name</var>
-            [, <var>options</var>])</dt>
-    <dd>
+    : |store| = |connection| .
+        {{IDBDatabase/createObjectStore()|createObjectStore}}(|name|
+            [, |options|])
+    ::
         Creates a new [=/object store=] with the given |name| and |options|
         and returns a new {{IDBObjectStore}}.
 
         Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
         [=/upgrade transaction=].
-    </dd>
 
-    <dt><var>connection</var> .
-        {{IDBDatabase/deleteObjectStore()|deleteObjectStore}}(<var>name</var>)</dt>
-    <dd>
+    : |connection| .
+        {{IDBDatabase/deleteObjectStore()|deleteObjectStore}}(|name|)
+    ::
         Deletes the [=/object store=] with the given |name|.
 
         Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
         [=/upgrade transaction=].
-    </dd>
-  </dl>
-</div>
+</dl>
 
 The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> attribute's
 getter must return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of
@@ -2688,26 +2647,22 @@ This method synchronously modifies the
 instance on which it was called.
 
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>transaction</var> = <var>connection</var> .
-        {{IDBDatabase/transaction()|transaction}}(<var>scope</var>
-        [, <var>mode</var> = "readonly"])</dt>
-    <dd>
+<dl class="domintro note">
+    : |transaction| = |connection| .
+        {{IDBDatabase/transaction()|transaction}}(|scope|
+        [, |mode| = "readonly"])
+    ::
         Returns a new [=/transaction=] with the given |mode|
         ({{"readonly"}} or {{"readwrite"}})
         and |scope| which can be a single [=/object store=]
         [=object-store/name=] or an array of
         [=object-store/names=].
-    </dd>
 
-    <dt><var>connection</var> . {{IDBDatabase/close()|close}}()</dt>
-    <dd>
+    : |connection| . {{IDBDatabase/close()|close}}()
+    ::
         Closes the [=/connection=] once all running [=/transactions=]
         have finished.
-    </dd>
-  </dl>
-</div>
+</dl>
 
 <div class=algorithm>
 
@@ -2826,38 +2781,34 @@ dictionary IDBIndexParameters {
 };
 </xmp>
 
-
-<div class=note>
-  <dl class=domintro>
-    <dt><var>store</var> . {{IDBObjectStore/name}}</dt>
-    <dd>
+<dl class="domintro note">
+    : |store| . {{IDBObjectStore/name}}
+    ::
         Returns the [=object-store/name=] of the store.
-    </dd>
-    <dt><var>store</var> . {{IDBObjectStore/name}} = <var>newName</var></dt>
-    <dd>
+
+    : |store| . {{IDBObjectStore/name}} = |newName|
+    ::
         Updates the [=object-store/name=] of the store to |newName|.
 
         Throws "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
         transaction=].
-    </dd>
-    <dt><var>store</var> . {{IDBObjectStore/keyPath}}</dt>
-    <dd>
+
+    : |store| . {{IDBObjectStore/keyPath}}
+    ::
         Returns the [=object-store/key path=] of the store, or null if none.
-    </dd>
-    <dt><var>list</var> . {{IDBObjectStore/indexNames}}</dt>
-    <dd>
+
+    : |list| . {{IDBObjectStore/indexNames}}
+    ::
         Returns a list of the names of indexes in the store.
-    </dd>
-    <dt><var>store</var> . {{IDBObjectStore/transaction}}</dt>
-    <dd>
+
+    : |store| . {{IDBObjectStore/transaction}}
+    ::
         Returns the associated [=/transaction=].
-    </dd>
-    <dt><var>store</var> . {{IDBObjectStore/autoIncrement}}</dt>
-    <dd>
+
+    : |store| . {{IDBObjectStore/autoIncrement}}
+    ::
         Returns true if the store has a [=key generator=], and false otherwise.
-    </dd>
-  </dl>
-</div>
+</dl>
 
 
 The <dfn attribute for=IDBObjectStore>name</dfn> attribute's getter
@@ -2961,52 +2912,42 @@ and false otherwise.
   called when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt>
-      <var>request</var> = <var>store</var>
-          . {{IDBObjectStore/put()|put}}(<var>value</var> [, <var>key</var>])
-    </dt>
-    <dt>
-      <var>request</var> = <var>store</var>
-          . {{IDBObjectStore/add()|add}}(<var>value</var> [, <var>key</var>])
-    </dt>
-    <dd>
-       Adds or updates a [=object-store/record=] in |store| with the given |value|
-       and |key|.
+    : |request| = |store|
+          . {{IDBObjectStore/put()|put}}(|value| [, |key|])
 
-       If the store uses [=in-line keys=] and |key| is specified a
-       "{{DataError}}" {{DOMException}} will be thrown.
+    : |request| = |store|
+          . {{IDBObjectStore/add()|add}}(|value| [, |key|])
+    ::
+        Adds or updates a [=object-store/record=] in |store| with the given |value|
+        and |key|.
 
-       If {{IDBObjectStore/put()}} is used, any existing [=object-store/record=]
-       with the [=/key=] will be replaced. If {{IDBObjectStore/add()}}
-       is used, and if a [=object-store/record=] with the [=/key=] already exists
-       the |request| will fail, with |request|'s {{IDBRequest/error}}
-       set to a "{{ConstraintError}}" {{DOMException}}.
+        If the store uses [=in-line keys=] and |key| is specified a
+        "{{DataError}}" {{DOMException}} will be thrown.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the
-       [=object-store/record=]'s [=/key=].
-    </dd>
+        If {{IDBObjectStore/put()}} is used, any existing [=object-store/record=]
+        with the [=/key=] will be replaced. If {{IDBObjectStore/add()}}
+        is used, and if a [=object-store/record=] with the [=/key=] already exists
+        the |request| will fail, with |request|'s {{IDBRequest/error}}
+        set to a "{{ConstraintError}}" {{DOMException}}.
 
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/delete()|delete}}(<var>query</var>)
-    </dt>
-    <dd>
-       Deletes [=object-store/records=] in |store| with the given
-       [=/key=] or in the given [=key range=] in |query|.
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        [=object-store/record=]'s [=/key=].
 
-       If successful, |request|'s {{IDBRequest/result}} will
-       be `undefined`.
-    </dd>
+    : |request| = |store| .
+          {{IDBObjectStore/delete()|delete}}(|query|)
+    ::
+        Deletes [=object-store/records=] in |store| with the given
+        [=/key=] or in the given [=key range=] in |query|.
 
-    <dt>
-      <var>request</var> = <var>store</var> . {{IDBObjectStore/clear()|clear}}()
-    </dt>
-    <dd>
-       Deletes all [=object-store/records=] in |store|.
+        If successful, |request|'s {{IDBRequest/result}} will
+        be `undefined`.
 
-       If successful, |request|'s {{IDBRequest/result}} will
-       be `undefined`.
-    </dd>
+    : |request| = |store| . {{IDBObjectStore/clear()|clear}}()
+    ::
+        Deletes all [=object-store/records=] in |store|.
+
+        If successful, |request|'s {{IDBRequest/result}} will
+        be `undefined`.
   </dl>
 </div>
 
@@ -3137,7 +3078,7 @@ deleted.
 
 <aside class=note>
   Unlike other methods which take keys or key ranges, this method does
-  <strong>not</strong> allow null to be given as key. This is to
+  **not** allow null to be given as key. This is to
   reduce the risk that a small bug would clear a whole object store.
 </aside>
 
@@ -3174,67 +3115,52 @@ must run these steps:
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/get()|get}}(<var>query</var>)
-    </dt>
-    <dd>
-       Retrieves the [=/value=] of the first [=object-store/record=] matching the
-       given [=/key=] or [=key range=] in |query|.
+    : |request| = |store| .
+          {{IDBObjectStore/get()|get}}(|query|)
+    ::
+        Retrieves the [=/value=] of the first [=object-store/record=] matching the
+        given [=/key=] or [=key range=] in |query|.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the
-       [=/value=], or `undefined` if there was no matching
-       [=object-store/record=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        [=/value=], or `undefined` if there was no matching
+        [=object-store/record=].
 
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/getKey()|getKey}}(<var>query</var>)
-    </dt>
-    <dd>
-       Retrieves the [=/key=] of the first [=object-store/record=] matching the
-       given [=/key=] or [=key range=] in |query|.
+    : |request| = |store| .
+          {{IDBObjectStore/getKey()|getKey}}(|query|)
+    ::
+        Retrieves the [=/key=] of the first [=object-store/record=] matching the
+        given [=/key=] or [=key range=] in |query|.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the
-       [=/key=], or `undefined` if there was no matching
-       [=object-store/record=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        [=/key=], or `undefined` if there was no matching
+        [=object-store/record=].
 
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/getAll()|getAll}}(<var>query</var> [, <var>count</var>])
-    </dt>
-    <dd>
-       Retrieves the [=/values=] of the [=object-store/records=] matching the
-       given [=/key=] or [=key range=] in |query| (up to |count| if given).
+    : |request| = |store| .
+          {{IDBObjectStore/getAll()|getAll}}(|query| [, |count|])
+    ::
+        Retrieves the [=/values=] of the [=object-store/records=] matching the
+        given [=/key=] or [=key range=] in |query| (up to |count| if given).
 
-       If successful, |request|'s {{IDBRequest/result}} will
-       be an [=Array=] of the [=/values=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will
+        be an [=Array=] of the [=/values=].
 
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/getAllKeys()|getAllKeys}}(<var>query</var> [,
-          <var>count</var>])
-    </dt>
-    <dd>
-       Retrieves the [=/keys=] of [=object-store/records=] matching the
-       given [=/key=] or [=key range=] in |query| (up to |count| if given).
+    : |request| = |store| .
+          {{IDBObjectStore/getAllKeys()|getAllKeys}}(|query| [,
+          |count|])
+    ::
+        Retrieves the [=/keys=] of [=object-store/records=] matching the
+        given [=/key=] or [=key range=] in |query| (up to |count| if given).
 
-       If successful, |request|'s {{IDBRequest/result}} will
-       be an [=Array=] of the [=/keys=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will
+        be an [=Array=] of the [=/keys=].
 
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/count()|count}}(<var>query</var>)
-    </dt>
-    <dd>
-       Retrieves the number of [=object-store/records=] matching the
-       given [=/key=] or [=key range=] in |query|.
+    : |request| = |store| .
+          {{IDBObjectStore/count()|count}}(|query|)
+    ::
+        Retrieves the number of [=object-store/records=] matching the
+        given [=/key=] or [=key range=] in |query|.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the count.
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the count.
   </dl>
 </div>
 
@@ -3429,35 +3355,29 @@ given, an [=unbounded key range=] is used.
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/openCursor()|openCursor}}([<var>query</var>
-              [, <var>direction</var> = "next"]])
-    </dt>
-    <dd>
-       Opens a [=cursor=] over the [=object-store/records=] matching |query|,
-       ordered by |direction|. If |query| is null, all [=object-store/records=] in
-       |store| are matched.
+    : |request| = |store| .
+          {{IDBObjectStore/openCursor()|openCursor}}([|query|
+              [, |direction| = "next"]])
+    ::
+        Opens a [=cursor=] over the [=object-store/records=] matching |query|,
+        ordered by |direction|. If |query| is null, all [=object-store/records=] in
+        |store| are matched.
 
-       If successful, |request|'s {{IDBRequest/result}} will be an
-       {{IDBCursorWithValue}} pointing at the first matching
-       [=object-store/record=], or null if there were no matching [=object-store/records=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be an
+        {{IDBCursorWithValue}} pointing at the first matching
+        [=object-store/record=], or null if there were no matching [=object-store/records=].
 
-    <dt>
-      <var>request</var> = <var>store</var> .
-          {{IDBObjectStore/openKeyCursor()|openKeyCursor}}([<var>query</var>
-              [, <var>direction</var> = "next"]])
-    </dt>
-    <dd>
-       Opens a [=cursor=] with [=cursor/key only flag=] set to true over the
-       [=object-store/records=] matching |query|, ordered by |direction|. If
-       |query| is null, all [=object-store/records=] in |store| are matched.
+    : |request| = |store| .
+          {{IDBObjectStore/openKeyCursor()|openKeyCursor}}([|query|
+              [, |direction| = "next"]])
+    ::
+        Opens a [=cursor=] with [=cursor/key only flag=] set to true over the
+        [=object-store/records=] matching |query|, ordered by |direction|. If
+        |query| is null, all [=object-store/records=] in |store| are matched.
 
-       If successful, |request|'s {{IDBRequest/result}} will be an
-       {{IDBCursor}} pointing at the first matching [=object-store/record=], or
-       null if there were no matching [=object-store/records=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be an
+        {{IDBCursor}} pointing at the first matching [=object-store/record=], or
+        null if there were no matching [=object-store/records=].
   </dl>
 </div>
 
@@ -3556,44 +3476,32 @@ The |query| parameter may be a [=/key=] or an
 {{IDBKeyRange}} to use as the [=cursor=]'s [=cursor/range=]. If null
 or not given, an [=unbounded key range=] is used.
 
-<div class=note>
-  <dl class=domintro>
-    <dt>
-      <var>index</var> = <var>store</var> . index(<var>name</var>)
-    </dt>
-    <dd>
-      Returns an {{IDBIndex}} for the [=/index=] named |name| in |store|.
-    </dd>
+<dl class="domintro note">
+    : |index| = |store| . index(|name|)
+    ::
+        Returns an {{IDBIndex}} for the [=/index=] named |name| in |store|.
 
-    <dt>
-      <var>index</var> = <var>store</var> .
-          {{IDBObjectStore/createIndex()|createIndex}}(<var>name</var>,
-              <var>keyPath</var> [, <var>options</var>])
-    </dt>
-    <dd>
-      Creates a new [=/index=] in |store| with the given |name|,
-      |keyPath| and |options| and returns a new {{IDBIndex}}. If the
-      |keyPath| and |options| define constraints that cannot be
-      satisfied with the data already in |store| the [=/upgrade
-      transaction=] will [=transaction/abort=] with
-      a "{{ConstraintError}}" {{DOMException}}.
+    : |index| = |store| .
+          {{IDBObjectStore/createIndex()|createIndex}}(|name|,
+              |keyPath| [, |options|])
+    ::
+        Creates a new [=/index=] in |store| with the given |name|,
+        |keyPath| and |options| and returns a new {{IDBIndex}}. If the
+        |keyPath| and |options| define constraints that cannot be
+        satisfied with the data already in |store| the [=/upgrade
+        transaction=] will [=transaction/abort=] with
+        a "{{ConstraintError}}" {{DOMException}}.
 
-      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
-      transaction=].
-    </dd>
+        Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
+        transaction=].
 
-    <dt>
-      <var>store</var> . {{IDBObjectStore/deleteIndex()|deleteIndex}}(<var>name</var>)
-    </dt>
-    <dd>
-      Deletes the [=/index=] in |store| with the given |name|.
+    : |store| . {{IDBObjectStore/deleteIndex()|deleteIndex}}(|name|)
+    ::
+        Deletes the [=/index=] in |store| with the given |name|.
 
-      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
-      transaction=].
-    </dd>
-
-  </dl>
-</div>
+        Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
+        transaction=].
+</dl>
 
 <div class=algorithm>
 
@@ -3815,37 +3723,28 @@ interface IDBIndex {
 };
 </xmp>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>index</var> . {{IDBIndex/name}}</dt>
-    <dd>
-      Returns the [=index/name=] of the index.
-    </dd>
-    <dt><var>index</var> . {{IDBIndex/name}} = <var>newName</var></dt>
-    <dd>
-      Updates the [=index/name=] of the store to |newName|.
+<dl class="domintro note">
+    : |index| . {{IDBIndex/name}}
+    :: Returns the [=index/name=] of the index.
 
-      Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
-      transaction=].
-    </dd>
-    <dt><var>index</var> . {{IDBIndex/objectStore}}</dt>
-    <dd>
-      Returns the {{IDBObjectStore}} the index belongs to.
-    </dd>
-    <dt><var>index</var> . keyPath</dt>
-    <dd>
-      Returns the [=/key path=] of the index.
-    </dd>
-    <dt><var>index</var> . multiEntry</dt>
-    <dd>
-      Returns true if the index's [=index/multiEntry flag=] is true.
-    </dd>
-    <dt><var>index</var> . unique</dt>
-    <dd>
-      Returns true if the index's [=index/unique flag=] is true.
-    </dd>
-  </dl>
-</div>
+    : |index| . {{IDBIndex/name}} = |newName|
+    :: Updates the [=index/name=] of the store to |newName|.
+
+       Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
+       transaction=].
+
+    : |index| . {{IDBIndex/objectStore}}
+    :: Returns the {{IDBObjectStore}} the index belongs to.
+
+    : |index| . keyPath
+    :: Returns the [=/key path=] of the index.
+
+    : |index| . multiEntry
+    :: Returns true if the index's [=index/multiEntry flag=] is true.
+
+    : |index| . unique
+    :: Returns true if the index's [=index/unique flag=] is true.
+</dl>
 
 The <dfn attribute for=IDBIndex>name</dfn> attribute's getter must
 return this [=index handle=]'s [=index/name=].
@@ -3929,68 +3828,53 @@ return this [=index handle=]'s
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/get()|get}}(<var>query</var>)
-    </dt>
-    <dd>
-       Retrieves the [=/value=] of the first [=object-store/record=] matching the
-       given [=/key=] or [=key range=] in |query|.
+    : |request| = |index| .
+          {{IDBIndex/get()|get}}(|query|)
+    ::
+        Retrieves the [=/value=] of the first [=object-store/record=] matching the
+        given [=/key=] or [=key range=] in |query|.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the
-       [=/value=], or `undefined` if there was no matching
-       [=object-store/record=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        [=/value=], or `undefined` if there was no matching
+        [=object-store/record=].
 
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/getKey()|getKey}}(<var>query</var>)
-    </dt>
-    <dd>
-       Retrieves the [=/key=] of the first [=object-store/record=] matching the
-       given [=/key=] or [=key range=] in |query|.
+    : |request| = |index| .
+          {{IDBIndex/getKey()|getKey}}(|query|)
+    ::
+        Retrieves the [=/key=] of the first [=object-store/record=] matching the
+        given [=/key=] or [=key range=] in |query|.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the
-       [=/key=], or `undefined` if there was no matching
-       [=object-store/record=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        [=/key=], or `undefined` if there was no matching
+        [=object-store/record=].
 
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/getAll()|getAll}}(<var>query</var> [, <var>count</var>])
-    </dt>
-    <dd>
-       Retrieves the [=/values=] of the [=object-store/records=] matching the given
-       [=/key=] or [=key range=] in |query| (up to |count| if given).
+    : |request| = |index| .
+          {{IDBIndex/getAll()|getAll}}(|query| [, |count|])
+    ::
+        Retrieves the [=/values=] of the [=object-store/records=] matching the given
+        [=/key=] or [=key range=] in |query| (up to |count| if given).
 
-       If successful, |request|'s {{IDBRequest/result}} will be an
-       [=Array=] of the [=/values=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be an
+        [=Array=] of the [=/values=].
 
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/getAllKeys()|getAllKeys}}(<var>query</var> [,
-          <var>count</var>])
-    </dt>
-    <dd>
-       Retrieves the [=/keys=] of [=object-store/records=] matching the given
-       [=/key=] or [=key range=] in |query| (up to |count| if given).
+    : |request| = |index| .
+          {{IDBIndex/getAllKeys()|getAllKeys}}(|query| [,
+          |count|])
+    ::
+        Retrieves the [=/keys=] of [=object-store/records=] matching the given
+        [=/key=] or [=key range=] in |query| (up to |count| if given).
 
-       If successful, |request|'s {{IDBRequest/result}} will be an
-       [=Array=] of the [=/keys=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be an
+        [=Array=] of the [=/keys=].
 
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/count()|count}}(<var>query</var>)
-    </dt>
-    <dd>
-       Retrieves the number of [=object-store/records=] matching the given [=/key=]
-       or [=key range=] in |query|.
+    : |request| = |index| .
+          {{IDBIndex/count()|count}}(|query|)
+    ::
+        Retrieves the number of [=object-store/records=] matching the given [=/key=]
+        or [=key range=] in |query|.
 
-       If successful, |request|'s {{IDBRequest/result}} will be the
-       count.
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        count.
   </dl>
 </div>
 
@@ -4186,34 +4070,28 @@ given, an [=unbounded key range=] is used.
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/openCursor()|openCursor}}([<var>query</var>
-              [, <var>direction</var> = "next"]])
-    </dt>
-    <dd>
-       Opens a [=cursor=] over the [=object-store/records=] matching |query|,
-       ordered by |direction|. If |query| is null, all [=object-store/records=] in
-       |index| are matched.
+    : |request| = |index| .
+          {{IDBIndex/openCursor()|openCursor}}([|query|
+              [, |direction| = "next"]])
+    ::
+        Opens a [=cursor=] over the [=object-store/records=] matching |query|,
+        ordered by |direction|. If |query| is null, all [=object-store/records=] in
+        |index| are matched.
 
-       If successful, |request|'s {{IDBRequest/result}} will be an
-       {{IDBCursorWithValue}}, or null if there were no matching
-       [=object-store/records=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be an
+        {{IDBCursorWithValue}}, or null if there were no matching
+        [=object-store/records=].
 
-    <dt>
-      <var>request</var> = <var>index</var> .
-          {{IDBIndex/openKeyCursor()|openKeyCursor}}([<var>query</var>
-              [, <var>direction</var> = "next"]])
-    </dt>
-    <dd>
-       Opens a [=cursor=] with [=cursor/key only flag=] set to true over the
-       [=object-store/records=] matching |query|, ordered by |direction|. If
-       |query| is null, all [=object-store/records=] in |index| are matched.
+    : |request| = |index| .
+          {{IDBIndex/openKeyCursor()|openKeyCursor}}([|query|
+              [, |direction| = "next"]])
+    ::
+        Opens a [=cursor=] with [=cursor/key only flag=] set to true over the
+        [=object-store/records=] matching |query|, ordered by |direction|. If
+        |query| is null, all [=object-store/records=] in |index| are matched.
 
-       If successful, |request|'s {{IDBRequest/result}} will be an
-       {{IDBCursor}}, or null if there were no matching [=object-store/records=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be an
+        {{IDBCursor}}, or null if there were no matching [=object-store/records=].
   </dl>
 </div>
 
@@ -4343,27 +4221,19 @@ interface IDBKeyRange {
 Note: When mapping the `_includes` identifier from [[WEBIDL]] to ECMAScript, the leading U+005F LOW LINE ("_") character is removed. A leading "_" is used to escape the identifier from looking like a reserved word (in this case, the `includes` keyword).
 </aside>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>range</var> . {{IDBKeyRange/lower}}</dt>
-    <dd>
-      Returns the range's [=lower bound=], or `undefined` if none.
-    </dd>
-    <dt><var>range</var> . {{IDBKeyRange/upper}}</dt>
-    <dd>
-      Returns the range's [=upper bound=], or `undefined` if none.
-    </dd>
+<dl class="domintro note">
+    : |range| . {{IDBKeyRange/lower}}
+    :: Returns the range's [=lower bound=], or `undefined` if none.
 
-    <dt><var>range</var> . {{IDBKeyRange/lowerOpen}}</dt>
-    <dd>
-      Returns the range's [=lower open flag=].
-    </dd>
-    <dt><var>range</var> . {{IDBKeyRange/upperOpen}}</dt>
-    <dd>
-      Returns the range's [=upper open flag=].
-    </dd>
-  </dl>
-</div>
+    : |range| . {{IDBKeyRange/upper}}
+    :: Returns the range's [=upper bound=], or `undefined` if none.
+
+    : |range| . {{IDBKeyRange/lowerOpen}}
+    :: Returns the range's [=lower open flag=].
+
+    : |range| . {{IDBKeyRange/upperOpen}}
+    :: Returns the range's [=upper open flag=].
+</dl>
 
 The <dfn attribute for=IDBKeyRange>lower</dfn> attribute's getter must
 return result of running [=convert a key to a value=]
@@ -4380,37 +4250,34 @@ must return the [=/range=]'s [=lower open flag=].
 The <dfn attribute for=IDBKeyRange>upperOpen</dfn> attribute's getter
 must return the [=/range=]'s [=upper open flag=].
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>range</var> = {{IDBKeyRange}} .
-        {{IDBKeyRange/only()|only}}(<var>key</var>)</dt>
-    <dd>
-      Returns a new {{IDBKeyRange}} spanning only |key|.
-    </dd>
-    <dt><var>range</var> = {{IDBKeyRange}} .
-        {{IDBKeyRange/lowerBound()|lowerBound}}(<var>key</var> [, <var>open</var> = false])</dt>
-    <dd>
-      Returns a new {{IDBKeyRange}} starting at |key| with no
-      upper bound. If |open| is true, |key| is not included in the
-      range.
-    </dd>
-    <dt><var>range</var> = {{IDBKeyRange}} .
-        {{IDBKeyRange/upperBound()|upperBound}}(<var>key</var> [, <var>open</var> = false])</dt>
-    <dd>
-      Returns a new {{IDBKeyRange}} with no lower bound and ending at
-      |key|. If |open| is true, |key| is not included in the range.
-    </dd>
-    <dt><var>range</var> = {{IDBKeyRange}} .
-        {{IDBKeyRange/bound()|bound}}(<var>lower</var>, <var>upper</var>
-            [, <var>lowerOpen</var> = false
-            [, <var>upperOpen</var> = false]])</dt>
-    <dd>
-      Returns a new {{IDBKeyRange}} spanning from |lower| to |upper|.
-      If |lowerOpen| is true, |lower| is not included in the range.
-      If |upperOpen| is true, |upper| is not included in the range.
-    </dd>
-  </dl>
-</div>
+<dl class="domintro note">
+    : |range| = {{IDBKeyRange}} .
+        {{IDBKeyRange/only()|only}}(|key|)
+    ::
+        Returns a new {{IDBKeyRange}} spanning only |key|.
+
+    : |range| = {{IDBKeyRange}} .
+        {{IDBKeyRange/lowerBound()|lowerBound}}(|key| [, |open| = false])
+    ::
+        Returns a new {{IDBKeyRange}} starting at |key| with no
+        upper bound. If |open| is true, |key| is not included in the
+        range.
+
+    : |range| = {{IDBKeyRange}} .
+        {{IDBKeyRange/upperBound()|upperBound}}(|key| [, |open| = false])
+    ::
+        Returns a new {{IDBKeyRange}} with no lower bound and ending at
+        |key|. If |open| is true, |key| is not included in the range.
+
+    : |range| = {{IDBKeyRange}} .
+        {{IDBKeyRange/bound()|bound}}(|lower|, |upper|
+            [, |lowerOpen| = false
+            [, |upperOpen| = false]])
+    ::
+        Returns a new {{IDBKeyRange}} spanning from |lower| to |upper|.
+        If |lowerOpen| is true, |lower| is not included in the range.
+        If |upperOpen| is true, |upper| is not included in the range.
+</dl>
 
 <div class=algorithm>
 
@@ -4485,15 +4352,11 @@ The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|,
 
 </div>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>range</var> .
-        {{IDBKeyRange/includes()|includes}}(<var>key</var>)</dt>
-    <dd>
-      Returns true if |key| is included in the range, and false otherwise.
-    </dd>
-  </dl>
-</div>
+<dl class="domintro note">
+    : |range| .
+        {{IDBKeyRange/includes()|includes}}(|key|)
+    :: Returns true if |key| is included in the range, and false otherwise.
+</dl>
 
 <div class=algorithm>
 
@@ -4546,35 +4409,31 @@ enum IDBCursorDirection {
 };
 </xmp>
 
+<dl class="domintro note">
+    : |cursor| . {{IDBCursor/source}}
+    ::
+        Returns the {{IDBObjectStore}} or {{IDBIndex}} the cursor was opened from.
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>cursor</var> . {{IDBCursor/source}}</dt>
-    <dd>
-      Returns the {{IDBObjectStore}} or {{IDBIndex}} the cursor was opened from.
-    </dd>
-    <dt><var>cursor</var> . {{IDBCursor/direction}}</dt>
-    <dd>
-      Returns the [=cursor/direction=]
-      ({{"next"}}, {{"nextunique"}}, {{"prev"}} or {{"prevunique"}})
-      of the cursor.
-    </dd>
-    <dt><var>cursor</var> . {{IDBCursor/key}}
-    <dd>
-      Returns the [=cursor/key=] of the cursor.
-      Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
-    </dd>
-    <dt><var>cursor</var> . {{IDBCursor/primaryKey}}
-    <dd>
-      Returns the [=cursor/effective key=] of the cursor.
-      Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
-    </dd>
-    <dt><var>cursor</var> . {{IDBCursor/request}}
-    <dd>
-      Returns the [=cursor/request=] that was used to obtain this cursor.
-    </dd>
-  </dl>
-</div>
+    : |cursor| . {{IDBCursor/direction}}
+    ::
+        Returns the [=cursor/direction=]
+        ({{"next"}}, {{"nextunique"}}, {{"prev"}} or {{"prevunique"}})
+        of the cursor.
+
+    : |cursor| . {{IDBCursor/key}}
+    ::
+        Returns the [=cursor/key=] of the cursor.
+        Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
+
+    : |cursor| . {{IDBCursor/primaryKey}}
+    ::
+        Returns the [=cursor/effective key=] of the cursor.
+        Throws a "{{InvalidStateError}}" {{DOMException}} if the cursor is advancing or is finished.
+
+    : |cursor| . {{IDBCursor/request}}
+    ::
+        Returns the [=cursor/request=] that was used to obtain this cursor.
+</dl>
 
 
 The <dfn attribute for=IDBCursor>source</dfn> attribute's getter must
@@ -4629,31 +4488,27 @@ return the [=cursor/request=] of the [=cursor=].
   when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt><var>cursor</var> . {{IDBCursor/advance()|advance}}(<var>count</var>)</dt>
-    <dd>
-      Advances the cursor through the next |count| [=object-store/records=] in
-      range.
-    </dd>
+    : |cursor| . {{IDBCursor/advance()|advance}}(|count|)
+    ::
+        Advances the cursor through the next |count| [=object-store/records=] in
+        range.
 
-    <dt><var>cursor</var> . {{IDBCursor/continue()|continue}}()</dt>
-    <dd>
-      Advances the cursor to the next [=object-store/record=] in range.
-    </dd>
+    : |cursor| . {{IDBCursor/continue()|continue}}()
+    ::
+        Advances the cursor to the next [=object-store/record=] in range.
 
-    <dt><var>cursor</var> . {{IDBCursor/continue()|continue}}(<var>key</var>)</dt>
-    <dd>
-      Advances the cursor to the next [=object-store/record=] in range matching or
-      after |key|.
-    </dd>
+    : |cursor| . {{IDBCursor/continue()|continue}}(|key|)
+    ::
+        Advances the cursor to the next [=object-store/record=] in range matching or
+        after |key|.
 
-    <dt><var>cursor</var> .
-        {{IDBCursor/continuePrimaryKey()|continuePrimaryKey}}(<var>key</var>,
-        <var>primaryKey</var>)</dt>
-    <dd>
-      Advances the cursor to the next [=object-store/record=] in range matching
-      or after |key| and |primaryKey|. Throws an "{{InvalidAccessError}}" {{DOMException}}
-      if the [=cursor/source=] is not an [=/index=].
-    </dd>
+    : |cursor| .
+        {{IDBCursor/continuePrimaryKey()|continuePrimaryKey}}(|key|,
+        |primaryKey|)
+    ::
+        Advances the cursor to the next [=object-store/record=] in range matching
+        or after |key| and |primaryKey|. Throws an "{{InvalidAccessError}}" {{DOMException}}
+        if the [=cursor/source=] is not an [=/index=].
   </dl>
 </div>
 
@@ -4853,26 +4708,25 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
   called when the [=/transaction=] is not [=transaction/active=].
 
   <dl class=domintro>
-    <dt><var>request</var> = <var>cursor</var> .
-        {{IDBCursor/update()|update}}(<var>value</var>)</dt>
-    <dd>
-      Updated the [=object-store/record=] pointed at by the cursor with a new value.
+    : |request| = |cursor| .
+        {{IDBCursor/update()|update}}(|value|)
+    ::
+        Updated the [=object-store/record=] pointed at by the cursor with a new value.
 
-      Throws a "{{DataError}}" {{DOMException}} if the [=cursor/effective object store=]
-      uses [=in-line keys=] and the [=/key=] would have changed.
+        Throws a "{{DataError}}" {{DOMException}} if the [=cursor/effective object store=]
+        uses [=in-line keys=] and the [=/key=] would have changed.
 
-      If successful, |request|'s {{IDBRequest/result}} will be the
-      [=object-store/record=]'s [=/key=].
-    </dd>
+        If successful, |request|'s {{IDBRequest/result}} will be the
+        [=object-store/record=]'s [=/key=].
 
-    <dt><var>request</var> = <var>cursor</var> .
-        {{IDBCursor/delete()|delete}}()</dt>
-    <dd>
-      Delete the [=object-store/record=] pointed at by the cursor with a new value.
 
-      If successful, |request|'s {{IDBRequest/result}} will be
-      `undefined`.
-    </dd>
+    : |request| = |cursor| .
+        {{IDBCursor/delete()|delete}}()
+    ::
+        Delete the [=object-store/record=] pointed at by the cursor with a new value.
+
+        If successful, |request|'s {{IDBRequest/result}} will be
+        `undefined`.
   </dl>
 </div>
 
@@ -4987,14 +4841,10 @@ interface IDBCursorWithValue : IDBCursor {
 };
 </xmp>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>cursor</var> . {{IDBCursorWithValue/value}}</dt>
-    <dd>
-      Returns the [=cursor=]'s current [=cursor/value=].
-    </dd>
-  </dl>
-</div>
+<dl class="domintro note">
+    : |cursor| . {{IDBCursorWithValue/value}}
+    :: Returns the [=cursor=]'s current [=cursor/value=].
+</dl>
 
 
 The <dfn attribute for=IDBCursorWithValue>value</dfn> attribute's
@@ -5038,31 +4888,28 @@ enum IDBTransactionMode {
 };
 </xmp>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>transaction</var> . {{IDBTransaction/objectStoreNames}}</dt>
-    <dd>
-      Returns a list of the names of [=/object stores=] in the
-      transaction's [=transaction/scope=]. For an [=/upgrade transaction=]
-      this is all object stores in the [=database=].
-    </dd>
-    <dt><var>transaction</var> . {{IDBTransaction/mode}}</dt>
-    <dd>
-      Returns the [=transaction/mode=] the transaction was created with
-      ({{"readonly"}} or {{"readwrite"}}), or {{"versionchange"}} for
-      an [=/upgrade transaction=].
-    </dd>
-    <dt><var>transaction</var> . {{IDBTransaction/db}}</dt>
-    <dd>
-      Returns the transaction's [=transaction/connection=].
-    </dd>
-    <dt><var>transaction</var> . {{IDBTransaction/error}}</dt>
-    <dd>
-      If the transaction was [=transaction/aborted=], returns the
-      error (a {{DOMException}}) providing the reason.
-    </dd>
-  </dl>
-</div>
+<dl class="domintro note">
+    : |transaction| . {{IDBTransaction/objectStoreNames}}
+    ::
+        Returns a list of the names of [=/object stores=] in the
+        transaction's [=transaction/scope=]. For an [=/upgrade transaction=]
+        this is all object stores in the [=database=].
+
+    : |transaction| . {{IDBTransaction/mode}}
+    ::
+        Returns the [=transaction/mode=] the transaction was created with
+        ({{"readonly"}} or {{"readwrite"}}), or {{"versionchange"}} for
+        an [=/upgrade transaction=].
+
+    : |transaction| . {{IDBTransaction/db}}
+    ::
+        Returns the transaction's [=transaction/connection=].
+
+    : |transaction| . {{IDBTransaction/error}}
+    ::
+        If the transaction was [=transaction/aborted=], returns the
+        error (a {{DOMException}}) providing the reason.
+</dl>
 
 
 <div class=algorithm>
@@ -5111,37 +4958,32 @@ none.
   "{{UnknownError}}" {{DOMException}}).
 </aside>
 
-<div class=note>
-  <dl class=domintro>
-    <dt><var>transaction</var> .
-        {{IDBTransaction/objectStore()|objectStore}}(<var>name</var>)</dt>
-    <dd>
-      Returns an {{IDBObjectStore}} in the [=/transaction=]'s [=transaction/scope=].
-    </dd>
+<dl class="domintro note">
+    : |transaction| .
+        {{IDBTransaction/objectStore()|objectStore}}(|name|)
+    ::
+        Returns an {{IDBObjectStore}} in the [=/transaction=]'s [=transaction/scope=].
 
-    <dt><var>transaction</var> . {{IDBTransaction/abort()}}</dt>
-    <dd>
-      Aborts the transaction. All pending [=/requests=] will fail with
-      a "{{AbortError}}" {{DOMException}} and all changes made to the database will be
-      reverted.
-    </dd>
+    : |transaction| . {{IDBTransaction/abort()}}
+    ::
+        Aborts the transaction. All pending [=/requests=] will fail with
+        a "{{AbortError}}" {{DOMException}} and all changes made to the database will be
+        reverted.
 
-    <dt><var>transaction</var> . {{IDBTransaction/commit()}}</dt>
-    <dd>
-      Attempts to commit the transaction. All pending [=/requests=] will be allowed
-      to complete, but no new requests will be accepted. This can be used to force a
-      transaction to quickly finish, without waiting for pending requests to fire
-      <a event>`success`</a> events before attempting to commit normally.
+    : |transaction| . {{IDBTransaction/commit()}}
+    ::
+        Attempts to commit the transaction. All pending [=/requests=] will be allowed
+        to complete, but no new requests will be accepted. This can be used to force a
+        transaction to quickly finish, without waiting for pending requests to fire
+        <a event>`success`</a> events before attempting to commit normally.
 
-      The transaction will abort if a pending request fails, for example due to a
-      constraint error. The <a event>`success`</a> events for successful requests
-      will still fire, but throwing an exception in an event handler will not abort
-      the transaction. Similarly, <a event>`error`</a> events for failed requests
-      will still fire, but calling `preventDefault()` will not prevent the
-      transaction from aborting.
-    </dd>
-  </dl>
-</div>
+        The transaction will abort if a pending request fails, for example due to a
+        constraint error. The <a event>`success`</a> events for successful requests
+        will still fire, but throwing an exception in an event handler will not abort
+        the transaction. Similarly, <a event>`error`</a> events for failed requests
+        will still fire, but calling `preventDefault()` will not prevent the
+        transaction from aborting.
+</dl>
 
 <div class=algorithm>
 
@@ -6264,101 +6106,94 @@ To <dfn>iterate a cursor</dfn> with |targetRealm|, |cursor|, an optional
     1. Switch on |direction|:
 
         <dl class=switch>
-          <dt>{{"next"}}</dt>
-          <dd>
-            Let |found record| be the first record in |records| which
-            satisfy all of the following requirements:
+          : {{"next"}}
+          ::
+              Let |found record| be the first record in |records| which
+              satisfy all of the following requirements:
 
-            * If |key| is defined, the record's key is [=greater
-                than=] or [=equal to=] |key|.
+              * If |key| is defined, the record's key is [=greater
+                  than=] or [=equal to=] |key|.
 
-            * If |primaryKey| is defined, the record's key is [=equal
-                to=] |key| and the record's value is [=greater
-                than=] or [=equal to=] |primaryKey|, or the
-                record's key is [=greater than=] |key|.
+              * If |primaryKey| is defined, the record's key is [=equal
+                  to=] |key| and the record's value is [=greater
+                  than=] or [=equal to=] |primaryKey|, or the
+                  record's key is [=greater than=] |key|.
 
-            * If |position| is defined, and |source| is an
-                [=/object store=], the record's key is [=greater than=]
-                |position|.
+              * If |position| is defined, and |source| is an
+                  [=/object store=], the record's key is [=greater than=]
+                  |position|.
 
-            * If |position| is defined, and |source| is an
-                [=/index=], the record's key is [=equal to=]
-                |position| and the record's value is [=greater
-                than=] |object store position| or the record's key is
-                [=greater than=] |position|.
+              * If |position| is defined, and |source| is an
+                  [=/index=], the record's key is [=equal to=]
+                  |position| and the record's value is [=greater
+                  than=] |object store position| or the record's key is
+                  [=greater than=] |position|.
 
-            * The record's key is [=in=]
-                |range|.
+              * The record's key is [=in=]
+                  |range|.
 
-          </dd>
+          : {{"nextunique"}}
+          ::
+              Let |found record| be the first record in |records| which
+              satisfy all of the following requirements:
 
-          <dt>{{"nextunique"}}</dt>
-          <dd>
-            Let |found record| be the first record in |records| which
-            satisfy all of the following requirements:
+              * If |key| is defined, the record's key is [=greater
+                  than=] or [=equal to=] |key|.
 
-            * If |key| is defined, the record's key is [=greater
-                than=] or [=equal to=] |key|.
+              * If |position| is defined, the record's key is [=greater
+                  than=] |position|.
 
-            * If |position| is defined, the record's key is [=greater
-                than=] |position|.
+              * The record's key is [=in=]
+                  |range|.
 
-            * The record's key is [=in=]
-                |range|.
+          : {{"prev"}}
+          ::
+              Let |found record| be the last record in |records| which
+              satisfy all of the following requirements:
 
-          </dd>
+              * If |key| is defined, the record's key is [=less
+                  than=] or [=equal to=] |key|.
 
-          <dt>{{"prev"}}</dt>
-          <dd>
-            Let |found record| be the last record in |records| which
-            satisfy all of the following requirements:
+              * If |primaryKey| is defined, the record's key is [=equal
+                  to=] |key| and the record's value is [=less than=]
+                  or [=equal to=] |primaryKey|, or the record's key is
+                  [=less than=] |key|.
 
-            * If |key| is defined, the record's key is [=less
-                than=] or [=equal to=] |key|.
+              * If |position| is defined, and |source| is an
+                  [=/object store=], the record's key is [=less
+                  than=] |position|.
 
-            * If |primaryKey| is defined, the record's key is [=equal
-                to=] |key| and the record's value is [=less than=]
-                or [=equal to=] |primaryKey|, or the record's key is
-                [=less than=] |key|.
+              * If |position| is defined, and |source| is an
+                  [=/index=], the record's key is [=equal to=]
+                  |position| and the record's value is [=less than=]
+                  |object store position| or the record's key is
+                  [=less than=] |position|.
 
-            * If |position| is defined, and |source| is an
-                [=/object store=], the record's key is [=less
-                than=] |position|.
+              * The record's key is [=in=] |range|.
 
-            * If |position| is defined, and |source| is an
-                [=/index=], the record's key is [=equal to=]
-                |position| and the record's value is [=less than=]
-                |object store position| or the record's key is
-                [=less than=] |position|.
+          : {{"prevunique"}}
+          ::
+              Let |temp record| be the last record in
+              |records| which satisfy all of the following requirements:
 
-            * The record's key is [=in=] |range|.
+              * If |key| is defined, the record's key is [=less
+                  than=] or [=equal to=] |key|.
 
-          </dd>
+              * If |position| is defined, the record's key is [=less
+                  than=] |position|.
 
-          <dt>{{"prevunique"}}</dt>
-          <dd>
-            Let |temp record| be the last record in
-            |records| which satisfy all of the following requirements:
+              * The record's key is [=in=]
+                  |range|.
 
-            * If |key| is defined, the record's key is [=less
-                than=] or [=equal to=] |key|.
+              If |temp record| is defined, let |found record| be the
+              first record in |records| whose [=/key=] is [=equal to=]
+              |temp record|'s [=/key=].
 
-            * If |position| is defined, the record's key is [=less
-                than=] |position|.
+              <aside class=note>
+                Iterating with {{"prevunique"}} visits the same records that
+                {{"nextunique"}} visits, but in reverse order.
+              </aside>
 
-            * The record's key is [=in=]
-                |range|.
-
-            If |temp record| is defined, let |found record| be the
-            first record in |records| whose [=/key=] is [=equal to=]
-            |temp record|'s [=/key=].
-
-            <aside class=note>
-              Iterating with {{"prevunique"}} visits the same records that
-              {{"nextunique"}} visits, but in reverse order.
-            </aside>
-
-          </dd>
         </dl>
 
     1. If |found record| is not defined, then:
@@ -6490,41 +6325,39 @@ ECMAScript value or failure, or the steps may throw an exception.
 1. [=list/For each=] |identifier| of |identifiers|, jump to the appropriate step below:
 
     <dl class=switch>
-      <dt>If [=/Type=](|value|) is String, and |identifier| is "`length`"</dt>
-      <dd>Let |value| be a Number equal to the number of elements in |value|.</dd>
+      : If [=/Type=](|value|) is String, and |identifier| is "`length`"
+      :: Let |value| be a Number equal to the number of elements in |value|.
 
-      <dt>If |value| is an [=Array=] and |identifier| is "`length`"</dt>
+      : If |value| is an [=Array=] and |identifier| is "`length`"
+      :: Let |value| be [=!=] [=ToLength=]([=!=] [=Get=](|value|, "`length`")).
 
-      <dd>Let |value| be [=!=] [=ToLength=]([=!=] [=Get=](|value|, "`length`")).</dd>
+      : If |value| is a {{Blob}} and |identifier| is "`size`"
+      :: Let |value| be a Number equal to |value|'s {{Blob/size}}.
 
-      <dt>If |value| is a {{Blob}} and |identifier| is "`size`"</dt>
-      <dd>Let |value| be a Number equal to |value|'s {{Blob/size}}.</dd>
+      : If |value| is a {{Blob}} and |identifier| is "`type`"
+      :: Let |value| be a String equal to |value|'s {{Blob/type}}.
 
-      <dt>If |value| is a {{Blob}} and |identifier| is "`type`"</dt>
-      <dd>Let |value| be a String equal to |value|'s {{Blob/type}}.</dd>
+      : If |value| is a {{File}} and |identifier| is "`name`"
+      :: Let |value| be a String equal to |value|'s {{File/name}}.
 
-      <dt>If |value| is a {{File}} and |identifier| is "`name`"</dt>
-      <dd>Let |value| be a String equal to |value|'s {{File/name}}.</dd>
+      : If |value| is a {{File}} and |identifier| is "`lastModified`"
+      :: Let |value| be a Number equal to |value|'s {{File/lastModified}}.
 
-      <dt>If |value| is a {{File}} and |identifier| is "`lastModified`"</dt>
-      <dd>Let |value| be a Number equal to |value|'s {{File/lastModified}}.</dd>
+      : If |value| is a {{File}} and |identifier| is "`lastModifiedDate`"
+      :: Let |value| be a new [=Date=] object with \[[DateValue]] internal slot
+          equal to |value|'s {{File/lastModified}}.
 
-      <dt>If |value| is a {{File}} and |identifier| is "`lastModifiedDate`"</dt>
-      <dd>Let |value| be a new [=Date=] object with \[[DateValue]] internal slot
-        equal to |value|'s {{File/lastModified}}.</dd>
+      : Otherwise
+      ::
+          1. If [=/Type=](|value|) is not Object, return failure.
 
-      <dt>Otherwise</dt>
-      <dd>
-        1. If [=/Type=](|value|) is not Object, return failure.
+          1. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
 
-        1. Let |hop| be [=!=] [=HasOwnProperty=](|value|, |identifier|).
+          1. If |hop| is false, return failure.
 
-        1. If |hop| is false, return failure.
+          1. Let |value| be [=!=] [=Get=](|value|, |identifier|).
 
-        1. Let |value| be [=!=] [=Get=](|value|, |identifier|).
-
-        1. If |value| is undefined, return failure.
-      </dd>
+          1. If |value| is undefined, return failure.
 
     </dl>
 
@@ -6650,53 +6483,48 @@ The steps return an ECMAScript value.
 1. Switch on |type|:
 
     <dl class=switch>
-      <dt>*number*</dt>
-      <dd>Return an ECMAScript Number value equal to |value|</dd>
+      : *number*
+      :: Return an ECMAScript Number value equal to |value|
 
-      <dt>*string*</dt>
-      <dd>Return an ECMAScript String value equal to |value|</dd>
+      : *string*
+      :: Return an ECMAScript String value equal to |value|
 
-      <dt>*date*</dt>
-      <dd>
-        1. Let |date| be the result of executing the ECMAScript Date
-            constructor with the single argument |value|.
-        1. [=/Assert=]: |date| is not an [=abrupt completion=].
-        1. Return |date|.
+      : *date*
+      ::
+          1. Let |date| be the result of executing the ECMAScript Date
+              constructor with the single argument |value|.
+          1. [=/Assert=]: |date| is not an [=abrupt completion=].
+          1. Return |date|.
 
-      </dd>
+      : *binary*
+      ::
+          1. Let |len| be |value|'s [=byte sequence/length=].
+          1. Let |buffer| be the result of executing the ECMAScript
+              ArrayBuffer constructor with |len|.
+          1. [=/Assert=]: |buffer| is not an [=abrupt completion=].
+          1. Set the entries in |buffer|'s
+              \[[ArrayBufferData]] internal slot to the entries
+              in |value|.
+          1. Return |buffer|.
 
-      <dt>*binary*</dt>
-      <dd>
-        1. Let |len| be |value|'s [=byte sequence/length=].
-        1. Let |buffer| be the result of executing the ECMAScript
-            ArrayBuffer constructor with |len|.
-        1. [=/Assert=]: |buffer| is not an [=abrupt completion=].
-        1. Set the entries in |buffer|'s
-            \[[ArrayBufferData]] internal slot to the entries
-            in |value|.
-        1. Return |buffer|.
+      : *array*
+      ::
+          1. Let |array| be the result of executing the ECMAScript Array
+              constructor with no arguments.
+          1. [=/Assert=]: |array| is not an [=abrupt completion=].
+          1. Let |len| be |value|'s [=list/size=].
+          1. Let |index| be 0.
+          1. While |index| is less than |len|:
 
-      </dd>
+              1. Let |entry| be the result of running
+                  [=convert a key to a value=] with |value|[|index|].
+              1. Let |status| be [=CreateDataProperty=](|array|, |index|,
+                  |entry|).
+              1. [=/Assert=]: |status| is true.
+              1. Increase |index| by 1.
 
-      <dt>*array*</dt>
-      <dd>
-        1. Let |array| be the result of executing the ECMAScript Array
-            constructor with no arguments.
-        1. [=/Assert=]: |array| is not an [=abrupt completion=].
-        1. Let |len| be |value|'s [=list/size=].
-        1. Let |index| be 0.
-        1. While |index| is less than |len|:
+          1. Return |array|.
 
-            1. Let |entry| be the result of running
-                [=convert a key to a value=] with |value|[|index|].
-            1. Let |status| be [=CreateDataProperty=](|array|, |index|,
-                |entry|).
-            1. [=/Assert=]: |status| is true.
-            1. Increase |index| by 1.
-
-        1. Return |array|.
-
-      </dd>
     </dl>
 
 </div>
@@ -6722,88 +6550,77 @@ steps may throw an exception.
     <dl class=switch>
 
       <!-- Number -->
-      <dt>If [=/Type=](|input|) is Number</dt>
-      <dd>
-        1. If |input| is NaN then return invalid.
-        1. Otherwise, return a new [=/key=] with
-            [=key/type=] *number* and [=key/value=]
-            |input|.
-
-      </dd>
+      : If [=/Type=](|input|) is Number
+      ::
+          1. If |input| is NaN then return invalid.
+          1. Otherwise, return a new [=/key=] with
+              [=key/type=] *number* and [=key/value=]
+              |input|.
 
       <!-- Date -->
-      <dt>If |input| is a [=Date=] (has a \[[DateValue]] internal slot)</dt>
-      <dd>
-        1. Let |ms| be the value of |input|'s
-            \[[DateValue]] internal slot.
+      : If |input| is a [=Date=] (has a \[[DateValue]] internal slot)
+      ::
+          1. Let |ms| be the value of |input|'s
+              \[[DateValue]] internal slot.
 
-        1. If |ms| is NaN then return invalid.
+          1. If |ms| is NaN then return invalid.
 
-        1. Otherwise, return a new [=/key=] with [=key/type=]
-            *date* and [=key/value=] |ms|.
-
-      </dd>
+          1. Otherwise, return a new [=/key=] with [=key/type=]
+              *date* and [=key/value=] |ms|.
 
       <!-- String -->
-      <dt>If [=/Type=](|input|) is String</dt>
-      <dd>
+      : If [=/Type=](|input|) is String
+      ::
+          1. Return a new [=/key=] with [=key/type=] *string* and
+              [=key/value=] |input|.
 
-        1. Return a new [=/key=] with [=key/type=] *string* and
-            [=key/value=] |input|.
-
-      </dd>
 
       <!-- Binary -->
-      <dt>
-        If |input| is a [=buffer source type=]</dt>
-      <dd>
+      : If |input| is a [=buffer source type=]
+      ::
+          1. Let |bytes| be the result of running
+              <a lt="get a copy of the buffer source">get a copy of the bytes held by the buffer source</a>
+              |input|. Rethrow any exceptions.
 
-        1. Let |bytes| be the result of running
-            <a lt="get a copy of the buffer source">get a copy of the bytes held by the buffer source</a>
-            |input|. Rethrow any exceptions.
-
-        1. Return a new [=/key=] with [=key/type=]
-            *binary* and [=key/value=] |bytes|.
-
-      </dd>
+          1. Return a new [=/key=] with [=key/type=]
+              *binary* and [=key/value=] |bytes|.
 
       <!-- Array -->
-      <dt>If [=IsArray=](|input|)</dt>
-      <dd>
+      : If [=IsArray=](|input|)
+      ::
+          1. Let |len| be [=?=] [=ToLength=]( [=?=] [=Get=](|input|,
+              "`length`")).
+          1. [=set/Append=] |input| to |seen|.
+          1. Let |keys| be a new empty list.
+          1. Let |index| be 0.
+          1. While |index| is less than |len|:
 
-        1. Let |len| be [=?=] [=ToLength=]( [=?=] [=Get=](|input|,
-            "`length`")).
-        1. [=set/Append=] |input| to |seen|.
-        1. Let |keys| be a new empty list.
-        1. Let |index| be 0.
-        1. While |index| is less than |len|:
+              1. Let |hop| be [=?=] [=HasOwnProperty=](|input|, |index|).
 
-            1. Let |hop| be [=?=] [=HasOwnProperty=](|input|, |index|).
+              1. If |hop| is false, return invalid.
 
-            1. If |hop| is false, return invalid.
+              1. Let |entry| be [=?=] [=Get=](|input|, |index|).
 
-            1. Let |entry| be [=?=] [=Get=](|input|, |index|).
+              1. Let |key| be the result of running
+                  [=convert a value to a key=] with arguments |entry|
+                  and |seen|.
 
-            1. Let |key| be the result of running
-                [=convert a value to a key=] with arguments |entry|
-                and |seen|.
+              1. [=ReturnIfAbrupt=](|key|).
 
-            1. [=ReturnIfAbrupt=](|key|).
+              1. If |key| is invalid abort these steps and return
+                  invalid.
 
-            1. If |key| is invalid abort these steps and return
-                invalid.
+              1. [=list/Append=] |key| to |keys|.
 
-            1. [=list/Append=] |key| to |keys|.
+              1. Increase |index| by 1.
 
-            1. Increase |index| by 1.
+          1. Return a new [=array key=] with [=key/value=]
+              |keys|.
 
-        1. Return a new [=array key=] with [=key/value=]
-            |keys|.
 
-      </dd>
+      : Otherwise
+      :: Return invalid.
 
-      <dt>Otherwise</dt>
-      <dd>Return invalid.</dd>
     </dl>
 
 </div>
@@ -6880,74 +6697,57 @@ There are a number of techniques that can be used to mitigate the risk
 of user tracking:
 
 
-<dl>
-<dt>Blocking third-party storage</dt>
-<dd>
-User agents may restrict access to the database objects
-to scripts originating at the domain of the top-level document of
-the <span>browsing context</span>, for instance denying access to
-the API for pages from other domains running in `iframe`s.
-</dd>
+: Blocking third-party storage
+::
+    User agents may restrict access to the database objects
+    to scripts originating at the domain of the top-level document of
+    the <span>browsing context</span>, for instance denying access to
+    the API for pages from other domains running in `iframe`s.
 
-<dt>Expiring stored data</dt>
-<dd>
+: Expiring stored data
+::
+    User agents may automatically delete stored data after a period of
+    time.
 
-User agents may automatically delete stored data after a period of
-time.
+    This can restrict the ability of a site to track a user, as the site
+    would then only be able to track the user across multiple sessions
+    when she authenticates with the site itself (e.g. by making a purchase
+    or logging in to a service).
 
-This can restrict the ability of a site to track a user, as the site
-would then only be able to track the user across multiple sessions
-when she authenticates with the site itself (e.g. by making a purchase
-or logging in to a service).
+    However, this also puts the user's data at risk.
 
-However, this also puts the user's data at risk.
-</dd>
+: Treating persistent storage as cookies
+::
+    User agents should present the database feature to the user in a way
+    that associates them strongly with HTTP session cookies. [[COOKIES]]
 
-<dt>Treating persistent storage as cookies</dt>
-<dd>
+    This might encourage users to view such storage with healthy
+    suspicion.
 
-User agents should present the database feature to the user in a way
-that associates them strongly with HTTP session cookies. [[COOKIES]]
+: Site-specific safe-listing of access to databases
+::
+    User agents may require the user to authorize access to databases
+    before a site can use the feature.
 
-This might encourage users to view such storage with healthy
-suspicion.
+: Origin-tracking of stored data
+::
+    User agents may record the [=/origins=] of sites that contained content
+    from third-party origins that caused data to be stored.
 
-</dd>
+    If this information is then used to present the view of data
+    currently in persistent storage, it would allow the user to make
+    informed decisions about which parts of the persistent storage to
+    prune. Combined with a blocklist ("delete this data and prevent
+    this domain from ever storing data again"), the user can restrict
+    the use of persistent storage to sites that she trusts.
 
-<dt>Site-specific safe-listing of access to databases</dt>
-<dd>
+: Shared blocklists
+::
+    User agents may allow users to share their persistent storage
+    domain blocklists.
 
-User agents may require the user to authorize access to databases
-before a site can use the feature.
-
-</dd>
-
-<dt>Origin-tracking of stored data</dt>
-<dd>
-
-User agents may record the [=/origins=] of sites that contained content
-from third-party origins that caused data to be stored.
-
-If this information is then used to present the view of data
-currently in persistent storage, it would allow the user to make
-informed decisions about which parts of the persistent storage to
-prune. Combined with a blocklist ("delete this data and prevent
-this domain from ever storing data again"), the user can restrict
-the use of persistent storage to sites that she trusts.
-
-</dd>
-
-<dt>Shared blocklists</dt>
-<dd>
-
-User agents may allow users to share their persistent storage
-domain blocklists.
-
-This would allow communities to act together to protect their
-privacy.
-
-</dd>
-</dl>
+    This would allow communities to act together to protect their
+    privacy.
 
 While these suggestions prevent trivial use of this API for user
 tracking, they do not block it altogether. Within a single domain, a
