@@ -142,14 +142,15 @@ object store and indexes. Finally, the opened connection is saved for
 use in subsequent examples.
 
 ```js
-var request = indexedDB.open("library");
+const request = indexedDB.open("library");
+let db;
 
 request.onupgradeneeded = function() {
   // The database did not previously exist, so create object stores and indexes.
-  var db = request.result;
-  var store = db.createObjectStore("books", {keyPath: "isbn"});
-  var titleIndex = store.createIndex("by_title", "title", {unique: true});
-  var authorIndex = store.createIndex("by_author", "author");
+  const db = request.result;
+  const store = db.createObjectStore("books", {keyPath: "isbn"});
+  const titleIndex = store.createIndex("by_title", "title", {unique: true});
+  const authorIndex = store.createIndex("by_author", "author");
 
   // Populate with initial data.
   store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
@@ -165,8 +166,8 @@ request.onsuccess = function() {
 The following example populates the database using a transaction.
 
 ```js
-var tx = db.transaction("books", "readwrite");
-var store = tx.objectStore("books");
+const tx = db.transaction("books", "readwrite");
+const store = tx.objectStore("books");
 
 store.put({title: "Quarry Memories", author: "Fred", isbn: 123456});
 store.put({title: "Water Buffaloes", author: "Fred", isbn: 234567});
@@ -181,13 +182,13 @@ The following example looks up a single book in the database by title
 using an index.
 
 ```js
-var tx = db.transaction("books", "readonly");
-var store = tx.objectStore("books");
-var index = store.index("by_title");
+const tx = db.transaction("books", "readonly");
+const store = tx.objectStore("books");
+const index = store.index("by_title");
 
-var request = index.get("Bedrock Nights");
+const request = index.get("Bedrock Nights");
 request.onsuccess = function() {
-  var matching = request.result;
+  const matching = request.result;
   if (matching !== undefined) {
     // A match was found.
     report(matching.isbn, matching.title, matching.author);
@@ -202,13 +203,13 @@ The following example looks up all books in the database by author
 using an index and a cursor.
 
 ```js
-var tx = db.transaction("books", "readonly");
-var store = tx.objectStore("books");
-var index = store.index("by_author");
+const tx = db.transaction("books", "readonly");
+const store = tx.objectStore("books");
+const index = store.index("by_author");
 
-var request = index.openCursor(IDBKeyRange.only("Fred"));
+const request = index.openCursor(IDBKeyRange.only("Fred"));
 request.onsuccess = function() {
-  var cursor = request.result;
+  const cursor = request.result;
   if (cursor) {
     // Called for each matching record.
     report(cursor.value.isbn, cursor.value.title, cursor.value.author);
@@ -224,9 +225,9 @@ The following example shows how errors could be handled when a request
 fails.
 
 ```js
-var tx = db.transaction("books", "readwrite");
-var store = tx.objectStore("books");
-var request = store.put({title: "Water Buffaloes", author: "Slate", isbn: 987654});
+const tx = db.transaction("books", "readwrite");
+const store = tx.objectStore("books");
+const request = store.put({title: "Water Buffaloes", author: "Slate", isbn: 987654});
 request.onerror = function(event) {
   // The uniqueness constraint of the "by_title" index failed.
   report(request.error);
@@ -249,26 +250,27 @@ stores and indexes. The following example shows one way to handle
 migrating from an older version of the database.
 
 ```js
-var request = indexedDB.open("library", 3); // Request version 3.
+const request = indexedDB.open("library", 3); // Request version 3.
+let db;
 
 request.onupgradeneeded = function(event) {
-  var db = request.result;
+  const db = request.result;
   if (event.oldVersion < 1) {
     // Version 1 is the first version of the database.
-    var store = db.createObjectStore("books", {keyPath: "isbn"});
-    var titleIndex = store.createIndex("by_title", "title", {unique: true});
-    var authorIndex = store.createIndex("by_author", "author");
+    const store = db.createObjectStore("books", {keyPath: "isbn"});
+    const titleIndex = store.createIndex("by_title", "title", {unique: true});
+    const authorIndex = store.createIndex("by_author", "author");
   }
   if (event.oldVersion < 2) {
     // Version 2 introduces a new index of books by year.
-    var bookStore = request.transaction.objectStore("books");
-    var yearIndex = bookStore.createIndex("by_year", "year");
+    const bookStore = request.transaction.objectStore("books");
+    const yearIndex = bookStore.createIndex("by_year", "year");
   }
   if (event.oldVersion < 3) {
     // Version 3 introduces a new object store for magazines with two indexes.
-    var magazines = db.createObjectStore("magazines");
-    var publisherIndex = magazines.createIndex("by_publisher", "publisher");
-    var frequencyIndex = magazines.createIndex("by_frequency", "frequency");
+    const magazines = db.createObjectStore("magazines");
+    const publisherIndex = magazines.createIndex("by_publisher", "publisher");
+    const frequencyIndex = magazines.createIndex("by_frequency", "frequency");
   }
 };
 
@@ -342,8 +344,8 @@ event fires if other clients still hold a connection to the database after their
 <a event>`versionchange`</a> events have fired.
 
 ```js
-var request = indexedDB.open("library", 4); // Request version 4.
-var blockedTimeout;
+const request = indexedDB.open("library", 4); // Request version 4.
+let blockedTimeout;
 
 request.onblocked = function() {
   // Give the other clients time to save data asynchronously.
@@ -1754,10 +1756,10 @@ property is assigned a value of 1 because that is the next [=/key=]
 generated by the [=key generator=].
 
 ```js
-var store = db.createObjectStore("store", { keyPath: "foo.bar",
-                                            autoIncrement: true });
+const store = db.createObjectStore("store", { keyPath: "foo.bar",
+                                              autoIncrement: true });
 store.put({ foo: {} }).onsuccess = function(e) {
-  var key = e.target.result;
+  const key = e.target.result;
   console.assert(key === 1);
 };
 ```
@@ -1779,10 +1781,10 @@ store=] is "`foo.bar`". The actual object has a value of
 key value.
 
 ```js
-var store = db.createObjectStore("store", { keyPath: "foo.bar",
-                                            autoIncrement: true });
+const store = db.createObjectStore("store", { keyPath: "foo.bar",
+                                              autoIncrement: true });
 store.put({ foo: { bar: 10 } }).onsuccess = function(e) {
-  var key = e.target.result;
+  const key = e.target.result;
   console.assert(key === 10);
 };
 ```
@@ -1804,13 +1806,13 @@ properties are created each as a child of the other until a value for
 store.
 
 ```js
-var store = db.createObjectStore("store", { keyPath: "foo.bar.baz",
-                                            autoIncrement: true });
+const store = db.createObjectStore("store", { keyPath: "foo.bar.baz",
+                                              autoIncrement: true });
 store.put({ zip: {} }).onsuccess = function(e) {
-  var key = e.target.result;
+  const key = e.target.result;
   console.assert(key === 1);
   store.get(key).onsuccess = function(e) {
-    var value = e.target.result;
+    const value = e.target.result;
     // value will be: { zip: {}, foo: { bar: { baz: 1 } } }
     console.assert(value.foo.bar.baz === 1);
   };
@@ -1827,7 +1829,7 @@ the actual object is an array, `[10]`. Trying to define a
 property on the array fails.
 
 ```js
-var store = db.createObjectStore("store", { keyPath: "foo", autoIncrement: true });
+const store = db.createObjectStore("store", { keyPath: "foo", autoIncrement: true });
 
 // The key generation will attempt to create and store the key path
 // property on this primitive.
@@ -1980,7 +1982,7 @@ Various event handlers are registered for responding to various
 situations.
 
 ```js
-var request = indexedDB.open('AddressBook', 15);
+const request = indexedDB.open('AddressBook', 15);
 request.onsuccess = function(evt) {...};
 request.onerror = function(evt) {...};
 ```
@@ -3595,9 +3597,9 @@ must be used as error.
   The asynchronous creation of indexes is observable in the following example:
 
 ```js
-    var request1 = objectStore.put({name: "betty"}, 1);
-    var request2 = objectStore.put({name: "betty"}, 2);
-    var index = objectStore.createIndex("by_name", "name", {unique: true});
+    const request1 = objectStore.put({name: "betty"}, 1);
+    const request2 = objectStore.put({name: "betty"}, 2);
+    const index = objectStore.createIndex("by_name", "name", {unique: true});
 ```
 
   At the point where {{createIndex()}} called, neither of the
