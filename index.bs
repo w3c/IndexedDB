@@ -939,6 +939,21 @@ following:
     instead is created automatically when an
     <a event>`upgradeneeded`</a> event is fired.
 
+A [=/transaction=] has a <dfn>durability hint</dfn>. This is a hint to the user agent of whether to prioritize performance or durability when committing the transaction. The [=transaction/durability hint=] is one of the following:
+
+: {{"strict"}}
+:: The user agent may consider that the [=/transaction=] has successfully [=transaction/committed=] only after verifying that all outstanding changes have been successfully written to a persistent storage medium.
+: {{"relaxed"}}
+:: The user agent may consider that the [=/transaction=] has successfully [=transaction/committed=] as soon as all outstanding changes have been written to the operating system, without subsequent verification.
+: {{"default"}}
+:: The user agent should use its default durability behavior for the storage [=/bucket=]. This is the default for [=/transactions=] if not otherwise specified.
+
+<aside class=note>
+  In a typical implementation, {{"strict"}} is a hint to the user agent to flush any operating system I/O buffers before a {{"complete"}} event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices.
+
+  Web applications are encouraged to use {{"relaxed"}} for ephemeral data such as caches or quickly changing records, and {{"strict"}} in cases where reducing the risk of data loss outweighs the impact to performance and power. Implementations are encouraged to weigh the durability hint from applications against the impact to users and devices.
+</aside>
+
 A [=/transaction=] optionally has a <dfn>cleanup event loop</dfn>
 which is an [=event loop=].
 
@@ -2449,7 +2464,8 @@ interface IDBDatabase : EventTarget {
   readonly attribute DOMStringList objectStoreNames;
 
   [NewObject] IDBTransaction transaction((DOMString or sequence<DOMString>) storeNames,
-                                         optional IDBTransactionMode mode = "readonly");
+                                         optional IDBTransactionMode mode = "readonly",
+                                         optional IDBTransactionOptions options = {});
   void close();
 
   [NewObject] IDBObjectStore createObjectStore(
@@ -2462,6 +2478,12 @@ interface IDBDatabase : EventTarget {
   attribute EventHandler onclose;
   attribute EventHandler onerror;
   attribute EventHandler onversionchange;
+};
+
+enum IDBTransactionDurability { "default", "strict", "relaxed" };
+
+dictionary IDBTransactionOptions {
+  IDBTransactionDurability durability = "default";
 };
 
 dictionary IDBObjectStoreParameters {
@@ -2661,8 +2683,7 @@ instance on which it was called.
 
 <div class=algorithm>
 
-The <dfn method for=IDBDatabase>transaction(|storeNames|,
-|mode|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</dfn> method, when invoked, must run these steps:
 
 1. If a running [=/upgrade transaction=] is associated with the [=/connection=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -2683,9 +2704,7 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|,
 1. If |mode| is not {{"readonly"}} or {{"readwrite"}},
     [=throw=] a [=TypeError=].
 
-1. Let |transaction| be a newly [=transaction/created=] [=/transaction=] with
-    |connection|, |mode| and the set of [=/object stores=] named in
-    |scope|.
+1. Let |transaction| be a newly [=transaction/created=] [=/transaction=] with |connection|, |mode|, |options|' {{IDBTransactionOptions/durability}} member, and the set of [=/object stores=] named in |scope|.
 
 1. Set |transaction|'s [=transaction/cleanup event loop=] to the
     current [=event loop=].
@@ -2693,6 +2712,12 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|,
 1. Return an {{IDBTransaction}} object representing |transaction|.
 
 </div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBTransactionOptions/durability}} option is new in this edition.
+  &#x1F6A7;
+</aside>
 
 <aside class=note>
   The created |transaction| will follow the [=transaction/lifetime=]
@@ -4824,6 +4849,11 @@ enum IDBTransactionMode {
         ({{"readonly"}} or {{"readwrite"}}), or {{"versionchange"}} for
         an [=/upgrade transaction=].
 
+    : |transaction| . {{IDBTransaction/durability}}
+    ::
+        Returns the [=transaction/durability hint=] the transaction was created with
+        ({{"strict"}}, {{"relaxed"}}), or {{"default"}}).
+
     : |transaction| . {{IDBTransaction/db}}
     ::
         Returns the transaction's [=transaction/connection=].
@@ -4859,6 +4889,15 @@ attribute's getter must run these steps:
 
 The <dfn attribute for=IDBTransaction>mode</dfn> attribute's getter
 must return **this**'s [=transaction/mode=].
+
+The <dfn attribute for=IDBTransaction>durability</dfn> attribute's getter must return **this**'s [=transaction/durability hint=].
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBTransaction/durability}} attribute is new in this edition.
+  &#x1F6A7;
+</aside>
+
 
 The <dfn attribute for=IDBTransaction>db</dfn> attribute's getter must
 return **this**'s [=transaction/connection=]'s associated [=/database=].
@@ -5198,7 +5237,7 @@ To <dfn>commit a transaction</dfn> with the |transaction| to commit, run these s
     1. If |transaction|'s [=transaction/state=] is no longer [=transaction/committing=],
         then terminate these steps.
 
-    1. Attempt to write any outstanding changes made by |transaction| to the [=database=].
+    1. Attempt to write any outstanding changes made by |transaction| to the [=database=], considering |transaction|'s [=transaction/durability hint=].
 
     1. If an error occurs while writing the changes to the [=database=],
         then run [=abort a transaction=] with |transaction| and an
@@ -6824,6 +6863,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Remove escaping {{IDBKeyRange/includes()}} method. ([Issue #294](https://github.com/w3c/IndexedDB/issues/294))
 * Restrict array keys to [=/Array exotic objects=] (i.e. disallow proxies). ([Issue #309](https://github.com/w3c/IndexedDB/issues/309])
 * Transactions are now temporarily made inactive during clone operations.
+* Added {{IDBTransactionOptions/durability}} option and {{IDBTransaction/durability}} attribute. ([Issue #50](https://github.com/w3c/IndexedDB/issues/50))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
@@ -6887,6 +6927,7 @@ Yaron Tausky,
 Bevis Tseng,
 Ben Turner,
 Kyaw Tun,
+Adrienne Walker,
 Hans Wennborg,
 Shawn Wilsher,
 Brett Zamir,
