@@ -2983,7 +2983,7 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 
 1. Let |targetRealm| be a user-agent defined [=Realm=].
 
-1. Let |clone| be a [=clone=] of |value| in |targetRealm|.
+1. Let |clone| be a [=clone=] of |value| in |targetRealm| during |transaction|.
     Rethrow any exceptions.
 
     <details class=note>
@@ -4680,7 +4680,7 @@ invoked, must run these steps:
 
 1. Let |targetRealm| be a user-agent defined [=Realm=].
 
-1. Let |clone| be a [=clone=] of |value| in |targetRealm|.
+1. Let |clone| be a [=clone=] of |value| in |targetRealm| during |transaction|.
     Rethrow any exceptions.
 
     <details class=note>
@@ -5528,8 +5528,7 @@ To <dfn>abort an upgrade transaction</dfn> with |transaction|, run these steps:
 
 <div class=algorithm>
 
-To <dfn>fire a success event</dfn> at a |request|,
-the implementation must run these steps:
+To <dfn>fire a success event</dfn> at a |request|, run these steps:
 
 1. Let |event| be the result of [=creating an event=] using {{Event}}.
 
@@ -5568,8 +5567,7 @@ the implementation must run these steps:
 
 <div class=algorithm>
 
-To <dfn>fire an error event</dfn> at a |request|,
-the implementation must run these steps:
+To <dfn>fire an error event</dfn> at a |request|, run these steps:
 
 1. Let |event| be the result of [=creating an event=] using {{Event}}.
 
@@ -5621,12 +5619,22 @@ the implementation must run these steps:
 
 <div class=algorithm>
 
-  To make a <dfn>clone</dfn> of |value| in |targetRealm|,
-  the implementation must run these steps:
+  To make a <dfn>clone</dfn> of |value| in |targetRealm| during |transaction|,
+  run these steps:
+
+  1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
+
+  1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+
+        <aside class=note>
+          The [=/transaction=] is made [=transaction/inactive=] so that getters or other side effects triggered by the cloning operation are unable to make additional requests against the transaction.
+        </aside>
 
   1. Let |serialized| be [=?=] <a abstract-op>StructuredSerializeForStorage</a>(|value|).
 
   1. Let |clone| be [=?=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
+
+  1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
 
   1. Return |clone|.
 
