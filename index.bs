@@ -38,33 +38,32 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
             text: !
             text: ?
         text: abrupt completion; url: sec-completion-record-specification-type
-        text: ReturnIfAbrupt; url: sec-returnifabrupt
-        text: IdentifierName; url: prod-IdentifierName
-        text: Type; url: sec-ecmascript-data-types-and-values
-        text: HasOwnProperty; url: sec-hasownproperty
-        text: Get; url: sec-get-o-p
+        text: Array; url: sec-array-objects
+        text: array exotic object; url: array-exotic-objects
+        text: Array.prototype.sort; url: sec-array.prototype.sort
+        text: ArrayBuffer; url: sec-arraybuffer-objects
         text: CreateDataProperty; url: sec-createdataproperty
+        text: current Realm; url: current-realm
+        text: Date; url: sec-date-objects
+        text: Get; url: sec-get-o-p
+        text: HasOwnProperty; url: sec-hasownproperty
+        text: IdentifierName; url: prod-IdentifierName
+        text: Number; url: sec-terms-and-definitions-number-type
+        text: Object; url: sec-object-objects
+        text: Realm; url: realm
+        text: Record; url: sec-list-and-record-specification-type
+        text: RegExp; url: sec-regexp-regular-expression-objects
+        text: ReturnIfAbrupt; url: sec-returnifabrupt
+        text: String; url: sec-terms-and-definitions-string-type
         text: ToLength; url: sec-tolength
         text: ToString; url: sec-tostring
-        text: IsArray; url: sec-isarray
-        text: String; url: sec-terms-and-definitions-string-type
-        text: Number; url: sec-terms-and-definitions-number-type
-        text: RegExp; url: sec-regexp-regular-expression-objects
-        text: Date; url: sec-date-objects
-        text: Object; url: sec-object-objects
+        text: Type; url: sec-ecmascript-data-types-and-values
         text: TypeError; url: sec-native-error-types-used-in-this-standard-typeerror
-        text: Array; url: sec-array-objects
-        text: ArrayBuffer; url: sec-arraybuffer-objects
         text: Uint8Array; url: sec-typedarray-objects
-        text: Promise; url: sec-promise-objects
-        text: Realm; url: realm
-        text: current Realm; url: current-realm
-        text: Array.prototype.sort; url: sec-array.prototype.sort
-        text: Record; url: sec-list-and-record-specification-type
 spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     type: dfn
-        text: sequence<DOMString>; url: idl-sequence
         text: sequence<any>; url: idl-sequence
+        text: sequence<DOMString>; url: idl-sequence
 </pre>
 
 <style>
@@ -2364,14 +2363,14 @@ when invoked, must run these steps:
 1. Let |origin| be the [=/origin=] of the global scope used to access **this**.
 
 1. If |origin| is an [=opaque origin=],
-    then return a new promise rejected with a "{{SecurityError}}" {{DOMException}}.
+    then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}.
 
-1. Let |p| be a new promise.
+1. Let |p| be [=/a new promise=].
 
 1. Run these steps [=in parallel=]:
 
     1. Let |databases| be the [=/set=] of [=databases=] in |origin|.
-        If this cannot be determined for any reason, then reject |p| with
+        If this cannot be determined for any reason, then [=/reject=] |p| with
         an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
         and terminate these steps.
 
@@ -2384,7 +2383,7 @@ when invoked, must run these steps:
         1. Set |info|'s {{IDBDatabaseInfo/version}} dictionary member to |db|'s [=database/version=].
         1. [=list/Append=] |info| to |result|.
 
-    1. Resolve |p| with |result|.
+    1. [=/Resolve=] |p| with |result|.
 
 1. Return |p|.
 
@@ -6503,7 +6502,7 @@ steps may throw an exception.
               *binary* and [=key/value=] |bytes|.
 
       <!-- Array -->
-      : If [=IsArray=](|input|)
+      : If |input| is an [=/Array exotic object=]
       ::
           1. Let |len| be [=?=] [=ToLength=]( [=?=] [=Get=](|input|,
               "`length`")).
@@ -6549,7 +6548,7 @@ To <dfn>convert a value to a multiEntry key</dfn> with an ECMAScript value |inpu
 The result of these steps is a [=/key=] or invalid, or the
 steps may throw an exception.
 
-1. If [=IsArray=](|input|), then:
+1. If |input| is an [=/Array exotic object=], then:
 
     1. Let |len| be [=?=] ToLength( [=?=] [=Get=](|input|, "`length`")).
 
@@ -6815,6 +6814,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Added {{IDBCursor/request}} attribute. ([Issue #255](https://github.com/w3c/IndexedDB/issues/255))
 * Removed handling for nonstandard `lastModifiedDate` property of {{File}} objects. ([Issue #215](https://github.com/w3c/IndexedDB/issues/215))
 * Remove escaping {{IDBKeyRange/includes()}} method. ([Issue #294](https://github.com/w3c/IndexedDB/issues/294))
+* Restrict array keys to [=/Array exotic objects=] (i.e. disallow proxies). ([Issue #309](https://github.com/w3c/IndexedDB/issues/309])
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
