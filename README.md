@@ -1,6 +1,8 @@
 Indexed DB
 ----------
 
+[![Build Status](https://travis-ci.com/w3c/IndexedDB.svg?branch=master)](https://travis-ci.com/w3c/IndexedDB)
+
 This is a repository for the development of the Indexed Database (Third Edition) specification.
 * [Latest Editor's Draft](https://w3c.github.io/IndexedDB/)
 
