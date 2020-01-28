@@ -2667,13 +2667,14 @@ instance on which it was called.
 <dl class="domintro note">
     : |transaction| = |connection| .
         {{IDBDatabase/transaction()|transaction}}(|scope|
-        [, |mode| = "readonly"])
+        [, |mode| [, |options| ] ])
     ::
-        Returns a new [=/transaction=] with the given |mode|
-        ({{"readonly"}} or {{"readwrite"}})
-        and |scope| which can be a single [=/object store=]
-        [=object-store/name=] or an array of
-        [=object-store/names=].
+        Returns a new [=/transaction=] with the given
+        |scope| (which can be a single [=/object store=] [=object-store/name=] or an array of [=object-store/names=]),
+        |mode| ({{"readonly"}} or {{"readwrite"}}),
+        and additional |options| including {{IDBTransactionOptions/durability}} ({{"default"}}, {{"strict"}} or {{"relaxed"}}).
+
+        The default |mode| is {{"readonly"}} and the default {{IDBTransactionOptions/durability}} is {{"default"}}.
 
     : |connection| . {{IDBDatabase/close()|close}}()
     ::
@@ -4816,6 +4817,7 @@ the contents of the database.
 interface IDBTransaction : EventTarget {
   readonly attribute DOMStringList objectStoreNames;
   readonly attribute IDBTransactionMode mode;
+  readonly attribute IDBTransactionDurability durability;
   [SameObject] readonly attribute IDBDatabase db;
   readonly attribute DOMException? error;
 
