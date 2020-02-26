@@ -128,18 +128,13 @@ in-order traversal of very large numbers of data records.
 
 
 <aside class=example id=example-open-connection>
-In the following example, the API is used to access a "library"
-database that holds books stored by their "isbn" attribute.
-Additionally, an index is maintained on the "title" attribute of the
-objects stored in the object store. This index can be used to look up
-books by title, and enforces a uniqueness constraint. Another index is
-maintained on the "author" attribute of the objects, and can be used
-to look up books by author.
+The following example uses the API to access a `"library"` database. It has a `"books"` object store that holds books records stored by their `"isbn"` property as the primary key.
 
-A connection to the database is opened. If the "library" database did
-not already exist, it is created and an event handler creates the
-object store and indexes. Finally, the opened connection is saved for
-use in subsequent examples.
+Book records have a `"title"` property. This example artificially requires that book titles are unique. The code enforces this by creating an index named `"by_title"` with the {{IDBIndexParameters/unique}} option set. This index is used to look up books by title, and will prevent adding books with non-unique titles.
+
+Book records also have an `"author"` property, which is not required to be unique. The code creates another index named `"by_author"` to allow look-ups by this property.
+
+The code first opens a connection to the database. The <a event>`upgradeneeded`</a> event handler code creates the object store and indexes, if needed. The <a event>`success`</a> event handler code saves the opened connection for use in later examples.
 
 ```js
 const request = indexedDB.open("library");
@@ -221,8 +216,7 @@ request.onsuccess = function() {
 };
 ```
 
-The following example shows how errors could be handled when a request
-fails.
+The following example shows one way to handle errors when a request fails.
 
 ```js
 const tx = db.transaction("books", "readwrite");
@@ -245,9 +239,7 @@ The database connection can be closed when it is no longer needed.
 db.close();
 ```
 
-In the future, the database might have grown to contain other object
-stores and indexes. The following example shows one way to handle
-migrating from an older version of the database.
+In the future, the database might have grown to contain other object stores and indexes. The following example shows one way to handle migrating from an older version.
 
 ```js
 const request = indexedDB.open("library", 3); // Request version 3.
