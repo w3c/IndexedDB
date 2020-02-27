@@ -1114,15 +1114,15 @@ They will return true if any transactions were cleaned up, or false otherwise.
   each [=/transaction=].
 </aside>
 
-<!-- ============================================================ -->
-### Transaction scheduling ### {#transaction-scheduling}
-<!-- ============================================================ -->
-
 An event with type <dfn event>`complete`</dfn> is fired at
 a [=/transaction=] that has successfully [=transaction/committed=].
 
 An event with type <dfn event>`abort`</dfn> is fired at
 a [=/transaction=] that has [=transaction/aborted=].
+
+<!-- ============================================================ -->
+### Transaction scheduling ### {#transaction-scheduling}
+<!-- ============================================================ -->
 
 The following constraints define when a [=/transaction=] can be [=transaction/started=]:
 
@@ -1134,6 +1134,8 @@ The following constraints define when a [=/transaction=] can be [=transaction/st
     * Were [=transaction/created=] before |tx|; and
     * have [=overlapping scopes=] with |tx|; and
     * are not [=transaction/finished=].
+
+Implementations may impose additional constraints. For example, implementations are not required to run non-[=overlapping=] <a>read/write transactions</a> in parallel, or may impose limits on the number of running transactions.
 
 <aside class=note>
 
@@ -1148,7 +1150,6 @@ The following constraints define when a [=/transaction=] can be [=transaction/st
 </aside>
 
 </div>
-
 
 <!-- ============================================================ -->
 ### Upgrade transactions ### {#upgrade-transaction-construct}
