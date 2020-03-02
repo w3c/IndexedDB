@@ -7,7 +7,7 @@
   <meta content="Bikeshed version 5721fde7f6b8111f662b83b678f9e181a9838206" name="generator">
   <link href="https://www.w3.org/TR/IndexedDB-3/" rel="canonical">
   <link href="logo-db.png" rel="icon">
-  <meta content="44f01750ab798aecd04a2d48b69f7874eacacb62" name="document-revision">
+  <meta content="093afa42c54c525673683056b6a6d17510f16ae3" name="document-revision">
 <style>
 /* Default ED/WD stylesheets set "both"; not needed for logo floated right */
 div.head h1 { clear: left; }
@@ -480,17 +480,10 @@ often implemented through the use of persistent B-tree data structures
 that are considered efficient for insertion and deletion as well as
 in-order traversal of very large numbers of data records.</p>
    <aside class="example" id="example-open-connection">
-    <a class="self-link" href="#example-open-connection"></a> In the following example, the API is used to access a "library"
-database that holds books stored by their "isbn" attribute.
-Additionally, an index is maintained on the "title" attribute of the
-objects stored in the object store. This index can be used to look up
-books by title, and enforces a uniqueness constraint. Another index is
-maintained on the "author" attribute of the objects, and can be used
-to look up books by author. 
-    <p>A connection to the database is opened. If the "library" database did
-not already exist, it is created and an event handler creates the
-object store and indexes. Finally, the opened connection is saved for
-use in subsequent examples.</p>
+    <a class="self-link" href="#example-open-connection"></a> The following example uses the API to access a <code>"library"</code> database. It has a <code>"books"</code> object store that holds books records stored by their <code>"isbn"</code> property as the primary key. 
+    <p>Book records have a <code>"title"</code> property. This example artificially requires that book titles are unique. The code enforces this by creating an index named <code>"by_title"</code> with the <code class="idl"><a data-link-type="idl" href="#dom-idbindexparameters-unique" id="ref-for-dom-idbindexparameters-unique">unique</a></code> option set. This index is used to look up books by title, and will prevent adding books with non-unique titles.</p>
+    <p>Book records also have an <code>"author"</code> property, which is not <span class="allow-2119">required</span> to be unique. The code creates another index named <code>"by_author"</code> to allow look-ups by this property.</p>
+    <p>The code first opens a connection to the database. The <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded"><code>upgradeneeded</code></a> event handler code creates the object store and indexes, if needed. The <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success"><code>success</code></a> event handler code saves the opened connection for use in later examples.</p>
 <pre class="language-js highlight"><c- kr>const</c-> request <c- o>=</c-> indexedDB<c- p>.</c->open<c- p>(</c-><c- u>"library"</c-><c- p>);</c->
 <c- a>let</c-> db<c- p>;</c->
 
@@ -560,8 +553,7 @@ request<c- p>.</c->onsuccess <c- o>=</c-> <c- a>function</c-><c- p>()</c-> <c- p
   <c- p>}</c->
 <c- p>};</c->
 </pre>
-    <p>The following example shows how errors could be handled when a request
-fails.</p>
+    <p>The following example shows one way to handle errors when a request fails.</p>
 <pre class="language-js highlight"><c- kr>const</c-> tx <c- o>=</c-> db<c- p>.</c->transaction<c- p>(</c-><c- u>"books"</c-><c- p>,</c-> <c- u>"readwrite"</c-><c- p>);</c->
 <c- kr>const</c-> store <c- o>=</c-> tx<c- p>.</c->objectStore<c- p>(</c-><c- u>"books"</c-><c- p>);</c->
 <c- kr>const</c-> request <c- o>=</c-> store<c- p>.</c->put<c- p>({</c->title<c- o>:</c-> <c- u>"Water Buffaloes"</c-><c- p>,</c-> author<c- o>:</c-> <c- u>"Slate"</c-><c- p>,</c-> isbn<c- o>:</c-> <c- mi>987654</c-><c- p>});</c->
@@ -578,9 +570,7 @@ tx<c- p>.</c->onabort <c- o>=</c-> <c- a>function</c-><c- p>()</c-> <c- p>{</c->
     <p>The database connection can be closed when it is no longer needed.</p>
 <pre class="language-js highlight">db<c- p>.</c->close<c- p>();</c->
 </pre>
-    <p>In the future, the database might have grown to contain other object
-stores and indexes. The following example shows one way to handle
-migrating from an older version of the database.</p>
+    <p>In the future, the database might have grown to contain other object stores and indexes. The following example shows one way to handle migrating from an older version.</p>
 <pre class="language-js highlight"><c- kr>const</c-> request <c- o>=</c-> indexedDB<c- p>.</c->open<c- p>(</c-><c- u>"library"</c-><c- p>,</c-> <c- mi>3</c-><c- p>);</c-> <c- c1>// Request version 3.</c->
 <c- a>let</c-> db<c- p>;</c->
 
@@ -613,7 +603,7 @@ request<c- p>.</c->onsuccess <c- o>=</c-> <c- a>function</c-><c- p>()</c-> <c- p
    <aside class="example" id="handling-versionchange">
     <a class="self-link" href="#handling-versionchange"></a> A single database can be used by multiple clients (pages and workers)
 simultaneously — transactions ensure they don’t clash while reading and writing.
-If a new client wants to upgrade the database (via the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded"><code>upgradeneeded</code></a> event), it cannot do so until all other clients close their connection to the
+If a new client wants to upgrade the database (via the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded①"><code>upgradeneeded</code></a> event), it cannot do so until all other clients close their connection to the
 current version of the database. 
     <p>To avoid blocking a new client from upgrading, clients can listen for the <a class="idl-code" data-link-type="event" href="#eventdef-connection-versionchange" id="ref-for-eventdef-connection-versionchange"><code>versionchange</code></a> event. This fires when another client is wanting to upgrade the
 database. To allow this to continue, react to the <a class="idl-code" data-link-type="event" href="#eventdef-connection-versionchange" id="ref-for-eventdef-connection-versionchange①"><code>versionchange</code></a> event by doing
@@ -769,7 +759,7 @@ storing data in a <a data-link-type="dfn" href="#database" id="ref-for-database�
    <div>
     <p>Each database has a set of <a data-link-type="dfn" href="#object-store" id="ref-for-object-store②">object stores</a>. The set of <a data-link-type="dfn" href="#object-store" id="ref-for-object-store③">object
 stores</a> can be changed, but only using an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction③">upgrade transaction</a>,
-i.e. in response to an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded①"><code>upgradeneeded</code></a> event. When a
+i.e. in response to an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded②"><code>upgradeneeded</code></a> event. When a
 new database is created it doesn’t contain any <a data-link-type="dfn" href="#object-store" id="ref-for-object-store④">object stores</a>.</p>
     <p>An <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤">object store</a> has a <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-list-of-records">list of records</dfn> which hold the
 data stored in the object store. Each <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-record">record</dfn> consists of a <a data-link-type="dfn" href="#key" id="ref-for-key">key</a> and a <a data-link-type="dfn" href="#value" id="ref-for-value">value</a>. The list is sorted according to key in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than">ascending</a> order. There can never be multiple records in a given object
@@ -1099,7 +1089,7 @@ created any time once a database has been opened.</p>
 existing object stores, and can also create and remove object
 stores and indexes. It is the only type of transaction that can do
 so. This type of transaction can’t be manually created, but
-instead is created automatically when an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded②"><code>upgradeneeded</code></a> event is fired.</p>
+instead is created automatically when an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded③"><code>upgradeneeded</code></a> event is fired.</p>
     </dl>
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①④">transaction</a> has a <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-durability-hint">durability hint</dfn>. This is a hint to the user agent of whether to prioritize performance or durability when committing the transaction. The <a data-link-type="dfn" href="#transaction-durability-hint" id="ref-for-transaction-durability-hint">durability hint</a> is one of the following:</p>
     <dl>
@@ -1177,7 +1167,7 @@ returned.</p>
     database. </aside>
      <li data-md>
       <p>When each <a data-link-type="dfn" href="#request" id="ref-for-request⑧">request</a> associated with a transaction is <a data-link-type="dfn" href="#request-processed" id="ref-for-request-processed">processed</a>,
-a <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success"><code>success</code></a> or <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error"><code>error</code></a> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event" id="ref-for-concept-event">event</a> will be
+a <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success①"><code>success</code></a> or <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error"><code>error</code></a> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event" id="ref-for-concept-event">event</a> will be
 fired. While the event is being <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch" id="ref-for-concept-event-dispatch">dispatched</a>, the transaction <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state①">state</a> is set to <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active①">active</a>, allowing
 additional requests to be made against the transaction. Once the
 event dispatch is complete, the transaction’s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state②">state</a> is set to <a data-link-type="dfn" href="#transaction-inactive" id="ref-for-transaction-inactive">inactive</a> again.</p>
@@ -1296,7 +1286,7 @@ implementation must not indefinitely prevent a pending <a data-link-type="dfn" h
    <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="upgrade-transaction">upgrade transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③④">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑦">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange①">"versionchange"</a></code>.</p>
    <p>An <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑦">upgrade transaction</a> is automatically created when running the
 steps to <a data-link-type="dfn" href="#run-an-upgrade-transaction" id="ref-for-run-an-upgrade-transaction">run an upgrade transaction</a> after a <a data-link-type="dfn" href="#connection" id="ref-for-connection②①">connection</a> is opened to a <a data-link-type="dfn" href="#database" id="ref-for-database②①">database</a>, if a <a data-link-type="dfn" href="#database-version" id="ref-for-database-version①">version</a> greater than
-the current <a data-link-type="dfn" href="#database-version" id="ref-for-database-version②">version</a> is specified. This <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⑤">transaction</a> will be active inside the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded③"><code>upgradeneeded</code></a> event
+the current <a data-link-type="dfn" href="#database-version" id="ref-for-database-version②">version</a> is specified. This <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⑤">transaction</a> will be active inside the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded④"><code>upgradeneeded</code></a> event
 handler.</p>
    <aside class="note">
      An <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑧">upgrade transaction</a> enables the creation, renaming, and
@@ -1304,7 +1294,7 @@ handler.</p>
     <p>An <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑨">upgrade transaction</a> is exclusive. The steps to <a data-link-type="dfn" href="#open-a-database" id="ref-for-open-a-database">open a
   database</a> ensure that only one <a data-link-type="dfn" href="#connection" id="ref-for-connection②②">connection</a> to the database is
   open when an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⓪">upgrade transaction</a> is running.
-  The <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded④"><code>upgradeneeded</code></a> event isn’t fired, and thus the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①①">upgrade transaction</a> isn’t started, until all other <a data-link-type="dfn" href="#connection" id="ref-for-connection②③">connections</a> to the same <a data-link-type="dfn" href="#database" id="ref-for-database②③">database</a> are closed. This ensures
+  The <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑤"><code>upgradeneeded</code></a> event isn’t fired, and thus the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①①">upgrade transaction</a> isn’t started, until all other <a data-link-type="dfn" href="#connection" id="ref-for-connection②③">connections</a> to the same <a data-link-type="dfn" href="#database" id="ref-for-database②③">database</a> are closed. This ensures
   that all previous transactions are <a data-link-type="dfn" href="#transaction-finished" id="ref-for-transaction-finished④">finished</a>. As long
   as an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①②">upgrade transaction</a> is running, attempts to open more <a data-link-type="dfn" href="#connection" id="ref-for-connection②④">connections</a> to the same <a data-link-type="dfn" href="#database" id="ref-for-database②④">database</a> are delayed, and any
   attempts to use the same <a data-link-type="dfn" href="#connection" id="ref-for-connection②⑤">connection</a> to start additional
@@ -1341,16 +1331,16 @@ type <dfn class="dfn-paneled idl-code" data-dfn-for="request" data-dfn-type="eve
     <aside class="note"> Requests are not typically re-used, but there are exceptions. When a <a data-link-type="dfn" href="#cursor" id="ref-for-cursor">cursor</a> is iterated, the success of the iteration is reported
   on the same <a data-link-type="dfn" href="#request" id="ref-for-request②②">request</a> object used to open the cursor. And when
   an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑤">upgrade transaction</a> is necessary, the same <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request">open
-  request</a> is used for both the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑤"><code>upgradeneeded</code></a> event and final result of the open operation itself. In some cases,
+  request</a> is used for both the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑥"><code>upgradeneeded</code></a> event and final result of the open operation itself. In some cases,
   the request’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag④">done flag</a> will be set to false, then set to true again, and the <a data-link-type="dfn" href="#request-result" id="ref-for-request-result①">result</a> can change or <a data-link-type="dfn" href="#request-error" id="ref-for-request-error①">error</a> could be set instead. </aside>
     <h4 class="heading settled" data-level="2.8.1" id="open-requests"><span class="secno">2.8.1. </span><span class="content">Open requests</span><a class="self-link" href="#open-requests"></a></h4>
     <p>An <dfn class="dfn-paneled" data-dfn-for="request" data-dfn-type="dfn" data-noexport id="request-open-request">open request</dfn> is a special type of <a data-link-type="dfn" href="#request" id="ref-for-request②③">request</a> used
 when opening a <a data-link-type="dfn" href="#connection" id="ref-for-connection②⑦">connection</a> or deleting a <a data-link-type="dfn" href="#database" id="ref-for-database②⑧">database</a>.
-In addition to <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success①"><code>success</code></a> and <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error①"><code>error</code></a> events, <dfn class="dfn-paneled idl-code" data-dfn-for="request" data-dfn-type="event" data-export id="eventdef-request-blocked"><code>blocked</code></dfn> and <dfn class="dfn-paneled idl-code" data-dfn-for="request" data-dfn-type="event" data-export id="eventdef-request-upgradeneeded"><code>upgradeneeded</code></dfn> events may be fired at an <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request①">open
+In addition to <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success②"><code>success</code></a> and <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error①"><code>error</code></a> events, <dfn class="dfn-paneled idl-code" data-dfn-for="request" data-dfn-type="event" data-export id="eventdef-request-blocked"><code>blocked</code></dfn> and <dfn class="dfn-paneled idl-code" data-dfn-for="request" data-dfn-type="event" data-export id="eventdef-request-upgradeneeded"><code>upgradeneeded</code></dfn> events may be fired at an <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request①">open
 request</a> to indicate progress.</p>
     <p>The <a data-link-type="dfn" href="#request-source" id="ref-for-request-source">source</a> of an <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request②">open request</a> is always null.</p>
     <p>The <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction①">transaction</a> of an <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request③">open request</a> is null
-unless an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑥"><code>upgradeneeded</code></a> event has been fired.</p>
+unless an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑦"><code>upgradeneeded</code></a> event has been fired.</p>
     <p>An <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request④">open request</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#get-the-parent" id="ref-for-get-the-parent③">get the parent</a> algorithm returns null.</p>
     <p><a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑤">Open requests</a> are processed in a <dfn class="dfn-paneled" data-dfn-for="request" data-dfn-type="dfn" data-noexport id="request-connection-queue">connection queue</dfn>.
 The queue contains all <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑥">open requests</a> associated with an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin③">origin</a> and a <a data-link-type="dfn" href="#database-name" id="ref-for-database-name">name</a>. Requests added to the <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue">connection queue</a> processed in order and each request must run
@@ -1888,11 +1878,11 @@ property can be null for certain requests, such as for <a data-link-type="dfn" h
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-readystate"><code>readyState</code></dfn> attribute’s getter
 must return <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending①">"pending"</a></code> if <strong>this</strong>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑦">done flag</a> is false, and <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done①">"done"</a></code> otherwise.</p>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-onsuccess"><code>onsuccess</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success②"><code>success</code></a> event.</p>
+event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success③"><code>success</code></a> event.</p>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-onerror"><code>onerror</code></dfn> attribute is the event
 handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error②"><code>error</code></a> event.</p>
    <p>Methods on <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase">IDBDatabase</a></code> that return a <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request①⓪">open request</a> use an
-extended interface to allow listening to the <a class="idl-code" data-link-type="event" href="#eventdef-request-blocked" id="ref-for-eventdef-request-blocked②"><code>blocked</code></a> and <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑦"><code>upgradeneeded</code></a> events.</p>
+extended interface to allow listening to the <a class="idl-code" data-link-type="event" href="#eventdef-request-blocked" id="ref-for-eventdef-request-blocked②"><code>blocked</code></a> and <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑧"><code>upgradeneeded</code></a> events.</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="idbopendbrequest"><code><c- g>IDBOpenDBRequest</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="#idbrequest" id="ref-for-idbrequest⑤"><c- n>IDBRequest</c-></a> {
   // Event handlers:
@@ -1902,7 +1892,7 @@ extended interface to allow listening to the <a class="idl-code" data-link-type=
 </pre>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onblocked"><code>onblocked</code></dfn> attribute is
 the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-blocked" id="ref-for-eventdef-request-blocked③"><code>blocked</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onupgradeneeded"><code>onupgradeneeded</code></dfn> attribute is the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑧"><code>upgradeneeded</code></a> event.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onupgradeneeded"><code>onupgradeneeded</code></dfn> attribute is the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑨"><code>upgradeneeded</code></a> event.</p>
    <h3 class="heading settled" data-level="4.2" id="events"><span class="secno">4.2. </span><span class="content">Event interfaces</span><a class="self-link" href="#events"></a></h3>
    <p>This specification fires events with the following custom interfaces:</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
@@ -2048,7 +2038,7 @@ otherwise, and <var>request</var>.</p>
            <li data-md>
             <p>Set <var>request</var>’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑨">done flag</a> to true.</p>
            <li data-md>
-            <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire①">Fire an event</a> named <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success③"><code>success</code></a> at <var>request</var>.</p>
+            <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire①">Fire an event</a> named <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success④"><code>success</code></a> at <var>request</var>.</p>
           </ol>
           <aside class="note"> If the steps above resulted in an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑦">upgrade
     transaction</a> being run, these steps will run after
@@ -2101,7 +2091,7 @@ its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/
           <p>Otherwise,
 set <var>request</var>’s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result⑥">result</a> to undefined,
 set <var>request</var>’s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag①①">done flag</a> to true,
-and <a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event">fire a version change event</a> named <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success④"><code>success</code></a> at <a data-link-type="dfn" href="#request" id="ref-for-request②⑥">request</a> with <var>result</var> and
+and <a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event">fire a version change event</a> named <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑤"><code>success</code></a> at <a data-link-type="dfn" href="#request" id="ref-for-request②⑥">request</a> with <var>result</var> and
 null.</p>
           <details class="note">
            <summary> Why aren’t the steps to <a data-link-type="dfn" href="#fire-a-success-event" id="ref-for-fire-a-success-event①">fire a success event</a> or <a data-link-type="dfn" href="#fire-an-error-event" id="ref-for-fire-an-error-event①">fire an error event</a> used? </summary>
@@ -2109,7 +2099,7 @@ null.</p>
   those steps — which activate an associated
   transaction before dispatch and deactivate the
   transaction after dispatch — do not apply. 
-           <p>Also, the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑤"><code>success</code></a> event here is a <code class="idl"><a data-link-type="idl" href="#idbversionchangeevent" id="ref-for-idbversionchangeevent①">IDBVersionChangeEvent</a></code> which includes the <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-oldversion" id="ref-for-dom-idbversionchangeevent-oldversion②">oldVersion</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-newversion" id="ref-for-dom-idbversionchangeevent-newversion②">newVersion</a></code> details.</p>
+           <p>Also, the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑥"><code>success</code></a> event here is a <code class="idl"><a data-link-type="idl" href="#idbversionchangeevent" id="ref-for-idbversionchangeevent①">IDBVersionChangeEvent</a></code> which includes the <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-oldversion" id="ref-for-dom-idbversionchangeevent-oldversion②">oldVersion</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-idbversionchangeevent-newversion" id="ref-for-dom-idbversionchangeevent-newversion②">newVersion</a></code> details.</p>
           </details>
         </ol>
       </ol>
@@ -2941,7 +2931,7 @@ then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" i
      <li data-md>
       <p>If <var>keyPath</var> is not a <a data-link-type="dfn" href="#valid-key-path" id="ref-for-valid-key-path①">valid key path</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑤⑨">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#syntaxerror" id="ref-for-syntaxerror②">SyntaxError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑧⓪">DOMException</a></code>.</p>
      <li data-md>
-      <p>Let <var>unique</var> be <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbindexparameters-unique" id="ref-for-dom-idbindexparameters-unique">unique</a></code> member.</p>
+      <p>Let <var>unique</var> be <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbindexparameters-unique" id="ref-for-dom-idbindexparameters-unique①">unique</a></code> member.</p>
      <li data-md>
       <p>Let <var>multiEntry</var> be <var>options</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbindexparameters-multientry" id="ref-for-dom-idbindexparameters-multientry">multiEntry</a></code> member.</p>
      <li data-md>
@@ -3602,7 +3592,7 @@ return <strong>this</strong>'s <a data-link-type="dfn" href="#cursor-request" id
   🚧 </aside>
    <div class="note" role="note">
      The following methods advance a <a data-link-type="dfn" href="#cursor" id="ref-for-cursor③⓪">cursor</a>. Once the cursor has
-  advanced, a <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑥"><code>success</code></a> event will be fired at the
+  advanced, a <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑦"><code>success</code></a> event will be fired at the
   same <code class="idl"><a data-link-type="idl" href="#idbrequest" id="ref-for-idbrequest④②">IDBRequest</a></code> returned when the cursor was opened. The <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result②②">result</a></code> will be the same cursor if a <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑥⑨">record</a> was
   in range, or <code>undefined</code> otherwise. 
     <p>If called while the cursor is already advancing, an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror④④">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①②①">DOMException</a></code> will be thrown.</p>
@@ -3967,9 +3957,9 @@ reverted.</p>
     <dd data-md>
      <p>Attempts to commit the transaction. All pending <a data-link-type="dfn" href="#request" id="ref-for-request③③">requests</a> will be allowed
 to complete, but no new requests will be accepted. This can be used to force a
-transaction to quickly finish, without waiting for pending requests to fire <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑦"><code>success</code></a> events before attempting to commit normally.</p>
+transaction to quickly finish, without waiting for pending requests to fire <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑧"><code>success</code></a> events before attempting to commit normally.</p>
      <p>The transaction will abort if a pending request fails, for example due to a
-constraint error. The <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑧"><code>success</code></a> events for successful requests
+constraint error. The <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑨"><code>success</code></a> events for successful requests
 will still fire, but throwing an exception in an event handler will not abort
 the transaction. Similarly, <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error⑦"><code>error</code></a> events for failed requests
 will still fire, but calling <code>preventDefault()</code> will not prevent the
@@ -4033,8 +4023,8 @@ the event handler for the <a class="idl-code" data-link-type="event" href="#even
 event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error⑧"><code>error</code></a> event.</p>
    <aside class="note"> To determine if a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑦">transaction</a> has completed successfully,
   listen to the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑧">transaction</a>'s <a class="idl-code" data-link-type="event" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete②"><code>complete</code></a> event
-  rather than the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success⑨"><code>success</code></a> event of a particular <a data-link-type="dfn" href="#request" id="ref-for-request③⑤">request</a>, because the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑨">transaction</a> can still fail after
-  the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success①⓪"><code>success</code></a> event fires. </aside>
+  rather than the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success①⓪"><code>success</code></a> event of a particular <a data-link-type="dfn" href="#request" id="ref-for-request③⑤">request</a>, because the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑨">transaction</a> can still fail after
+  the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success①①"><code>success</code></a> event fires. </aside>
    <h2 class="heading settled" data-level="5" id="algorithms"><span class="secno">5. </span><span class="content">Algorithms</span><a class="self-link" href="#algorithms"></a></h2>
    <h3 class="heading settled" data-level="5.1" id="opening"><span class="secno">5.1. </span><span class="content">Opening a database</span><a class="self-link" href="#opening"></a></h3>
    <div class="algorithm">
@@ -4364,7 +4354,7 @@ transaction is <a data-link-type="dfn" href="#transaction-abort" id="ref-for-tra
        <li data-md>
         <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state④⑥">state</a> to <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active④③">active</a>.</p>
        <li data-md>
-        <p>Let <var>didThrow</var> be the result of running <a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event⑤">fire a version change event</a> named <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑨"><code>upgradeneeded</code></a> at <var>request</var> with <var>old
+        <p>Let <var>didThrow</var> be the result of running <a data-link-type="dfn" href="#fire-a-version-change-event" id="ref-for-fire-a-version-change-event⑤">fire a version change event</a> named <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded①⓪"><code>upgradeneeded</code></a> at <var>request</var> with <var>old
 version</var> and <var>version</var>.</p>
        <li data-md>
         <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state④⑦">state</a> to <a data-link-type="dfn" href="#transaction-inactive" id="ref-for-transaction-inactive④">inactive</a>.</p>
@@ -8394,12 +8384,13 @@ specification.</p>
   <aside class="dfn-panel" data-for="eventdef-request-success">
    <b><a href="#eventdef-request-success">#eventdef-request-success</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventdef-request-success">2.7.1. Transaction lifecycle</a>
-    <li><a href="#ref-for-eventdef-request-success①">2.8.1. Open requests</a>
-    <li><a href="#ref-for-eventdef-request-success②">4.1. The IDBRequest interface</a>
-    <li><a href="#ref-for-eventdef-request-success③">4.3. The IDBFactory interface</a> <a href="#ref-for-eventdef-request-success④">(2)</a> <a href="#ref-for-eventdef-request-success⑤">(3)</a>
-    <li><a href="#ref-for-eventdef-request-success⑥">4.8. The IDBCursor interface</a>
-    <li><a href="#ref-for-eventdef-request-success⑦">4.9. The IDBTransaction interface</a> <a href="#ref-for-eventdef-request-success⑧">(2)</a> <a href="#ref-for-eventdef-request-success⑨">(3)</a> <a href="#ref-for-eventdef-request-success①⓪">(4)</a>
+    <li><a href="#ref-for-eventdef-request-success">1. Introduction</a>
+    <li><a href="#ref-for-eventdef-request-success①">2.7.1. Transaction lifecycle</a>
+    <li><a href="#ref-for-eventdef-request-success②">2.8.1. Open requests</a>
+    <li><a href="#ref-for-eventdef-request-success③">4.1. The IDBRequest interface</a>
+    <li><a href="#ref-for-eventdef-request-success④">4.3. The IDBFactory interface</a> <a href="#ref-for-eventdef-request-success⑤">(2)</a> <a href="#ref-for-eventdef-request-success⑥">(3)</a>
+    <li><a href="#ref-for-eventdef-request-success⑦">4.8. The IDBCursor interface</a>
+    <li><a href="#ref-for-eventdef-request-success⑧">4.9. The IDBTransaction interface</a> <a href="#ref-for-eventdef-request-success⑨">(2)</a> <a href="#ref-for-eventdef-request-success①⓪">(3)</a> <a href="#ref-for-eventdef-request-success①①">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="eventdef-request-error">
@@ -8436,14 +8427,14 @@ specification.</p>
   <aside class="dfn-panel" data-for="eventdef-request-upgradeneeded">
    <b><a href="#eventdef-request-upgradeneeded">#eventdef-request-upgradeneeded</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded">1. Introduction</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded①">2.2. Object store</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded②">2.7. Transactions</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded③">2.7.3. Upgrade transactions</a> <a href="#ref-for-eventdef-request-upgradeneeded④">(2)</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded⑤">2.8. Requests</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded⑥">2.8.1. Open requests</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded⑦">4.1. The IDBRequest interface</a> <a href="#ref-for-eventdef-request-upgradeneeded⑧">(2)</a>
-    <li><a href="#ref-for-eventdef-request-upgradeneeded⑨">5.7. Running an upgrade transaction</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded">1. Introduction</a> <a href="#ref-for-eventdef-request-upgradeneeded①">(2)</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded②">2.2. Object store</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded③">2.7. Transactions</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded④">2.7.3. Upgrade transactions</a> <a href="#ref-for-eventdef-request-upgradeneeded⑤">(2)</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded⑥">2.8. Requests</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded⑦">2.8.1. Open requests</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded⑧">4.1. The IDBRequest interface</a> <a href="#ref-for-eventdef-request-upgradeneeded⑨">(2)</a>
+    <li><a href="#ref-for-eventdef-request-upgradeneeded①⓪">5.7. Running an upgrade transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="request-connection-queue">
@@ -9028,7 +9019,8 @@ specification.</p>
   <aside class="dfn-panel" data-for="dom-idbindexparameters-unique">
    <b><a href="#dom-idbindexparameters-unique">#dom-idbindexparameters-unique</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbindexparameters-unique">4.5. The IDBObjectStore interface</a>
+    <li><a href="#ref-for-dom-idbindexparameters-unique">1. Introduction</a>
+    <li><a href="#ref-for-dom-idbindexparameters-unique①">4.5. The IDBObjectStore interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbindexparameters-multientry">
