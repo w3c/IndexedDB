@@ -86,16 +86,21 @@ table.props td, table.props th {
   vertical-align: top;
 }
 
-dl.domintro dt {
+.domintro::before {
+    content: 'For web developers (non-normative)';
+    text-transform: initial;
+}
+
+.domintro dt {
     font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
 
     padding-top: 0.5em;
     padding-bottom: 1em;
 }
-dl.domintro dt a {
+.domintro dt a {
     color: inherit; border-bottom-style: none;
 }
-dl.domintro dt code {
+.domintro dt code {
     font-size: inherit;
 }
 </style>
@@ -1969,7 +1974,7 @@ enum IDBRequestReadyState {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |request| . {{IDBRequest/result}}
     ::
         When a request is completed, returns the [=request/result=],
@@ -1998,7 +2003,7 @@ enum IDBRequestReadyState {
     ::
         Returns {{"pending"}} until a request is complete,
         then returns {{"done"}}.
-</dl>
+</div>
 
 The <dfn attribute for=IDBRequest>result</dfn> attribute's getter must
 [=throw=] an "{{InvalidStateError}}" {{DOMException}} if **this**'s [=request/done flag=] is
@@ -2143,7 +2148,7 @@ dictionary IDBDatabaseInfo {
 </xmp>
 
 
-<dl class="domintro note">
+<div class="domintro note">
     : |request| = indexedDB .
         {{IDBFactory/open()|open}}(|name|)
     ::
@@ -2187,7 +2192,7 @@ dictionary IDBDatabaseInfo {
         the result is a snapshot; there are no guarantees about the sequencing of the
         collection of the data or the delivery of the response with respect to requests
         to create, upgrade, or delete databases by this context or others.
-</dl>
+</div>
 
 <div class=algorithm>
 
@@ -2357,7 +2362,7 @@ when invoked, must run these steps:
   &#x1F6A7;
 </aside>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |result| = indexedDB .
         {{IDBFactory/cmp()|cmp}}(|key1|, |key2|)
     ::
@@ -2367,7 +2372,7 @@ when invoked, must run these steps:
         the keys are equal.
 
         Throws a "{{DataError}}" {{DOMException}} if either input is not a valid [=/key=].
-</dl>
+</div>
 
 <div class=algorithm>
 
@@ -2439,13 +2444,13 @@ dictionary IDBObjectStoreParameters {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |connection| . {{IDBDatabase/name}}
     :: Returns the [=database/name=] of the database.
 
     : |connection| . {{IDBDatabase/version}}
     :: Returns the [=database/version=] of the database.
-</dl>
+</div>
 
 The <dfn attribute for=IDBDatabase>name</dfn> attribute's getter must
 return **this**'s associated [=database=]'s [=database/name=].
@@ -2468,7 +2473,7 @@ must return **this**'s [=connection/version=].
   reflect changes made with a later [=/upgrade transaction=].
 </details>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |connection| . {{IDBDatabase/objectStoreNames}}
     ::
         Returns a list of the names of [=/object stores=] in the database.
@@ -2490,7 +2495,7 @@ must return **this**'s [=connection/version=].
 
         Throws a "{{InvalidStateError}}" {{DOMException}} if not called within an
         [=/upgrade transaction=].
-</dl>
+</div>
 
 The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> attribute's
 getter must return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of
@@ -2611,7 +2616,7 @@ This method synchronously modifies the
 instance on which it was called.
 
 
-<dl class="domintro note">
+<div class="domintro note">
     : |transaction| = |connection| .
         {{IDBDatabase/transaction()|transaction}}(|scope|
         [, |mode| [, |options| ] ])
@@ -2627,7 +2632,7 @@ instance on which it was called.
     ::
         Closes the [=/connection=] once all running [=/transactions=]
         have finished.
-</dl>
+</div>
 
 <div class=algorithm>
 
@@ -2749,7 +2754,7 @@ dictionary IDBIndexParameters {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |store| . {{IDBObjectStore/name}}
     ::
         Returns the [=object-store/name=] of the store.
@@ -2776,7 +2781,7 @@ dictionary IDBIndexParameters {
     : |store| . {{IDBObjectStore/autoIncrement}}
     ::
         Returns true if the store has a [=key generator=], and false otherwise.
-</dl>
+</div>
 
 
 The <dfn attribute for=IDBObjectStore>name</dfn> attribute's getter
@@ -2866,12 +2871,11 @@ getter must return true if **this**'s [=object-store-handle/object store=] has a
 and false otherwise.
 
 
-<div class=note>
+<div class="domintro note">
   The following methods throw a "{{ReadOnlyError}}" {{DOMException}} if called within a
   [=read-only transaction=], and a "{{TransactionInactiveError}}" {{DOMException}} if
   called when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |request| = |store|
           . {{IDBObjectStore/put()|put}}(|value| [, |key|])
 
@@ -2908,7 +2912,6 @@ and false otherwise.
 
         If successful, |request|'s {{IDBRequest/result}} will
         be `undefined`.
-  </dl>
 </div>
 
 
@@ -3064,11 +3067,10 @@ must run these steps:
     |operation|, using |store|.
 
 
-<div class=note>
+<div class="domintro note">
   The following methods throw a "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |request| = |store| .
           {{IDBObjectStore/get()|get}}(|query|)
     ::
@@ -3115,7 +3117,6 @@ must run these steps:
         given [=/key=] or [=key range=] in |query|.
 
         If successful, |request|'s {{IDBRequest/result}} will be the count.
-  </dl>
 </div>
 
 The <dfn method for=IDBObjectStore>get(|query|)</dfn> method, when
@@ -3292,11 +3293,10 @@ The |query| parameter may be a [=/key=] or [=key range=] (an {{IDBKeyRange}})
 identifying the [=object-store/records=] keys to be counted. If null or not
 given, an [=unbounded key range=] is used.
 
-<div class=note>
+<div class="domintro note">
   The following methods throw a "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |request| = |store| .
           {{IDBObjectStore/openCursor()|openCursor}}([|query|
               [, |direction| = "next"]])
@@ -3320,7 +3320,6 @@ given, an [=unbounded key range=] is used.
         If successful, |request|'s {{IDBRequest/result}} will be an
         {{IDBCursor}} pointing at the first matching [=object-store/record=], or
         null if there were no matching [=object-store/records=].
-  </dl>
 </div>
 
 <div class=algorithm>
@@ -3412,7 +3411,7 @@ The |query| parameter may be a [=/key=] or [=key range=] (an {{IDBKeyRange}})
 to use as the [=cursor=]'s [=cursor/range=]. If null
 or not given, an [=unbounded key range=] is used.
 
-<dl class="domintro note">
+<div class="domintro note">
     : |index| = |store| . index(|name|)
     ::
         Returns an {{IDBIndex}} for the [=/index=] named |name| in |store|.
@@ -3437,7 +3436,7 @@ or not given, an [=unbounded key range=] is used.
 
         Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
         transaction=].
-</dl>
+</div>
 
 <div class=algorithm>
 
@@ -3649,28 +3648,28 @@ interface IDBIndex {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |index| . {{IDBIndex/name}}
-    :: Returns the [=index/name=] of the index.
+    ::  Returns the [=index/name=] of the index.
 
     : |index| . {{IDBIndex/name}} = |newName|
-    :: Updates the [=index/name=] of the store to |newName|.
+    ::  Updates the [=index/name=] of the store to |newName|.
 
-       Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
-       transaction=].
+        Throws an "{{InvalidStateError}}" {{DOMException}} if not called within an [=/upgrade
+        transaction=].
 
     : |index| . {{IDBIndex/objectStore}}
-    :: Returns the {{IDBObjectStore}} the index belongs to.
+    ::  Returns the {{IDBObjectStore}} the index belongs to.
 
     : |index| . keyPath
-    :: Returns the [=/key path=] of the index.
+    ::  Returns the [=/key path=] of the index.
 
     : |index| . multiEntry
-    :: Returns true if the index's [=index/multiEntry flag=] is true.
+    ::  Returns true if the index's [=index/multiEntry flag=] is true.
 
     : |index| . unique
-    :: Returns true if the index's [=index/unique flag=] is true.
-</dl>
+    ::  Returns true if the index's [=index/unique flag=] is true.
+</div>
 
 The <dfn attribute for=IDBIndex>name</dfn> attribute's getter must
 return **this**'s [=index/name=].
@@ -3743,11 +3742,10 @@ The <dfn attribute for=IDBIndex>unique</dfn> attribute's getter must
 return **this**'s [=index-handle/index=]'s [=unique flag=].
 
 
-<div class=note>
+<div class="domintro note">
   The following methods throw an "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |request| = |index| .
           {{IDBIndex/get()|get}}(|query|)
     ::
@@ -3795,7 +3793,6 @@ return **this**'s [=index-handle/index=]'s [=unique flag=].
 
         If successful, |request|'s {{IDBRequest/result}} will be the
         count.
-  </dl>
 </div>
 
 <div class=algorithm>
@@ -3975,11 +3972,10 @@ The |query| parameter may be a [=/key=] or [=key range=] (an {{IDBKeyRange}})
 identifying the [=object-store/records=] keys to be counted. If null or not
 given, an [=unbounded key range=] is used.
 
-<div class=note>
+<div class="domintro note">
   The following methods throw an "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |request| = |index| .
           {{IDBIndex/openCursor()|openCursor}}([|query|
               [, |direction| = "next"]])
@@ -4002,7 +3998,6 @@ given, an [=unbounded key range=] is used.
 
         If successful, |request|'s {{IDBRequest/result}} will be an
         {{IDBCursor}}, or null if there were no matching [=object-store/records=].
-  </dl>
 </div>
 
 <div class=algorithm>
@@ -4123,7 +4118,7 @@ interface IDBKeyRange {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |range| . {{IDBKeyRange/lower}}
     :: Returns the range's [=lower bound=], or `undefined` if none.
 
@@ -4135,7 +4130,7 @@ interface IDBKeyRange {
 
     : |range| . {{IDBKeyRange/upperOpen}}
     :: Returns the range's [=upper open flag=].
-</dl>
+</div>
 
 The <dfn attribute for=IDBKeyRange>lower</dfn> attribute's getter must
 return result of running [=convert a key to a value=]
@@ -4152,7 +4147,7 @@ must return **this**'s [=lower open flag=].
 The <dfn attribute for=IDBKeyRange>upperOpen</dfn> attribute's getter
 must return **this**'s [=upper open flag=].
 
-<dl class="domintro note">
+<div class="domintro note">
     : |range| = {{IDBKeyRange}} .
         {{IDBKeyRange/only()|only}}(|key|)
     ::
@@ -4179,7 +4174,7 @@ must return **this**'s [=upper open flag=].
         Returns a new {{IDBKeyRange}} spanning from |lower| to |upper|.
         If |lowerOpen| is true, |lower| is not included in the range.
         If |upperOpen| is true, |upper| is not included in the range.
-</dl>
+</div>
 
 <div class=algorithm>
 
@@ -4254,11 +4249,11 @@ The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|,
 
 </div>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |range| .
         {{IDBKeyRange/includes()|includes}}(|key|)
     :: Returns true if |key| is included in the range, and false otherwise.
-</dl>
+</div>
 
 <div class=algorithm>
 
@@ -4311,7 +4306,7 @@ enum IDBCursorDirection {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |cursor| . {{IDBCursor/source}}
     ::
         Returns the {{IDBObjectStore}} or {{IDBIndex}} the cursor was opened from.
@@ -4335,7 +4330,7 @@ enum IDBCursorDirection {
     : |cursor| . {{IDBCursor/request}}
     ::
         Returns the [=cursor/request=] that was used to obtain this cursor.
-</dl>
+</div>
 
 
 The <dfn attribute for=IDBCursor>source</dfn> attribute's getter must
@@ -4377,7 +4372,7 @@ return **this**'s [=cursor/request=].
   &#x1F6A7;
 </aside>
 
-<div class=note>
+<div class="domintro note">
   The following methods advance a [=cursor=]. Once the cursor has
   advanced, a <a event>`success`</a> event will be fired at the
   same {{IDBRequest}} returned when the cursor was opened. The
@@ -4390,7 +4385,6 @@ return **this**'s [=cursor/request=].
   The following methods throw a "{{TransactionInactiveError}}" {{DOMException}} if called
   when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |cursor| . {{IDBCursor/advance()|advance}}(|count|)
     ::
         Advances the cursor through the next |count| [=object-store/records=] in
@@ -4412,7 +4406,6 @@ return **this**'s [=cursor/request=].
         Advances the cursor to the next [=object-store/record=] in range matching
         or after |key| and |primaryKey|. Throws an "{{InvalidAccessError}}" {{DOMException}}
         if the [=cursor/source=] is not an [=/index=].
-  </dl>
 </div>
 
 
@@ -4602,12 +4595,11 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 
 
 
-<div class=note>
+<div class="domintro note">
   The following methods throw a "{{ReadOnlyError}}" {{DOMException}} if called within a
   [=read-only transaction=], and a "{{TransactionInactiveError}}" {{DOMException}} if
   called when the [=/transaction=] is not [=transaction/active=].
 
-  <dl class=domintro>
     : |request| = |cursor| .
         {{IDBCursor/update()|update}}(|value|)
     ::
@@ -4627,7 +4619,6 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 
         If successful, |request|'s {{IDBRequest/result}} will be
         `undefined`.
-  </dl>
 </div>
 
 <div class=algorithm>
@@ -4739,10 +4730,10 @@ interface IDBCursorWithValue : IDBCursor {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |cursor| . {{IDBCursorWithValue/value}}
     :: Returns the [=cursor=]'s current [=cursor/value=].
-</dl>
+</div>
 
 
 The <dfn attribute for=IDBCursorWithValue>value</dfn> attribute's
@@ -4787,7 +4778,7 @@ enum IDBTransactionMode {
 };
 </xmp>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |transaction| . {{IDBTransaction/objectStoreNames}}
     ::
         Returns a list of the names of [=/object stores=] in the
@@ -4813,7 +4804,7 @@ enum IDBTransactionMode {
     ::
         If the transaction was [=transaction/aborted=], returns the
         error (a {{DOMException}}) providing the reason.
-</dl>
+</div>
 
 
 <div class=algorithm>
@@ -4869,7 +4860,7 @@ none.
   "{{UnknownError}}" {{DOMException}}).
 </aside>
 
-<dl class="domintro note">
+<div class="domintro note">
     : |transaction| .
         {{IDBTransaction/objectStore()|objectStore}}(|name|)
     ::
@@ -4894,7 +4885,7 @@ none.
         the transaction. Similarly, <a event>`error`</a> events for failed requests
         will still fire, but calling `preventDefault()` will not prevent the
         transaction from aborting.
-</dl>
+</div>
 
 <div class=algorithm>
 
