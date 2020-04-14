@@ -2006,27 +2006,27 @@ enum IDBRequestReadyState {
 </div>
 
 The <dfn attribute for=IDBRequest>result</dfn> attribute's getter must
-[=throw=] an "{{InvalidStateError}}" {{DOMException}} if **this**'s [=request/done flag=] is
-false. Otherwise, the attribute's getter must return **this**'s [=request/result=], or undefined if the
+[=throw=] an "{{InvalidStateError}}" {{DOMException}} if [=/this=]'s [=request/done flag=] is
+false. Otherwise, the attribute's getter must return [=/this=]'s [=request/result=], or undefined if the
 request resulted in an error.
 
 
 The <dfn attribute for=IDBRequest>error</dfn> attribute's getter must
-[=throw=] an "{{InvalidStateError}}" {{DOMException}} if **this**'s [=request/done flag=] is false.
-Otherwise, the attribute's getter must return **this**'s [=request/error=],
+[=throw=] an "{{InvalidStateError}}" {{DOMException}} if [=/this=]'s [=request/done flag=] is false.
+Otherwise, the attribute's getter must return [=/this=]'s [=request/error=],
 or null if no error occurred.
 
 The <dfn attribute for=IDBRequest>source</dfn> attribute's getter must
-return **this**'s [=request/source=], or null if no
+return [=/this=]'s [=request/source=], or null if no
 [=request/source=] is set.
 
 The <dfn attribute for=IDBRequest>transaction</dfn> attribute's getter
-must return **this**'s [=request/transaction=]. This
+must return [=/this=]'s [=request/transaction=]. This
 property can be null for certain requests, such as for [=/requests=]
 returned from {{IDBFactory/open()}}.
 
 The <dfn attribute for=IDBRequest>readyState</dfn> attribute's getter
-must return {{"pending"}} if **this**'s [=request/done flag=] is false, and
+must return {{"pending"}} if [=/this=]'s [=request/done flag=] is false, and
 {{"done"}} otherwise.
 
 
@@ -2201,7 +2201,7 @@ when invoked, must run these steps:
 
 1. If |version| is 0 (zero), [=throw=] a [=TypeError=].
 
-1. Let |origin| be the [=/origin=] of the global scope used to access **this**.
+1. Let |origin| be the [=/origin=] of the global scope used to access [=/this=].
 
 1. If |origin| is an [=opaque origin=], [=throw=] a
     "{{SecurityError}}" {{DOMException}} and abort these steps.
@@ -2271,7 +2271,7 @@ when invoked, must run these steps:
 The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method,
 when invoked, must run these steps:
 
-1. Let |origin| be the [=/origin=] of the global scope used to access **this**.
+1. Let |origin| be the [=/origin=] of the global scope used to access [=/this=].
 
 1. If |origin| is an [=opaque origin=], [=throw=] a
     "{{SecurityError}}" {{DOMException}} and abort these steps.
@@ -2326,7 +2326,7 @@ when invoked, must run these steps:
 The <dfn method for=IDBFactory>databases()</dfn> method,
 when invoked, must run these steps:
 
-1. Let |origin| be the [=/origin=] of the global scope used to access **this**.
+1. Let |origin| be the [=/origin=] of the global scope used to access [=/this=].
 
 1. If |origin| is an [=opaque origin=],
     then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}.
@@ -2453,15 +2453,15 @@ dictionary IDBObjectStoreParameters {
 </div>
 
 The <dfn attribute for=IDBDatabase>name</dfn> attribute's getter must
-return **this**'s associated [=database=]'s [=database/name=].
+return [=/this=]'s associated [=database=]'s [=database/name=].
 The attribute must return this name even if
-**this**'s [=close pending flag=] is true. In
+[=/this=]'s [=close pending flag=] is true. In
 other words, the value of this attribute stays constant for the
 lifetime of the {{IDBDatabase}} instance.
 
 
 The <dfn attribute for=IDBDatabase>version</dfn> attribute's getter
-must return **this**'s [=connection/version=].
+must return [=/this=]'s [=connection/version=].
 
 <details class=note>
   <summary>
@@ -2499,7 +2499,7 @@ must return **this**'s [=connection/version=].
 
 The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> attribute's
 getter must return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of
-the [=/object stores=] in **this**'s [=object store set=].
+the [=/object stores=] in [=/this=]'s [=object store set=].
 
 <details class=note>
   <summary>
@@ -2518,7 +2518,7 @@ the [=/object stores=] in **this**'s [=object store set=].
 The <dfn method for=IDBDatabase>createObjectStore(|name|,
 |options|)</dfn> method, when invoked, must run these steps:
 
-1. Let |database| be **this**'s associated [=database=].
+1. Let |database| be [=/this=]'s associated [=database=].
 
 1. Let |transaction| be |database|'s [=database/upgrade transaction=]
     if it is not null, or [=throw=] an "{{InvalidStateError}}"
@@ -2584,7 +2584,7 @@ error.
 The <dfn method for=IDBDatabase>deleteObjectStore(|name|)</dfn>
 method, when invoked, must run these steps:
 
-1. Let |database| be **this**'s associated [=database=].
+1. Let |database| be [=/this=]'s associated [=database=].
 
 1. Let |transaction| be |database|'s [=database/upgrade transaction=]
     if it is not null, or [=throw=] an "{{InvalidStateError}}"
@@ -2597,7 +2597,7 @@ method, when invoked, must run these steps:
     [=object-store/named=] |name| in |database|,
     or [=throw=] a "{{NotFoundError}}" {{DOMException}} if none.
 
-1. Remove |store| from **this**'s [=object store set=].
+1. Remove |store| from [=/this=]'s [=object store set=].
 
 1. If there is an [=/object store handle=] associated with
     |store| and |transaction|, remove all entries from its
@@ -2641,7 +2641,7 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</df
 1. If a running [=/upgrade transaction=] is associated with the [=/connection=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=close pending flag=] is true, then [=throw=] an
+1. If [=/this=]'s [=close pending flag=] is true, then [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |scope| be the set of unique strings in |storeNames| if it is a
@@ -2785,7 +2785,7 @@ dictionary IDBIndexParameters {
 
 
 The <dfn attribute for=IDBObjectStore>name</dfn> attribute's getter
-must return **this**'s [=object-store/name=].
+must return [=/this=]'s [=object-store/name=].
 
 <details class=note>
   <summary>
@@ -2803,11 +2803,11 @@ must return **this**'s [=object-store/name=].
 
 The {{IDBObjectStore/name}} attribute's setter must run these steps:
 
-1. Let |name| be the given value.
+1. Let |name| be [=/the given value=].
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -2827,13 +2827,13 @@ The {{IDBObjectStore/name}} attribute's setter must run these steps:
 
 1. Set |store|'s [=object-store/name=] to |name|.
 
-1. Set **this**'s [=object-store-handle/name=] to |name|.
+1. Set [=/this=]'s [=object-store-handle/name=] to |name|.
 
 </div>
 
 
 The <dfn attribute for=IDBObjectStore>keyPath</dfn> attribute's getter
-must return **this**'s [=object-store-handle/object store=]'s [=object-store/key path=], or
+must return [=/this=]'s [=object-store-handle/object store=]'s [=object-store/key path=], or
 null if none. The [=/key path=] is converted as a {{DOMString}} (if a
 string) or a [=sequence&lt;DOMString&gt;=] (if a list of strings), per
 [[!WEBIDL]].
@@ -2847,7 +2847,7 @@ object has no effect on the [=/object store=].
 
 The <dfn attribute for=IDBObjectStore>indexNames</dfn> attribute's
 getter must return a {{DOMStringList}} associated with a [=sorted name list=] of the [=index/names=]
-of [=/indexes=] in **this**'s [=index set=].
+of [=/indexes=] in [=/this=]'s [=index set=].
 
 <details class=note>
   <summary>
@@ -2863,11 +2863,11 @@ of [=/indexes=] in **this**'s [=index set=].
 
 
 The <dfn attribute for=IDBObjectStore>transaction</dfn> attribute's
-getter must return **this**'s [=object-store-handle/transaction=].
+getter must return [=/this=]'s [=object-store-handle/transaction=].
 
 
 The <dfn attribute for=IDBObjectStore>autoIncrement</dfn> attribute's
-getter must return true if **this**'s [=object-store-handle/object store=] has a [=key generator=],
+getter must return true if [=/this=]'s [=object-store-handle/object store=] has a [=key generator=],
 and false otherwise.
 
 
@@ -2917,11 +2917,11 @@ and false otherwise.
 
 The <dfn method for=IDBObjectStore>put(|value|, |key|)</dfn> method,
 when invoked, must return the result of running [=add or
-put=] with **this**, |value|, |key| and the |no-overwrite flag| false.
+put=] with [=/this=], |value|, |key| and the |no-overwrite flag| false.
 
 The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method,
 when invoked, must return the result of running [=add or
-put=] with **this**, |value|, |key| and the |no-overwrite flag| true.
+put=] with [=/this=], |value|, |key| and the |no-overwrite flag| true.
 
 <div class=algorithm>
 
@@ -3006,9 +3006,9 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 The <dfn method for=IDBObjectStore>delete(|query|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3025,7 +3025,7 @@ invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=delete records from an object store=] as
     |operation|, using |store| and |range|.
 
@@ -3047,9 +3047,9 @@ deleted.
 The <dfn method for=IDBObjectStore>clear()</dfn> method, when invoked,
 must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3062,7 +3062,7 @@ must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=clear an object store=] as
     |operation|, using |store|.
 
@@ -3122,9 +3122,9 @@ must run these steps:
 The <dfn method for=IDBObjectStore>get(|query|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3138,7 +3138,7 @@ invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and [=retrieve a value from
+    with [=/this=] as |source| and [=retrieve a value from
     an object store=] as |operation|, using the
     [=current Realm=] as |targetRealm|,
     |store| and |range|.
@@ -3165,9 +3165,9 @@ that range.
 The <dfn method for=IDBObjectStore>getKey(|query|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3181,7 +3181,7 @@ invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and [=retrieve a key from an
+    with [=/this=] as |source| and [=retrieve a key from an
     object store=] as |operation|, using |store|
     and |range|.
 
@@ -3198,9 +3198,9 @@ the first existing key in that range.
 The <dfn method for=IDBObjectStore>getAll(|query|, |count|)</dfn>
 method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3214,7 +3214,7 @@ method, when invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=retrieve multiple values from an object store=]
     as |operation|, using the [=current Realm=] as |targetRealm|,
     |store|, |range|, and |count| if given.
@@ -3233,9 +3233,9 @@ will be retrieved.
 The <dfn method for=IDBObjectStore>getAllKeys(|query|, |count|)</dfn>
 method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3249,7 +3249,7 @@ method, when invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=retrieve multiple keys from an object store=] as
     |operation|, using |store|, |range|, and |count| if given.
 
@@ -3267,9 +3267,9 @@ will be retrieved.
 The <dfn method for=IDBObjectStore>count(|query|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3283,7 +3283,7 @@ invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=count the records in a range=] as |operation|, using
     |source| and |range|.
 
@@ -3327,9 +3327,9 @@ given, an [=unbounded key range=] is used.
 The <dfn method for=IDBObjectStore>openCursor(|query|,
 |direction|)</dfn> method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3352,7 +3352,7 @@ The <dfn method for=IDBObjectStore>openCursor(|query|,
     [=cursor/key only flag=] set to false.
 
 1. Let |request| be the result of running
-    [=asynchronously execute a request=] with **this** as |source| and [=iterate a cursor=] as
+    [=asynchronously execute a request=] with [=/this=] as |source| and [=iterate a cursor=] as
     |operation|, using the [=current Realm=] as |targetRealm|, and
     |cursor|.
 
@@ -3372,9 +3372,9 @@ If null or not given, an [=unbounded key range=] is used.
 The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
 |direction|)</dfn> method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3397,7 +3397,7 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
     [=cursor/key only flag=] set to true.
 
 1. Let |request| be the result of running
-    [=asynchronously execute a request=] with **this** as |source| and [=iterate a cursor=] as
+    [=asynchronously execute a request=] with [=/this=] as |source| and [=iterate a cursor=] as
     |operation|, using the [=current Realm=] as |targetRealm|, and
     |cursor|.
 
@@ -3443,9 +3443,9 @@ or not given, an [=unbounded key range=] is used.
 The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
 |options|)</dfn> method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3478,9 +3478,9 @@ The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
     [=unique flag=] to |unique|, and
     [=multiEntry flag=] to |multiEntry|.
 
-1. Add |index| to **this**'s [=index set=].
+1. Add |index| to [=/this=]'s [=index set=].
 
-1. Return a new [=index handle=] associated with |index| and **this**.
+1. Return a new [=index handle=] associated with |index| and [=/this=].
 
 </div>
 
@@ -3546,9 +3546,9 @@ must be used as error.
 The <dfn method for=IDBObjectStore>index(|name|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |store| has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
@@ -3557,11 +3557,11 @@ invoked, must run these steps:
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |index| be the [=/index=]
-    [=index/named=] |name| in **this**'s
+    [=index/named=] |name| in [=/this=]'s
     [=index set=] if one exists, or [=throw=]
     a "{{NotFoundError}}" {{DOMException}} otherwise.
 
-1. Return an [=index handle=] associated with |index| and **this**.
+1. Return an [=index handle=] associated with |index| and [=/this=].
 
 </div>
 
@@ -3583,9 +3583,9 @@ invoked, must run these steps:
 The <dfn method for=IDBObjectStore>deleteIndex(|name|)</dfn> method,
 when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=object-store-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
-1. Let |store| be **this**'s [=object-store-handle/object store=].
+1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
 
 1. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3600,7 +3600,7 @@ when invoked, must run these steps:
     in |store| if one exists, or [=throw=] a "{{NotFoundError}}" {{DOMException}}
     otherwise.
 
-1. Remove |index| from **this**'s [=index set=].
+1. Remove |index| from [=/this=]'s [=index set=].
 
 1. Destroy |index|.
 
@@ -3672,7 +3672,7 @@ interface IDBIndex {
 </div>
 
 The <dfn attribute for=IDBIndex>name</dfn> attribute's getter must
-return **this**'s [=index/name=].
+return [=/this=]'s [=index/name=].
 
 <details class=note>
   <summary>
@@ -3690,11 +3690,11 @@ return **this**'s [=index/name=].
 
 The {{IDBIndex/name}} attribute's setter must run these steps:
 
-1. Let |name| be the given value.
+1. Let |name| be [=/the given value=].
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |transaction| is not an [=/upgrade transaction=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3715,16 +3715,16 @@ The {{IDBIndex/name}} attribute's setter must run these steps:
 1. Set |index|'s [=index/name=] to
     |name|.
 
-1. Set **this**'s [=index-handle/name=] to |name|.
+1. Set [=/this=]'s [=index-handle/name=] to |name|.
 
 </div>
 
 
 The <dfn attribute for=IDBIndex>objectStore</dfn> attribute's getter
-must return **this**'s [=index-handle/object store handle=].
+must return [=/this=]'s [=index-handle/object store handle=].
 
 The <dfn attribute for=IDBIndex>keyPath</dfn> attribute's getter must
-return **this**'s [=index-handle/index=]'s
+return [=/this=]'s [=index-handle/index=]'s
 [=object-store/key path=]. The [=/key path=] is converted as a
 {{DOMString}} (if a string) or a [=sequence&lt;DOMString&gt;=] (if a
 list of strings), per [[!WEBIDL]].
@@ -3736,10 +3736,10 @@ instance every time it is inspected. Changing the properties of the
 object has no effect on the [=/index=].
 
 The <dfn attribute for=IDBIndex>multiEntry</dfn> attribute's getter
-must return **this**'s [=index-handle/index=]'s [=multiEntry flag=].
+must return [=/this=]'s [=index-handle/index=]'s [=multiEntry flag=].
 
 The <dfn attribute for=IDBIndex>unique</dfn> attribute's getter must
-return **this**'s [=index-handle/index=]'s [=unique flag=].
+return [=/this=]'s [=index-handle/index=]'s [=unique flag=].
 
 
 <div class="domintro note">
@@ -3800,9 +3800,9 @@ return **this**'s [=index-handle/index=]'s [=unique flag=].
 The <dfn method for=IDBIndex>get(|query|)</dfn> method, when invoked,
 must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3816,7 +3816,7 @@ must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=retrieve a referenced value from an index=]
     as |operation|, using the [=current Realm=] as |targetRealm|,
     |index| and |range|.
@@ -3844,9 +3844,9 @@ that range.
 The <dfn method for=IDBIndex>getKey(|query|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3860,7 +3860,7 @@ invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=retrieve a value from an index=] as |operation|, using |index|
     and |range|.
 
@@ -3877,9 +3877,9 @@ in that range.
 The <dfn method for=IDBIndex>getAll(|query|, |count|)</dfn> method,
 when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3893,7 +3893,7 @@ when invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=retrieve multiple referenced values from an index=] as
     |operation|, using the [=current Realm=] as |targetRealm|,
     |index|, |range|, and |count| if given.
@@ -3912,9 +3912,9 @@ will be retrieved.
 The <dfn method for=IDBIndex>getAllKeys(|query|, |count|)</dfn>
 method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3928,7 +3928,7 @@ method, when invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=retrieve multiple values from an index=] as |operation|, using
     |index|, |range|, and |count| if given.
 
@@ -3946,9 +3946,9 @@ will be retrieved.
 The <dfn method for=IDBIndex>count(|query|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -3962,7 +3962,7 @@ invoked, must run these steps:
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=count the records in a range=] as |operation|, using
     [=/index=] as |source| and |range|.
 
@@ -4005,9 +4005,9 @@ given, an [=unbounded key range=] is used.
 The <dfn method for=IDBIndex>openCursor(|query|, |direction|)</dfn>
 method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has been deleted,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4030,7 +4030,7 @@ method, when invoked, must run these steps:
     [=cursor/key only flag=] set to false.
 
 1. Let |request| be the result of running
-    [=asynchronously execute a request=] with **this** as
+    [=asynchronously execute a request=] with [=/this=] as
     |source| and [=iterate a cursor=] as |operation|,
     using the [=current Realm=] as |targetRealm|, and |cursor|.
 
@@ -4050,9 +4050,9 @@ or not given, an [=unbounded key range=] is used.
 The <dfn method for=IDBIndex>openKeyCursor(|query|, |direction|)</dfn>
 method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=index-handle/transaction=].
+1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
-1. Let |index| be **this**'s [=index-handle/index=].
+1. Let |index| be [=/this=]'s [=index-handle/index=].
 
 1. If |index| or |index|'s [=/object store=] has
     been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4075,7 +4075,7 @@ method, when invoked, must run these steps:
     [=cursor/key only flag=] set to true.
 
 1. Let |request| be the result of running
-    [=asynchronously execute a request=] with **this** as
+    [=asynchronously execute a request=] with [=/this=] as
     |source| and [=iterate a cursor=] as |operation|,
     using the [=current Realm=] as |targetRealm|, and |cursor|.
 
@@ -4134,18 +4134,18 @@ interface IDBKeyRange {
 
 The <dfn attribute for=IDBKeyRange>lower</dfn> attribute's getter must
 return result of running [=convert a key to a value=]
-with **this**'s [=lower bound=] if it is not null, or undefined otherwise.
+with [=/this=]'s [=lower bound=] if it is not null, or undefined otherwise.
 
 The <dfn attribute for=IDBKeyRange>upper</dfn> attribute's getter must
 return the result of running [=convert a key to a
-value=] with **this**'s [=upper bound=] if it is not null, or undefined
+value=] with [=/this=]'s [=upper bound=] if it is not null, or undefined
 otherwise.
 
 The <dfn attribute for=IDBKeyRange>lowerOpen</dfn> attribute's getter
-must return **this**'s [=lower open flag=].
+must return [=/this=]'s [=lower open flag=].
 
 The <dfn attribute for=IDBKeyRange>upperOpen</dfn> attribute's getter
-must return **this**'s [=upper open flag=].
+must return [=/this=]'s [=upper open flag=].
 
 <div class="domintro note">
     : |range| = {{IDBKeyRange}} .
@@ -4334,13 +4334,13 @@ enum IDBCursorDirection {
 
 
 The <dfn attribute for=IDBCursor>source</dfn> attribute's getter must
-return **this**'s [=cursor/source=]. This
+return [=/this=]'s [=cursor/source=]. This
 attribute never returns null or throws an exception, even if the
 cursor is currently being iterated, has iterated past its end, or its
 [=/transaction=] is not [=transaction/active=].
 
 The <dfn attribute for=IDBCursor>direction</dfn> attribute's getter
-must return **this**'s [=cursor/direction=].
+must return [=/this=]'s [=cursor/direction=].
 
 The <dfn attribute for=IDBCursor>key</dfn> attribute's getter must
 return the result of running [=convert a key to a
@@ -4363,7 +4363,7 @@ inspecting the value of the cursor. However modifying such an object
 does not modify the contents of the database.
 
 The <dfn attribute for=IDBCursor>request</dfn> attribute's getter must
-return **this**'s [=cursor/request=].
+return [=/this=]'s [=cursor/request=].
 
 <aside class=advisement>
   &#x1F6A7;
@@ -4417,30 +4417,30 @@ invoked, must run these steps:
 
 1. If |count| is 0 (zero), [=throw=] a [=TypeError=].
 
-1. Let |transaction| be **this**'s [=cursor/transaction=].
+1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
 1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/source=] or [=effective object
+1. If [=/this=]'s [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/got value flag=] is false, indicating that
+1. If [=/this=]'s [=cursor/got value flag=] is false, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. Set **this**'s [=cursor/got value flag=] to false.
+1. Set [=/this=]'s [=cursor/got value flag=] to false.
 
-1. Let |request| be **this**'s [=cursor/request=].
+1. Let |request| be [=/this=]'s [=cursor/request=].
 
 1. Set |request|'s [=request/processed flag=] to false.
 
 1. Set |request|'s [=request/done flag=] to false.
 
 1. Run [=asynchronously execute a request=] with
-    **this**'s [=cursor/source=] as |source|,
+    [=/this=]'s [=cursor/source=] as |source|,
     [=iterate a cursor=] as |operation| and |request|, using
-    the [=current Realm=] as |targetRealm|, **this**, and |count|.
+    the [=current Realm=] as |targetRealm|, [=/this=], and |count|.
 
 </div>
 
@@ -4458,16 +4458,16 @@ invoked, must run these steps:
 The <dfn method for=IDBCursor>continue(|key|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=cursor/transaction=].
+1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
 1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/source=] or
+1. If [=/this=]'s [=cursor/source=] or
     [=effective object store=] has been deleted, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/got value flag=] is false, indicating that
+1. If [=/this=]'s [=cursor/got value flag=] is false, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
@@ -4480,27 +4480,27 @@ invoked, must run these steps:
 
     1. Let |key| be |r|.
 
-    1. If |key| is [=less than=] or [=equal to=] **this**'s
-        [=cursor/position=] and **this**'s [=cursor/direction=] is
+    1. If |key| is [=less than=] or [=equal to=] [=/this=]'s
+        [=cursor/position=] and [=/this=]'s [=cursor/direction=] is
         {{"next"}} or {{"nextunique"}}, then [=throw=] a "{{DataError}}" {{DOMException}}.
 
-    1. If |key| is [=greater than=] or [=equal to=] **this**'s
-        [=cursor/position=] and **this**'s [=cursor/direction=] is
+    1. If |key| is [=greater than=] or [=equal to=] [=/this=]'s
+        [=cursor/position=] and [=/this=]'s [=cursor/direction=] is
         {{"prev"}} or {{"prevunique"}}, then [=throw=] a "{{DataError}}" {{DOMException}}.
 
-1. Set **this**'s [=cursor/got value flag=] to false.
+1. Set [=/this=]'s [=cursor/got value flag=] to false.
 
-1. Let |request| be **this**'s [=cursor/request=].
+1. Let |request| be [=/this=]'s [=cursor/request=].
 
 1. Set |request|'s [=request/processed flag=] to false.
 
 1. Set |request|'s [=request/done flag=] to false.
 
 1. Run [=asynchronously execute a request=] with
-    **this**'s [=cursor/source=] as |source|,
+    [=/this=]'s [=cursor/source=] as |source|,
     [=iterate a cursor=] as |operation| and |request|,
     using the [=current Realm=] as |targetRealm|,
-    **this**, and |key| (if given).
+    [=/this=], and |key| (if given).
 
 </div>
 
@@ -4518,21 +4518,21 @@ invoked, must run these steps:
 The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 |primaryKey|)</dfn> method, when invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=cursor/transaction=].
+1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
 1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/source=] or [=effective object
+1. If [=/this=]'s [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/source=] is not an
+1. If [=/this=]'s [=cursor/source=] is not an
     [=/index=] [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/direction=] is not {{"next"}} or {{"prev"}},
+1. If [=/this=]'s [=cursor/direction=] is not {{"next"}} or {{"prev"}},
     [=throw=] an "{{InvalidAccessError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/got value flag=] is false, indicating that
+1. If [=/this=]'s [=cursor/got value flag=] is false, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
@@ -4550,38 +4550,38 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 
 1. Let |primaryKey| be |r|.
 
-1. If |key| is [=less than=] **this**'s
-    [=cursor/position=] and **this**'s [=cursor/direction=] is {{"next"}},
+1. If |key| is [=less than=] [=/this=]'s
+    [=cursor/position=] and [=/this=]'s [=cursor/direction=] is {{"next"}},
     [=throw=] a "{{DataError}}" {{DOMException}}.
 
-1. If |key| is [=greater than=] **this**'s
-    [=cursor/position=] and **this**'s [=cursor/direction=] is {{"prev"}},
+1. If |key| is [=greater than=] [=/this=]'s
+    [=cursor/position=] and [=/this=]'s [=cursor/direction=] is {{"prev"}},
     [=throw=] a "{{DataError}}" {{DOMException}}.
 
-1. If |key| is [=equal to=] **this**'s [=cursor/position=] and
-    |primaryKey| is [=less than=] or [=equal to=] **this**'s
-    [=object store position=] and **this**'s [=cursor/direction=] is
+1. If |key| is [=equal to=] [=/this=]'s [=cursor/position=] and
+    |primaryKey| is [=less than=] or [=equal to=] [=/this=]'s
+    [=object store position=] and [=/this=]'s [=cursor/direction=] is
     {{"next"}}, [=throw=] a "{{DataError}}" {{DOMException}}.
 
-1. If |key| is [=equal to=] **this**'s [=cursor/position=] and
-    |primaryKey| is [=greater than=] or [=equal to=] **this**'s
-    [=object store position=] and **this**'s
+1. If |key| is [=equal to=] [=/this=]'s [=cursor/position=] and
+    |primaryKey| is [=greater than=] or [=equal to=] [=/this=]'s
+    [=object store position=] and [=/this=]'s
     [=cursor/direction=] is {{"prev"}}, [=throw=] a
     "{{DataError}}" {{DOMException}}.
 
-1. Set **this**'s [=cursor/got value flag=] to false.
+1. Set [=/this=]'s [=cursor/got value flag=] to false.
 
-1. Let |request| be **this**'s [=cursor/request=].
+1. Let |request| be [=/this=]'s [=cursor/request=].
 
 1. Set |request|'s [=request/processed flag=] to false.
 
 1. Set |request|'s [=request/done flag=] to false.
 
 1. Run [=asynchronously execute a request=] with
-    **this**'s [=cursor/source=] as |source|,
+    [=/this=]'s [=cursor/source=] as |source|,
     [=iterate a cursor=] as |operation| and |request|,
     using the [=current Realm=] as |targetRealm|,
-    **this**, |key| and |primaryKey|.
+    [=/this=], |key| and |primaryKey|.
 
 </div>
 
@@ -4626,7 +4626,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 The <dfn method for=IDBCursor>update(|value|)</dfn> method, when
 invoked, must run these steps:
 
-1. Let |transaction| be **this**'s [=cursor/transaction=].
+1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
 1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
@@ -4634,14 +4634,14 @@ invoked, must run these steps:
 1. If |transaction| is a [=read-only transaction=], [=throw=] a
     "{{ReadOnlyError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/source=] or [=effective object
+1. If [=/this=]'s [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/got value flag=] is false, indicating that
+1. If [=/this=]'s [=cursor/got value flag=] is false, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/key only flag=] is true, [=throw=] an
+1. If [=/this=]'s [=cursor/key only flag=] is true, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |targetRealm| be a user-agent defined [=Realm=].
@@ -4657,25 +4657,25 @@ invoked, must run these steps:
       if the difference in behavior is not observable.
     </details>
 
-1. If **this**'s [=effective object store=] uses [=in-line
+1. If [=/this=]'s [=effective object store=] uses [=in-line
     keys=], then:
 
     1. Let |kpk| be the result of running
         [=extract a key from a value using a key path=] with
         |clone| and the [=object-store/key
-        path=] of **this**'s [=effective object store=].
+        path=] of [=/this=]'s [=effective object store=].
         Rethrow any exceptions.
 
     1. If |kpk| is failure, invalid, or not [=equal to=]
-        **this**'s [=effective key=], [=throw=] a
+        [=/this=]'s [=effective key=], [=throw=] a
         "{{DataError}}" {{DOMException}}.
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and [=store a
-    record into an object store=] as |operation|, using **this**'s
+    with [=/this=] as |source| and [=store a
+    record into an object store=] as |operation|, using [=/this=]'s
     [=effective object store=] as |store|, the |clone| as
-    |value|, **this**'s [=effective key=] as |key|, and with the
+    |value|, [=/this=]'s [=effective key=] as |key|, and with the
     |no-overwrite flag| false.
 
 </div>
@@ -4692,7 +4692,7 @@ invoked, must run these steps:
 The <dfn method for=IDBCursor>delete()</dfn> method, when invoked,
 must run these steps:
 
-1. Let |transaction| be **this**'s [=cursor/transaction=].
+1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
 1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
@@ -4700,21 +4700,21 @@ must run these steps:
 1. If |transaction| is a [=read-only transaction=], [=throw=] a
     "{{ReadOnlyError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/source=] or [=effective object
+1. If [=/this=]'s [=cursor/source=] or [=effective object
     store=] has been deleted, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/got value flag=] is false, indicating that
+1. If [=/this=]'s [=cursor/got value flag=] is false, indicating that
     the cursor is being iterated or has iterated past its end,
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. If **this**'s [=cursor/key only flag=] is true, [=throw=] an
+1. If [=/this=]'s [=cursor/key only flag=] is true, [=throw=] an
     "{{InvalidStateError}}" {{DOMException}}.
 
 1. Return the result (an {{IDBRequest}}) of running
     [=asynchronously execute a request=]
-    with **this** as |source| and
+    with [=/this=] as |source| and
     [=delete records from an object store=] as |operation|, using
-    **this**'s [=effective object store=] and [=effective
+    [=/this=]'s [=effective object store=] and [=effective
     key=] as |store| and |key| respectively.
 
 </div>
@@ -4737,7 +4737,7 @@ interface IDBCursorWithValue : IDBCursor {
 
 
 The <dfn attribute for=IDBCursorWithValue>value</dfn> attribute's
-getter must return **this**'s current [=cursor/value=]. Note
+getter must return [=/this=]'s current [=cursor/value=]. Note
 that if this property returns an object, it returns the same object
 instance every time it is inspected, until the cursor's
 [=cursor/value=] is changed. This means that if the object is
@@ -4812,13 +4812,13 @@ enum IDBTransactionMode {
 The <dfn attribute for=IDBTransaction>objectStoreNames</dfn>
 attribute's getter must run these steps:
 
-1. If **this** is an [=/upgrade transaction=],
+1. If [=/this=] is an [=/upgrade transaction=],
     then return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=]
-    of the [=/object stores=] in **this**'s [=/connection=]'s [=object store set=].
+    of the [=/object stores=] in [=/this=]'s [=/connection=]'s [=object store set=].
 
 1. Otherwise, return a {{DOMStringList}} associated with a [=sorted name list=] of the
     [=object-store/names=] of the [=/object stores=] in
-    **this**'s [=transaction/scope=].
+    [=/this=]'s [=transaction/scope=].
 
 </div>
 
@@ -4830,9 +4830,9 @@ attribute's getter must run these steps:
 </aside>
 
 The <dfn attribute for=IDBTransaction>mode</dfn> attribute's getter
-must return **this**'s [=transaction/mode=].
+must return [=/this=]'s [=transaction/mode=].
 
-The <dfn attribute for=IDBTransaction>durability</dfn> attribute's getter must return **this**'s [=transaction/durability hint=].
+The <dfn attribute for=IDBTransaction>durability</dfn> attribute's getter must return [=/this=]'s [=transaction/durability hint=].
 
 <aside class=advisement>
   &#x1F6A7;
@@ -4843,10 +4843,10 @@ The <dfn attribute for=IDBTransaction>durability</dfn> attribute's getter must r
 
 
 The <dfn attribute for=IDBTransaction>db</dfn> attribute's getter must
-return **this**'s [=transaction/connection=]'s associated [=/database=].
+return [=/this=]'s [=transaction/connection=]'s associated [=/database=].
 
 The <dfn attribute for=IDBTransaction>error</dfn> attribute's getter
-must return **this**'s [=transaction/error=], or null if
+must return [=/this=]'s [=transaction/error=], or null if
 none.
 
 <aside class=note>
@@ -4896,12 +4896,12 @@ when invoked, must run these steps:
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |store| be the [=/object store=]
-    [=object-store/named=] |name| in **this**'s
+    [=object-store/named=] |name| in [=/this=]'s
     [=transaction/scope=], or [=throw=] a
     "{{NotFoundError}}" {{DOMException}} if none.
 
 1. Return an [=/object store handle=] associated with |store|
-    and **this**.
+    and [=/this=].
 
 </div>
 
@@ -4923,11 +4923,11 @@ when invoked, must run these steps:
 The <dfn method for=IDBTransaction>abort()</dfn> method, when invoked,
 must run these steps:
 
-1. If **this**'s [=transaction/state=] is [=transaction/committing=]
+1. If [=/this=]'s [=transaction/state=] is [=transaction/committing=]
     or [=transaction/finished=],
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. Set **this**'s [=transaction/state=] to [=transaction/inactive=] and run
+1. Set [=/this=]'s [=transaction/state=] to [=transaction/inactive=] and run
     [=abort a transaction=] with null as |error|.
 
 </div>
@@ -4937,10 +4937,10 @@ must run these steps:
 The <dfn method for=IDBTransaction>commit()</dfn> method, when invoked,
 must run these steps:
 
-1. If **this**'s [=transaction/state=] is not [=transaction/active=],
+1. If [=/this=]'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-1. Run [=commit a transaction=] with **this**.
+1. Run [=commit a transaction=] with [=/this=].
 
 </div>
 
