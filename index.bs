@@ -2005,36 +2005,42 @@ enum IDBRequestReadyState {
         then returns {{"done"}}.
 </div>
 
-The <dfn attribute for=IDBRequest>result</dfn> attribute's getter must
-[=throw=] an "{{InvalidStateError}}" {{DOMException}} if [=/this=]'s [=request/done flag=] is
-false. Otherwise, the attribute's getter must return [=/this=]'s [=request/result=], or undefined if the
-request resulted in an error.
+<div class=algorithm>
+The <dfn attribute for=IDBRequest>result</dfn> getter steps are:
+
+1. If [=/this=]'s [=request/done flag=] is false, then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+1. Otherwise, return [=/this=]'s [=request/result=], or undefined if the request resulted in an error.
+
+</div>
+
+<div class=algorithm>
+The <dfn attribute for=IDBRequest>error</dfn> getter steps are:
+
+1. If [=/this=]'s [=request/done flag=] is false, then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+1. Otherwise, return [=/this=]'s [=request/error=], or null if no error occurred.
+
+</div>
 
 
-The <dfn attribute for=IDBRequest>error</dfn> attribute's getter must
-[=throw=] an "{{InvalidStateError}}" {{DOMException}} if [=/this=]'s [=request/done flag=] is false.
-Otherwise, the attribute's getter must return [=/this=]'s [=request/error=],
-or null if no error occurred.
-
-The <dfn attribute for=IDBRequest>source</dfn> attribute's getter must
+The <dfn attribute for=IDBRequest>source</dfn> getter steps are to
 return [=/this=]'s [=request/source=], or null if no
 [=request/source=] is set.
 
-The <dfn attribute for=IDBRequest>transaction</dfn> attribute's getter
-must return [=/this=]'s [=request/transaction=]. This
-property can be null for certain requests, such as for [=/requests=]
-returned from {{IDBFactory/open()}}.
+The <dfn attribute for=IDBRequest>transaction</dfn> getter steps are to
+return [=/this=]'s [=request/transaction=].
 
-The <dfn attribute for=IDBRequest>readyState</dfn> attribute's getter
-must return {{"pending"}} if [=/this=]'s [=request/done flag=] is false, and
+<aside class=note>
+    The {{IDBRequest/transaction}} property can be null for certain requests, such as for [=/requests=] returned from {{IDBFactory/open()}}.
+</aside>
+
+The <dfn attribute for=IDBRequest>readyState</dfn> getter steps are to
+return {{"pending"}} if [=/this=]'s [=request/done flag=] is false, and
 {{"done"}} otherwise.
 
 
-The <dfn attribute for=IDBRequest>onsuccess</dfn> attribute is the
-event handler for the <a event>`success`</a> event.
+The <dfn attribute for=IDBRequest>onsuccess</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`success`</a>.
 
-The <dfn attribute for=IDBRequest>onerror</dfn> attribute is the event
-handler for the <a event>`error`</a> event.
+The <dfn attribute for=IDBRequest>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`error`</a> event.
 
 
 Methods on {{IDBDatabase}} that return a [=open request=] use an
@@ -2050,12 +2056,9 @@ interface IDBOpenDBRequest : IDBRequest {
 };
 </xmp>
 
-The <dfn attribute for=IDBOpenDBRequest>onblocked</dfn> attribute is
-the event handler for the <a event>`blocked`</a> event.
+The <dfn attribute for=IDBOpenDBRequest>onblocked</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`blocked`</a>.
 
-The <dfn attribute for=IDBOpenDBRequest>onupgradeneeded</dfn>
-attribute is the event handler for the
-<a event>`upgradeneeded`</a> event.
+The <dfn attribute for=IDBOpenDBRequest>onupgradeneeded</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`upgradeneeded`</a>.
 
 
 <!-- ============================================================ -->
@@ -2078,14 +2081,10 @@ dictionary IDBVersionChangeEventInit : EventInit {
 };
 </xmp>
 
-The <dfn attribute for=IDBVersionChangeEvent>oldVersion</dfn>
-attribute getter returns the previous version of the database.
+The <dfn attribute for=IDBVersionChangeEvent>oldVersion</dfn> getter steps are to return the value it was initialized to. It represents the previous version of the database.
 
 
-The <dfn attribute for=IDBVersionChangeEvent>newVersion</dfn>
-attribute getter returns the new version of the database, or null if
-the database is being deleted. See the steps to [=run an upgrade
-transaction=].
+The <dfn attribute for=IDBVersionChangeEvent>newVersion</dfn> getter steps are to return the value it was initialized to. It represents the new version of the database, or null if the database is being deleted. See the steps to [=run an upgrade transaction=].
 
 Events are constructed as defined in [[DOM#constructing-events]].
 
@@ -2196,8 +2195,7 @@ dictionary IDBDatabaseInfo {
 
 <div class=algorithm>
 
-The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
 
 1. If |version| is 0 (zero), [=throw=] a [=TypeError=].
 
@@ -2270,8 +2268,7 @@ when invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
@@ -2327,8 +2324,7 @@ when invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBFactory>databases()</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
@@ -2382,8 +2378,7 @@ when invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBFactory>cmp(|first|, |second|)</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBFactory>cmp(|first|, |second|)</dfn> method steps are:
 
 1. Let |a| be the result of running [=convert a
     value to a key=] with |first|. Rethrow any exceptions.
@@ -2458,16 +2453,18 @@ dictionary IDBObjectStoreParameters {
     :: Returns the [=database/version=] of the database.
 </div>
 
-The <dfn attribute for=IDBDatabase>name</dfn> attribute's getter must
+The <dfn attribute for=IDBDatabase>name</dfn> getter steps are to
 return [=/this=]'s associated [=database=]'s [=database/name=].
-The attribute must return this name even if
+
+<aside class=note>
+The {{IDBDatabase/name}} attribute returns this name even if
 [=/this=]'s [=close pending flag=] is true. In
 other words, the value of this attribute stays constant for the
 lifetime of the {{IDBDatabase}} instance.
+</aside>
 
-
-The <dfn attribute for=IDBDatabase>version</dfn> attribute's getter
-must return [=/this=]'s [=connection/version=].
+The <dfn attribute for=IDBDatabase>version</dfn> getter steps are to
+return [=/this=]'s [=connection/version=].
 
 <details class=note>
   <summary>
@@ -2503,8 +2500,8 @@ must return [=/this=]'s [=connection/version=].
         [=/upgrade transaction=].
 </div>
 
-The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> attribute's
-getter must return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of
+The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> getter steps are to
+return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of
 the [=/object stores=] in [=/this=]'s [=object store set=].
 
 <details class=note>
@@ -2521,8 +2518,7 @@ the [=/object stores=] in [=/this=]'s [=object store set=].
 
 <div class=algorithm>
 
-The <dfn method for=IDBDatabase>createObjectStore(|name|,
-|options|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBDatabase>createObjectStore(|name|, |options|)</dfn> method steps are:
 
 1. Let |database| be [=/this=]'s associated [=database=].
 
@@ -2587,8 +2583,7 @@ error.
 
 <div class=algorithm>
 
-The <dfn method for=IDBDatabase>deleteObjectStore(|name|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBDatabase>deleteObjectStore(|name|)</dfn> method steps are:
 
 1. Let |database| be [=/this=]'s associated [=database=].
 
@@ -2642,7 +2637,7 @@ instance on which it was called.
 
 <div class=algorithm>
 
-The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</dfn> method steps are:
 
 1. If a running [=/upgrade transaction=] is associated with the [=/connection=],
     [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -2687,8 +2682,7 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</df
 
 <div class=algorithm>
 
-The <dfn method for=IDBDatabase>close()</dfn> method, when invoked,
-must run these steps:
+The <dfn method for=IDBDatabase>close()</dfn> method steps are:
 
 1. Run [=close a database connection=] with this
     [=/connection=].
@@ -2700,17 +2694,13 @@ The [=/connection=] will not actually [=connection/close=] until all outstanding
 </aside>
 
 
-The <dfn attribute for=IDBDatabase>onabort</dfn> attribute is the
-event handler for the <a event>`abort`</a> event.
+The <dfn attribute for=IDBDatabase>onabort</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is  <a event>`abort`</a>.
 
-The <dfn attribute for=IDBDatabase>onclose</dfn> attribute is the
-event handler for the <a event>`close`</a> event.
+The <dfn attribute for=IDBDatabase>onclose</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`close`</a>.
 
-The <dfn attribute for=IDBDatabase>onerror</dfn> attribute is the
-event handler for the <a event>`error`</a> event.
+The <dfn attribute for=IDBDatabase>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`error`</a>.
 
-The <dfn attribute for=IDBDatabase>onversionchange</dfn> attribute is
-the event handler for the <a event>`versionchange`</a> event.
+The <dfn attribute for=IDBDatabase>onversionchange</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`versionchange`</a>.
 
 
 <!-- ============================================================ -->
@@ -2790,8 +2780,7 @@ dictionary IDBIndexParameters {
 </div>
 
 
-The <dfn attribute for=IDBObjectStore>name</dfn> attribute's getter
-must return [=/this=]'s [=object-store/name=].
+The <dfn attribute for=IDBObjectStore>name</dfn> getter steps are to return [=/this=]'s [=object-store/name=].
 
 <details class=note>
   <summary>
@@ -2807,7 +2796,7 @@ must return [=/this=]'s [=object-store/name=].
 
 <div class=algorithm>
 
-The {{IDBObjectStore/name}} attribute's setter must run these steps:
+The {{IDBObjectStore/name}} setter steps are:
 
 1. Let |name| be [=/the given value=].
 
@@ -2838,21 +2827,22 @@ The {{IDBObjectStore/name}} attribute's setter must run these steps:
 </div>
 
 
-The <dfn attribute for=IDBObjectStore>keyPath</dfn> attribute's getter
-must return [=/this=]'s [=object-store-handle/object store=]'s [=object-store/key path=], or
+The <dfn attribute for=IDBObjectStore>keyPath</dfn> getter steps are to
+return [=/this=]'s [=object-store-handle/object store=]'s [=object-store/key path=], or
 null if none. The [=/key path=] is converted as a {{DOMString}} (if a
 string) or a [=sequence&lt;DOMString&gt;=] (if a list of strings), per
 [[!WEBIDL]].
 
+<aside class=note>
 The returned value is not the same instance that was used when the
 [=/object store=] was created. However, if this attribute returns
 an object (specifically an [=Array=]), it returns the same object
 instance every time it is inspected. Changing the properties of the
 object has no effect on the [=/object store=].
+</aside>
 
-
-The <dfn attribute for=IDBObjectStore>indexNames</dfn> attribute's
-getter must return a {{DOMStringList}} associated with a [=sorted name list=] of the [=index/names=]
+The <dfn attribute for=IDBObjectStore>indexNames</dfn> getter steps are to
+return a {{DOMStringList}} associated with a [=sorted name list=] of the [=index/names=]
 of [=/indexes=] in [=/this=]'s [=index set=].
 
 <details class=note>
@@ -2868,12 +2858,12 @@ of [=/indexes=] in [=/this=]'s [=index set=].
 </details>
 
 
-The <dfn attribute for=IDBObjectStore>transaction</dfn> attribute's
-getter must return [=/this=]'s [=object-store-handle/transaction=].
+The <dfn attribute for=IDBObjectStore>transaction</dfn> getter steps are to
+return [=/this=]'s [=object-store-handle/transaction=].
 
 
-The <dfn attribute for=IDBObjectStore>autoIncrement</dfn> attribute's
-getter must return true if [=/this=]'s [=object-store-handle/object store=] has a [=key generator=],
+The <dfn attribute for=IDBObjectStore>autoIncrement</dfn> getter steps are to
+return true if [=/this=]'s [=object-store-handle/object store=] has a [=key generator=],
 and false otherwise.
 
 
@@ -2921,13 +2911,9 @@ and false otherwise.
 </div>
 
 
-The <dfn method for=IDBObjectStore>put(|value|, |key|)</dfn> method,
-when invoked, must return the result of running [=add or
-put=] with [=/this=], |value|, |key| and the |no-overwrite flag| false.
+The <dfn method for=IDBObjectStore>put(|value|, |key|)</dfn> method steps are to return the result of running [=add or put=] with [=/this=], |value|, |key| and the |no-overwrite flag| false.
 
-The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method,
-when invoked, must return the result of running [=add or
-put=] with [=/this=], |value|, |key| and the |no-overwrite flag| true.
+The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method steps are to return the result of running [=add or put=] with [=/this=], |value|, |key| and the |no-overwrite flag| true.
 
 <div class=algorithm>
 
@@ -3009,8 +2995,7 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>delete(|query|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBObjectStore>delete(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3050,8 +3035,7 @@ deleted.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>clear()</dfn> method, when invoked,
-must run these steps:
+The <dfn method for=IDBObjectStore>clear()</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3125,8 +3109,7 @@ must run these steps:
         If successful, |request|'s {{IDBRequest/result}} will be the count.
 </div>
 
-The <dfn method for=IDBObjectStore>get(|query|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBObjectStore>get(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3168,8 +3151,7 @@ that range.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>getKey(|query|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBObjectStore>getKey(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3201,8 +3183,7 @@ the first existing key in that range.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>getAll(|query|, |count|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBObjectStore>getAll(|query|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3236,8 +3217,7 @@ will be retrieved.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>getAllKeys(|query|, |count|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBObjectStore>getAllKeys(|query|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3270,8 +3250,7 @@ will be retrieved.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>count(|query|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBObjectStore>count(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3330,8 +3309,7 @@ given, an [=unbounded key range=] is used.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>openCursor(|query|,
-|direction|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBObjectStore>openCursor(|query|, |direction|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3375,8 +3353,7 @@ If null or not given, an [=unbounded key range=] is used.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>openKeyCursor(|query|,
-|direction|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBObjectStore>openKeyCursor(|query|, |direction|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3446,8 +3423,7 @@ or not given, an [=unbounded key range=] is used.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|,
-|options|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBObjectStore>createIndex(|name|, |keyPath|, |options|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3549,8 +3525,7 @@ must be used as error.
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>index(|name|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBObjectStore>index(|name|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3586,8 +3561,7 @@ invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBObjectStore>deleteIndex(|name|)</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBObjectStore>deleteIndex(|name|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3677,7 +3651,7 @@ interface IDBIndex {
     ::  Returns true if the index's [=index/unique flag=] is true.
 </div>
 
-The <dfn attribute for=IDBIndex>name</dfn> attribute's getter must
+The <dfn attribute for=IDBIndex>name</dfn> getter steps are to
 return [=/this=]'s [=index/name=].
 
 <details class=note>
@@ -3694,7 +3668,7 @@ return [=/this=]'s [=index/name=].
 
 <div class=algorithm>
 
-The {{IDBIndex/name}} attribute's setter must run these steps:
+The {{IDBIndex/name}} setter steps are:
 
 1. Let |name| be [=/the given value=].
 
@@ -3726,25 +3700,27 @@ The {{IDBIndex/name}} attribute's setter must run these steps:
 </div>
 
 
-The <dfn attribute for=IDBIndex>objectStore</dfn> attribute's getter
-must return [=/this=]'s [=index-handle/object store handle=].
+The <dfn attribute for=IDBIndex>objectStore</dfn> getter steps are to
+return [=/this=]'s [=index-handle/object store handle=].
 
-The <dfn attribute for=IDBIndex>keyPath</dfn> attribute's getter must
+The <dfn attribute for=IDBIndex>keyPath</dfn> getter steps are to
 return [=/this=]'s [=index-handle/index=]'s
 [=object-store/key path=]. The [=/key path=] is converted as a
 {{DOMString}} (if a string) or a [=sequence&lt;DOMString&gt;=] (if a
 list of strings), per [[!WEBIDL]].
 
+<aside class=note>
 The returned value is not the same instance that was used when the
 [=/index=] was created. However, if this attribute returns an
 object (specifically an [=Array=]), it returns the same object
 instance every time it is inspected. Changing the properties of the
 object has no effect on the [=/index=].
+</aside>
 
-The <dfn attribute for=IDBIndex>multiEntry</dfn> attribute's getter
-must return [=/this=]'s [=index-handle/index=]'s [=multiEntry flag=].
+The <dfn attribute for=IDBIndex>multiEntry</dfn> getter steps are to
+return [=/this=]'s [=index-handle/index=]'s [=multiEntry flag=].
 
-The <dfn attribute for=IDBIndex>unique</dfn> attribute's getter must
+The <dfn attribute for=IDBIndex>unique</dfn> getter steps are to
 return [=/this=]'s [=index-handle/index=]'s [=unique flag=].
 
 
@@ -3803,8 +3779,7 @@ return [=/this=]'s [=index-handle/index=]'s [=unique flag=].
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>get(|query|)</dfn> method, when invoked,
-must run these steps:
+The <dfn method for=IDBIndex>get(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -3847,8 +3822,7 @@ that range.
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>getKey(|query|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBIndex>getKey(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -3880,8 +3854,7 @@ in that range.
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>getAll(|query|, |count|)</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBIndex>getAll(|query|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -3915,8 +3888,7 @@ will be retrieved.
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>getAllKeys(|query|, |count|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBIndex>getAllKeys(|query|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -3949,8 +3921,7 @@ will be retrieved.
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>count(|query|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBIndex>count(|query|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -4008,8 +3979,7 @@ given, an [=unbounded key range=] is used.
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>openCursor(|query|, |direction|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBIndex>openCursor(|query|, |direction|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -4053,8 +4023,7 @@ or not given, an [=unbounded key range=] is used.
 
 <div class=algorithm>
 
-The <dfn method for=IDBIndex>openKeyCursor(|query|, |direction|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBIndex>openKeyCursor(|query|, |direction|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -4138,20 +4107,20 @@ interface IDBKeyRange {
     :: Returns the range's [=upper open flag=].
 </div>
 
-The <dfn attribute for=IDBKeyRange>lower</dfn> attribute's getter must
-return result of running [=convert a key to a value=]
+The <dfn attribute for=IDBKeyRange>lower</dfn> getter steps are to
+return the result of running [=convert a key to a value=]
 with [=/this=]'s [=lower bound=] if it is not null, or undefined otherwise.
 
-The <dfn attribute for=IDBKeyRange>upper</dfn> attribute's getter must
+The <dfn attribute for=IDBKeyRange>upper</dfn> getter steps are to
 return the result of running [=convert a key to a
 value=] with [=/this=]'s [=upper bound=] if it is not null, or undefined
 otherwise.
 
-The <dfn attribute for=IDBKeyRange>lowerOpen</dfn> attribute's getter
-must return [=/this=]'s [=lower open flag=].
+The <dfn attribute for=IDBKeyRange>lowerOpen</dfn> getter steps are to
+return [=/this=]'s [=lower open flag=].
 
-The <dfn attribute for=IDBKeyRange>upperOpen</dfn> attribute's getter
-must return [=/this=]'s [=upper open flag=].
+The <dfn attribute for=IDBKeyRange>upperOpen</dfn> getter steps are to
+return [=/this=]'s [=upper open flag=].
 
 <div class="domintro note">
     : |range| = {{IDBKeyRange}} .
@@ -4184,8 +4153,7 @@ must return [=/this=]'s [=upper open flag=].
 
 <div class=algorithm>
 
-The <dfn method for=IDBKeyRange>only(|value|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBKeyRange>only(|value|)</dfn> method steps are:
 
 1. Let |key| be the result of running [=convert
     a value to a key=] with |value|. Rethrow any exceptions.
@@ -4199,8 +4167,7 @@ invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBKeyRange>lowerBound(|lower|, |open|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBKeyRange>lowerBound(|lower|, |open|)</dfn> method steps are:
 
 1. Let |lowerKey| be the result of running [=convert a
     value to a key=] with |lower|. Rethrow any exceptions.
@@ -4216,8 +4183,7 @@ method, when invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBKeyRange>upperBound(|upper|, |open|)</dfn>
-method, when invoked, must run these steps:
+The <dfn method for=IDBKeyRange>upperBound(|upper|, |open|)</dfn> method steps are:
 
 1. Let |upperKey| be the result of running [=convert a
     value to a key=] with |upper|. Rethrow any exceptions.
@@ -4232,8 +4198,7 @@ method, when invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|,
-|upperOpen|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|, |upperOpen|)</dfn> method steps are:
 
 1. Let |lowerKey| be the result of running [=convert a
     value to a key=] with |lower|. Rethrow any exceptions.
@@ -4263,8 +4228,7 @@ The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|,
 
 <div class=algorithm>
 
-The <dfn method for=IDBKeyRange>includes(|key|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBKeyRange>includes(|key|)</dfn> method steps are:
 
 1. Let |k| be the result of running [=convert a
     value to a key=] with |key|. Rethrow any exceptions.
@@ -4339,36 +4303,45 @@ enum IDBCursorDirection {
 </div>
 
 
-The <dfn attribute for=IDBCursor>source</dfn> attribute's getter must
-return [=/this=]'s [=cursor/source=]. This
-attribute never returns null or throws an exception, even if the
+The <dfn attribute for=IDBCursor>source</dfn> getter steps are to
+return [=/this=]'s [=cursor/source=].
+
+<aside class=note>
+This attribute never returns null or throws an exception, even if the
 cursor is currently being iterated, has iterated past its end, or its
 [=/transaction=] is not [=transaction/active=].
+</aside>
 
-The <dfn attribute for=IDBCursor>direction</dfn> attribute's getter
-must return [=/this=]'s [=cursor/direction=].
+The <dfn attribute for=IDBCursor>direction</dfn> getter steps are to
+return [=/this=]'s [=cursor/direction=].
 
-The <dfn attribute for=IDBCursor>key</dfn> attribute's getter must
+The <dfn attribute for=IDBCursor>key</dfn> getter steps are to
 return the result of running [=convert a key to a
-value=] with the cursor's current [=cursor/key=]. Note that
-if this property returns an object (e.g. a [=Date=] or
+value=] with the cursor's current [=cursor/key=].
+
+<aside class=note>
+If this property returns an object (e.g. a [=Date=] or
 [=Array=]), it returns the same object instance every time it is
 inspected, until the cursor's [=cursor/key=] is changed. This
 means that if the object is modified, those modifications will be seen
 by anyone inspecting the value of the cursor. However modifying such
 an object does not modify the contents of the database.
+</aside>
 
-The <dfn attribute for=IDBCursor>primaryKey</dfn> attribute's getter
-must return the result of running [=convert a key to a
-value=] with the cursor's current [=effective key=]. Note that if
-this property returns an object (e.g. a [=Date=] or [=Array=]),
+The <dfn attribute for=IDBCursor>primaryKey</dfn> getter steps are to
+return the result of running [=convert a key to a
+value=] with the cursor's current [=effective key=].
+
+<aside class=note>
+If this property returns an object (e.g. a [=Date=] or [=Array=]),
 it returns the same object instance every time it is inspected, until
 the cursor's [=effective key=] is changed. This means that if the
 object is modified, those modifications will be seen by anyone
 inspecting the value of the cursor. However modifying such an object
 does not modify the contents of the database.
+</aside>
 
-The <dfn attribute for=IDBCursor>request</dfn> attribute's getter must
+The <dfn attribute for=IDBCursor>request</dfn> getter steps are to
 return [=/this=]'s [=cursor/request=].
 
 <aside class=advisement>
@@ -4418,8 +4391,7 @@ return [=/this=]'s [=cursor/request=].
 
 <div class=algorithm>
 
-The <dfn method for=IDBCursor>advance(|count|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBCursor>advance(|count|)</dfn> method steps are:
 
 1. If |count| is 0 (zero), [=throw=] a [=TypeError=].
 
@@ -4461,8 +4433,7 @@ invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBCursor>continue(|key|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
@@ -4521,8 +4492,7 @@ invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
-|primaryKey|)</dfn> method, when invoked, must run these steps:
+The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
@@ -4629,8 +4599,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|,
 
 <div class=algorithm>
 
-The <dfn method for=IDBCursor>update(|value|)</dfn> method, when
-invoked, must run these steps:
+The <dfn method for=IDBCursor>update(|value|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
@@ -4695,8 +4664,7 @@ invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBCursor>delete()</dfn> method, when invoked,
-must run these steps:
+The <dfn method for=IDBCursor>delete()</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=cursor/transaction=].
 
@@ -4742,15 +4710,17 @@ interface IDBCursorWithValue : IDBCursor {
 </div>
 
 
-The <dfn attribute for=IDBCursorWithValue>value</dfn> attribute's
-getter must return [=/this=]'s current [=cursor/value=]. Note
-that if this property returns an object, it returns the same object
+The <dfn attribute for=IDBCursorWithValue>value</dfn> getter steps are to
+return [=/this=]'s current [=cursor/value=].
+
+<aside class=note>
+If this property returns an object, it returns the same object
 instance every time it is inspected, until the cursor's
 [=cursor/value=] is changed. This means that if the object is
 modified, those modifications will be seen by anyone inspecting the
 value of the cursor. However modifying such an object does not modify
 the contents of the database.
-
+</aside>
 
 <!-- ============================================================ -->
 ## The {{IDBTransaction}} interface ## {#transaction}
@@ -4815,8 +4785,7 @@ enum IDBTransactionMode {
 
 <div class=algorithm>
 
-The <dfn attribute for=IDBTransaction>objectStoreNames</dfn>
-attribute's getter must run these steps:
+The <dfn attribute for=IDBTransaction>objectStoreNames</dfn> getter steps are:
 
 1. If [=/this=] is an [=/upgrade transaction=],
     then return a {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=]
@@ -4835,10 +4804,10 @@ attribute's getter must run these steps:
   [=/object stores=] are created and deleted.
 </aside>
 
-The <dfn attribute for=IDBTransaction>mode</dfn> attribute's getter
-must return [=/this=]'s [=transaction/mode=].
+The <dfn attribute for=IDBTransaction>mode</dfn> getter steps are to
+return [=/this=]'s [=transaction/mode=].
 
-The <dfn attribute for=IDBTransaction>durability</dfn> attribute's getter must return [=/this=]'s [=transaction/durability hint=].
+The <dfn attribute for=IDBTransaction>durability</dfn> getter steps are to return [=/this=]'s [=transaction/durability hint=].
 
 <aside class=advisement>
   &#x1F6A7;
@@ -4848,11 +4817,11 @@ The <dfn attribute for=IDBTransaction>durability</dfn> attribute's getter must r
 </aside>
 
 
-The <dfn attribute for=IDBTransaction>db</dfn> attribute's getter must
+The <dfn attribute for=IDBTransaction>db</dfn> getter steps are to
 return [=/this=]'s [=transaction/connection=]'s associated [=/database=].
 
-The <dfn attribute for=IDBTransaction>error</dfn> attribute's getter
-must return [=/this=]'s [=transaction/error=], or null if
+The <dfn attribute for=IDBTransaction>error</dfn> getter steps are to
+return [=/this=]'s [=transaction/error=], or null if
 none.
 
 <aside class=note>
@@ -4895,8 +4864,7 @@ none.
 
 <div class=algorithm>
 
-The <dfn method for=IDBTransaction>objectStore(|name|)</dfn> method,
-when invoked, must run these steps:
+The <dfn method for=IDBTransaction>objectStore(|name|)</dfn> method steps are:
 
 1. If |transaction|'s [=transaction/state=] is [=transaction/finished=],
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4926,8 +4894,7 @@ when invoked, must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBTransaction>abort()</dfn> method, when invoked,
-must run these steps:
+The <dfn method for=IDBTransaction>abort()</dfn> method steps are:
 
 1. If [=/this=]'s [=transaction/state=] is [=transaction/committing=]
     or [=transaction/finished=],
@@ -4940,8 +4907,7 @@ must run these steps:
 
 <div class=algorithm>
 
-The <dfn method for=IDBTransaction>commit()</dfn> method, when invoked,
-must run these steps:
+The <dfn method for=IDBTransaction>commit()</dfn> method steps are:
 
 1. If [=/this=]'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
@@ -4968,14 +4934,11 @@ must run these steps:
 </aside>
 
 
-The <dfn attribute for=IDBTransaction>onabort</dfn> attribute is the
-event handler for the <a event>`abort`</a> event.
+The <dfn attribute for=IDBTransaction>onabort</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`abort`</a>.
 
-The <dfn attribute for=IDBTransaction>oncomplete</dfn> attribute is
-the event handler for the <a event>`complete`</a> event.
+The <dfn attribute for=IDBTransaction>oncomplete</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`complete`</a>.
 
-The <dfn attribute for=IDBTransaction>onerror</dfn> attribute is the
-event handler for the <a event>`error`</a> event.
+The <dfn attribute for=IDBTransaction>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event>`error`</a>.
 
 <aside class=note>
   To determine if a [=/transaction=] has completed successfully,
