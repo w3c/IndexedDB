@@ -4,10 +4,10 @@
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <title>Indexed Database API 3.0</title>
   <link href="https://www.w3.org/StyleSheets/TR/2016/W3C-ED" rel="stylesheet">
-  <meta content="Bikeshed version d2959a41, updated Fri Apr 24 17:44:40 2020 -0700" name="generator">
+  <meta content="Bikeshed version cac0058e, updated Tue May 19 10:56:43 2020 -0700" name="generator">
   <link href="https://www.w3.org/TR/IndexedDB-3/" rel="canonical">
   <link href="logo-db.png" rel="icon">
-  <meta content="c745d4b658c607e5d1a53b9cd8051a4c0d1a6ded" name="document-revision">
+  <meta content="ff8346e423c345d0b972447e766a92e317ec959c" name="document-revision">
 <style>
 /* Default ED/WD stylesheets set "both"; not needed for logo floated right */
 div.head h1 { clear: left; }
@@ -338,7 +338,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 3.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2020-04-27">27 April 2020</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2020-05-19">19 May 2020</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1150,7 +1150,7 @@ instead is created automatically when an <a class="idl-code" data-link-type="eve
       <p>The user agent may consider that the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑦">transaction</a> has successfully <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit①">committed</a> as soon as all outstanding changes have been written to the operating system, without subsequent verification.</p>
      <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default">"default"</a></code>
      <dd data-md>
-      <p>The user agent should use its default durability behavior for the storage <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#bucket" id="ref-for-bucket">bucket</a>. This is the default for <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑧">transactions</a> if not otherwise specified.</p>
+      <p>The user agent should use its default durability behavior for the <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#storage-bucket" id="ref-for-storage-bucket">storage bucket</a>. This is the default for <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑧">transactions</a> if not otherwise specified.</p>
     </dl>
     <aside class="note">
       In a typical implementation, <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict①">"strict"</a></code> is a hint to the user agent to flush any operating system I/O buffers before a <code class="idl"><a data-link-type="idl" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete">"complete"</a></code> event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices. 
@@ -1268,7 +1268,7 @@ event loop</a> matching the current <a data-link-type="dfn" href="https://html.s
        <p>Return true.</p>
      </ol>
     </div>
-    <aside class="note"> This behavior is invoked by <a data-link-type="biblio" href="#biblio-html">[HTML]</a>. It ensures that <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⓪">transactions</a> created by a script call
+    <aside class="note"> These steps are invoked by <a data-link-type="biblio" href="#biblio-html">[HTML]</a>. They ensure that <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⓪">transactions</a> created by a script call
   to <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-transaction" id="ref-for-dom-idbdatabase-transaction">transaction()</a></code> are deactivated once the task that
   invoked the script has completed. The steps are run at most once for
   each <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③①">transaction</a>. </aside>
@@ -1901,23 +1901,33 @@ If this as an <a data-link-type="dfn" href="#request-open-request" id="ref-for-r
 then returns <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done">"done"</a></code>.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-result"><code>result</code></dfn> attribute’s getter must <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑨">DOMException</a></code> if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑤">done flag</a> is
-false. Otherwise, the attribute’s getter must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①">this</a>'s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result③">result</a>, or undefined if the
-request resulted in an error.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-error"><code>error</code></dfn> attribute’s getter must <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw③">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror④">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪">DOMException</a></code> if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑥">done flag</a> is false.
-Otherwise, the attribute’s getter must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error③">error</a>,
-or null if no error occurred.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-source"><code>source</code></dfn> attribute’s getter must
+   <div class="algorithm">
+     The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-result"><code>result</code></dfn> getter steps are: 
+    <ol>
+     <li data-md>
+      <p>If <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑤">done flag</a> is false, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror③">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑨">DOMException</a></code>.</p>
+     <li data-md>
+      <p>Otherwise, return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①">this</a>'s <a data-link-type="dfn" href="#request-result" id="ref-for-request-result③">result</a>, or undefined if the request resulted in an error.</p>
+    </ol>
+   </div>
+   <div class="algorithm">
+     The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-error"><code>error</code></dfn> getter steps are: 
+    <ol>
+     <li data-md>
+      <p>If <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑥">done flag</a> is false, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw③">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror④">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⓪">DOMException</a></code>.</p>
+     <li data-md>
+      <p>Otherwise, return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error③">error</a>, or null if no error occurred.</p>
+    </ol>
+   </div>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-source"><code>source</code></dfn> getter steps are to
 return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④">this</a>'s <a data-link-type="dfn" href="#request-source" id="ref-for-request-source①">source</a>, or null if no <a data-link-type="dfn" href="#request-source" id="ref-for-request-source②">source</a> is set.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-transaction"><code>transaction</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤">this</a>'s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction②">transaction</a>. This
-property can be null for certain requests, such as for <a data-link-type="dfn" href="#request" id="ref-for-request②⑤">requests</a> returned from <code class="idl"><a data-link-type="idl" href="#dom-idbfactory-open" id="ref-for-dom-idbfactory-open">open()</a></code>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-readystate"><code>readyState</code></dfn> attribute’s getter
-must return <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending①">"pending"</a></code> if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑥">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑦">done flag</a> is false, and <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done①">"done"</a></code> otherwise.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-onsuccess"><code>onsuccess</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success③"><code>success</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-onerror"><code>onerror</code></dfn> attribute is the event
-handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error②"><code>error</code></a> event.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-transaction"><code>transaction</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤">this</a>'s <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction②">transaction</a>.</p>
+   <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-transaction" id="ref-for-dom-idbrequest-transaction②">transaction</a></code> getter can return null for certain requests, such as for <a data-link-type="dfn" href="#request" id="ref-for-request②⑤">requests</a> returned from <code class="idl"><a data-link-type="idl" href="#dom-idbfactory-open" id="ref-for-dom-idbfactory-open">open()</a></code>. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-readystate"><code>readyState</code></dfn> getter steps are to
+return <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending①">"pending"</a></code> if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑥">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑦">done flag</a> is false, and <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done①">"done"</a></code> otherwise.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-onsuccess"><code>onsuccess</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes①">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success③"><code>success</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-onerror"><code>onerror</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes②">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type①">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error②"><code>error</code></a> event.</p>
    <p>Methods on <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase">IDBDatabase</a></code> that return a <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request①⓪">open request</a> use an
 extended interface to allow listening to the <a class="idl-code" data-link-type="event" href="#eventdef-request-blocked" id="ref-for-eventdef-request-blocked②"><code>blocked</code></a> and <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑧"><code>upgradeneeded</code></a> events.</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
@@ -1927,9 +1937,8 @@ extended interface to allow listening to the <a class="idl-code" data-link-type=
   <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler③"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-idbopendbrequest-onupgradeneeded" id="ref-for-dom-idbopendbrequest-onupgradeneeded"><c- g>onupgradeneeded</c-></a>;
 };
 </pre>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onblocked"><code>onblocked</code></dfn> attribute is
-the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-blocked" id="ref-for-eventdef-request-blocked③"><code>blocked</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onupgradeneeded"><code>onupgradeneeded</code></dfn> attribute is the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑨"><code>upgradeneeded</code></a> event.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onblocked"><code>onblocked</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes③">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type②">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-request-blocked" id="ref-for-eventdef-request-blocked③"><code>blocked</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBOpenDBRequest" data-dfn-type="attribute" data-export id="dom-idbopendbrequest-onupgradeneeded"><code>onupgradeneeded</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes④">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type③">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑨"><code>upgradeneeded</code></a>.</p>
    <h3 class="heading settled" data-level="4.2" id="events"><span class="secno">4.2. </span><span class="content">Event interfaces</span><a class="self-link" href="#events"></a></h3>
    <p>This specification fires events with the following custom interfaces:</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
@@ -1944,10 +1953,8 @@ the event handler for the <a class="idl-code" data-link-type="event" href="#even
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-unsigned-long-long" id="ref-for-idl-unsigned-long-long③"><c- b>unsigned</c-> <c- b>long</c-> <c- b>long</c-></a>? <dfn class="idl-code" data-default="null" data-dfn-for="IDBVersionChangeEventInit" data-dfn-type="dict-member" data-export data-type="unsigned long long? " id="dom-idbversionchangeeventinit-newversion"><code><c- g>newVersion</c-></code><a class="self-link" href="#dom-idbversionchangeeventinit-newversion"></a></dfn> = <c- b>null</c->;
 };
 </pre>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBVersionChangeEvent" data-dfn-type="attribute" data-export id="dom-idbversionchangeevent-oldversion"><code>oldVersion</code></dfn> attribute getter returns the previous version of the database.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBVersionChangeEvent" data-dfn-type="attribute" data-export id="dom-idbversionchangeevent-newversion"><code>newVersion</code></dfn> attribute getter returns the new version of the database, or null if
-the database is being deleted. See the steps to <a data-link-type="dfn" href="#run-an-upgrade-transaction" id="ref-for-run-an-upgrade-transaction①">run an upgrade
-transaction</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBVersionChangeEvent" data-dfn-type="attribute" data-export id="dom-idbversionchangeevent-oldversion"><code>oldVersion</code></dfn> getter steps are to return the value it was initialized to. It represents the previous version of the database.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBVersionChangeEvent" data-dfn-type="attribute" data-export id="dom-idbversionchangeevent-newversion"><code>newVersion</code></dfn> getter steps are to return the value it was initialized to. It represents the new version of the database, or null if the database is being deleted. See the steps to <a data-link-type="dfn" href="#run-an-upgrade-transaction" id="ref-for-run-an-upgrade-transaction①">run an upgrade transaction</a>.</p>
    <p>Events are constructed as defined in <a href="https://dom.spec.whatwg.org/#constructing-events">DOM §2.5 Constructing events</a>.</p>
    <div class="algorithm">
     <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="fire-a-version-change-event">fire a version change event</dfn> named <var>e</var> at <var>target</var> given <var>oldVersion</var> and <var>newVersion</var>, run these steps:</p>
@@ -2030,8 +2037,7 @@ to create, upgrade, or delete databases by this context or others.</p>
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export data-lt="open(name, version)|open(name)" id="dom-idbfactory-open"><code>open(<var>name</var>, <var>version</var>)</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export data-lt="open(name, version)|open(name)" id="dom-idbfactory-open"><code>open(<var>name</var>, <var>version</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>If <var>version</var> is 0 (zero), <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw④">throw</a> a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-native-error-types-used-in-this-standard-typeerror" id="ref-for-sec-native-error-types-used-in-this-standard-typeerror">TypeError</a>.</p>
@@ -2102,8 +2108,7 @@ otherwise, and <var>request</var>.</p>
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export id="dom-idbfactory-deletedatabase"><code>deleteDatabase(<var>name</var>)</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export id="dom-idbfactory-deletedatabase"><code>deleteDatabase(<var>name</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>environment</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑧">this</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object" id="ref-for-relevant-settings-object①">relevant settings object</a>.</p>
@@ -2151,8 +2156,7 @@ null.</p>
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export id="dom-idbfactory-databases"><code>databases()</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export id="dom-idbfactory-databases"><code>databases()</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>environment</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨">this</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object" id="ref-for-relevant-settings-object②">relevant settings object</a>.</p>
@@ -2206,8 +2210,7 @@ the keys are equal.</p>
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export id="dom-idbfactory-cmp"><code>cmp(<var>first</var>, <var>second</var>)</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBFactory" data-dfn-type="method" data-export id="dom-idbfactory-cmp"><code>cmp(<var>first</var>, <var>second</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>a</var> be the result of running <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key②">convert a
@@ -2273,13 +2276,13 @@ If an <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-
       <p>Returns the <a data-link-type="dfn" href="#database-version" id="ref-for-database-version⑥">version</a> of the database.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-name"><code>name</code></dfn> attribute’s getter must
-return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⓪">this</a>'s associated <a data-link-type="dfn" href="#database" id="ref-for-database④②">database</a>'s <a data-link-type="dfn" href="#database-name" id="ref-for-database-name③">name</a>.
-The attribute must return this name even if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①①">this</a>'s <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag②">close pending flag</a> is true. In
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-name"><code>name</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⓪">this</a>'s associated <a data-link-type="dfn" href="#database" id="ref-for-database④②">database</a>'s <a data-link-type="dfn" href="#database-name" id="ref-for-database-name③">name</a>.</p>
+   <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name②">name</a></code> attribute returns this name even if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①①">this</a>'s <a data-link-type="dfn" href="#connection-close-pending-flag" id="ref-for-connection-close-pending-flag②">close pending flag</a> is true. In
 other words, the value of this attribute stays constant for the
-lifetime of the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase⑤">IDBDatabase</a></code> instance.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-version"><code>version</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①②">this</a>'s <a data-link-type="dfn" href="#connection-version" id="ref-for-connection-version①">version</a>.</p>
+lifetime of the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase⑤">IDBDatabase</a></code> instance. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-version"><code>version</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①②">this</a>'s <a data-link-type="dfn" href="#connection-version" id="ref-for-connection-version①">version</a>.</p>
    <details class="note">
     <summary> Is this the same as the <a data-link-type="dfn" href="#database" id="ref-for-database④③">database</a>'s <a data-link-type="dfn" href="#database-version" id="ref-for-database-version⑦">version</a>? </summary>
      As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection③⑧">connection</a> is open, this is the same as the
@@ -2301,8 +2304,8 @@ must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this"
       <p>Throws a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑥">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⑨">DOMException</a></code> if not called within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⓪">upgrade transaction</a>.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-objectstorenames"><code>objectStoreNames</code></dfn> attribute’s
-getter must return a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist①">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①">names</a> of
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-objectstorenames"><code>objectStoreNames</code></dfn> getter steps are to
+return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist①">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①">names</a> of
 the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤④">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①③">this</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set">object store set</a>.</p>
    <details class="note">
     <summary> Is this the same as the <a data-link-type="dfn" href="#database" id="ref-for-database④⑤">database</a>'s <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤⑤">object store</a> <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name②">names</a>? </summary>
@@ -2312,7 +2315,7 @@ the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤④"
   will not reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②①">upgrade transaction</a>. 
    </details>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export data-lt="createObjectStore(name, options)|createObjectStore(name)" id="dom-idbdatabase-createobjectstore"><code>createObjectStore(<var>name</var>, <var>options</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export data-lt="createObjectStore(name, options)|createObjectStore(name)" id="dom-idbdatabase-createobjectstore"><code>createObjectStore(<var>name</var>, <var>options</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>database</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①④">this</a>'s associated <a data-link-type="dfn" href="#database" id="ref-for-database④⑦">database</a>.</p>
@@ -2358,7 +2361,7 @@ transaction using the steps to <a data-link-type="dfn" href="#abort-a-transactio
 appropriate error. For example if creating the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥⑥">object store</a> failed due to quota reasons, a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#quotaexceedederror" id="ref-for-quotaexceedederror①">QuotaExceededError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②⑤">DOMException</a></code> must be used as
 error.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export id="dom-idbdatabase-deleteobjectstore"><code>deleteObjectStore(<var>name</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export id="dom-idbdatabase-deleteobjectstore"><code>deleteObjectStore(<var>name</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>database</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤">this</a>'s associated <a data-link-type="dfn" href="#database" id="ref-for-database④⑨">database</a>.</p>
@@ -2394,7 +2397,7 @@ and additional <var>options</var> including <code class="idl"><a data-link-type=
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export data-lt="transaction(storeNames, mode, options)|transaction(storeNames, mode)|transaction(storeNames)" id="dom-idbdatabase-transaction"><code>transaction(<var>storeNames</var>, <var>mode</var>, <var>options</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export data-lt="transaction(storeNames, mode, options)|transaction(storeNames, mode)|transaction(storeNames)" id="dom-idbdatabase-transaction"><code>transaction(<var>storeNames</var>, <var>mode</var>, <var>options</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>If a running <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②④">upgrade transaction</a> is associated with the <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑤">connection</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①⑦">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑨">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②⑨">DOMException</a></code>.</p>
@@ -2427,22 +2430,17 @@ current <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/web
   🚧 </aside>
    <aside class="note"> The created <var>transaction</var> will follow the <a data-link-type="dfn" href="#transaction-lifetime" id="ref-for-transaction-lifetime">lifetime</a> rules. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export id="dom-idbdatabase-close"><code>close()</code></dfn> method, when invoked,
-must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="method" data-export id="dom-idbdatabase-close"><code>close()</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Run <a data-link-type="dfn" href="#close-a-database-connection" id="ref-for-close-a-database-connection②">close a database connection</a> with this <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑦">connection</a>.</p>
     </ol>
    </div>
    <aside class="note"> The <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑧">connection</a> will not actually <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed④">close</a> until all outstanding <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑥">transactions</a> have completed. Subsequent calls to <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-close" id="ref-for-dom-idbdatabase-close③">close()</a></code> will have no effect. </aside>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onabort"><code>onabort</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-transaction-abort" id="ref-for-eventdef-transaction-abort①"><code>abort</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onclose"><code>onclose</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="https://html.spec.whatwg.org/multipage/indices.html#event-close" id="ref-for-event-close"><code>close</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onerror"><code>onerror</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error⑥"><code>error</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onversionchange"><code>onversionchange</code></dfn> attribute is
-the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-connection-versionchange" id="ref-for-eventdef-connection-versionchange⑦"><code>versionchange</code></a> event.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onabort"><code>onabort</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes⑤">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type④">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-transaction-abort" id="ref-for-eventdef-transaction-abort①"><code>abort</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onclose"><code>onclose</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes⑥">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type⑤">event handler event type</a> is <a class="idl-code" data-link-type="event" href="https://html.spec.whatwg.org/multipage/indices.html#event-close" id="ref-for-event-close"><code>close</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onerror"><code>onerror</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes⑦">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type⑥">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error⑥"><code>error</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-onversionchange"><code>onversionchange</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes⑧">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type⑦">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-connection-versionchange" id="ref-for-eventdef-connection-versionchange⑦"><code>versionchange</code></a>.</p>
    <h3 class="heading settled" data-level="4.5" id="object-store-interface"><span class="secno">4.5. </span><span class="content">The <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore⑤">IDBObjectStore</a></code> interface</span><a class="self-link" href="#object-store-interface"></a></h3>
    <p>The <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore⑥">IDBObjectStore</a></code> interface represents an <a data-link-type="dfn" href="#object-store-handle" id="ref-for-object-store-handle⑨">object store handle</a>.</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed⑤"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
@@ -2507,8 +2505,7 @@ transaction</a>.</p>
       <p>Returns true if the store has a <a data-link-type="dfn" href="#key-generator" id="ref-for-key-generator①④">key generator</a>, and false otherwise.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-name"><code>name</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑧">this</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①①">name</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-name"><code>name</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑧">this</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①①">name</a>.</p>
    <details class="note">
     <summary> Is this the same as the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦②">object store</a>'s <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①②">name</a>? </summary>
      As long as the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑧">transaction</a> has not <a data-link-type="dfn" href="#transaction-finished" id="ref-for-transaction-finished⑦">finished</a>,
@@ -2516,7 +2513,7 @@ must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this"
   later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑥">upgrade transaction</a>. 
    </details>
    <div class="algorithm">
-    <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name③">name</a></code> attribute’s setter must run these steps:</p>
+    <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name③">name</a></code> setter steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>name</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#the-given-value" id="ref-for-the-given-value">the given value</a>.</p>
@@ -2542,16 +2539,16 @@ terminate these steps.</p>
       <p>Set <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②①">this</a>'s <a data-link-type="dfn" href="#object-store-handle-name" id="ref-for-object-store-handle-name">name</a> to <var>name</var>.</p>
     </ol>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-keypath"><code>keyPath</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②②">this</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store③">object store</a>'s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path①②">key path</a>, or
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-keypath"><code>keyPath</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②②">this</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store③">object store</a>'s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path①②">key path</a>, or
 null if none. The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path①">key path</a> is converted as a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑨">DOMString</a></code> (if a
-string) or a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence">sequence&lt;DOMString></a> (if a list of strings), per <a data-link-type="biblio" href="#biblio-webidl">[WEBIDL]</a>.</p>
-   <p>The returned value is not the same instance that was used when the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑤">object store</a> was created. However, if this attribute returns
+string) or a <code><a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence">sequence</a>&lt;<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②⓪">DOMString</a></code>></code> (if a list of strings), per <a data-link-type="biblio" href="#biblio-webidl">[WEBIDL]</a>.</p>
+   <aside class="note"> The returned value is not the same instance that was used when the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑤">object store</a> was created. However, if this attribute returns
 an object (specifically an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects④">Array</a>), it returns the same object
 instance every time it is inspected. Changing the properties of the
-object has no effect on the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑥">object store</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-indexnames"><code>indexNames</code></dfn> attribute’s
-getter must return a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist③">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list①">sorted name list</a> of the <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①">names</a> of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①⑨">indexes</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②③">this</a>'s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set①">index set</a>.</p>
+object has no effect on the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑥">object store</a>. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-indexnames"><code>indexNames</code></dfn> getter steps are to
+return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist③">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list①">sorted name list</a> of the <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①">names</a> of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①⑨">indexes</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②③">this</a>'s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set①">index set</a>.</p>
    <details class="note">
     <summary> Is this the same as <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑦">object store</a>'s list
     of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②⓪">index</a> <a data-link-type="dfn" href="#index-name" id="ref-for-index-name②">names</a>? </summary>
@@ -2560,10 +2557,10 @@ getter must return a <code class="idl"><a data-link-type="idl" href="https://htm
   of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②①">index</a> <a data-link-type="dfn" href="#index-name" id="ref-for-index-name③">names</a>. But once the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑤①">transaction</a> has <a data-link-type="dfn" href="#transaction-finished" id="ref-for-transaction-finished①⓪">finished</a>, this attribute will not
   reflect changes made with a later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction②⑧">upgrade transaction</a>. 
    </details>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-transaction"><code>transaction</code></dfn> attribute’s
-getter must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②④">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction②">transaction</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-autoincrement"><code>autoIncrement</code></dfn> attribute’s
-getter must return true if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑤">this</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store④">object store</a> has a <a data-link-type="dfn" href="#key-generator" id="ref-for-key-generator①⑤">key generator</a>,
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-transaction"><code>transaction</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②④">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction②">transaction</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-autoincrement"><code>autoIncrement</code></dfn> getter steps are to
+return true if <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑤">this</a>'s <a data-link-type="dfn" href="#object-store-handle-object-store" id="ref-for-object-store-handle-object-store④">object store</a> has a <a data-link-type="dfn" href="#key-generator" id="ref-for-key-generator①⑤">key generator</a>,
 and false otherwise.</p>
    <div class="domintro note" role="note">
      The following methods throw a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#readonlyerror" id="ref-for-readonlyerror①">ReadOnlyError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑧">DOMException</a></code> if called within a <a data-link-type="dfn" href="#transaction-read-only-transaction" id="ref-for-transaction-read-only-transaction④">read-only transaction</a>, and a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#transactioninactiveerror" id="ref-for-transactioninactiveerror④">TransactionInactiveError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException③⑨">DOMException</a></code> if
@@ -2590,12 +2587,8 @@ be <code>undefined</code>.</p>
 be <code>undefined</code>.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="put(value, key)|put(value)" id="dom-idbobjectstore-put"><code>put(<var>value</var>, <var>key</var>)</code></dfn> method,
-when invoked, must return the result of running <a data-link-type="dfn" href="#add-or-put" id="ref-for-add-or-put">add or
-put</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑥">this</a>, <var>value</var>, <var>key</var> and the <var>no-overwrite flag</var> false.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="add(value, key)|add(value)" id="dom-idbobjectstore-add"><code>add(<var>value</var>, <var>key</var>)</code></dfn> method,
-when invoked, must return the result of running <a data-link-type="dfn" href="#add-or-put" id="ref-for-add-or-put①">add or
-put</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑦">this</a>, <var>value</var>, <var>key</var> and the <var>no-overwrite flag</var> true.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="put(value, key)|put(value)" id="dom-idbobjectstore-put"><code>put(<var>value</var>, <var>key</var>)</code></dfn> method steps are to return the result of running <a data-link-type="dfn" href="#add-or-put" id="ref-for-add-or-put">add or put</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑥">this</a>, <var>value</var>, <var>key</var> and the <var>no-overwrite flag</var> false.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="add(value, key)|add(value)" id="dom-idbobjectstore-add"><code>add(<var>value</var>, <var>key</var>)</code></dfn> method steps are to return the result of running <a data-link-type="dfn" href="#add-or-put" id="ref-for-add-or-put①">add or put</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑦">this</a>, <var>value</var>, <var>key</var> and the <var>no-overwrite flag</var> true.</p>
    <div class="algorithm">
     <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="add-or-put">add or put</dfn> with <var>handle</var>, <var>value</var>, <var>key</var>, and <var>no-overwrite flag</var>, run these steps:</p>
     <ol>
@@ -2665,8 +2658,7 @@ false, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw"
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-delete"><code>delete(<var>query</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-delete"><code>delete(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②⑧">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction④">transaction</a>.</p>
@@ -2692,8 +2684,7 @@ deleted.</p>
    <aside class="note"> Unlike other methods which take keys or key ranges, this method does <strong>not</strong> allow null to be given as key. This is to
   reduce the risk that a small bug would clear a whole object store. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-clear"><code>clear()</code></dfn> method, when invoked,
-must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-clear"><code>clear()</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③①">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction⑤">transaction</a>.</p>
@@ -2743,8 +2734,7 @@ given <a data-link-type="dfn" href="#key" id="ref-for-key⑤⑥">key</a> or <a d
        <p>If successful, <var>request</var>’s <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-result" id="ref-for-dom-idbrequest-result①②">result</a></code> will be the count.</p>
      </dl>
     </div>
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-get"><code>get(<var>query</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-get"><code>get(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③④">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction⑥">transaction</a>.</p>
@@ -2773,8 +2763,7 @@ that range.</p>
   a cursor with <code>undefined</code> as value if a record exists, or no cursor if
   no such record exists. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-getkey"><code>getKey(<var>query</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-getkey"><code>getKey(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③⑦">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction⑦">transaction</a>.</p>
@@ -2798,7 +2787,7 @@ identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-
 retrieved. If a range is specified, the method retrieves
 the first existing key in that range.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="getAll(query, count)|getAll(query)|getAll()" id="dom-idbobjectstore-getall"><code>getAll(<var>query</var>, <var>count</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="getAll(query, count)|getAll(query)|getAll()" id="dom-idbobjectstore-getall"><code>getAll(<var>query</var>, <var>count</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④⓪">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction⑧">transaction</a>.</p>
@@ -2822,7 +2811,7 @@ identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-
 an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for-unbounded-key-range②">unbounded key range</a> is used. If <var>count</var> is specified and
 there are more than <var>count</var> records in range, only the first <var>count</var> will be retrieved.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="getAllKeys(query, count)|getAllKeys(query)|getAllKeys()" id="dom-idbobjectstore-getallkeys"><code>getAllKeys(<var>query</var>, <var>count</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="getAllKeys(query, count)|getAllKeys(query)|getAllKeys()" id="dom-idbobjectstore-getallkeys"><code>getAllKeys(<var>query</var>, <var>count</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④③">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction⑨">transaction</a>.</p>
@@ -2846,8 +2835,7 @@ identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-
 given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for-unbounded-key-range③">unbounded key range</a> is used. If <var>count</var> is specified
 and there are more than <var>count</var> keys in range, only the first <var>count</var> will be retrieved.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="count(query)|count()" id="dom-idbobjectstore-count"><code>count(<var>query</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="count(query)|count()" id="dom-idbobjectstore-count"><code>count(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④⑥">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction①⓪">transaction</a>.</p>
@@ -2886,7 +2874,7 @@ null if there were no matching <a data-link-type="dfn" href="#object-store-recor
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="openCursor(query, direction)|openCursor(query)|openCursor()" id="dom-idbobjectstore-opencursor"><code>openCursor(<var>query</var>, <var>direction</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="openCursor(query, direction)|openCursor(query)|openCursor()" id="dom-idbobjectstore-opencursor"><code>openCursor(<var>query</var>, <var>direction</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④⑨">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction①①">transaction</a>.</p>
@@ -2917,7 +2905,7 @@ undefined <a data-link-type="dfn" href="#cursor-key" id="ref-for-cursor-key">key
 to use as the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor①⑨">cursor</a>'s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range③">range</a>.
 If null or not given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for-unbounded-key-range⑤">unbounded key range</a> is used.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="openKeyCursor(query, direction)|openKeyCursor(query)|openKeyCursor()" id="dom-idbobjectstore-openkeycursor"><code>openKeyCursor(<var>query</var>, <var>direction</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="openKeyCursor(query, direction)|openKeyCursor(query)|openKeyCursor()" id="dom-idbobjectstore-openkeycursor"><code>openKeyCursor(<var>query</var>, <var>direction</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤②">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction①②">transaction</a>.</p>
@@ -2968,7 +2956,7 @@ transaction</a>.</p>
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="createIndex(name, keyPath, options)|createIndex(name, keyPath)" id="dom-idbobjectstore-createindex"><code>createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export data-lt="createIndex(name, keyPath, options)|createIndex(name, keyPath)" id="dom-idbobjectstore-createindex"><code>createIndex(<var>name</var>, <var>keyPath</var>, <var>options</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤⑤">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction①③">transaction</a>.</p>
@@ -3045,8 +3033,7 @@ created due to <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-ind
   fails.</p>
    </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-index"><code>index(<var>name</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-index"><code>index(<var>name</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤⑨">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction①④">transaction</a>.</p>
@@ -3070,8 +3057,7 @@ then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" i
   different <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore①⓪">IDBObjectStore</a></code> instance with the same name, a
   different <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex①⓪">IDBIndex</a></code> instance is returned. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-deleteindex"><code>deleteIndex(<var>name</var>)</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="method" data-export id="dom-idbobjectstore-deleteindex"><code>deleteIndex(<var>name</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑥③">this</a>'s <a data-link-type="dfn" href="#object-store-handle-transaction" id="ref-for-object-store-handle-transaction①⑤">transaction</a>.</p>
@@ -3103,7 +3089,7 @@ within the <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgra
    <p>The <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex①②">IDBIndex</a></code> interface represents an <a data-link-type="dfn" href="#index-handle" id="ref-for-index-handle⑦">index handle</a>.</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed⑥"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="idbindex"><code><c- g>IDBIndex</c-></code></dfn> {
-  <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②⓪"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-type="DOMString" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name"><c- g>name</c-></a>;
+  <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②①"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-type="DOMString" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name"><c- g>name</c-></a>;
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject" id="ref-for-SameObject②"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#idbobjectstore" id="ref-for-idbobjectstore①②"><c- n>IDBObjectStore</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="IDBObjectStore" href="#dom-idbindex-objectstore" id="ref-for-dom-idbindex-objectstore"><c- g>objectStore</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <c- b>any</c-> <a class="idl-code" data-link-type="attribute" data-readonly data-type="any" href="#dom-idbindex-keypath" id="ref-for-dom-idbindex-keypath"><c- g>keyPath</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean④"><c- b>boolean</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="boolean" href="#dom-idbindex-multientry" id="ref-for-dom-idbindex-multientry"><c- g>multiEntry</c-></a>;
@@ -3147,7 +3133,7 @@ transaction</a>.</p>
       <p>Returns true if the index’s <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-index-unique-flag⑤">unique flag</a> is true.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-name"><code>name</code></dfn> attribute’s getter must
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-name"><code>name</code></dfn> getter steps are to
 return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑥⑥">this</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①⓪">name</a>.</p>
    <details class="note">
     <summary> Is this the same as the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③②">index</a>'s <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①①">name</a>? </summary>
@@ -3156,7 +3142,7 @@ return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="
   later <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⓪">upgrade transaction</a>. 
    </details>
    <div class="algorithm">
-    <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name③">name</a></code> attribute’s setter must run these steps:</p>
+    <p>The <code class="idl"><a data-link-type="idl" href="#dom-idbindex-name" id="ref-for-dom-idbindex-name③">name</a></code> setter steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>name</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#the-given-value" id="ref-for-the-given-value①">the given value</a>.</p>
@@ -3183,18 +3169,18 @@ store</a>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-th
       <p>Set <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑥⑨">this</a>'s <a data-link-type="dfn" href="#index-handle-name" id="ref-for-index-handle-name">name</a> to <var>name</var>.</p>
     </ol>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-objectstore"><code>objectStore</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦⓪">this</a>'s <a data-link-type="dfn" href="#index-handle-object-store-handle" id="ref-for-index-handle-object-store-handle">object store handle</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-keypath"><code>keyPath</code></dfn> attribute’s getter must
-return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦①">this</a>'s <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index②">index</a>'s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path①⑤">key path</a>. The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path③">key path</a> is converted as a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②①">DOMString</a></code> (if a string) or a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence①">sequence&lt;DOMString></a> (if a
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-objectstore"><code>objectStore</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦⓪">this</a>'s <a data-link-type="dfn" href="#index-handle-object-store-handle" id="ref-for-index-handle-object-store-handle">object store handle</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-keypath"><code>keyPath</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦①">this</a>'s <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index②">index</a>'s <a data-link-type="dfn" href="#object-store-key-path" id="ref-for-object-store-key-path①⑤">key path</a>. The <a data-link-type="dfn" href="#key-path" id="ref-for-key-path③">key path</a> is converted as a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②②">DOMString</a></code> (if a string) or a <code><a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence①">sequence</a>&lt;<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②③">DOMString</a></code>></code> (if a
 list of strings), per <a data-link-type="biblio" href="#biblio-webidl">[WEBIDL]</a>.</p>
-   <p>The returned value is not the same instance that was used when the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③⑤">index</a> was created. However, if this attribute returns an
+   <aside class="note"> The returned value is not the same instance that was used when the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③⑤">index</a> was created. However, if this attribute returns an
 object (specifically an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects⑦">Array</a>), it returns the same object
 instance every time it is inspected. Changing the properties of the
-object has no effect on the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③⑥">index</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-multientry"><code>multiEntry</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦②">this</a>'s <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index③">index</a>'s <a data-link-type="dfn" href="#index-multientry-flag" id="ref-for-index-multientry-flag④">multiEntry flag</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-unique"><code>unique</code></dfn> attribute’s getter must
+object has no effect on the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③⑥">index</a>. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-multientry"><code>multiEntry</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦②">this</a>'s <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index③">index</a>'s <a data-link-type="dfn" href="#index-multientry-flag" id="ref-for-index-multientry-flag④">multiEntry flag</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="attribute" data-export id="dom-idbindex-unique"><code>unique</code></dfn> getter steps are to
 return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦③">this</a>'s <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-index④">index</a>'s <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-index-unique-flag⑥">unique flag</a>.</p>
    <div class="domintro note" role="note">
      The following methods throw an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#transactioninactiveerror" id="ref-for-transactioninactiveerror②⓪">TransactionInactiveError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑨⑥">DOMException</a></code> if called
@@ -3226,8 +3212,7 @@ count.</p>
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export id="dom-idbindex-get"><code>get(<var>query</var>)</code></dfn> method, when invoked,
-must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export id="dom-idbindex-get"><code>get(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦④">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction①">transaction</a>.</p>
@@ -3255,8 +3240,7 @@ that range.</p>
   cursor with <code>undefined</code> as value if a record exists, or no cursor if
   no such record exists. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export id="dom-idbindex-getkey"><code>getKey(<var>query</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export id="dom-idbindex-getkey"><code>getKey(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑦⑦">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction②">transaction</a>.</p>
@@ -3279,8 +3263,7 @@ identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-
 If a range is specified, the method retrieves the first existing key
 in that range.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="getAll(query, count)|getAll(query)|getAll()" id="dom-idbindex-getall"><code>getAll(<var>query</var>, <var>count</var>)</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="getAll(query, count)|getAll(query)|getAll()" id="dom-idbindex-getall"><code>getAll(<var>query</var>, <var>count</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑧⓪">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction③">transaction</a>.</p>
@@ -3304,7 +3287,7 @@ identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-
 an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for-unbounded-key-range⑦">unbounded key range</a> is used. If <var>count</var> is specified and
 there are more than <var>count</var> records in range, only the first <var>count</var> will be retrieved.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="getAllKeys(query, count)|getAllKeys(query)|getAllKeys()" id="dom-idbindex-getallkeys"><code>getAllKeys(<var>query</var>, <var>count</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="getAllKeys(query, count)|getAllKeys(query)|getAllKeys()" id="dom-idbindex-getallkeys"><code>getAllKeys(<var>query</var>, <var>count</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑧③">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction④">transaction</a>.</p>
@@ -3328,8 +3311,7 @@ identifying the <a data-link-type="dfn" href="#object-store-record" id="ref-for-
 given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for-unbounded-key-range⑧">unbounded key range</a> is used. If <var>count</var> is specified
 and there are more than <var>count</var> keys in range, only the first <var>count</var> will be retrieved.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="count(query)|count()" id="dom-idbindex-count"><code>count(<var>query</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="count(query)|count()" id="dom-idbindex-count"><code>count(<var>query</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑧⑥">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction⑤">transaction</a>.</p>
@@ -3367,7 +3349,7 @@ ordered by <var>direction</var>. If <var>query</var> is null, all <a data-link-t
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="openCursor(query, direction)|openCursor(query)|openCursor()" id="dom-idbindex-opencursor"><code>openCursor(<var>query</var>, <var>direction</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="openCursor(query, direction)|openCursor(query)|openCursor()" id="dom-idbindex-opencursor"><code>openCursor(<var>query</var>, <var>direction</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑧⑨">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction⑥">transaction</a>.</p>
@@ -3398,7 +3380,7 @@ using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-
 to use as the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor②⑤">cursor</a>'s <a data-link-type="dfn" href="#cursor-range" id="ref-for-cursor-range⑦">range</a>. If null
 or not given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for-unbounded-key-range①⓪">unbounded key range</a> is used.</p>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="openKeyCursor(query, direction)|openKeyCursor(query)|openKeyCursor()" id="dom-idbindex-openkeycursor"><code>openKeyCursor(<var>query</var>, <var>direction</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBIndex" data-dfn-type="method" data-export data-lt="openKeyCursor(query, direction)|openKeyCursor(query)|openKeyCursor()" id="dom-idbindex-openkeycursor"><code>openKeyCursor(<var>query</var>, <var>direction</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨②">this</a>'s <a data-link-type="dfn" href="#index-handle-transaction" id="ref-for-index-handle-transaction⑦">transaction</a>.</p>
@@ -3466,16 +3448,16 @@ or not given, an <a data-link-type="dfn" href="#unbounded-key-range" id="ref-for
       <p>Returns the range’s <a data-link-type="dfn" href="#key-range-upper-open-flag" id="ref-for-key-range-upper-open-flag③">upper open flag</a>.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-lower"><code>lower</code></dfn> attribute’s getter must
-return result of running <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value">convert a key to a value</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑤">this</a>'s <a data-link-type="dfn" href="#key-range-lower-bound" id="ref-for-key-range-lower-bound⑧">lower bound</a> if it is not null, or undefined otherwise.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-upper"><code>upper</code></dfn> attribute’s getter must
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-lower"><code>lower</code></dfn> getter steps are to
+return the result of running <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value">convert a key to a value</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑤">this</a>'s <a data-link-type="dfn" href="#key-range-lower-bound" id="ref-for-key-range-lower-bound⑧">lower bound</a> if it is not null, or undefined otherwise.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-upper"><code>upper</code></dfn> getter steps are to
 return the result of running <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value①">convert a key to a
 value</a> with <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑥">this</a>'s <a data-link-type="dfn" href="#key-range-upper-bound" id="ref-for-key-range-upper-bound⑧">upper bound</a> if it is not null, or undefined
 otherwise.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-loweropen"><code>lowerOpen</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑦">this</a>'s <a data-link-type="dfn" href="#key-range-lower-open-flag" id="ref-for-key-range-lower-open-flag④">lower open flag</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-upperopen"><code>upperOpen</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑧">this</a>'s <a data-link-type="dfn" href="#key-range-upper-open-flag" id="ref-for-key-range-upper-open-flag④">upper open flag</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-loweropen"><code>lowerOpen</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑦">this</a>'s <a data-link-type="dfn" href="#key-range-lower-open-flag" id="ref-for-key-range-lower-open-flag④">lower open flag</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="attribute" data-export id="dom-idbkeyrange-upperopen"><code>upperOpen</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑧">this</a>'s <a data-link-type="dfn" href="#key-range-upper-open-flag" id="ref-for-key-range-upper-open-flag④">upper open flag</a>.</p>
    <div class="domintro note" role="note">
     <dl>
      <dt data-md><var>range</var> = <code class="idl"><a data-link-type="idl" href="#idbkeyrange" id="ref-for-idbkeyrange②①">IDBKeyRange</a></code> . <code class="idl"><a data-link-type="idl" href="#dom-idbkeyrange-only" id="ref-for-dom-idbkeyrange-only①">only</a></code>(<var>key</var>)
@@ -3498,8 +3480,7 @@ If <var>upperOpen</var> is true, <var>upper</var> is not included in the range.<
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export id="dom-idbkeyrange-only"><code>only(<var>value</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export id="dom-idbkeyrange-only"><code>only(<var>value</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>key</var> be the result of running <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key⑤">convert
@@ -3511,7 +3492,7 @@ a value to a key</a> with <var>value</var>. Rethrow any exceptions.</p>
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export data-lt="lowerBound(lower, open)|lowerBound(lower)" id="dom-idbkeyrange-lowerbound"><code>lowerBound(<var>lower</var>, <var>open</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export data-lt="lowerBound(lower, open)|lowerBound(lower)" id="dom-idbkeyrange-lowerbound"><code>lowerBound(<var>lower</var>, <var>open</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>lowerKey</var> be the result of running <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key⑥">convert a
@@ -3523,7 +3504,7 @@ value to a key</a> with <var>lower</var>. Rethrow any exceptions.</p>
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export data-lt="upperBound(upper, open)|upperBound(upper)" id="dom-idbkeyrange-upperbound"><code>upperBound(<var>upper</var>, <var>open</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export data-lt="upperBound(upper, open)|upperBound(upper)" id="dom-idbkeyrange-upperbound"><code>upperBound(<var>upper</var>, <var>open</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>upperKey</var> be the result of running <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key⑦">convert a
@@ -3535,7 +3516,7 @@ value to a key</a> with <var>upper</var>. Rethrow any exceptions.</p>
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export data-lt="bound(lower, upper, lowerOpen, upperOpen)|bound(lower, upper, lowerOpen)|bound(lower, upper)" id="dom-idbkeyrange-bound"><code>bound(<var>lower</var>, <var>upper</var>, <var>lowerOpen</var>, <var>upperOpen</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export data-lt="bound(lower, upper, lowerOpen, upperOpen)|bound(lower, upper, lowerOpen)|bound(lower, upper)" id="dom-idbkeyrange-bound"><code>bound(<var>lower</var>, <var>upper</var>, <var>lowerOpen</var>, <var>upperOpen</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>lowerKey</var> be the result of running <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key⑧">convert a
@@ -3563,8 +3544,7 @@ flag</a> set to <var>upperOpen</var>.</p>
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export id="dom-idbkeyrange-includes"><code>includes(<var>key</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBKeyRange" data-dfn-type="method" data-export id="dom-idbkeyrange-includes"><code>includes(<var>key</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>k</var> be the result of running <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key①⓪">convert a
@@ -3624,30 +3604,30 @@ Throws a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.
       <p>Returns the <a data-link-type="dfn" href="#cursor-request" id="ref-for-cursor-request④">request</a> that was used to obtain this cursor.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-source"><code>source</code></dfn> attribute’s getter must
-return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑨">this</a>'s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source①③">source</a>. This
-attribute never returns null or throws an exception, even if the
-cursor is currently being iterated, has iterated past its end, or its <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⓪">transaction</a> is not <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active③③">active</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-direction"><code>direction</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⓪⓪">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑥">direction</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-key"><code>key</code></dfn> attribute’s getter must
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-source"><code>source</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑨⑨">this</a>'s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source①③">source</a>.</p>
+   <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-source" id="ref-for-dom-idbcursor-source②">source</a></code> attribute never returns null or throws an exception, even if the
+cursor is currently being iterated, has iterated past its end, or its <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⓪">transaction</a> is not <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active③③">active</a>. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-direction"><code>direction</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⓪⓪">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑥">direction</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-key"><code>key</code></dfn> getter steps are to
 return the result of running <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value②">convert a key to a
-value</a> with the cursor’s current <a data-link-type="dfn" href="#cursor-key" id="ref-for-cursor-key⑤">key</a>. Note that
-if this property returns an object (e.g. a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-date-objects" id="ref-for-sec-date-objects②">Date</a> or <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects①⓪">Array</a>), it returns the same object instance every time it is
+value</a> with the cursor’s current <a data-link-type="dfn" href="#cursor-key" id="ref-for-cursor-key⑤">key</a>.</p>
+   <aside class="note"> If <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-key" id="ref-for-dom-idbcursor-key②">key</a></code> returns an object (e.g. a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-date-objects" id="ref-for-sec-date-objects②">Date</a> or <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects①⓪">Array</a>), it returns the same object instance every time it is
 inspected, until the cursor’s <a data-link-type="dfn" href="#cursor-key" id="ref-for-cursor-key⑥">key</a> is changed. This
 means that if the object is modified, those modifications will be seen
 by anyone inspecting the value of the cursor. However modifying such
-an object does not modify the contents of the database.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-primarykey"><code>primaryKey</code></dfn> attribute’s getter
-must return the result of running <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value③">convert a key to a
-value</a> with the cursor’s current <a data-link-type="dfn" href="#cursor-effective-key" id="ref-for-cursor-effective-key②">effective key</a>. Note that if
-this property returns an object (e.g. a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-date-objects" id="ref-for-sec-date-objects③">Date</a> or <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects①①">Array</a>),
+an object does not modify the contents of the database. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-primarykey"><code>primaryKey</code></dfn> getter steps are to
+return the result of running <a data-link-type="dfn" href="#convert-a-key-to-a-value" id="ref-for-convert-a-key-to-a-value③">convert a key to a
+value</a> with the cursor’s current <a data-link-type="dfn" href="#cursor-effective-key" id="ref-for-cursor-effective-key②">effective key</a>.</p>
+   <aside class="note"> If <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-primarykey" id="ref-for-dom-idbcursor-primarykey②">primaryKey</a></code> returns an object (e.g. a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-date-objects" id="ref-for-sec-date-objects③">Date</a> or <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects①①">Array</a>),
 it returns the same object instance every time it is inspected, until
 the cursor’s <a data-link-type="dfn" href="#cursor-effective-key" id="ref-for-cursor-effective-key③">effective key</a> is changed. This means that if the
 object is modified, those modifications will be seen by anyone
 inspecting the value of the cursor. However modifying such an object
-does not modify the contents of the database.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-request"><code>request</code></dfn> attribute’s getter must
+does not modify the contents of the database. </aside>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="attribute" data-export id="dom-idbcursor-request"><code>request</code></dfn> getter steps are to
 return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⓪①">this</a>'s <a data-link-type="dfn" href="#cursor-request" id="ref-for-cursor-request⑤">request</a>.</p>
    <aside class="advisement"> 🚧
   The <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-request" id="ref-for-dom-idbcursor-request②">request</a></code> attribute is new in this edition.
@@ -3680,8 +3660,7 @@ or after <var>key</var> and <var>primaryKey</var>. Throws an "<code class="idl">
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-advance"><code>advance(<var>count</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-advance"><code>advance(<var>count</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>If <var>count</var> is 0 (zero), <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw⑨③">throw</a> a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-native-error-types-used-in-this-standard-typeerror" id="ref-for-sec-native-error-types-used-in-this-standard-typeerror②">TypeError</a>.</p>
@@ -3713,8 +3692,7 @@ the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-realm"
   loaded - for example, calling <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-advance" id="ref-for-dom-idbcursor-advance②">advance()</a></code> twice from the
   same onsuccess handler - results in an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror④⑦">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①②⑦">DOMException</a></code> being thrown on the second call because the cursor’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag⑥">got value flag</a> has been set to false. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export data-lt="continue(key)|continue()" id="dom-idbcursor-continue"><code>continue(<var>key</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export data-lt="continue(key)|continue()" id="dom-idbcursor-continue"><code>continue(<var>key</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⓪⑨">this</a>'s <a data-link-type="dfn" href="#cursor-transaction" id="ref-for-cursor-transaction⑤">transaction</a>.</p>
@@ -3759,7 +3737,7 @@ using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-
   loaded - for example, calling <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-continue" id="ref-for-dom-idbcursor-continue③">continue()</a></code> twice from the
   same onsuccess handler - results in an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑤⓪">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①③④">DOMException</a></code> being thrown on the second call because the cursor’s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag⑨">got value flag</a> has been set to false. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export data-lt="continuePrimaryKey(key, primaryKey)" id="dom-idbcursor-continueprimarykey"><code>continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</code></dfn> method, when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-continueprimarykey"><code>continuePrimaryKey(<var>key</var>, <var>primaryKey</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①②⓪">this</a>'s <a data-link-type="dfn" href="#cursor-transaction" id="ref-for-cursor-transaction⑥">transaction</a>.</p>
@@ -3832,8 +3810,7 @@ using the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#current-
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-update"><code>update(<var>value</var>)</code></dfn> method, when
-invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-update"><code>update(<var>value</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①③⑨">this</a>'s <a data-link-type="dfn" href="#cursor-transaction" id="ref-for-cursor-transaction⑦">transaction</a>.</p>
@@ -3885,8 +3862,7 @@ record into an object store</a> as <var>operation</var>, using <a data-link-type
   store</a> is that if the record has been deleted since the cursor
   moved to it, a new record will be created. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-delete"><code>delete()</code></dfn> method, when invoked,
-must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursor" data-dfn-type="method" data-export id="dom-idbcursor-delete"><code>delete()</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>Let <var>transaction</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①④⑨">this</a>'s <a data-link-type="dfn" href="#cursor-transaction" id="ref-for-cursor-transaction⑧">transaction</a>.</p>
@@ -3923,13 +3899,13 @@ key</a> as <var>store</var> and <var>key</var> respectively.</p>
       <p>Returns the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor③②">cursor</a>'s current <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value⑤">value</a>.</p>
     </dl>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursorWithValue" data-dfn-type="attribute" data-export id="dom-idbcursorwithvalue-value"><code>value</code></dfn> attribute’s
-getter must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑤">this</a>'s current <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value⑥">value</a>. Note
-that if this property returns an object, it returns the same object
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBCursorWithValue" data-dfn-type="attribute" data-export id="dom-idbcursorwithvalue-value"><code>value</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑤">this</a>'s current <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value⑥">value</a>.</p>
+   <aside class="note"> If <code class="idl"><a data-link-type="idl" href="#dom-idbcursorwithvalue-value" id="ref-for-dom-idbcursorwithvalue-value②">value</a></code> returns an object, it returns the same object
 instance every time it is inspected, until the cursor’s <a data-link-type="dfn" href="#cursor-value" id="ref-for-cursor-value⑦">value</a> is changed. This means that if the object is
 modified, those modifications will be seen by anyone inspecting the
 value of the cursor. However modifying such an object does not modify
-the contents of the database.</p>
+the contents of the database. </aside>
    <h3 class="heading settled" data-level="4.9" id="transaction"><span class="secno">4.9. </span><span class="content">The <code class="idl"><a data-link-type="idl" href="#idbtransaction" id="ref-for-idbtransaction⑤">IDBTransaction</a></code> interface</span><a class="self-link" href="#transaction"></a></h3>
    <p><a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥③">Transaction</a> objects implement the following interface:</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①⓪"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
@@ -3940,7 +3916,7 @@ the contents of the database.</p>
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject" id="ref-for-SameObject④"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#idbdatabase" id="ref-for-idbdatabase⑧"><c- n>IDBDatabase</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="IDBDatabase" href="#dom-idbtransaction-db" id="ref-for-dom-idbtransaction-db"><c- g>db</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⑥①"><c- n>DOMException</c-></a>? <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMException?" href="#dom-idbtransaction-error" id="ref-for-dom-idbtransaction-error"><c- g>error</c-></a>;
 
-  <a class="n" data-link-type="idl-name" href="#idbobjectstore" id="ref-for-idbobjectstore①⑥"><c- n>IDBObjectStore</c-></a> <a class="idl-code" data-link-type="method" href="#dom-idbtransaction-objectstore" id="ref-for-dom-idbtransaction-objectstore"><c- g>objectStore</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②②"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="IDBTransaction/objectStore(name)" data-dfn-type="argument" data-export id="dom-idbtransaction-objectstore-name-name"><code><c- g>name</c-></code><a class="self-link" href="#dom-idbtransaction-objectstore-name-name"></a></dfn>);
+  <a class="n" data-link-type="idl-name" href="#idbobjectstore" id="ref-for-idbobjectstore①⑥"><c- n>IDBObjectStore</c-></a> <a class="idl-code" data-link-type="method" href="#dom-idbtransaction-objectstore" id="ref-for-dom-idbtransaction-objectstore"><c- g>objectStore</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString②④"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="IDBTransaction/objectStore(name)" data-dfn-type="argument" data-export id="dom-idbtransaction-objectstore-name-name"><code><c- g>name</c-></code><a class="self-link" href="#dom-idbtransaction-objectstore-name-name"></a></dfn>);
   <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-idbtransaction-commit" id="ref-for-dom-idbtransaction-commit①"><c- g>commit</c-></a>();
   <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-idbtransaction-abort" id="ref-for-dom-idbtransaction-abort①"><c- g>abort</c-></a>();
 
@@ -3981,29 +3957,29 @@ error (a <code class="idl"><a data-link-type="idl" href="https://heycam.github.i
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-objectstorenames"><code>objectStoreNames</code></dfn> attribute’s getter must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-objectstorenames"><code>objectStoreNames</code></dfn> getter steps are:</p>
     <ol>
      <li data-md>
       <p>If <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑥">this</a> is an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④④">upgrade transaction</a>,
-then return a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑤">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list②">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑦">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨①">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑦">this</a>'s <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑨">connection</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set②">object store set</a>.</p>
+then return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑤">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list②">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑦">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨①">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑦">this</a>'s <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑨">connection</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set②">object store set</a>.</p>
      <li data-md>
-      <p>Otherwise, return a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑥">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list③">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑧">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨②">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑧">this</a>'s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope⑨">scope</a>.</p>
+      <p>Otherwise, return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑥">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list③">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑧">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨②">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑧">this</a>'s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope⑨">scope</a>.</p>
     </ol>
    </div>
    <aside class="note"> The contents of each list returned by this attribute does not
   change, but subsequent calls to this attribute during an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑤">upgrade
   transaction</a> can return lists with different contents as <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨③">object stores</a> are created and deleted. </aside>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-mode"><code>mode</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑨">this</a>'s <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑨">mode</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-durability"><code>durability</code></dfn> attribute’s getter must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥⓪">this</a>'s <a data-link-type="dfn" href="#transaction-durability-hint" id="ref-for-transaction-durability-hint②">durability hint</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-mode"><code>mode</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑨">this</a>'s <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑨">mode</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-durability"><code>durability</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥⓪">this</a>'s <a data-link-type="dfn" href="#transaction-durability-hint" id="ref-for-transaction-durability-hint②">durability hint</a>.</p>
    <aside class="advisement"> 🚧
   The <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-durability" id="ref-for-dom-idbtransaction-durability②">durability</a></code> attribute is new in this edition.
   It is supported in Chrome 82 and Edge 82.
   🚧 </aside>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-db"><code>db</code></dfn> attribute’s getter must
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-db"><code>db</code></dfn> getter steps are to
 return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥①">this</a>'s <a data-link-type="dfn" href="#transaction-connection" id="ref-for-transaction-connection②">connection</a>'s associated <a data-link-type="dfn" href="#database" id="ref-for-database⑤④">database</a>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-error"><code>error</code></dfn> attribute’s getter
-must return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥②">this</a>'s <a data-link-type="dfn" href="#transaction-error" id="ref-for-transaction-error">error</a>, or null if
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-error"><code>error</code></dfn> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥②">this</a>'s <a data-link-type="dfn" href="#transaction-error" id="ref-for-transaction-error">error</a>, or null if
 none.</p>
    <aside class="note"> If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥④">transaction</a> was aborted due to a failed <a data-link-type="dfn" href="#request" id="ref-for-request③⓪">request</a>, this will be the same as the <a data-link-type="dfn" href="#request" id="ref-for-request③①">request</a>'s <a data-link-type="dfn" href="#request-error" id="ref-for-request-error⑥">error</a>. If this <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑤">transaction</a> was aborted
   due to an uncaught exception in an event handler, the error will be
@@ -4035,8 +4011,7 @@ transaction from aborting.</p>
     </dl>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export id="dom-idbtransaction-objectstore"><code>objectStore(<var>name</var>)</code></dfn> method,
-when invoked, must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export id="dom-idbtransaction-objectstore"><code>objectStore(<var>name</var>)</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>If <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state③⑤">state</a> is <a data-link-type="dfn" href="#transaction-finished" id="ref-for-transaction-finished①④">finished</a>,
@@ -4053,8 +4028,7 @@ then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" i
    <aside class="note"> The returned <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore①⑨">IDBObjectStore</a></code> instance is specific to this <code class="idl"><a data-link-type="idl" href="#idbtransaction" id="ref-for-idbtransaction⑦">IDBTransaction</a></code>. If this method is called on a different <code class="idl"><a data-link-type="idl" href="#idbtransaction" id="ref-for-idbtransaction⑧">IDBTransaction</a></code>, a different <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore②⓪">IDBObjectStore</a></code> instance is
   returned. </aside>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export id="dom-idbtransaction-abort"><code>abort()</code></dfn> method, when invoked,
-must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export id="dom-idbtransaction-abort"><code>abort()</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>If <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥⑤">this</a>'s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state③⑥">state</a> is <a data-link-type="dfn" href="#transaction-committing" id="ref-for-transaction-committing①">committing</a> or <a data-link-type="dfn" href="#transaction-finished" id="ref-for-transaction-finished①⑤">finished</a>,
@@ -4064,8 +4038,7 @@ then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" i
     </ol>
    </div>
    <div class="algorithm">
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export id="dom-idbtransaction-commit"><code>commit()</code></dfn> method, when invoked,
-must run these steps:</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="method" data-export id="dom-idbtransaction-commit"><code>commit()</code></dfn> method steps are:</p>
     <ol>
      <li data-md>
       <p>If <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑥⑦">this</a>'s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state③⑧">state</a> is not <a data-link-type="dfn" href="#transaction-active" id="ref-for-transaction-active④①">active</a>,
@@ -4084,12 +4057,9 @@ then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" i
     when all outstanding requests have been satisfied and no new
     requests have been made. This call can be used to start the <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit⑦">commit</a> process without waiting for events
     from outstanding <a data-link-type="dfn" href="#request" id="ref-for-request③④">requests</a> to be dispatched. </aside>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-onabort"><code>onabort</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-transaction-abort" id="ref-for-eventdef-transaction-abort②"><code>abort</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-oncomplete"><code>oncomplete</code></dfn> attribute is
-the event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete①"><code>complete</code></a> event.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-onerror"><code>onerror</code></dfn> attribute is the
-event handler for the <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error⑧"><code>error</code></a> event.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-onabort"><code>onabort</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes⑨">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type⑧">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-transaction-abort" id="ref-for-eventdef-transaction-abort②"><code>abort</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-oncomplete"><code>oncomplete</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes①⓪">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type⑨">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete①"><code>complete</code></a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-onerror"><code>onerror</code></dfn> attribute is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes①①">event handler IDL attribute</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type①⓪">event handler event type</a> is <a class="idl-code" data-link-type="event" href="#eventdef-request-error" id="ref-for-eventdef-request-error⑧"><code>error</code></a>.</p>
    <aside class="note"> To determine if a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑨">transaction</a> has completed successfully,
   listen to the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦⓪">transaction</a>'s <a class="idl-code" data-link-type="event" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete②"><code>complete</code></a> event
   rather than the <a class="idl-code" data-link-type="event" href="#eventdef-request-success" id="ref-for-eventdef-request-success①⓪"><code>success</code></a> event of a particular <a data-link-type="dfn" href="#request" id="ref-for-request③⑤">request</a>, because the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑦①">transaction</a> can still fail after
@@ -4428,8 +4398,7 @@ version</var> and <var>version</var>.</p>
        <li data-md>
         <p>Set <var>transaction</var>’s <a data-link-type="dfn" href="#transaction-state" id="ref-for-transaction-state④⑦">state</a> to <a data-link-type="dfn" href="#transaction-inactive" id="ref-for-transaction-inactive④">inactive</a>.</p>
        <li data-md>
-        <p>If <var>didThrow</var> is true, run <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction⑧">abort a
-transaction</a> with the <var>error</var> property set to a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception" id="ref-for-dfn-create-exception⑤">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror⑦">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⑦⑧">DOMException</a></code>.</p>
+        <p>If <var>didThrow</var> is true, run <a data-link-type="dfn" href="#abort-a-transaction" id="ref-for-abort-a-transaction⑧">abort a transaction</a> with <var>transaction</var> and a newly <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception" id="ref-for-dfn-create-exception⑤">created</a> "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror⑦">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①⑦⑧">DOMException</a></code>.</p>
       </ol>
      <li data-md>
       <p>Wait for <var>transaction</var> to <a data-link-type="dfn" href="#transaction-finished" id="ref-for-transaction-finished①⑧">finish</a>.</p>
@@ -4494,7 +4463,7 @@ its <a data-link-type="dfn" href="#index-handle-index" id="ref-for-index-handle-
       </details>
     </ol>
    </div>
-   <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name②">name</a></code> property of the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase①①">IDBDatabase</a></code> instance is
+   <aside class="note"> The <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name③">name</a></code> property of the <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-idbdatabase①①">IDBDatabase</a></code> instance is
   not modified, even if the aborted <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑤⑤">upgrade transaction</a> was
   creating a new <a data-link-type="dfn" href="#database" id="ref-for-database⑦②">database</a>. </aside>
    <h3 class="heading settled" data-level="5.9" id="fire-success-event"><span class="secno">5.9. </span><span class="content">Firing a success event</span><a class="self-link" href="#fire-success-event"></a></h3>
@@ -4711,7 +4680,7 @@ store</dfn> with <var>targetRealm</var>, <var>store</var>, <var>range</var> and 
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
      <li data-md>
-      <p>Return <var>list</var> converted to a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence②">sequence&lt;any></a>.</p>
+      <p>Return <var>list</var> converted to a <code><a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence②">sequence</a>&lt;<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any">any</a></code>></code>.</p>
     </ol>
    </div>
    <div class="algorithm">
@@ -4746,7 +4715,7 @@ key to a value</a> with <var>record</var>’s key.</p>
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
      <li data-md>
-      <p>Return <var>list</var> converted to a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence③">sequence&lt;any></a>.</p>
+      <p>Return <var>list</var> converted to a <code><a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence③">sequence</a>&lt;<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any①">any</a></code>></code>.</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.3" id="index-retrieval-operation"><span class="secno">6.3. </span><span class="content">Index retrieval operations</span><a class="self-link" href="#index-retrieval-operation"></a></h3>
@@ -4785,7 +4754,7 @@ index</dfn> with <var>targetRealm</var>, <var>index</var>, <var>range</var> and 
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
      <li data-md>
-      <p>Return <var>list</var> converted to a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence④">sequence&lt;any></a>.</p>
+      <p>Return <var>list</var> converted to a <code><a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence④">sequence</a>&lt;<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any②">any</a></code>></code>.</p>
     </ol>
    </div>
    <aside class="note"> The <a data-link-type="dfn" href="#index-values" id="ref-for-index-values">values</a> of an <a data-link-type="dfn" href="#index-records" id="ref-for-index-records①">record</a> in an index are the keys of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑧⑧">records</a> in the <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced⑨">referenced</a> object store. </aside>
@@ -4821,7 +4790,7 @@ key to a value</a> with <var>record</var>’s value.</p>
         <p>Append <var>entry</var> to <var>list</var>.</p>
       </ol>
      <li data-md>
-      <p>Return <var>list</var> converted to a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence⑤">sequence&lt;any></a>.</p>
+      <p>Return <var>list</var> converted to a <code><a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence⑤">sequence</a>&lt;<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any③">any</a></code>></code>.</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.4" id="object-store-deletion-operation"><span class="secno">6.4. </span><span class="content">Object store deletion operation</span><a class="self-link" href="#object-store-deletion-operation"></a></h3>
@@ -5806,18 +5775,17 @@ specification.</p>
    </div>
   </aside>
   <aside class="mdn-anno wrapped" data-deco data-mdn-for="dom-idbcursor-request">
-   <button class="mdn-anno-btn"><b class="less-than-two-engines-flag" title="This feature is in less than two current engines.">⚠</b><span>MDN</span></button>
+   <button class="mdn-anno-btn"><span>MDN</span></button>
    <div class="feature">
-    <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/IDBCursor/request" title="The request read-only property of the IDBCursor interface returns the request if the cursor.">IDBCursor/request</a></p>
-    <p class="less-than-two-engines-text">In only one current engine.</p>
+    <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/IDBCursor/request" title="The request read-only property of the IDBCursor interface returns the IDBRequest used to obtain the cursor.">IDBCursor/request</a></p>
     <div class="support">
-     <span class="firefox no"><span>Firefox</span><span>None</span></span><span class="safari no"><span>Safari</span><span>?</span></span><span class="chrome yes"><span>Chrome</span><span>76+</span></span>
+     <span class="firefox yes"><span>Firefox</span><span>77+</span></span><span class="safari no"><span>Safari</span><span>?</span></span><span class="chrome yes"><span>Chrome</span><span>76+</span></span>
      <hr>
      <span class="opera yes"><span>Opera</span><span>63+</span></span><span class="edge_blink yes"><span>Edge</span><span>79+</span></span>
      <hr>
      <span class="edge no"><span>Edge (Legacy)</span><span>None</span></span><span class="ie no"><span>IE</span><span>None</span></span>
      <hr>
-     <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android yes"><span>Chrome for Android</span><span>76+</span></span><span class="webview_android yes"><span>Android WebView</span><span>76+</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android yes"><span>Opera Mobile</span><span>54+</span></span>
+     <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android yes"><span>Chrome for Android</span><span>76+</span></span><span class="webview_android yes"><span>Android WebView</span><span>76+</span></span><span class="samsunginternet_android yes"><span>Samsung Internet</span><span>12.0+</span></span><span class="opera_android yes"><span>Opera Mobile</span><span>54+</span></span>
     </div>
    </div>
   </aside>
@@ -7071,7 +7039,7 @@ specification.</p>
      <hr>
      <span class="edge no"><span>Edge (Legacy)</span><span>None</span></span><span class="ie no"><span>IE</span><span>None</span></span>
      <hr>
-     <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>None</span></span><span class="chrome_android yes"><span>Chrome for Android</span><span>76+</span></span><span class="webview_android yes"><span>Android WebView</span><span>76+</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>None</span></span><span class="opera_android yes"><span>Opera Mobile</span><span>54+</span></span>
+     <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>None</span></span><span class="chrome_android yes"><span>Chrome for Android</span><span>76+</span></span><span class="webview_android yes"><span>Android WebView</span><span>76+</span></span><span class="samsunginternet_android yes"><span>Samsung Internet</span><span>12.0+</span></span><span class="opera_android yes"><span>Opera Mobile</span><span>54+</span></span>
     </div>
    </div>
   </aside>
@@ -8217,10 +8185,20 @@ specification.</p>
     <li><a href="#ref-for-dom-document-domain">2.1.1. Database connection</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-event-handler-event-type">
+   <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type">https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-event-handler-event-type">4.1. The IDBRequest interface</a> <a href="#ref-for-event-handler-event-type①">(2)</a> <a href="#ref-for-event-handler-event-type②">(3)</a> <a href="#ref-for-event-handler-event-type③">(4)</a>
+    <li><a href="#ref-for-event-handler-event-type④">4.4. The IDBDatabase interface</a> <a href="#ref-for-event-handler-event-type⑤">(2)</a> <a href="#ref-for-event-handler-event-type⑥">(3)</a> <a href="#ref-for-event-handler-event-type⑦">(4)</a>
+    <li><a href="#ref-for-event-handler-event-type⑧">4.9. The IDBTransaction interface</a> <a href="#ref-for-event-handler-event-type⑨">(2)</a> <a href="#ref-for-event-handler-event-type①⓪">(3)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-event-handler-idl-attributes">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handler-idl-attributes">4.1. The IDBRequest interface</a>
+    <li><a href="#ref-for-event-handler-idl-attributes">4.1. The IDBRequest interface</a> <a href="#ref-for-event-handler-idl-attributes①">(2)</a> <a href="#ref-for-event-handler-idl-attributes②">(3)</a> <a href="#ref-for-event-handler-idl-attributes③">(4)</a> <a href="#ref-for-event-handler-idl-attributes④">(5)</a>
+    <li><a href="#ref-for-event-handler-idl-attributes⑤">4.4. The IDBDatabase interface</a> <a href="#ref-for-event-handler-idl-attributes⑥">(2)</a> <a href="#ref-for-event-handler-idl-attributes⑦">(3)</a> <a href="#ref-for-event-handler-idl-attributes⑧">(4)</a>
+    <li><a href="#ref-for-event-handler-idl-attributes⑨">4.9. The IDBTransaction interface</a> <a href="#ref-for-event-handler-idl-attributes①⓪">(2)</a> <a href="#ref-for-event-handler-idl-attributes①①">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-event-loop">
@@ -8394,10 +8372,10 @@ specification.</p>
     <li><a href="#ref-for-strictly-split①">7.2. Inject a key into a value</a> <a href="#ref-for-strictly-split②">(2)</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-bucket">
-   <a href="https://storage.spec.whatwg.org/#bucket">https://storage.spec.whatwg.org/#bucket</a><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="term-for-storage-bucket">
+   <a href="https://storage.spec.whatwg.org/#storage-bucket">https://storage.spec.whatwg.org/#storage-bucket</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-bucket">2.7. Transactions</a>
+    <li><a href="#ref-for-storage-bucket">2.7. Transactions</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-aborterror">
@@ -8458,9 +8436,9 @@ specification.</p>
     <li><a href="#ref-for-idl-DOMString②">4.2. Event interfaces</a>
     <li><a href="#ref-for-idl-DOMString③">4.3. The IDBFactory interface</a> <a href="#ref-for-idl-DOMString④">(2)</a> <a href="#ref-for-idl-DOMString⑤">(3)</a>
     <li><a href="#ref-for-idl-DOMString⑥">4.4. The IDBDatabase interface</a> <a href="#ref-for-idl-DOMString⑦">(2)</a> <a href="#ref-for-idl-DOMString⑧">(3)</a> <a href="#ref-for-idl-DOMString⑨">(4)</a> <a href="#ref-for-idl-DOMString①⓪">(5)</a> <a href="#ref-for-idl-DOMString①①">(6)</a> <a href="#ref-for-idl-DOMString①②">(7)</a>
-    <li><a href="#ref-for-idl-DOMString①③">4.5. The IDBObjectStore interface</a> <a href="#ref-for-idl-DOMString①④">(2)</a> <a href="#ref-for-idl-DOMString①⑤">(3)</a> <a href="#ref-for-idl-DOMString①⑥">(4)</a> <a href="#ref-for-idl-DOMString①⑦">(5)</a> <a href="#ref-for-idl-DOMString①⑧">(6)</a> <a href="#ref-for-idl-DOMString①⑨">(7)</a>
-    <li><a href="#ref-for-idl-DOMString②⓪">4.6. The IDBIndex interface</a> <a href="#ref-for-idl-DOMString②①">(2)</a>
-    <li><a href="#ref-for-idl-DOMString②②">4.9. The IDBTransaction interface</a>
+    <li><a href="#ref-for-idl-DOMString①③">4.5. The IDBObjectStore interface</a> <a href="#ref-for-idl-DOMString①④">(2)</a> <a href="#ref-for-idl-DOMString①⑤">(3)</a> <a href="#ref-for-idl-DOMString①⑥">(4)</a> <a href="#ref-for-idl-DOMString①⑦">(5)</a> <a href="#ref-for-idl-DOMString①⑧">(6)</a> <a href="#ref-for-idl-DOMString①⑨">(7)</a> <a href="#ref-for-idl-DOMString②⓪">(8)</a>
+    <li><a href="#ref-for-idl-DOMString②①">4.6. The IDBIndex interface</a> <a href="#ref-for-idl-DOMString②②">(2)</a> <a href="#ref-for-idl-DOMString②③">(3)</a>
+    <li><a href="#ref-for-idl-DOMString②④">4.9. The IDBTransaction interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-datacloneerror">
@@ -8628,6 +8606,13 @@ specification.</p>
     <li><a href="#ref-for-a-promise-rejected-with">4.3. The IDBFactory interface</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-idl-any">
+   <a href="https://heycam.github.io/webidl/#idl-any">https://heycam.github.io/webidl/#idl-any</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-idl-any">6.2. Object store retrieval operations</a> <a href="#ref-for-idl-any①">(2)</a>
+    <li><a href="#ref-for-idl-any②">6.3. Index retrieval operations</a> <a href="#ref-for-idl-any③">(2)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-idl-boolean">
    <a href="https://heycam.github.io/webidl/#idl-boolean">https://heycam.github.io/webidl/#idl-boolean</a><b>Referenced in:</b>
    <ul>
@@ -8676,15 +8661,6 @@ specification.</p>
    <a href="https://heycam.github.io/webidl/#resolve">https://heycam.github.io/webidl/#resolve</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-resolve">4.3. The IDBFactory interface</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-idl-sequence">
-   <a href="https://heycam.github.io/webidl/#idl-sequence">https://heycam.github.io/webidl/#idl-sequence</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-idl-sequence">4.5. The IDBObjectStore interface</a>
-    <li><a href="#ref-for-idl-sequence①">4.6. The IDBIndex interface</a>
-    <li><a href="#ref-for-idl-sequence②">6.2. Object store retrieval operations</a> <a href="#ref-for-idl-sequence③">(2)</a>
-    <li><a href="#ref-for-idl-sequence④">6.3. Index retrieval operations</a> <a href="#ref-for-idl-sequence⑤">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-sequence">
@@ -8829,6 +8805,7 @@ specification.</p>
      <li><span class="dfn-paneled" id="term-for-browsing-context" style="color:initial">browsing context</span>
      <li><span class="dfn-paneled" id="term-for-event-close" style="color:initial">close</span>
      <li><span class="dfn-paneled" id="term-for-dom-document-domain" style="color:initial">domain</span>
+     <li><span class="dfn-paneled" id="term-for-event-handler-event-type" style="color:initial">event handler event type</span>
      <li><span class="dfn-paneled" id="term-for-event-handler-idl-attributes" style="color:initial">event handler idl attribute</span>
      <li><span class="dfn-paneled" id="term-for-event-loop" style="color:initial">event loop</span>
      <li><span class="dfn-paneled" id="term-for-in-parallel" style="color:initial">in parallel</span>
@@ -8860,7 +8837,7 @@ specification.</p>
    <li>
     <a data-link-type="biblio">[STORAGE]</a> defines the following terms:
     <ul>
-     <li><span class="dfn-paneled" id="term-for-bucket" style="color:initial">bucket</span>
+     <li><span class="dfn-paneled" id="term-for-storage-bucket" style="color:initial">storage bucket</span>
     </ul>
    <li>
     <a data-link-type="biblio">[WEBIDL]</a> defines the following terms:
@@ -8887,6 +8864,7 @@ specification.</p>
      <li><span class="dfn-paneled" id="term-for-versionerror" style="color:initial">VersionError</span>
      <li><span class="dfn-paneled" id="term-for-a-new-promise" style="color:initial">a new promise</span>
      <li><span class="dfn-paneled" id="term-for-a-promise-rejected-with" style="color:initial">a promise rejected with</span>
+     <li><span class="dfn-paneled" id="term-for-idl-any" style="color:initial">any</span>
      <li><span class="dfn-paneled" id="term-for-idl-boolean" style="color:initial">boolean</span>
      <li><span class="dfn-paneled" id="term-for-dfn-buffer-source-type" style="color:initial">buffer source types</span>
      <li><span class="dfn-paneled" id="term-for-idl-byte" style="color:initial">byte</span>
@@ -8894,8 +8872,7 @@ specification.</p>
      <li><span class="dfn-paneled" id="term-for-dfn-get-buffer-source-copy" style="color:initial">get a copy of the buffer source</span>
      <li><span class="dfn-paneled" id="term-for-reject" style="color:initial">reject</span>
      <li><span class="dfn-paneled" id="term-for-resolve" style="color:initial">resolve</span>
-     <li><span class="dfn-paneled" id="term-for-idl-sequence" style="color:initial">sequence&lt;any></span>
-     <li><span class="dfn-paneled" id="term-for-idl-sequence①" style="color:initial">sequence&lt;domstring></span>
+     <li><span class="dfn-paneled" id="term-for-idl-sequence" style="color:initial">sequence</span>
      <li><span class="dfn-paneled" id="term-for-idl-short" style="color:initial">short</span>
      <li><span class="dfn-paneled" id="term-for-the-given-value" style="color:initial">the given value</span>
      <li><span class="dfn-paneled" id="term-for-this" style="color:initial">this</span>
@@ -10417,7 +10394,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="dom-idbrequest-transaction">
    <b><a href="#dom-idbrequest-transaction">#dom-idbrequest-transaction</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbrequest-transaction">4.1. The IDBRequest interface</a> <a href="#ref-for-dom-idbrequest-transaction①">(2)</a>
+    <li><a href="#ref-for-dom-idbrequest-transaction">4.1. The IDBRequest interface</a> <a href="#ref-for-dom-idbrequest-transaction①">(2)</a> <a href="#ref-for-dom-idbrequest-transaction②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbrequest-readystate">
@@ -10622,8 +10599,8 @@ specification.</p>
   <aside class="dfn-panel" data-for="dom-idbdatabase-name">
    <b><a href="#dom-idbdatabase-name">#dom-idbdatabase-name</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbdatabase-name">4.4. The IDBDatabase interface</a> <a href="#ref-for-dom-idbdatabase-name①">(2)</a>
-    <li><a href="#ref-for-dom-idbdatabase-name②">5.8. Aborting an upgrade transaction</a>
+    <li><a href="#ref-for-dom-idbdatabase-name">4.4. The IDBDatabase interface</a> <a href="#ref-for-dom-idbdatabase-name①">(2)</a> <a href="#ref-for-dom-idbdatabase-name②">(3)</a>
+    <li><a href="#ref-for-dom-idbdatabase-name③">5.8. Aborting an upgrade transaction</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbdatabase-version">
@@ -11045,7 +11022,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="dom-idbcursor-source">
    <b><a href="#dom-idbcursor-source">#dom-idbcursor-source</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbcursor-source">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursor-source①">(2)</a>
+    <li><a href="#ref-for-dom-idbcursor-source">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursor-source①">(2)</a> <a href="#ref-for-dom-idbcursor-source②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbcursor-direction">
@@ -11057,13 +11034,13 @@ specification.</p>
   <aside class="dfn-panel" data-for="dom-idbcursor-key">
    <b><a href="#dom-idbcursor-key">#dom-idbcursor-key</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbcursor-key">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursor-key①">(2)</a>
+    <li><a href="#ref-for-dom-idbcursor-key">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursor-key①">(2)</a> <a href="#ref-for-dom-idbcursor-key②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbcursor-primarykey">
    <b><a href="#dom-idbcursor-primarykey">#dom-idbcursor-primarykey</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbcursor-primarykey">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursor-primarykey①">(2)</a>
+    <li><a href="#ref-for-dom-idbcursor-primarykey">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursor-primarykey①">(2)</a> <a href="#ref-for-dom-idbcursor-primarykey②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-idbcursor-request">
@@ -11114,7 +11091,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="dom-idbcursorwithvalue-value">
    <b><a href="#dom-idbcursorwithvalue-value">#dom-idbcursorwithvalue-value</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-idbcursorwithvalue-value">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursorwithvalue-value①">(2)</a>
+    <li><a href="#ref-for-dom-idbcursorwithvalue-value">4.8. The IDBCursor interface</a> <a href="#ref-for-dom-idbcursorwithvalue-value①">(2)</a> <a href="#ref-for-dom-idbcursorwithvalue-value②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="idbtransaction">
