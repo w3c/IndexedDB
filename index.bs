@@ -60,10 +60,9 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
         text: Type; url: sec-ecmascript-data-types-and-values
         text: TypeError; url: sec-native-error-types-used-in-this-standard-typeerror
         text: Uint8Array; url: sec-typedarray-objects
-spec: webidl; urlPrefix: https://heycam.github.io/webidl/
+spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     type: dfn
-        text: sequence<any>; url: idl-sequence
-        text: sequence<DOMString>; url: idl-sequence
+        text: storage bucket; url: storage-bucket
 </pre>
 
 <style>
@@ -942,7 +941,7 @@ A [=/transaction=] has a <dfn>durability hint</dfn>. This is a hint to the user 
 : {{"relaxed"}}
 :: The user agent may consider that the [=/transaction=] has successfully [=transaction/committed=] as soon as all outstanding changes have been written to the operating system, without subsequent verification.
 : {{"default"}}
-:: The user agent should use its default durability behavior for the storage [=/bucket=]. This is the default for [=/transactions=] if not otherwise specified.
+:: The user agent should use its default durability behavior for the [=/storage bucket=]. This is the default for [=/transactions=] if not otherwise specified.
 
 <aside class=note>
   In a typical implementation, {{"strict"}} is a hint to the user agent to flush any operating system I/O buffers before a {{"complete"}} event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices.
@@ -2030,7 +2029,7 @@ The <dfn attribute for=IDBRequest>transaction</dfn> getter steps are to
 return [=/this=]'s [=request/transaction=].
 
 <aside class=note>
-    The {{IDBRequest/transaction}} property can be null for certain requests, such as for [=/requests=] returned from {{IDBFactory/open()}}.
+    The {{IDBRequest/transaction}} getter can return null for certain requests, such as for [=/requests=] returned from {{IDBFactory/open()}}.
 </aside>
 
 The <dfn attribute for=IDBRequest>readyState</dfn> getter steps are to
@@ -2830,7 +2829,7 @@ The {{IDBObjectStore/name}} setter steps are:
 The <dfn attribute for=IDBObjectStore>keyPath</dfn> getter steps are to
 return [=/this=]'s [=object-store-handle/object store=]'s [=object-store/key path=], or
 null if none. The [=/key path=] is converted as a {{DOMString}} (if a
-string) or a [=sequence&lt;DOMString&gt;=] (if a list of strings), per
+string) or a <code>[=/sequence=]&lt;{{DOMString}}&gt;</code> (if a list of strings), per
 [[!WEBIDL]].
 
 <aside class=note>
@@ -3706,7 +3705,7 @@ return [=/this=]'s [=index-handle/object store handle=].
 The <dfn attribute for=IDBIndex>keyPath</dfn> getter steps are to
 return [=/this=]'s [=index-handle/index=]'s
 [=object-store/key path=]. The [=/key path=] is converted as a
-{{DOMString}} (if a string) or a [=sequence&lt;DOMString&gt;=] (if a
+{{DOMString}} (if a string) or a <code>[=/sequence=]&lt;{{DOMString}}&gt;</code> (if a
 list of strings), per [[!WEBIDL]].
 
 <aside class=note>
@@ -5756,7 +5755,7 @@ store</dfn> with |targetRealm|, |store|, |range| and optional |count|, run these
     1. Let |entry| be [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
     1. Append |entry| to |list|.
 
-1. Return |list| converted to a [=sequence&lt;any&gt;=].
+1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
 
 </div>
 
@@ -5797,7 +5796,7 @@ with |store|, |range| and optional |count|, run these steps:
         key to a value=] with |record|'s key.
     1. Append |entry| to |list|.
 
-1. Return |list| converted to a [=sequence&lt;any&gt;=].
+1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
 
 </div>
 
@@ -5841,7 +5840,7 @@ index</dfn> with |targetRealm|, |index|, |range| and optional |count|, run these
     1. Let |entry| be [=!=] <a abstract-op>StructuredDeserialize</a>(|serialized|, |targetRealm|).
     1. Append |entry| to |list|.
 
-1. Return |list| converted to a [=sequence&lt;any&gt;=].
+1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
 
 </div>
 
@@ -5884,7 +5883,7 @@ To <dfn>retrieve multiple values from an index</dfn> with
         key to a value=] with |record|'s value.
     1. Append |entry| to |list|.
 
-1. Return |list| converted to a [=sequence&lt;any&gt;=].
+1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
 
 </div>
 
