@@ -900,7 +900,9 @@ and data mutation operations.
 All transactions are created through a [=/connection=], which is the
 transaction's <dfn>connection</dfn>.
 
-A [=/transaction=] has a <dfn>scope</dfn> which is a [=/set=] of [=/object stores=] that the transaction may interact with. A transaction's scope remains fixed for the lifetime of that transaction.
+A [=/transaction=] has a <dfn>scope</dfn> which is a [=/set=] of [=/object stores=] that the transaction may interact with.
+
+Note: A [=/transaction=]'s [=scope=] remains fixed unless the [=/transaction=] is an [=/upgrade transaction=].
 
 Two [=/transactions=] have <dfn lt="overlap|overlapping scope">overlapping scope</dfn> if any [=/object store=] is in both transactions' [=transaction/scope=].
 
@@ -4773,15 +4775,7 @@ enum IDBTransactionMode {
 
 <div algorithm>
 
-The <dfn attribute for=IDBTransaction>objectStoreNames</dfn> getter steps are:
-
-1. If [=/this=] is an [=/upgrade transaction=],
-    then return a new {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=]
-    of the [=/object stores=] in [=/this=]'s [=/connection=]'s [=object store set=].
-
-1. Otherwise, return a new {{DOMStringList}} associated with a [=sorted name list=] of the
-    [=object-store/names=] of the [=/object stores=] in
-    [=/this=]'s [=transaction/scope=].
+The <dfn attribute for=IDBTransaction>objectStoreNames</dfn> getter steps are to return a new {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of the [=/object stores=] in [=/this=]'s [=transaction/scope=].
 
 </div>
 
@@ -5310,16 +5304,16 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 
 <div algorithm>
 
-To <dfn>run an upgrade transaction</dfn> with a |connection| object
+To <dfn>run an upgrade transaction</dfn> with |connection| (a [=/connection=])
 which is used to update the [=database=], a new |version| to be set
 for the [=database=], and a |request|, run these steps:
 
 1. Let |db| be |connection|'s [=database=].
 
 1. Let |transaction| be a new [=/upgrade transaction=] with
-    |connection| used as [=/connection=]. The [=transaction/scope=] of
-    |transaction| includes every [=/object store=] in
-    |connection|.
+    |connection| used as [=/connection=].
+
+1. Set |transaction|'s [=transaction/scope=] to |connection|'s [=object store set=].
 
 1. Set |db|'s [=database/upgrade transaction=] to |transaction|.
 
