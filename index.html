@@ -7,7 +7,7 @@
   <meta content="Bikeshed version 800b43329, updated Tue May 25 14:13:32 2021 -0700" name="generator">
   <link href="https://w3c.github.io/IndexedDB/" rel="canonical">
   <link href="logo-db.svg" rel="icon">
-  <meta content="1663ca925fad023f3361d3cba4f528753ca57d0a" name="document-revision">
+  <meta content="dbf01a4937b646830fe2819640aa343b7d94d9b6" name="document-revision">
 <style>
 /* Default ED/WD stylesheets set "both"; not needed for logo floated right */
 div.head h1 { clear: left; }
@@ -673,7 +673,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 3.0</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2021-06-03">3 June 2021</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2021-06-04">4 June 2021</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1078,7 +1078,15 @@ opaque sequences of 16-bit code units.</p>
   or something similar to map the provided name to a string that it
   can store.</p>
    </aside>
-   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="sorted-name-list">sorted name list</dfn> is a list containing <a data-link-type="dfn" href="#name" id="ref-for-name②">names</a> sorted in ascending order by 16-bit code unit.</p>
+   <div class="algorithm" data-algorithm="create a sorted name list">
+    <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-sorted-name-list">create a sorted name list</dfn> from a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a> <var>names</var>, run these steps:</p>
+    <ol>
+     <li data-md>
+      <p>Let <var>sorted</var> be <var>names</var> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-sort-in-ascending-order" id="ref-for-list-sort-in-ascending-order">sorted in ascending order</a> with the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#code-unit-less-than" id="ref-for-code-unit-less-than">code unit less than</a> algorithm.</p>
+     <li data-md>
+      <p>Return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist">DOMStringList</a></code> associated with <var>sorted</var>.</p>
+    </ol>
+   </div>
    <details class="note">
     <summary>Details</summary>
      This matches the <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array.prototype.sort" id="ref-for-sec-array.prototype.sort">Array.prototype.sort</a> on an <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects">Array</a> of <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-terms-and-definitions-string-type" id="ref-for-sec-terms-and-definitions-string-type①">Strings</a>. This ordering compares the 16-bit code units in each
@@ -1092,7 +1100,7 @@ opaque sequences of 16-bit code units.</p>
 hold the data stored in the database.</p>
    <div>
     <p>A <a data-link-type="dfn" href="#database" id="ref-for-database①">database</a> has a <dfn class="dfn-paneled" data-dfn-for="database" data-dfn-type="dfn" data-noexport id="database-name">name</dfn> which identifies it within a
-specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin①">origin</a>. The name is a <a data-link-type="dfn" href="#name" id="ref-for-name③">name</a>,
+specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/origin.html#concept-origin" id="ref-for-concept-origin①">origin</a>. The name is a <a data-link-type="dfn" href="#name" id="ref-for-name②">name</a>,
 and stays constant for the lifetime of the database.</p>
     <p>A <a data-link-type="dfn" href="#database" id="ref-for-database②">database</a> has a <dfn class="dfn-paneled" data-dfn-for="database" data-dfn-type="dfn" data-noexport id="database-version">version</dfn>. When a database is first
 created, its <a data-link-type="dfn" href="#database-version" id="ref-for-database-version">version</a> is 0 (zero).</p>
@@ -1154,7 +1162,7 @@ new database is created it doesn’t contain any <a data-link-type="dfn" href="#
     <p>An <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤">object store</a> has a <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-list-of-records">list of records</dfn> which hold the
 data stored in the object store. Each <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-record">record</dfn> consists of a <a data-link-type="dfn" href="#key" id="ref-for-key">key</a> and a <a data-link-type="dfn" href="#value" id="ref-for-value">value</a>. The list is sorted according to key in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than">ascending</a> order. There can never be multiple records in a given object
 store with the same key.</p>
-    <p>An <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥">object store</a> has a <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-name">name</dfn>, which is a <a data-link-type="dfn" href="#name" id="ref-for-name④">name</a>.
+    <p>An <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥">object store</a> has a <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-name">name</dfn>, which is a <a data-link-type="dfn" href="#name" id="ref-for-name③">name</a>.
 At any one time, the name is unique
 within the <a data-link-type="dfn" href="#database" id="ref-for-database①⑥">database</a> to which it belongs.</p>
     <p>An <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦">object store</a> optionally has a <dfn class="dfn-paneled" data-dfn-for="object-store" data-dfn-type="dfn" data-noexport id="object-store-key-path">key path</dfn>. If the
@@ -1205,7 +1213,7 @@ be either:
 an <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-unrestricted-double" id="ref-for-idl-unrestricted-double">unrestricted double</a></code> if type is <em>number</em> or <em>date</em>,
 a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①">DOMString</a></code> if type is <em>string</em>,
 a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#byte-sequence" id="ref-for-byte-sequence">byte sequence</a> if type is <em>binary</em>,
-or a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a> of other <a data-link-type="dfn" href="#key" id="ref-for-key④">keys</a> if type is <em>array</em>.</p>
+or a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①">list</a> of other <a data-link-type="dfn" href="#key" id="ref-for-key④">keys</a> if type is <em>array</em>.</p>
    </div>
    <p>An ECMAScript <a data-link-type="biblio" href="#biblio-ecma-262">[ECMA-262]</a> value can be converted to a <a data-link-type="dfn" href="#key" id="ref-for-key⑤">key</a> by
 following the steps to <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key">convert a value to a key</a>.</p>
@@ -1282,9 +1290,9 @@ The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="subkeys">subk
        <dd data-md>
         <ol>
          <li data-md>
-          <p>If <var>va</var> is <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#code-unit-less-than" id="ref-for-code-unit-less-than">code unit less than</a> <var>vb</var>, then return -1.</p>
+          <p>If <var>va</var> is <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#code-unit-less-than" id="ref-for-code-unit-less-than①">code unit less than</a> <var>vb</var>, then return -1.</p>
          <li data-md>
-          <p>If <var>vb</var> is <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#code-unit-less-than" id="ref-for-code-unit-less-than①">code unit less than</a> <var>va</var>, then return 1.</p>
+          <p>If <var>vb</var> is <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#code-unit-less-than" id="ref-for-code-unit-less-than②">code unit less than</a> <var>va</var>, then return 1.</p>
          <li data-md>
           <p>Return 0.</p>
         </ol>
@@ -1409,7 +1417,7 @@ above, the record in the index whose <a data-link-type="dfn" href="#index-keys" 
 contain multiple records with the same key. Such records are
 additionally sorted according to the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②">index</a>'s <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑨">record</a>'s value
 (meaning the key of the record in the referenced <a data-link-type="dfn" href="#object-store" id="ref-for-object-store①⑦">object store</a>).</p>
-    <p>An <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③">index</a> has a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport id="index-name">name</dfn>, which is a <a data-link-type="dfn" href="#name" id="ref-for-name⑤">name</a>.
+    <p>An <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③">index</a> has a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport id="index-name">name</dfn>, which is a <a data-link-type="dfn" href="#name" id="ref-for-name④">name</a>.
 At any one time, the name is
 unique within index’s <a data-link-type="dfn" href="#index-referenced" id="ref-for-index-referenced④">referenced</a> <a data-link-type="dfn" href="#object-store" id="ref-for-object-store①⑧">object store</a>.</p>
     <p>An <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept④">index</a> has a <dfn class="dfn-paneled" data-dfn-for="index" data-dfn-type="dfn" data-noexport id="index-unique-flag">unique flag</dfn>. When
@@ -2819,7 +2827,7 @@ If this cannot be determined for any reason, then <a data-link-type="dfn" href="
 an appropriate error (e.g. an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#unknownerror" id="ref-for-unknownerror①">UnknownError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①④">DOMException</a></code>)
 and terminate these steps.</p>
        <li data-md>
-        <p>Let <var>result</var> be a new <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①">list</a>.</p>
+        <p>Let <var>result</var> be a new <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a>.</p>
        <li data-md>
         <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>db</var> of <var>databases</var>:</p>
         <ol>
@@ -2911,7 +2919,7 @@ If an <code class="idl"><a data-link-type="idl" href="#idbdatabase" id="ref-for-
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="idbdatabase"><code><c- g>IDBDatabase</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget①"><c- n>EventTarget</c-></a> {
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑥"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-idbdatabase-name" id="ref-for-dom-idbdatabase-name"><c- g>name</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-unsigned-long-long" id="ref-for-idl-unsigned-long-long⑥"><c- b>unsigned</c-> <c- b>long</c-> <c- b>long</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="unsigned long long" href="#dom-idbdatabase-version" id="ref-for-dom-idbdatabase-version"><c- g>version</c-></a>;
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist"><c- n>DOMStringList</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMStringList" href="#dom-idbdatabase-objectstorenames" id="ref-for-dom-idbdatabase-objectstorenames"><c- g>objectStoreNames</c-></a>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist①"><c- n>DOMStringList</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMStringList" href="#dom-idbdatabase-objectstorenames" id="ref-for-dom-idbdatabase-objectstorenames"><c- g>objectStoreNames</c-></a>;
 
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②"><c- g>NewObject</c-></a>] <a data-link-type="idl-name" href="#idbtransaction" id="ref-for-idbtransaction②"><c- n>IDBTransaction</c-></a> <a class="idl-code" data-link-type="method" href="#dom-idbdatabase-transaction" id="ref-for-dom-idbdatabase-transaction②"><c- g>transaction</c-></a>((<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑦"><c- b>DOMString</c-></a> <c- b>or</c-> <a data-link-type="dfn" href="https://heycam.github.io/webidl/#idl-sequence" id="ref-for-idl-sequence①"><c- b>sequence</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString⑧"><c- b>DOMString</c-></a>>) <dfn class="idl-code" data-dfn-for="IDBDatabase/transaction(storeNames, mode, options), IDBDatabase/transaction(storeNames, mode), IDBDatabase/transaction(storeNames)" data-dfn-type="argument" data-export id="dom-idbdatabase-transaction-storenames-mode-options-storenames"><code><c- g>storeNames</c-></code><a class="self-link" href="#dom-idbdatabase-transaction-storenames-mode-options-storenames"></a></dfn>,
                                          <c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-idbtransactionmode" id="ref-for-enumdef-idbtransactionmode"><c- n>IDBTransactionMode</c-></a> <dfn class="idl-code" data-dfn-for="IDBDatabase/transaction(storeNames, mode, options), IDBDatabase/transaction(storeNames, mode), IDBDatabase/transaction(storeNames)" data-dfn-type="argument" data-export id="dom-idbdatabase-transaction-storenames-mode-options-mode"><code><c- g>mode</c-></code><a class="self-link" href="#dom-idbdatabase-transaction-storenames-mode-options-mode"></a></dfn> = "readonly",
@@ -3027,9 +3035,15 @@ return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="
      </div>
     </div>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-objectstorenames"><code>objectStoreNames</code></dfn> getter steps are to
-return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist①">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①">names</a> of
-the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤④">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①③">this</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set">object store set</a>.</p>
+   <div class="algorithm" data-algorithm="objectStoreNames" data-algorithm-for="IDBDatabase">
+     The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBDatabase" data-dfn-type="attribute" data-export id="dom-idbdatabase-objectstorenames"><code>objectStoreNames</code></dfn> getter steps are: 
+    <ol>
+     <li data-md>
+      <p>Let <var>names</var> be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list③">list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤④">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①③">this</a>'s <a data-link-type="dfn" href="#connection-object-store-set" id="ref-for-connection-object-store-set">object store set</a>.</p>
+     <li data-md>
+      <p>Return the result (a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist②">DOMStringList</a></code>) of <a data-link-type="dfn" href="#create-a-sorted-name-list" id="ref-for-create-a-sorted-name-list">creating a sorted name list</a> with <var>names</var>.</p>
+    </ol>
+   </div>
    <details class="note">
     <summary> Is this the same as the <a data-link-type="dfn" href="#database" id="ref-for-database④⑤">database</a>'s <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑤⑤">object store</a> <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name②">names</a>? </summary>
      As long as the <a data-link-type="dfn" href="#connection" id="ref-for-connection④⓪">connection</a> is open, this is the same as the
@@ -3314,7 +3328,7 @@ current <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/web
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="idbobjectstore"><code><c- g>IDBObjectStore</c-></code></dfn> {
   <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①③"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-type="DOMString" href="#dom-idbobjectstore-name" id="ref-for-dom-idbobjectstore-name"><c- g>name</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any③"><c- b>any</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="any" href="#dom-idbobjectstore-keypath" id="ref-for-dom-idbobjectstore-keypath"><c- g>keyPath</c-></a>;
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist②"><c- n>DOMStringList</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMStringList" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames"><c- g>indexNames</c-></a>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist③"><c- n>DOMStringList</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMStringList" href="#dom-idbobjectstore-indexnames" id="ref-for-dom-idbobjectstore-indexnames"><c- g>indexNames</c-></a>;
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject" id="ref-for-SameObject①"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#idbtransaction" id="ref-for-idbtransaction④"><c- n>IDBTransaction</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="IDBTransaction" href="#dom-idbobjectstore-transaction" id="ref-for-dom-idbobjectstore-transaction"><c- g>transaction</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean①"><c- b>boolean</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="boolean" href="#dom-idbobjectstore-autoincrement" id="ref-for-dom-idbobjectstore-autoincrement"><c- g>autoIncrement</c-></a>;
 
@@ -3462,8 +3476,15 @@ object has no effect on the <a data-link-type="dfn" href="#object-store" id="ref
      </div>
     </div>
    </div>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-indexnames"><code>indexNames</code></dfn> getter steps are to
-return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist③">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list①">sorted name list</a> of the <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①">names</a> of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①⑨">indexes</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②③">this</a>'s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set①">index set</a>.</p>
+   <div class="algorithm" data-algorithm="indexNames" data-algorithm-for="IDBObjectStore">
+     The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBObjectStore" data-dfn-type="attribute" data-export id="dom-idbobjectstore-indexnames"><code>indexNames</code></dfn> getter steps are: 
+    <ol>
+     <li data-md>
+      <p>Let <var>names</var> be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list④">list</a> of the <a data-link-type="dfn" href="#index-name" id="ref-for-index-name①">names</a> of the <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①⑨">indexes</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②③">this</a>'s <a data-link-type="dfn" href="#object-store-handle-index-set" id="ref-for-object-store-handle-index-set①">index set</a>.</p>
+     <li data-md>
+      <p>Return the result (a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist④">DOMStringList</a></code>) of <a data-link-type="dfn" href="#create-a-sorted-name-list" id="ref-for-create-a-sorted-name-list①">creating a sorted name list</a> with <var>names</var>.</p>
+    </ol>
+   </div>
    <details class="note">
     <summary> Is this the same as <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦⑦">object store</a>'s list
     of <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept②⓪">index</a> <a data-link-type="dfn" href="#index-name" id="ref-for-index-name②">names</a>? </summary>
@@ -5692,7 +5713,7 @@ the contents of the database. </aside>
    <p><a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept⑥⑤">Transaction</a> objects implement the following interface:</p>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①⓪"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="idbtransaction"><code><c- g>IDBTransaction</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget②"><c- n>EventTarget</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist④"><c- n>DOMStringList</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMStringList" href="#dom-idbtransaction-objectstorenames" id="ref-for-dom-idbtransaction-objectstorenames"><c- g>objectStoreNames</c-></a>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑤"><c- n>DOMStringList</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMStringList" href="#dom-idbtransaction-objectstorenames" id="ref-for-dom-idbtransaction-objectstorenames"><c- g>objectStoreNames</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-idbtransactionmode" id="ref-for-enumdef-idbtransactionmode①"><c- n>IDBTransactionMode</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="IDBTransactionMode" href="#dom-idbtransaction-mode" id="ref-for-dom-idbtransaction-mode"><c- g>mode</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-idbtransactiondurability" id="ref-for-enumdef-idbtransactiondurability①"><c- n>IDBTransactionDurability</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="IDBTransactionDurability" href="#dom-idbtransaction-durability" id="ref-for-dom-idbtransaction-durability"><c- g>durability</c-></a>;
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject" id="ref-for-SameObject④"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#idbdatabase" id="ref-for-idbdatabase⑧"><c- n>IDBDatabase</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="IDBDatabase" href="#dom-idbtransaction-db" id="ref-for-dom-idbtransaction-db"><c- g>db</c-></a>;
@@ -5755,7 +5776,13 @@ error (a <code class="idl"><a data-link-type="idl" href="https://heycam.github.i
       </div>
      </div>
     </div>
-    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-objectstorenames"><code>objectStoreNames</code></dfn> getter steps are to return a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑤">DOMStringList</a></code> associated with a <a data-link-type="dfn" href="#sorted-name-list" id="ref-for-sorted-name-list②">sorted name list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑦">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨①">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑦">this</a>'s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope①⓪">scope</a>.</p>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBTransaction" data-dfn-type="attribute" data-export id="dom-idbtransaction-objectstorenames"><code>objectStoreNames</code></dfn> getter steps are:</p>
+    <ol>
+     <li data-md>
+      <p>Let <var>names</var> be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑤">list</a> of the <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name①⑦">names</a> of the <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑨①">object stores</a> in <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①⑤⑦">this</a>'s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope①⓪">scope</a>.</p>
+     <li data-md>
+      <p>Return the result (a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist" id="ref-for-domstringlist⑥">DOMStringList</a></code>) of <a data-link-type="dfn" href="#create-a-sorted-name-list" id="ref-for-create-a-sorted-name-list②">creating a sorted name list</a> with <var>names</var>.</p>
+    </ol>
    </div>
    <aside class="note"> The contents of each list returned by this attribute does not
   change, but subsequent calls to this attribute during an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④⑤">upgrade
@@ -6602,9 +6629,9 @@ store</dfn> with <var>targetRealm</var>, <var>store</var>, <var>range</var> and 
      <li data-md>
       <p>If <var>count</var> is not given or is 0 (zero), let <var>count</var> be infinity.</p>
      <li data-md>
-      <p>Let <var>records</var> be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a> containing the first <var>count</var> <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑧③">records</a> in <var>store</var>’s <a data-link-type="dfn" href="#object-store-list-of-records" id="ref-for-object-store-list-of-records②">list of records</a> whose <a data-link-type="dfn" href="#key" id="ref-for-key⑧⑤">key</a> is <a data-link-type="dfn" href="#in" id="ref-for-in③">in</a> <var>range</var>.</p>
+      <p>Let <var>records</var> be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑥">list</a> containing the first <var>count</var> <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑧③">records</a> in <var>store</var>’s <a data-link-type="dfn" href="#object-store-list-of-records" id="ref-for-object-store-list-of-records②">list of records</a> whose <a data-link-type="dfn" href="#key" id="ref-for-key⑧⑤">key</a> is <a data-link-type="dfn" href="#in" id="ref-for-in③">in</a> <var>range</var>.</p>
      <li data-md>
-      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list③">list</a>.</p>
+      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑦">list</a>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate④">For each</a> <var>record</var> of <var>records</var>:</p>
       <ol>
@@ -6640,7 +6667,7 @@ key to a value</a> with <var>record</var>’s key.</p>
      <li data-md>
       <p>Let <var>records</var> be a list containing the first <var>count</var> <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑧⑤">records</a> in <var>store</var>’s <a data-link-type="dfn" href="#object-store-list-of-records" id="ref-for-object-store-list-of-records④">list of records</a> whose <a data-link-type="dfn" href="#key" id="ref-for-key⑧⑦">key</a> is <a data-link-type="dfn" href="#in" id="ref-for-in⑤">in</a> <var>range</var>.</p>
      <li data-md>
-      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list④">list</a>.</p>
+      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑧">list</a>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑤">For each</a> <var>record</var> of <var>records</var>:</p>
       <ol>
@@ -6678,7 +6705,7 @@ index</dfn> with <var>targetRealm</var>, <var>index</var>, <var>range</var> and 
      <li data-md>
       <p>Let <var>records</var> be a list containing the first <var>count</var> <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑧⑦">records</a> in <var>index</var>’s <a data-link-type="dfn" href="#index-list-of-records" id="ref-for-index-list-of-records③">list of records</a> whose <a data-link-type="dfn" href="#index-keys" id="ref-for-index-keys②">key</a> is <a data-link-type="dfn" href="#in" id="ref-for-in⑦">in</a> <var>range</var>.</p>
      <li data-md>
-      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑤">list</a>.</p>
+      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑨">list</a>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑥">For each</a> <var>record</var> of <var>records</var>:</p>
       <ol>
@@ -6715,7 +6742,7 @@ records</a> whose <a data-link-type="dfn" href="#index-keys" id="ref-for-index-k
      <li data-md>
       <p>Let <var>records</var> be a list containing the first <var>count</var> <a data-link-type="dfn" href="#index-records" id="ref-for-index-records③">records</a> in <var>index</var>’s <a data-link-type="dfn" href="#index-list-of-records" id="ref-for-index-list-of-records⑤">list of records</a> whose <a data-link-type="dfn" href="#index-keys" id="ref-for-index-keys④">key</a> is <a data-link-type="dfn" href="#in" id="ref-for-in⑨">in</a> <var>range</var>.</p>
      <li data-md>
-      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑥">list</a>.</p>
+      <p>Let <var>list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①⓪">list</a>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑦">For each</a> <var>record</var> of <var>records</var>:</p>
       <ol>
@@ -6940,7 +6967,7 @@ key</a> with <var>r</var> otherwise. Rethrow any exceptions.</p>
 ECMAScript value or failure, or the steps may throw an exception.</p>
     <ol>
      <li data-md>
-      <p>If <var>keyPath</var> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑦">list</a> of strings, then:</p>
+      <p>If <var>keyPath</var> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①①">list</a> of strings, then:</p>
       <ol>
        <li data-md>
         <p>Let <var>result</var> be a new <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-array-objects" id="ref-for-sec-array-objects①②">Array</a> object created as if by the
@@ -7275,7 +7302,7 @@ steps may throw an exception.</p>
        <li data-md>
         <p>Let <var>seen</var> be a new <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑥">set</a> containing only <var>input</var>.</p>
        <li data-md>
-        <p>Let <var>keys</var> be a new empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list⑧">list</a>.</p>
+        <p>Let <var>keys</var> be a new empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①②">list</a>.</p>
        <li data-md>
         <p>Let <var>index</var> be 0.</p>
        <li data-md>
@@ -7519,6 +7546,8 @@ For the revision history of the second edition, see <a href="https://www.w3.org/
      <p>Specified <a href="#transaction-scheduling">§ 2.7.2 Transaction scheduling</a> more precisely and disallow starting read/write transactions while read-only transactions with overlapping scope are running. (<a href="https://github.com/w3c/IndexedDB/issues/253">Issue #253</a>)</p>
     <li data-md>
      <p>Added <a href="#accessibility">Accessibility considerations</a> section. (<a href="https://github.com/w3c/IndexedDB/issues/327">Issue #327</a>)</p>
+    <li data-md>
+     <p>Used <a data-link-type="biblio" href="#biblio-infra">[infra]</a>'s list sorting definition. (<a href="https://github.com/w3c/IndexedDB/issues/346">Issue #346</a>)</p>
    </ul>
    <h2 class="heading settled" data-level="12" id="acknowledgements"><span class="secno">12. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
    <p><em>This section is non-normative.</em></p>
@@ -7703,6 +7732,7 @@ specification.</p>
      <li><a href="#dom-idbobjectstore-count">method for IDBObjectStore</a><span>, in §4.5</span>
     </ul>
    <li><a href="#count-the-records-in-a-range">count the records in a range</a><span>, in §6.5</span>
+   <li><a href="#create-a-sorted-name-list">create a sorted name list</a><span>, in §2</span>
    <li><a href="#transaction-created">created</a><span>, in §2.7.1</span>
    <li><a href="#dom-idbobjectstore-createindex">createIndex(name, keyPath)</a><span>, in §4.5</span>
    <li><a href="#dom-idbobjectstore-createindex">createIndex(name, keyPath, options)</a><span>, in §4.5</span>
@@ -8058,7 +8088,6 @@ specification.</p>
    <li><a href="#retrieve-multiple-values-from-an-object-store">retrieve multiple values from an object store</a><span>, in §6.2</span>
    <li><a href="#run-an-upgrade-transaction">run an upgrade transaction</a><span>, in §5.7</span>
    <li><a href="#transaction-scope">scope</a><span>, in §2.7</span>
-   <li><a href="#sorted-name-list">sorted name list</a><span>, in §2</span>
    <li>
     source
     <ul>
@@ -8484,9 +8513,10 @@ specification.</p>
   <aside class="dfn-panel" data-for="term-for-domstringlist">
    <a href="https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist">https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#domstringlist</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-domstringlist">4.4. The IDBDatabase interface</a> <a href="#ref-for-domstringlist①">(2)</a>
-    <li><a href="#ref-for-domstringlist②">4.5. The IDBObjectStore interface</a> <a href="#ref-for-domstringlist③">(2)</a>
-    <li><a href="#ref-for-domstringlist④">4.9. The IDBTransaction interface</a> <a href="#ref-for-domstringlist⑤">(2)</a>
+    <li><a href="#ref-for-domstringlist">2. Constructs</a>
+    <li><a href="#ref-for-domstringlist①">4.4. The IDBDatabase interface</a> <a href="#ref-for-domstringlist②">(2)</a>
+    <li><a href="#ref-for-domstringlist③">4.5. The IDBObjectStore interface</a> <a href="#ref-for-domstringlist④">(2)</a>
+    <li><a href="#ref-for-domstringlist⑤">4.9. The IDBTransaction interface</a> <a href="#ref-for-domstringlist⑥">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-document">
@@ -8675,7 +8705,8 @@ specification.</p>
   <aside class="dfn-panel" data-for="term-for-code-unit-less-than">
    <a href="https://infra.spec.whatwg.org/#code-unit-less-than">https://infra.spec.whatwg.org/#code-unit-less-than</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-code-unit-less-than">2.4. Keys</a> <a href="#ref-for-code-unit-less-than①">(2)</a>
+    <li><a href="#ref-for-code-unit-less-than">2. Constructs</a>
+    <li><a href="#ref-for-code-unit-less-than①">2.4. Keys</a> <a href="#ref-for-code-unit-less-than②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-list-contain">
@@ -8714,12 +8745,16 @@ specification.</p>
   <aside class="dfn-panel" data-for="term-for-list">
    <a href="https://infra.spec.whatwg.org/#list">https://infra.spec.whatwg.org/#list</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list">2.4. Keys</a>
-    <li><a href="#ref-for-list①">4.3. The IDBFactory interface</a>
-    <li><a href="#ref-for-list②">6.2. Object store retrieval operations</a> <a href="#ref-for-list③">(2)</a> <a href="#ref-for-list④">(3)</a>
-    <li><a href="#ref-for-list⑤">6.3. Index retrieval operations</a> <a href="#ref-for-list⑥">(2)</a>
-    <li><a href="#ref-for-list⑦">7.1. Extract a key from a value</a>
-    <li><a href="#ref-for-list⑧">7.4. Convert a value to a key</a>
+    <li><a href="#ref-for-list">2. Constructs</a>
+    <li><a href="#ref-for-list①">2.4. Keys</a>
+    <li><a href="#ref-for-list②">4.3. The IDBFactory interface</a>
+    <li><a href="#ref-for-list③">4.4. The IDBDatabase interface</a>
+    <li><a href="#ref-for-list④">4.5. The IDBObjectStore interface</a>
+    <li><a href="#ref-for-list⑤">4.9. The IDBTransaction interface</a>
+    <li><a href="#ref-for-list⑥">6.2. Object store retrieval operations</a> <a href="#ref-for-list⑦">(2)</a> <a href="#ref-for-list⑧">(3)</a>
+    <li><a href="#ref-for-list⑨">6.3. Index retrieval operations</a> <a href="#ref-for-list①⓪">(2)</a>
+    <li><a href="#ref-for-list①①">7.1. Extract a key from a value</a>
+    <li><a href="#ref-for-list①②">7.4. Convert a value to a key</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-set">
@@ -8737,6 +8772,12 @@ specification.</p>
    <ul>
     <li><a href="#ref-for-list-size">2.4. Keys</a> <a href="#ref-for-list-size①">(2)</a> <a href="#ref-for-list-size②">(3)</a> <a href="#ref-for-list-size③">(4)</a> <a href="#ref-for-list-size④">(5)</a> <a href="#ref-for-list-size⑤">(6)</a>
     <li><a href="#ref-for-list-size⑥">7.3. Convert a key to a value</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-list-sort-in-ascending-order">
+   <a href="https://infra.spec.whatwg.org/#list-sort-in-ascending-order">https://infra.spec.whatwg.org/#list-sort-in-ascending-order</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-list-sort-in-ascending-order">2. Constructs</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-strictly-split">
@@ -9214,7 +9255,7 @@ specification.</p>
      <li><span class="dfn-paneled" id="term-for-task-queue">task queues</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
+    <a data-link-type="biblio">[infra]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-set-append">append <small>(for set)</small></span>
      <li><span class="dfn-paneled" id="term-for-assert">assert</span>
@@ -9229,6 +9270,7 @@ specification.</p>
      <li><span class="dfn-paneled" id="term-for-list">list</span>
      <li><span class="dfn-paneled" id="term-for-ordered-set">set</span>
      <li><span class="dfn-paneled" id="term-for-list-size">size</span>
+     <li><span class="dfn-paneled" id="term-for-list-sort-in-ascending-order">sort in ascending order</span>
      <li><span class="dfn-paneled" id="term-for-strictly-split">strictly split a string</span>
     </ul>
    <li>
@@ -9289,7 +9331,7 @@ specification.</p>
    <dt id="biblio-ecma-262">[ECMA-262]
    <dd><a href="https://tc39.es/ecma262/multipage/">ECMAScript Language Specification</a>. URL: <a href="https://tc39.es/ecma262/multipage/">https://tc39.es/ecma262/multipage/</a>
    <dt id="biblio-fileapi">[FileAPI]
-   <dd>Marijn Kruisselbrink; Arun Ranganathan. <a href="https://www.w3.org/TR/FileAPI/">File API</a>. 27 April 2021. WD. URL: <a href="https://www.w3.org/TR/FileAPI/">https://www.w3.org/TR/FileAPI/</a>
+   <dd>Marijn Kruisselbrink; Arun Ranganathan. <a href="https://www.w3.org/TR/FileAPI/">File API</a>. 4 June 2021. WD. URL: <a href="https://www.w3.org/TR/FileAPI/">https://www.w3.org/TR/FileAPI/</a>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-infra">[INFRA]
@@ -9537,18 +9579,18 @@ specification.</p>
   <aside class="dfn-panel" data-for="name">
    <b><a href="#name">#name</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-name">2. Constructs</a> <a href="#ref-for-name①">(2)</a> <a href="#ref-for-name②">(3)</a>
-    <li><a href="#ref-for-name③">2.1. Database</a>
-    <li><a href="#ref-for-name④">2.2. Object store</a>
-    <li><a href="#ref-for-name⑤">2.6. Index</a>
+    <li><a href="#ref-for-name">2. Constructs</a> <a href="#ref-for-name①">(2)</a>
+    <li><a href="#ref-for-name②">2.1. Database</a>
+    <li><a href="#ref-for-name③">2.2. Object store</a>
+    <li><a href="#ref-for-name④">2.6. Index</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="sorted-name-list">
-   <b><a href="#sorted-name-list">#sorted-name-list</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="create-a-sorted-name-list">
+   <b><a href="#create-a-sorted-name-list">#create-a-sorted-name-list</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-sorted-name-list">4.4. The IDBDatabase interface</a>
-    <li><a href="#ref-for-sorted-name-list①">4.5. The IDBObjectStore interface</a>
-    <li><a href="#ref-for-sorted-name-list②">4.9. The IDBTransaction interface</a>
+    <li><a href="#ref-for-create-a-sorted-name-list">4.4. The IDBDatabase interface</a>
+    <li><a href="#ref-for-create-a-sorted-name-list①">4.5. The IDBObjectStore interface</a>
+    <li><a href="#ref-for-create-a-sorted-name-list②">4.9. The IDBTransaction interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="database">
