@@ -390,8 +390,14 @@ opaque sequences of 16-bit code units.
   can store.
 </aside>
 
-A <dfn>sorted name list</dfn> is a list containing [=/names=]
-sorted in ascending order by 16-bit code unit.
+<div algorithm>
+
+To <dfn>create a sorted name list</dfn> from a [=/list=] |names|, run these steps:
+
+1. Let |sorted| be |names| [=list/sorted in ascending order=] with the [=/code unit less than=] algorithm.
+1. Return a new {{DOMStringList}} associated with |sorted|.
+
+</div>
 
 <details class=note>
     <summary>Details</summary>
@@ -2506,9 +2512,13 @@ return [=/this=]'s [=connection/version=].
         [=/upgrade transaction=].
 </div>
 
-The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> getter steps are to
-return a new {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of
-the [=/object stores=] in [=/this=]'s [=object store set=].
+<div algorithm>
+The <dfn attribute for=IDBDatabase>objectStoreNames</dfn> getter steps are:
+
+1. Let |names| be a [=/list=] of the [=object-store/names=] of the [=/object stores=] in [=/this=]'s [=object store set=].
+1. Return the result (a {{DOMStringList}}) of [=/creating a sorted name list=] with |names|.
+
+</div>
 
 <details class=note>
   <summary>
@@ -2847,9 +2857,14 @@ instance every time it is inspected. Changing the properties of the
 object has no effect on the [=/object store=].
 </aside>
 
-The <dfn attribute for=IDBObjectStore>indexNames</dfn> getter steps are to
-return a new {{DOMStringList}} associated with a [=sorted name list=] of the [=index/names=]
-of [=/indexes=] in [=/this=]'s [=index set=].
+<div algorithm>
+The <dfn attribute for=IDBObjectStore>indexNames</dfn> getter steps are:
+
+1. Let |names| be a [=/list=] of the [=index/names=] of the [=/indexes=] in [=/this=]'s [=index set=].
+1. Return the result (a {{DOMStringList}}) of [=/creating a sorted name list=] with |names|.
+
+</div>
+
 
 <details class=note>
   <summary>
@@ -4775,7 +4790,10 @@ enum IDBTransactionMode {
 
 <div algorithm>
 
-The <dfn attribute for=IDBTransaction>objectStoreNames</dfn> getter steps are to return a new {{DOMStringList}} associated with a [=sorted name list=] of the [=object-store/names=] of the [=/object stores=] in [=/this=]'s [=transaction/scope=].
+The <dfn attribute for=IDBTransaction>objectStoreNames</dfn> getter steps are:
+
+1. Let |names| be a [=/list=] of the [=object-store/names=] of the [=/object stores=] in [=/this=]'s [=transaction/scope=].
+1. Return the result (a {{DOMStringList}}) of [=/creating a sorted name list=] with |names|.
 
 </div>
 
@@ -6782,6 +6800,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Added {{IDBTransactionOptions/durability}} option and {{IDBTransaction/durability}} attribute. ([Issue #50](https://github.com/w3c/IndexedDB/issues/50))
 * Specified [[#transaction-scheduling]] more precisely and disallow starting read/write transactions while read-only transactions with overlapping scope are running. ([Issue #253](https://github.com/w3c/IndexedDB/issues/253))
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
+* Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
