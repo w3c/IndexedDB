@@ -2736,6 +2736,8 @@ interface IDBObjectStore {
   readonly attribute boolean autoIncrement;
 
   [NewObject] IDBRequest put(any value, optional any key);
+  [NewObject] IDBRequest putAllValues(sequence<any> values);
+  [NewObject] IDBRequest putAllEntries(sequence<sequence<any>> entries);
   [NewObject] IDBRequest add(any value, optional any key);
   [NewObject] IDBRequest delete(any query);
   [NewObject] IDBRequest clear();
@@ -2914,6 +2916,27 @@ and false otherwise.
         If successful, |request|'s {{IDBRequest/result}} will be the
         [=object-store/record=]'s [=/key=].
 
+    : |request| = |store| . {{IDBObjectStore/putAllValues()|putAllValues}}(|values|)
+
+    ::
+        Adds or updates multiple [=object-store/records=] in |store| with the given array of |values|.
+
+        [=/Keys=] can not be explicitly specified using this method, so it can only be used with an [=/object store=] that either has a [=/key generator=] or that uses [=in-line keys=]. Otherwise, a "{{DataError}}" {{DOMException}} will be thrown.
+
+
+        If any [=/record=] fails to be stored, no updates will be made and the |request| will fail, with |request|'s {{IDBRequest/error}} set to an error e.g. a "{{ConstraintError}}" {{DOMException}}.
+
+
+    : |request| = |store| . {{IDBObjectStore/putAllEntries()|putAllEntries}}(|entries|)
+
+    ::
+        Adds or updates multiple [=object-store/records=] in |store| with the given array of |entries|. Each entry is a two element array with a [=/key=] and [=/value=] for the record.
+
+        This method can only be used with an [=/object store=] that uses [=out-of-line keys=]. Otherwise, a "{{DataError}}" {{DOMException}} will be thrown.
+
+        If any [=/record=] fails to be stored, no updates will be made and the |request| will fail, with |request|'s {{IDBRequest/error}} set to an error e.g. a "{{ConstraintError}}" {{DOMException}}.
+
+
     : |request| = |store| .
           {{IDBObjectStore/delete()|delete}}(|query|)
     ::
@@ -2932,13 +2955,13 @@ and false otherwise.
 </div>
 
 
-The <dfn method for=IDBObjectStore>put(|value|, |key|)</dfn> method steps are to return the result of running [=add or put=] with [=/this=], |value|, |key| and the |no-overwrite flag| false.
+The <dfn method for=IDBObjectStore>put(|value|, |key|)</dfn> method steps are to return the result of running [=add or put a single record=] with [=/this=], |value|, |key| and false.
 
-The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method steps are to return the result of running [=add or put=] with [=/this=], |value|, |key| and the |no-overwrite flag| true.
+The <dfn method for=IDBObjectStore>add(|value|, |key|)</dfn> method steps are to return the result of running [=add or put a single record=] with [=/this=], |value|, |key| and true.
 
 <div algorithm>
 
-To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|, run these steps:
+To <dfn>add or put a single record</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|, run these steps:
 
 1. Let |transaction| be |handle|'s
     [=object-store-handle/transaction=].
@@ -3006,6 +3029,119 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
             false, [=throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |operation| be an algorithm to run [=store a record into an object store=] with |store|, |clone|, |key|, and |no-overwrite flag|.
+
+1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with |handle| and |operation|.
+
+</div>
+
+The <dfn method for=IDBObjectStore>putAllValues(|values|)</dfn> method steps are to return the result of running [=add or put multiple records=] with [=/this=], |values|, and false.
+
+<div algorithm>
+
+The <dfn method for=IDBObjectStore>putAllEntries(|entries|)</dfn> method steps are:
+
+1. Let |keys| be a new [=/list=].
+
+1. Let |values| be a new [=/list=].
+
+1. [=list/For each=] |entry| of |entries|:
+
+    1. If |entry|'s [=list/size=] is not 2, [=throw=] a [=TypeError=].
+
+    1. [=list/Append=] |entry|[0] to |keys|.
+
+        Note: Keys are not [=convert a value to a key|converted=] until a subsequent step.
+
+    1. [=list/Append=] |entry|[1] to |values|.
+
+1. Return the result of running [=add or put multiple records=] with [=/this=], |values|, false, and |keys|.
+
+</div>
+
+<div algorithm>
+
+To <dfn>add or put multiple records</dfn> with |handle|, |values|, |no-overwrite flag|, and optional |keys|, run these steps:
+
+1. [=/Assert=]: If |keys| is given, |values| [=list/size=] equals |keys| [=list/size=].
+
+1. Let |transaction| be |handle|'s
+    [=object-store-handle/transaction=].
+
+1. Let |store| be |handle|'s
+    [=object-store-handle/object store=].
+
+1. If |store| has been deleted,
+    [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
+    then [=throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
+
+1. If |transaction| is a [=read-only transaction=],
+    [=throw=] a "{{ReadOnlyError}}" {{DOMException}}.
+
+1. If |store| uses [=in-line keys=] and |keys| were given,
+    [=throw=] a "{{DataError}}" {{DOMException}}.
+
+1. If |store| uses [=out-of-line keys=] and has no [=key
+    generator=] and |keys| were not given, [=throw=] a
+    "{{DataError}}" {{DOMException}}.
+
+1. If |keys| were given, then:
+
+    1. Let |rs| be a new [=/list=].
+
+    1. [=list/For each=] |key| of |keys|:
+
+        1. Let |r| be the result of [=/converting a value to a key=] with |key|. Rethrow any exceptions.
+
+        1. If |r| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
+
+        1. [=list/Append=] |r| to |rs|.
+
+    1. Let |keys| be |rs|.
+
+1. Let |targetRealm| be a user-agent defined [=Realm=].
+
+1. Let |clones| be a new [=/list=].
+
+1. [=list/For each=] |value| of |values|:
+
+    1. Let |clone| be a [=clone=] of |value| in |targetRealm| during |transaction|.
+        Rethrow any exceptions.
+
+        <details class=note>
+          <summary>Why create a copy of the value?</summary>
+          The value is serialized when stored. Treating it as a copy
+          here allows other algorithms in this specification to treat it as
+          an ECMAScript value, but implementations can optimize this
+          if the difference in behavior is not observable.
+        </details>
+
+    1. [=list/Append=] |clone| to |clones|.
+
+1. If |store| uses [=in-line keys=], then:
+
+    1. Let |keys| be a new [=/list=].
+
+    1. [=list/For each=] |clone| of |clones|:
+
+        1. Let |key| be undefined.
+
+        1. Let |kpk| be the result of [=/extracting a key from a value using a key path=] with |clone| and |store|'s [=object-store/key path=]. Rethrow any exceptions.
+
+        1. If |kpk| is invalid, [=throw=] a "{{DataError}}" {{DOMException}}.
+
+        1. If |kpk| is not failure, let |key| be |kpk|.
+
+        1. Otherwise (|kpk| is failure):
+
+            1. If |store| does not have a [=key generator=], [=throw=] a "{{DataError}}" {{DOMException}}.
+
+            1. Otherwise, if [=check that a key could be injected into a value=] with |clone| and |store|'s [=object-store/key path=] return false, [=throw=] a "{{DataError}}" {{DOMException}}.
+
+        1. [=list/Append=] |key| to |keys|.
+
+1. Let |operation| be an algorithm to run [=store multiple records into an object store=] with |store|, |clones|, |keys|, and |no-overwrite flag|.
 
 1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with |handle| and |operation|.
 
@@ -5714,6 +5850,25 @@ To <dfn>store a record into an object store</dfn> with
 
 </div>
 
+<div algorithm>
+
+To <dfn>store multiple records into an object store</dfn> with |store|, |values|, |keys|, and a |no-overwrite flag|, run these steps:
+
+1. [=/Assert=]: |values| [=list/size=] equals |keys| [=list/size=].
+
+1. Let |results| be a new [=/list=].
+
+1. [=list/For each=] |value| of |values| and |key| of |keys|, respectively:
+
+    1. Let |r| be the result of [=/storing a record into an object store=] with |store|, |value|, |key|, and |no-overwrite flag|.
+
+    1. If |r| is an error, then undo any changes made to |store| or associated [=/indexes=] by this algorithm, and return |r|.
+
+    1. [=list/Append=] |r| to |results|.
+
+1. Return |results|.
+
+</div>
 
 <!-- ============================================================ -->
 ## Object store retrieval operations ## {#object-store-retrieval-operation}
@@ -6801,6 +6956,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Specified [[#transaction-scheduling]] more precisely and disallow starting read/write transactions while read-only transactions with overlapping scope are running. ([Issue #253](https://github.com/w3c/IndexedDB/issues/253))
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
 * Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
+* Added {{IDBObjectStore/putAllValues()}} and {{IDBObjectStore/putAllEntries()}} methods. ([Issue #69](https://github.com/w3c/IndexedDB/issues/69))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
@@ -6847,6 +7003,7 @@ Kang-Hao Lu,
 Andrea Marchesini,
 Josh Matthews,
 Glenn Maynard,
+Numfor Mbiziwo-tiapo,
 Isiah Meadows,
 Ms2ger,
 Odin Omdal,
