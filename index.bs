@@ -946,6 +946,8 @@ following:
     instead is created automatically when an
     <a event>`upgradeneeded`</a> event is fired.
 
+A [=/transaction=] has an <dfn>manual commit flag</dfn>, which is initially false. By default, transactions commit automatically when all outstanding requests have been processed. This can be behavior can be modified by options set when creating the transaction.
+
 A [=/transaction=] has a <dfn>durability hint</dfn>. This is a hint to the user agent of whether to prioritize performance or durability when committing the transaction. The [=transaction/durability hint=] is one of the following:
 
 : {{"strict"}}
@@ -1053,10 +1055,11 @@ The <dfn>lifetime</dfn> of a
     </aside>
 
 1. When each [=/request=] associated with a transaction is [=request/processed=],
-    a <a event>`success`</a> or <a event>`error`</a> [=event=] will be
-    fired. While the event is being [=dispatched=], the transaction
+    a <a event>`success`</a> or <a event>`error`</a> [=event=] will be fired.
+    If the transaction's [=transaction/manual commit flag=] is false (the default), then
+    while the event is being [=dispatched=], the transaction
     [=transaction/state=] is set to [=transaction/active=], allowing
-    additional requests to be made against the transaction. Once the
+    additional requests to be made against the transaction; once the
     event dispatch is complete, the transaction's
     [=transaction/state=] is set to [=transaction/inactive=] again.
 
@@ -1075,11 +1078,12 @@ The <dfn>lifetime</dfn> of a
     [=/object stores=] as well as additions and removals of [=/object
     stores=] and [=/indexes=].
 
-1. The implementation must attempt to <dfn lt="commit|committed">commit</dfn>
-    a transaction when all [=/requests=] placed against the
+1. If a transaction's [=transaction/manual commit flag=] is false, then
+    the implementation must attempt to <dfn lt="commit|committed">commit</dfn>
+    it when all [=/requests=] placed against the
     transaction have completed and their returned results handled, no
     new requests have been placed against the transaction, and the
-    transaction has not been [=transaction/aborted=]
+    transaction has not been [=transaction/aborted=].
 
     An explicit call to {{IDBTransaction/commit()}} will initiate a
     [=transaction/commit=] without waiting for request results to be
@@ -1116,7 +1120,7 @@ They will return true if any transactions were cleaned up, or false otherwise.
     1. For each [=/transaction=] |transaction| with [=transaction/cleanup event loop=]
         matching the current [=/event loop=]:
 
-        1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+        1. If |transaction|'s [=transaction/manual commit flag=] is false, then set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
 
         1. Clear |transaction|'s [=transaction/cleanup event loop=].
 
@@ -1136,6 +1140,78 @@ a [=/transaction=] that has successfully [=transaction/committed=].
 
 An event with type <dfn event>`abort`</dfn> is fired at
 a [=/transaction=] that has [=transaction/aborted=].
+
+
+<aside class=example id=example-transaction-autocommit>
+
+The following example uses requests within a transaction to increment a counter value.
+Event handlers log various state changes during the request and transaction lifecycles.
+
+```js
+const transaction = connection.transaction('my_data', 'readwrite');
+const store = transaction.objectStore('my_data');
+const get_request = store.get('counter');
+get_request.onerror = e => {
+  console.warn(`get failed: ${get_request.error}`);
+};
+get_request.onsuccess = e => {
+  console.log(`get succeeded`);
+  const old_value = get_request.result;
+  const put_request = store.put(old_value + 1, 'counter');
+  put_request.onerror = e => {
+    console.warn(`get failed: ${put_request.error}`);
+  };
+  put_request.onsuccess = {
+    console.log(`put succeeded`);
+    // No more requests are made, so the transaction will autocommit.
+  };
+};
+
+transaction.onabort = e => {
+  console.warn(`transaction aborted: ${transaction.error}`);
+};
+
+transaction.oncomplete = e => {
+  console.log(`transaction committed`);
+};
+```
+</aside>
+
+<aside class=example id=example-transaction-manualcommit>
+
+The following example uses requests within a transaction to atomically
+update a record's value using an asynchronous network fetch. A manually
+committing transaction is necessary.
+
+```js
+const transaction = connection.transaction(
+  'my_records, 'readwrite', {manualCommit: true});
+
+const store = transaction.objectStore('my_records);
+store.get('key').onsuccess = async e => {
+  try {
+    const record = e.target.result;
+
+    // Make an asynchronous network request. If the transaction
+    // was not set to manual commit, it would autocommit here
+    // because there were no outstanding requests.
+    const response = await fetch(record.url);
+
+    // Update the record.
+    record.status = response.status;
+    store.put(record, 'key');
+
+    // Commit the transaction, once the request has completed.
+    // If the request fails, the transaction will abort instead.
+    transaction.commit();
+  } catch (ex) {
+    // If the fetch() fails, abort the transaction.
+    transaction.abort();
+  }
+});
+```
+</aside>
+
 
 <!-- ============================================================ -->
 ### Transaction scheduling ### {#transaction-scheduling}
@@ -2448,6 +2524,7 @@ interface IDBDatabase : EventTarget {
 enum IDBTransactionDurability { "default", "strict", "relaxed" };
 
 dictionary IDBTransactionOptions {
+  boolean manualCommit = false;
   IDBTransactionDurability durability = "default";
 };
 
@@ -2641,9 +2718,13 @@ instance on which it was called.
         Returns a new [=/transaction=] with the given
         |scope| (which can be a single [=/object store=] [=object-store/name=] or an array of [=object-store/names=]),
         |mode| ({{"readonly"}} or {{"readwrite"}}),
-        and additional |options| including {{IDBTransactionOptions/durability}} ({{"default"}}, {{"strict"}} or {{"relaxed"}}).
+        and additional |options| including
+        {{IDBTransactionOptions/manualCommit}} (true or false), and
+        {{IDBTransactionOptions/durability}} ({{"default"}}, {{"strict"}} or {{"relaxed"}}).
 
-        The default |mode| is {{"readonly"}} and the default {{IDBTransactionOptions/durability}} is {{"default"}}.
+        The default |mode| is {{"readonly"}}.
+        The default {{IDBTransactionOptions/manualCommit}} is false.
+        The default {{IDBTransactionOptions/durability}} is {{"default"}}.
 
     : |connection| . {{IDBDatabase/close()|close}}()
     ::
@@ -2674,7 +2755,11 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</df
 1. If |mode| is not {{"readonly"}} or {{"readwrite"}},
     [=throw=] a [=TypeError=].
 
-1. Let |transaction| be a newly [=transaction/created=] [=/transaction=] with this [=/connection=], |mode|, |options|' {{IDBTransactionOptions/durability}} member, and the set of [=/object stores=] named in |scope|.
+1. Let |transaction| be a newly [=transaction/created=] [=/transaction=] with this [=/connection=], |mode|, and the set of [=/object stores=] named in |scope|.
+
+1. Set |transaction|'s [=transaction/manual commit flag=] to |options|' {{IDBTransactionOptions/manualCommit}} member.
+
+1. Set |transaction|'s [=transaction/durability hint=] to |options|' {{IDBTransactionOptions/durability}} member.
 
 1. Set |transaction|'s [=transaction/cleanup event loop=] to the
     current [=/event loop=].
@@ -2682,6 +2767,12 @@ The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</df
 1. Return an {{IDBTransaction}} object representing |transaction|.
 
 </div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBTransactionOptions/manualCommit}} option is new in this edition.
+  &#x1F6A7;
+</aside>
 
 <aside class=advisement>
   &#x1F6A7;
@@ -4738,6 +4829,7 @@ the contents of the database.
 interface IDBTransaction : EventTarget {
   readonly attribute DOMStringList objectStoreNames;
   readonly attribute IDBTransactionMode mode;
+  readonly attribute boolean manualCommit;
   readonly attribute IDBTransactionDurability durability;
   [SameObject] readonly attribute IDBDatabase db;
   readonly attribute DOMException? error;
@@ -4771,6 +4863,10 @@ enum IDBTransactionMode {
         Returns the [=transaction/mode=] the transaction was created with
         ({{"readonly"}} or {{"readwrite"}}), or {{"versionchange"}} for
         an [=/upgrade transaction=].
+
+    : |transaction| . {{IDBTransaction/manualCommit}}
+    ::
+        Returns true if the transaction was created with {{IDBTransactionOptions/manualCommit}}: `true` and false otherwise.
 
     : |transaction| . {{IDBTransaction/durability}}
     ::
@@ -4807,6 +4903,14 @@ The <dfn attribute for=IDBTransaction>objectStoreNames</dfn> getter steps are:
 The <dfn attribute for=IDBTransaction>mode</dfn> getter steps are to
 return [=/this=]'s [=transaction/mode=].
 
+The <dfn attribute for=IDBTransaction>manualCommit</dfn> attribute's getter must return [=/this=]'s [=transaction/manual commit flag=].
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBTransaction/manualCommit}} attribute is new in this edition.
+  &#x1F6A7;
+</aside>
+
 The <dfn attribute for=IDBTransaction>durability</dfn> getter steps are to return [=/this=]'s [=transaction/durability hint=].
 
 <aside class=advisement>
@@ -4815,7 +4919,6 @@ The <dfn attribute for=IDBTransaction>durability</dfn> getter steps are to retur
   It is supported in Chrome 82 and Edge 82.
   &#x1F6A7;
 </aside>
-
 
 The <dfn attribute for=IDBTransaction>db</dfn> getter steps are to
 return [=/this=]'s [=transaction/connection=]'s associated [=/database=].
@@ -4853,6 +4956,9 @@ none.
         to complete, but no new requests will be accepted. This can be used to force a
         transaction to quickly finish, without waiting for pending requests to fire
         <a event>`success`</a> events before attempting to commit normally.
+
+        If the transaction was created with `manualCommit: true` then this method
+        <span class=allow-2119>must</span> be called to commit the transaction.
 
         The transaction will abort if a pending request fails, for example due to a
         constraint error. The <a event>`success`</a> events for successful requests
@@ -4910,7 +5016,8 @@ The <dfn method for=IDBTransaction>abort()</dfn> method steps are:
 
 The <dfn method for=IDBTransaction>commit()</dfn> method steps are:
 
-1. If [=/this=]'s [=transaction/state=] is not [=transaction/active=],
+1. If [=/this=]'s [=transaction/manual commit flag=] is false,
+    and [=/this=]'s [=transaction/state=] is not [=transaction/active=],
     then [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Run [=commit a transaction=] with [=/this=].
@@ -5171,7 +5278,7 @@ To <dfn>commit a transaction</dfn> with the |transaction| to commit, run these s
             <aside class=note>
               Even if an exception is thrown from one of the event handlers of
               this event, the transaction is still committed since writing the
-              database changes happens before the event takes places. Only
+              database changes happens before the event takes place. Only
               after the transaction has been successfully written is the
               <a event>`complete`</a> event fired.
             </aside>
@@ -5500,14 +5607,14 @@ To <dfn>fire a success event</dfn> at a |request|, run these steps:
 1. If |transaction|'s [=transaction/state=] is [=transaction/active=],
     then:
 
-    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+    1. If |transaction|'s [=transaction/manual commit flag=] is false, then set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
 
     1. If |legacyOutputDidListenersThrowFlag| is true,
         then run [=abort a transaction=] with
         |transaction| and a newly <a for=exception>created</a>
         "{{AbortError}}" {{DOMException}}.
 
-    1. If |transaction|'s [=transaction/request list=] is empty,
+    1. If |transaction|'s [=transaction/manual commit flag=] is false and if |transaction|'s [=transaction/request list=] is empty,
         then run [=commit a transaction=] with |transaction|.
 
 </div>
@@ -5539,7 +5646,7 @@ To <dfn>fire an error event</dfn> at a |request|, run these steps:
 1. If |transaction|'s [=transaction/state=] is [=transaction/active=],
     then:
 
-    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+    1. If |transaction|'s [=transaction/manual commit flag=] is false, then set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
 
     1. If |legacyOutputDidListenersThrowFlag| is true,
         then run [=abort a transaction=] with
@@ -5560,7 +5667,7 @@ To <dfn>fire an error event</dfn> at a |request|, run these steps:
         |transaction| and [=/request=]'s [=request/error=], and
         terminate these steps.
 
-    1. If |transaction|'s [=transaction/request list=] is empty,
+    1. If |transaction|'s [=transaction/manual commit flag=] is false and |transaction|'s [=transaction/request list=] is empty,
         then run [=commit a transaction=] with |transaction|.
 
 </div>
@@ -6801,6 +6908,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Specified [[#transaction-scheduling]] more precisely and disallow starting read/write transactions while read-only transactions with overlapping scope are running. ([Issue #253](https://github.com/w3c/IndexedDB/issues/253))
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
 * Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
+* Specified [=transaction/manual commit flag=], {{IDBTransactionOptions/manualCommit}} option and {{IDBTransaction/manualCommit}} attribute. ([Issue #34](https://github.com/w3c/IndexedDB/issues/34))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
