@@ -62,7 +62,13 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
         text: Uint8Array; url: sec-typedarray-objects
 spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     type: dfn
+        text: storage identifier; url: storage-identifier
+        text: storage bottle; url: storage-bottle
+        for: storage bottle; text: map; url: storage-bottle-map
         text: storage bucket; url: storage-bucket
+        text: storage proxy map; url: storage-proxy-map
+        for: storage proxy map; text: backing map; url: storage-proxy-map-backing-map
+        text: obtain a local storage bottle map; url: obtain-a-local-storage-bottle-map
 </pre>
 
 <style>
@@ -437,6 +443,13 @@ A [=database=] has at most one associated <dfn>upgrade transaction</dfn>,
 which is either null or an [=/upgrade transaction=], and is initially null.
 
 </div>
+
+<!-- ============================================================ -->
+### Database storage ### {#database-storage}
+<!-- ============================================================ -->
+
+Indexed DB is a [=/storage endpoint=], with the [=/storage identifier=] <code>"indexedDB</code>. The storage for a [=/database=] is contained within a [=/storage bottle=]. The [=/database=]'s [=database/name=] is the [=map/key=] in the [=/storage bottle=]'s [=storage bottle/map=].
+
 
 <!-- ============================================================ -->
 ### Database connection ### {#database-connection}
@@ -1279,13 +1292,16 @@ unless an <a event>`upgradeneeded`</a> event has been fired.
 An [=open request=]'s [=get the parent=] algorithm returns null.
 
 [=Open requests=] are processed in a <dfn>connection queue</dfn>.
-The queue contains all [=open requests=] associated with an
-[=/origin=] and a [=database/name=]. Requests added to the
+The queue contains all [=open requests=] associated with a
+[=/storage bottle=] and a [=database/name=]. Requests added to the
 [=connection queue=] processed in order and each request must run
 to completion before the next request is processed. An open request
 may be blocked on other [=/connections=], requiring those
 connections to [=connection/close=] before the request can complete and allow
 further requests to be processed.
+
+Issue: Make the queue/bottle (or bottle map) association more rigorous.
+
 
 <aside class=note>
   A [=connection queue=] is not a [=task queue=] associated with
@@ -2213,17 +2229,14 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |origin| be |environment|'s [=environment settings object/origin=].
-
-1. If |origin| is an [=opaque origin=], [=throw=] a
-    "{{SecurityError}}" {{DOMException}} and abort these steps.
+1. Let |map| be the result of [=/obtaining a local storage bottle map=] with |environment| and <code>"indexedDB"</code>. If this returns failure, [=throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=open request=].
 
 1. Run these steps [=in parallel=]:
 
     1. Let |result| be the result of
-        [=/opening a database=], with |origin|,
+        [=/opening a database=], with |map|,
         |name|, |version| if given and undefined
         otherwise, and |request|.
 
@@ -2284,17 +2297,14 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |origin| be |environment|'s [=environment settings object/origin=].
-
-1. If |origin| is an [=opaque origin=], [=throw=] a
-    "{{SecurityError}}" {{DOMException}} and abort these steps.
+1. Let |map| be the result of [=/obtaining a local storage bottle map=] with |environment| and <code>"indexedDB"</code>. If this returns failure, [=throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=open request=].
 
 1. Run these steps [=in parallel=]:
 
     1. Let |result| be the result of
-        [=/deleting a database=], with |origin|,
+        [=/deleting a database=], with |map|,
         |name|, and |request|.
 
     1. Set |request|'s [=request/processed flag=] to true.
@@ -2340,23 +2350,13 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |origin| be |environment|'s [=environment settings object/origin=].
-
-1. If |origin| is an [=opaque origin=],
-    then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}.
-
 1. Let |p| be [=/a new promise=].
 
 1. Run these steps [=in parallel=]:
 
-    1. Let |databases| be the [=/set=] of [=databases=] in |origin|.
-        If this cannot be determined for any reason, then [=/reject=] |p| with
-        an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
-        and terminate these steps.
+    1. Let |map| be the result of [=/obtaining a local storage bottle map=] with |environment| and <code>"indexedDB"</code>. If this returns failure, [=/reject=] |p| with a "{{SecurityError}}" {{DOMException}} and terminate these steps.
 
-    1. Let |result| be a new [=/list=].
-
-    1. [=set/For each=] |db| of |databases|:
+    1. [=map/For each=] |db| of |map|'s [=map/values=]:
 
         1. Let |info| be a new {{IDBDatabaseInfo}} dictionary.
         1. Set |info|'s {{IDBDatabaseInfo/name}} dictionary member to |db|'s [=database/name=].
@@ -4960,23 +4960,22 @@ The <dfn attribute for=IDBTransaction>onerror</dfn> attribute is an [=/event han
 
 <div algorithm>
 
-To <dfn>open a database</dfn> with |origin| which requested the [=database=] to be opened, a database |name|, a database |version|, and a |request|, run these steps:
+To <dfn>open a database</dfn> with [=/storage proxy map=] |map|, a database |name|, a database |version|, and a |request|, run these steps:
 
-1. Let |queue| be the [=connection queue=] for |origin| and |name|.
+1. Let |queue| be the [=connection queue=] for |map|'s [=storage proxy map/backing map=] and |name|.
 
 1. Add |request| to |queue|.
 
 1. Wait until all previous requests in |queue| have been processed.
 
-1. Let |db| be the [=database=] [=database/named=] |name| in
-    |origin|, or null otherwise.
+1. Let |db| be |map|\[|name|] if it [=map/exists=], or null otherwise.
 
 1. If |version| is undefined, let |version| be 1 if |db| is null, or
     |db|'s [=database/version=] otherwise.
 
 1. If |db| is null, let |db| be a new [=database=] with
     [=database/name=] |name|, [=database/version=] 0 (zero), and with
-    no [=/object stores=]. If this fails for any reason, return an
+    no [=/object stores=], and [=map/set=] |map|\[|name|] to |db|. If this fails for any reason, return an
     appropriate error (e.g. a "{{QuotaExceededError}}" or
     "{{UnknownError}}" {{DOMException}}).
 
@@ -5085,18 +5084,17 @@ optional |forced flag|, run these steps:
 
 <div algorithm>
 
-To <dfn>delete a database</dfn> with the |origin| that
-requested the [=database=] to be deleted, a database |name|, and a
-|request|, run these steps:
+To <dfn>delete a database</dfn> with [=/storage proxy map=] |map|, a database |name|, and a |request|, run these steps:
 
-1. Let |queue| be the [=connection queue=] for |origin| and |name|.
+1. Let |queue| be the [=connection queue=] for |map|'s [=storage proxy map/backing map=] and |name|.
 
 1. Add |request| to |queue|.
 
 1. Wait until all previous requests in |queue| have been processed.
 
-1. Let |db| be the [=database=] [=database/named=] |name| in
-    |origin|, if one exists. Otherwise, return 0 (zero).
+1. If |map|\[|name|] does not [=map/exist=], then return 0 (zero).
+
+1. Otherwise, let |db| be |map|\[|name|].
 
 1. Let |openConnections| be the [=/set=] of all [=/connections=]
     associated with |db|.
@@ -5126,7 +5124,7 @@ requested the [=database=] to be deleted, a database |name|, and a
 
 1. Let |version| be |db|'s [=database/version=].
 
-1. Delete |db|. If this fails for any reason, return an appropriate
+1. [=map/Remove=] |map|\[|name|]. If this fails for any reason, return an appropriate
     error (e.g. "{{QuotaExceededError}}" or "{{UnknownError}}" {{DOMException}}).
 
 1. Return |version|.
@@ -6801,6 +6799,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Specified [[#transaction-scheduling]] more precisely and disallow starting read/write transactions while read-only transactions with overlapping scope are running. ([Issue #253](https://github.com/w3c/IndexedDB/issues/253))
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
 * Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
+* Defined [=database=] storage in terms of [[Storage]] primitives.
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
