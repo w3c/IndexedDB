@@ -2217,9 +2217,9 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |storageKey| be |environment|'s [=/storage key=].
+1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
 
-1. If |storageKey| is an opaque [=/storage key=], [=throw=] a
+1. If |storageKey|'s origin is an opaque, [=throw=] a
     "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=open request=].
@@ -2288,9 +2288,9 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |storageKey| be |environment|'s [=/storage key=].
+1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
 
-1. If |storageKey| is an opaque [=/storage key=], [=throw=] a
+1. If |storageKey|'s origin is an opaque, [=throw=] a
     "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=open request=].
@@ -2344,16 +2344,16 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |storage key| be |environment|'s [=/storage key=].
+1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
 
-1. If |storage key| is an opaque [=/storage key=],
+1. If |storageKey|'s origin is an opaque,
     then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}.
 
 1. Let |p| be [=/a new promise=].
 
 1. Run these steps [=in parallel=]:
 
-    1. Let |databases| be the [=/set=] of [=databases=] in |storage key|.
+    1. Let |databases| be the [=/set=] of [=databases=] in |storageKey|.
         If this cannot be determined for any reason, then [=/reject=] |p| with
         an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
         and terminate these steps.
@@ -4964,16 +4964,16 @@ The <dfn attribute for=IDBTransaction>onerror</dfn> attribute is an [=/event han
 
 <div algorithm>
 
-To <dfn>open a database</dfn> with |storage key| which requested the [=database=] to be opened, a database |name|, a database |version|, and a |request|, run these steps:
+To <dfn>open a database</dfn> with |storageKey| which requested the [=database=] to be opened, a database |name|, a database |version|, and a |request|, run these steps:
 
-1. Let |queue| be the [=connection queue=] for |storage key| and |name|.
+1. Let |queue| be the [=connection queue=] for |storageKey| and |name|.
 
 1. Add |request| to |queue|.
 
 1. Wait until all previous requests in |queue| have been processed.
 
 1. Let |db| be the [=database=] [=database/named=] |name| in
-    |storage key|, or null otherwise.
+    |storageKey|, or null otherwise.
 
 1. If |version| is undefined, let |version| be 1 if |db| is null, or
     |db|'s [=database/version=] otherwise.
@@ -5089,18 +5089,18 @@ optional |forced flag|, run these steps:
 
 <div algorithm>
 
-To <dfn>delete a database</dfn> with the |storage key| that
+To <dfn>delete a database</dfn> with the |storageKey| that
 requested the [=database=] to be deleted, a database |name|, and a
 |request|, run these steps:
 
-1. Let |queue| be the [=connection queue=] for |storage key| and |name|.
+1. Let |queue| be the [=connection queue=] for |storageKey| and |name|.
 
 1. Add |request| to |queue|.
 
 1. Wait until all previous requests in |queue| have been processed.
 
 1. Let |db| be the [=database=] [=database/named=] |name| in
-    |storage key|, if one exists. Otherwise, return 0 (zero).
+    |storageKey|, if one exists. Otherwise, return 0 (zero).
 
 1. Let |openConnections| be the [=/set=] of all [=/connections=]
     associated with |db|.
