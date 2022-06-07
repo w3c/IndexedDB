@@ -67,7 +67,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     type: dfn
         text: storage bucket; url: storage-bucket
         text: storage key; url: storage-key
-        text: obtain a storage key; url: obtain-a-storage-key
 </pre>
 
 <style>
@@ -2219,9 +2218,7 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
 1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
-
-1. If |storageKey|'s origin is an [=/opaque origin=], [=throw=] a
-    "{{SecurityError}}" {{DOMException}} and abort these steps.
+   If a failure is returned then [=throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=open request=].
 
@@ -2290,9 +2287,7 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
 1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
-
-1. If |storageKey|'s origin is an [=/opaque origin=], [=throw=] a
-    "{{SecurityError}}" {{DOMException}} and abort these steps.
+   If a failure is returned then [=throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=open request=].
 
@@ -2346,9 +2341,7 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
 1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
-
-1. If |storageKey|'s origin is an [=/opaque origin=],
-    then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}.
+   If a failure is returned then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}
 
 1. Let |p| be [=/a new promise=].
 
@@ -6607,7 +6600,7 @@ of user tracking:
     User agents may require the user to authorize access to databases
     before a site can use the feature.
 
-: Storage Key tracking of stored data
+: Attribution of third-party storage
 ::
     User agents may record the [=/origins=] of sites that contained content
     from third-party [=/origins=] that caused data to be stored.
