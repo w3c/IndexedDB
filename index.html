@@ -9,7 +9,7 @@
   <meta content="Bikeshed version 37b7e7e68, updated Fri May 27 15:08:11 2022 -0700" name="generator">
   <link href="https://www.w3.org/TR/IndexedDB/" rel="canonical">
   <link href="logo-db.svg" rel="icon">
-  <meta content="513352eaaaa62c38de28b68340f6f2f56fa4aa97" name="document-revision">
+  <meta content="bb2eb854a16ae97e46e9d030f9b4d76e91aeb2a3" name="document-revision">
 <style>
 /* Default ED/WD stylesheets set "both"; not needed for logo floated right */
 div.head h1 { clear: left; }
@@ -772,6 +772,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
        <a href="#request-construct"><span class="secno">2.8</span> <span class="content">Requests</span></a>
        <ol class="toc">
         <li><a href="#open-requests"><span class="secno">2.8.1</span> <span class="content">Open requests</span></a>
+        <li><a href="#connection-queues"><span class="secno">2.8.2</span> <span class="content">Connection queues</span></a>
        </ol>
       <li><a href="#range-construct"><span class="secno">2.9</span> <span class="content">Key range</span></a>
       <li><a href="#cursor-construct"><span class="secno">2.10</span> <span class="content">Cursor</span></a>
@@ -1482,7 +1483,7 @@ of interactions can be performed upon that transaction. The <a data-link-type="d
 of the transaction. A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑥">transaction</a>'s <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode①">mode</a> is one of the
 following:</p>
     <dl>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly">"readonly"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly">readonly</a></code>"
      <dd data-md>
       <p>The transaction is only allowed to read data. No modifications can
 be done by this type of transaction. This has the advantage that
@@ -1490,15 +1491,15 @@ several <a data-link-type="dfn" href="#transaction-read-only-transaction" id="re
 if their <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope②">scopes</a> are <a data-link-type="dfn" href="#transaction-overlap" id="ref-for-transaction-overlap">overlapping</a>, i.e. if they are using the
 same object stores. This type of transaction can be created any
 time once a database has been opened.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite">"readwrite"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite">readwrite</a></code>"
      <dd data-md>
       <p>The transaction is allowed to read, modify and delete data from
 existing object stores. However object stores and indexes can’t be
-added or removed. Multiple <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite①">"readwrite"</a></code> transactions
+added or removed. Multiple "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite①">readwrite</a></code>" transactions
 can’t run at the same time if their <a data-link-type="dfn" href="#transaction-scope" id="ref-for-transaction-scope③">scopes</a> are <a data-link-type="dfn" href="#transaction-overlap" id="ref-for-transaction-overlap①">overlapping</a> since that would mean that they can modify each other’s data in
 the middle of the transaction. This type of transaction can be
 created any time once a database has been opened.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange">"versionchange"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange">versionchange</a></code>"
      <dd data-md>
       <p>The transaction is allowed to read, modify and delete data from
 existing object stores, and can also create and remove object
@@ -1508,19 +1509,19 @@ instead is created automatically when an <a class="idl-code" data-link-type="eve
     </dl>
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑦">transaction</a> has a <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-durability-hint">durability hint</dfn>. This is a hint to the user agent of whether to prioritize performance or durability when committing the transaction. The <a data-link-type="dfn" href="#transaction-durability-hint" id="ref-for-transaction-durability-hint">durability hint</a> is one of the following:</p>
     <dl>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict">"strict"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict">strict</a></code>"
      <dd data-md>
       <p>The user agent may consider that the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑧">transaction</a> has successfully <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit">committed</a> only after verifying that all outstanding changes have been successfully written to a persistent storage medium.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed">"relaxed"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed">relaxed</a></code>"
      <dd data-md>
       <p>The user agent may consider that the <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept①⑨">transaction</a> has successfully <a data-link-type="dfn" href="#transaction-commit" id="ref-for-transaction-commit①">committed</a> as soon as all outstanding changes have been written to the operating system, without subsequent verification.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default">"default"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default">default</a></code>"
      <dd data-md>
       <p>The user agent should use its default durability behavior for the <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#storage-bucket" id="ref-for-storage-bucket">storage bucket</a>. This is the default for <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⓪">transactions</a> if not otherwise specified.</p>
     </dl>
     <aside class="note">
-      In a typical implementation, <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict①">"strict"</a></code> is a hint to the user agent to flush any operating system I/O buffers before a <code class="idl"><a data-link-type="idl" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete">"complete"</a></code> event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices. 
-     <p>Web applications are encouraged to use <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed①">"relaxed"</a></code> for ephemeral data such as caches or quickly changing records, and <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict②">"strict"</a></code> in cases where reducing the risk of data loss outweighs the impact to performance and power. Implementations are encouraged to weigh the durability hint from applications against the impact to users and devices.</p>
+      In a typical implementation, "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict①">strict</a></code>" is a hint to the user agent to flush any operating system I/O buffers before a <a class="idl-code" data-link-type="event" href="#eventdef-transaction-complete" id="ref-for-eventdef-transaction-complete"><code>complete</code></a> event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices. 
+     <p>Web applications are encouraged to use "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed①">relaxed</a></code>" for ephemeral data such as caches or quickly changing records, and "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict②">strict</a></code>" in cases where reducing the risk of data loss outweighs the impact to performance and power. Implementations are encouraged to weigh the durability hint from applications against the impact to users and devices.</p>
     </aside>
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②①">transaction</a> optionally has a <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-cleanup-event-loop">cleanup event loop</dfn> which is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a>.</p>
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②②">transaction</a> has a <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-request-list">request list</dfn> of pending <a data-link-type="dfn" href="#request" id="ref-for-request">requests</a> which have been made against the transaction.</p>
@@ -1528,8 +1529,8 @@ instead is created automatically when an <a class="idl-code" data-link-type="eve
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⑤">transaction</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#get-the-parent" id="ref-for-get-the-parent①">get the parent</a> algorithm returns the
 transaction’s <a data-link-type="dfn" href="#transaction-connection" id="ref-for-transaction-connection">connection</a>.</p>
     <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-read-only-transaction">read-only transaction</dfn> is
-a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⑥">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode②">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly①">"readonly"</a></code>.</p>
-    <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-read-write-transaction">read/write transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⑦">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode③">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite②">"readwrite"</a></code>.</p>
+a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⑥">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode②">mode</a> "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly①">readonly</a></code>".</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-read-write-transaction">read/write transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⑦">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode③">mode</a> "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite②">readwrite</a></code>".</p>
     <h4 class="heading settled" data-level="2.7.1" id="transaction-lifecycle"><span class="secno">2.7.1. </span><span class="content">Transaction lifecycle</span><a class="self-link" href="#transaction-lifecycle"></a></h4>
     <p>A <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept②⑧">transaction</a> has a <dfn class="dfn-paneled" data-dfn-for="transaction" data-dfn-type="dfn" data-noexport id="transaction-state">state</dfn>, which is one
 of the following:</p>
@@ -1684,7 +1685,7 @@ a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-co
     </aside>
    </div>
    <h4 class="heading settled" data-level="2.7.3" id="upgrade-transaction-construct"><span class="secno">2.7.3. </span><span class="content">Upgrade transactions</span><a class="self-link" href="#upgrade-transaction-construct"></a></h4>
-   <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="upgrade-transaction">upgrade transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⑧">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑦">mode</a> <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange①">"versionchange"</a></code>.</p>
+   <p>An <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="upgrade-transaction">upgrade transaction</dfn> is a <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⑧">transaction</a> with <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑦">mode</a> "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange①">versionchange</a></code>".</p>
    <p>An <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction⑧">upgrade transaction</a> is automatically created when running the
 steps to <a data-link-type="dfn" href="#run-an-upgrade-transaction" id="ref-for-run-an-upgrade-transaction">run an upgrade transaction</a> after a <a data-link-type="dfn" href="#connection" id="ref-for-connection②②">connection</a> is opened to a <a data-link-type="dfn" href="#database" id="ref-for-database②①">database</a>, if a <a data-link-type="dfn" href="#database-version" id="ref-for-database-version①">version</a> greater than
 the current <a data-link-type="dfn" href="#database-version" id="ref-for-database-version②">version</a> is specified. This <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept③⑨">transaction</a> will be active inside the <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded④"><code>upgradeneeded</code></a> event
@@ -1743,18 +1744,19 @@ request</a> to indicate progress.</p>
     <p>The <a data-link-type="dfn" href="#request-transaction" id="ref-for-request-transaction①">transaction</a> of an <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request③">open request</a> is null
 unless an <a class="idl-code" data-link-type="event" href="#eventdef-request-upgradeneeded" id="ref-for-eventdef-request-upgradeneeded⑦"><code>upgradeneeded</code></a> event has been fired.</p>
     <p>An <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request④">open request</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#get-the-parent" id="ref-for-get-the-parent③">get the parent</a> algorithm returns null.</p>
-    <p><a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑤">Open requests</a> are processed in a <dfn class="dfn-paneled" data-dfn-for="request" data-dfn-type="dfn" data-noexport id="request-connection-queue">connection queue</dfn>.
-The queue contains all <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑥">open requests</a> associated with an <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#storage-key" id="ref-for-storage-key④">storage key</a> and a <a data-link-type="dfn" href="#database-name" id="ref-for-database-name">name</a>. Requests added to the <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue">connection queue</a> processed in order and each request must run
+   </div>
+   <h4 class="heading settled" data-level="2.8.2" id="connection-queues"><span class="secno">2.8.2. </span><span class="content">Connection queues</span><a class="self-link" href="#connection-queues"></a></h4>
+   <p><a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑤">Open requests</a> are processed in a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="connection-queue">connection queue</dfn>.
+The queue contains all <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑥">open requests</a> associated with an <a data-link-type="dfn" href="https://storage.spec.whatwg.org/#storage-key" id="ref-for-storage-key④">storage key</a> and a <a data-link-type="dfn" href="#database-name" id="ref-for-database-name">name</a>. Requests added to the <a data-link-type="dfn" href="#connection-queue" id="ref-for-connection-queue">connection queue</a> processed in order and each request must run
 to completion before the next request is processed. An open request
 may be blocked on other <a data-link-type="dfn" href="#connection" id="ref-for-connection②⑨">connections</a>, requiring those
 connections to <a data-link-type="dfn" href="#connection-closed" id="ref-for-connection-closed">close</a> before the request can complete and allow
 further requests to be processed.</p>
-    <aside class="note"> A <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue①">connection queue</a> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue">task queue</a> associated with
+   <aside class="note"> A <a data-link-type="dfn" href="#connection-queue" id="ref-for-connection-queue①">connection queue</a> is not a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue">task queue</a> associated with
   an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop③">event loop</a>, as the requests are processed outside any
   specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context" id="ref-for-browsing-context">browsing context</a>. The delivery of events to
   completed <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑦">open request</a> still goes through a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue①">task queue</a> associated with the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop④">event loop</a> of the context where the
   request was made. </aside>
-   </div>
    <h3 class="heading settled" data-level="2.9" id="range-construct"><span class="secno">2.9. </span><span class="content">Key range</span><a class="self-link" href="#range-construct"></a></h3>
    <p>Records can be retrieved from <a data-link-type="dfn" href="#object-store" id="ref-for-object-store③⓪">object stores</a> and <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①②">indexes</a> using either <a data-link-type="dfn" href="#key" id="ref-for-key②②">keys</a> or <a data-link-type="dfn" href="#key-range" id="ref-for-key-range">key ranges</a>. A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="key-range">key range</dfn> is a
 continuous interval over some data type used for keys.</p>
@@ -1826,31 +1828,31 @@ moves in monotonically increasing or decreasing order of the <a data-link-type="
 when iterating indexes. The direction of a cursor also determines if
 the cursor initial position is at the start of its <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source">source</a> or at its end. A cursor’s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction">direction</a> is one of the following:</p>
     <dl>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next">"next"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next">next</a></code>"
      <dd data-md>
       <p>This direction causes the cursor to be opened at the start of the <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source①">source</a>. When iterated, the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor⑥">cursor</a> should yield all
 records, including duplicates, in monotonically increasing order
 of keys.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique">"nextunique"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique">nextunique</a></code>"
      <dd data-md>
       <p>This direction causes the cursor to be opened at the start of the <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source②">source</a>. When iterated, the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor⑦">cursor</a> should not yield
 records with the same key, but otherwise yield all records, in
 monotonically increasing order of keys. For every key with
 duplicate values, only the first record is yielded. When the <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source③">source</a> is an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store③④">object store</a> or an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①⑥">index</a> with
 its <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-index-unique-flag">unique flag</a> set to true, this direction has exactly the same
-behavior as <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next①">"next"</a></code>.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev">"prev"</a></code>
+behavior as "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next①">next</a></code>".</p>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev">prev</a></code>"
      <dd data-md>
       <p>This direction causes the cursor to be opened at the end of the <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source④">source</a>. When iterated, the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor⑧">cursor</a> should yield all
 records, including duplicates, in monotonically decreasing order
 of keys.</p>
-     <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique">"prevunique"</a></code>
+     <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique">prevunique</a></code>"
      <dd data-md>
       <p>This direction causes the cursor to be opened at the end of the <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source⑤">source</a>. When iterated, the <a data-link-type="dfn" href="#cursor" id="ref-for-cursor⑨">cursor</a> should not
 yield records with the same key, but otherwise yield all records,
 in monotonically decreasing order of keys. For every key with
 duplicate values, only the first record is yielded. When the <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source⑥">source</a> is an <a data-link-type="dfn" href="#object-store" id="ref-for-object-store③⑤">object store</a> or an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept①⑦">index</a> with its <a data-link-type="dfn" href="#index-unique-flag" id="ref-for-index-unique-flag①">unique flag</a> set to true, this direction
-has exactly the same behavior as <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev①">"prev"</a></code>.</p>
+has exactly the same behavior as "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev①">prev</a></code>".</p>
     </dl>
     <p>A <a data-link-type="dfn" href="#cursor" id="ref-for-cursor①⓪">cursor</a> has a <dfn class="dfn-paneled" data-dfn-for="cursor" data-dfn-type="dfn" data-noexport id="cursor-position">position</dfn> within its range. It is
 possible for the list of records which the cursor is iterating over to
@@ -2279,8 +2281,8 @@ request</a>.</p>
 If this as an <a data-link-type="dfn" href="#request-open-request" id="ref-for-request-open-request⑨">open request</a>, then it returns an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction①⑦">upgrade transaction</a> while it is running, or null otherwise.</p>
      <dt data-md><var>request</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbrequest-readystate" id="ref-for-dom-idbrequest-readystate①">readyState</a></code>
      <dd data-md>
-      <p>Returns <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending">"pending"</a></code> until a request is complete,
-then returns <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done">"done"</a></code>.</p>
+      <p>Returns "<code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending">pending</a></code>" until a request is complete,
+then returns "<code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done">done</a></code>".</p>
     </dl>
    </div>
    <div class="mdn-anno wrapped">
@@ -2387,7 +2389,8 @@ return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="r
     </div>
    </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="IDBRequest" data-dfn-type="attribute" data-export id="dom-idbrequest-readystate"><code>readyState</code></dfn> getter steps are to
-return <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending①">"pending"</a></code> if <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this⑥">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑦">done flag</a> is false, and <code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done①">"done"</a></code> otherwise.</p>
+return "<code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-pending" id="ref-for-dom-idbrequestreadystate-pending①">pending</a></code>" if <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this⑥">this</a>'s <a data-link-type="dfn" href="#request-done-flag" id="ref-for-request-done-flag⑦">done flag</a> is false, and
+"<code class="idl"><a data-link-type="idl" href="#dom-idbrequestreadystate-done" id="ref-for-dom-idbrequestreadystate-done①">done</a></code>" otherwise.</p>
    <div class="mdn-anno wrapped">
     <button class="mdn-anno-btn"><b class="all-engines-flag" title="This feature is in all current engines.">✔</b><span>MDN</span></button>
     <div class="feature">
@@ -3169,9 +3172,9 @@ from within an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-u
     <dl>
      <dt data-md><var>transaction</var> = <var>connection</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-transaction" id="ref-for-dom-idbdatabase-transaction③">transaction</a></code>(<var>scope</var> [, <var>mode</var> [, <var>options</var> ] ])
      <dd data-md>
-      <p>Returns a new <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑤">transaction</a> with the given <var>scope</var> (which can be a single <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥⑨">object store</a> <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name⑦">name</a> or an array of <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name⑧">names</a>), <var>mode</var> (<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly②">"readonly"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite③">"readwrite"</a></code>),
-and additional <var>options</var> including <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionoptions-durability" id="ref-for-dom-idbtransactionoptions-durability">durability</a></code> (<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default①">"default"</a></code>, <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict③">"strict"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed②">"relaxed"</a></code>).</p>
-      <p>The default <var>mode</var> is <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly③">"readonly"</a></code> and the default <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionoptions-durability" id="ref-for-dom-idbtransactionoptions-durability①">durability</a></code> is <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default②">"default"</a></code>.</p>
+      <p>Returns a new <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑤">transaction</a> with the given <var>scope</var> (which can be a single <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑥⑨">object store</a> <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name⑦">name</a> or an array of <a data-link-type="dfn" href="#object-store-name" id="ref-for-object-store-name⑧">names</a>), <var>mode</var> ("<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly②">readonly</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite③">readwrite</a></code>"),
+and additional <var>options</var> including <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionoptions-durability" id="ref-for-dom-idbtransactionoptions-durability">durability</a></code> ("<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default①">default</a></code>", "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict③">strict</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed②">relaxed</a></code>").</p>
+      <p>The default <var>mode</var> is "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly③">readonly</a></code>" and the default <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionoptions-durability" id="ref-for-dom-idbtransactionoptions-durability①">durability</a></code> is "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default②">default</a></code>".</p>
      <dt data-md><var>connection</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbdatabase-close" id="ref-for-dom-idbdatabase-close②">close</a></code>()
      <dd data-md>
       <p>Closes the <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑤">connection</a> once all running <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑥">transactions</a> have finished.</p>
@@ -3211,7 +3214,7 @@ store</a> in the <a data-link-type="dfn" href="#connection" id="ref-for-connecti
      <li data-md>
       <p>If <var>scope</var> is empty, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw②⓪">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidaccesserror" id="ref-for-invalidaccesserror②">InvalidAccessError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException③②">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <var>mode</var> is not <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly④">"readonly"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite④">"readwrite"</a></code>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw②①">throw</a> a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-native-error-types-used-in-this-standard-typeerror" id="ref-for-sec-native-error-types-used-in-this-standard-typeerror①">TypeError</a>.</p>
+      <p>If <var>mode</var> is not "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly④">readonly</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite④">readwrite</a></code>", <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw②①">throw</a> a <a data-link-type="dfn" href="https://tc39.github.io/ecma262/#sec-native-error-types-used-in-this-standard-typeerror" id="ref-for-sec-native-error-types-used-in-this-standard-typeerror①">TypeError</a>.</p>
      <li data-md>
       <p>Let <var>transaction</var> be a newly <a data-link-type="dfn" href="#transaction-created" id="ref-for-transaction-created⑤">created</a> <a data-link-type="dfn" href="#transaction-concept" id="ref-for-transaction-concept④⑦">transaction</a> with this <a data-link-type="dfn" href="#connection" id="ref-for-connection④⑧">connection</a>, <var>mode</var>, <var>options</var>’ <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionoptions-durability" id="ref-for-dom-idbtransactionoptions-durability②">durability</a></code> member, and the set of <a data-link-type="dfn" href="#object-store" id="ref-for-object-store⑦①">object stores</a> named in <var>scope</var>.</p>
      <li data-md>
@@ -5192,7 +5195,7 @@ the same time.</p>
       <p>Returns the <code class="idl"><a data-link-type="idl" href="#idbobjectstore" id="ref-for-idbobjectstore①⑤">IDBObjectStore</a></code> or <code class="idl"><a data-link-type="idl" href="#idbindex" id="ref-for-idbindex①④">IDBIndex</a></code> the cursor was opened from.</p>
      <dt data-md><var>cursor</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-direction" id="ref-for-dom-idbcursor-direction①">direction</a></code>
      <dd data-md>
-      <p>Returns the <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑤">direction</a> (<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next②">"next"</a></code>, <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique①">"nextunique"</a></code>, <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev②">"prev"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique①">"prevunique"</a></code>)
+      <p>Returns the <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑤">direction</a> ("<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next②">next</a></code>", "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique①">nextunique</a></code>", "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev②">prev</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique①">prevunique</a></code>")
 of the cursor.</p>
      <dt data-md><var>cursor</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbcursor-key" id="ref-for-dom-idbcursor-key①">key</a></code>
      <dd data-md>
@@ -5431,9 +5434,11 @@ value to a key</a> with <var>key</var>. Rethrow any exceptions.</p>
        <li data-md>
         <p>Let <var>key</var> be <var>r</var>.</p>
        <li data-md>
-        <p>If <var>key</var> is <a data-link-type="dfn" href="#less-than" id="ref-for-less-than②">less than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to③">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①②">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position⑦">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①③">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑦">direction</a> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next③">"next"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique②">"nextunique"</a></code>, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪①">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②①">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③②">DOMException</a></code>.</p>
+        <p>If <var>key</var> is <a data-link-type="dfn" href="#less-than" id="ref-for-less-than②">less than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to③">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①②">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position⑦">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①③">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑦">direction</a> is
+"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next③">next</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique②">nextunique</a></code>", then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪①">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②①">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③②">DOMException</a></code>.</p>
        <li data-md>
-        <p>If <var>key</var> is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than⑤">greater than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to④">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①④">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position⑧">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①⑤">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑧">direction</a> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev③">"prev"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique②">"prevunique"</a></code>, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪②">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②②">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③③">DOMException</a></code>.</p>
+        <p>If <var>key</var> is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than⑤">greater than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to④">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①④">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position⑧">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①⑤">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑧">direction</a> is
+"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev③">prev</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique②">prevunique</a></code>", then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪②">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②②">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③③">DOMException</a></code>.</p>
       </ol>
      <li data-md>
       <p>Set <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①①⑥">this</a>'s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag⑧">got value flag</a> to false.</p>
@@ -5482,7 +5487,7 @@ store</a> has been deleted, <a data-link-type="dfn" href="https://webidl.spec.wh
      <li data-md>
       <p>If <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②②">this</a>'s <a data-link-type="dfn" href="#cursor-source" id="ref-for-cursor-source②⓪">source</a> is not an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept③⑧">index</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪⑤">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidaccesserror" id="ref-for-invalidaccesserror⑤">InvalidAccessError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③⑦">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②③">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑨">direction</a> is not <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next④">"next"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev④">"prev"</a></code>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪⑥">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidaccesserror" id="ref-for-invalidaccesserror⑥">InvalidAccessError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③⑧">DOMException</a></code>.</p>
+      <p>If <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②③">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction⑨">direction</a> is not "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next④">next</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev④">prev</a></code>", <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪⑥">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidaccesserror" id="ref-for-invalidaccesserror⑥">InvalidAccessError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③⑧">DOMException</a></code>.</p>
      <li data-md>
       <p>If <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②④">this</a>'s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag①⓪">got value flag</a> is false, indicating that
 the cursor is being iterated or has iterated past its end, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①⓪⑦">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#invalidstateerror" id="ref-for-invalidstateerror⑤②">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①③⑨">DOMException</a></code>.</p>
@@ -5501,13 +5506,14 @@ a key</a> with <var>key</var>. Rethrow any exceptions.</p>
      <li data-md>
       <p>Let <var>primaryKey</var> be <var>r</var>.</p>
      <li data-md>
-      <p>If <var>key</var> is <a data-link-type="dfn" href="#less-than" id="ref-for-less-than③">less than</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑤">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position⑨">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑥">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①⓪">direction</a> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑤">"next"</a></code>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①⓪">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑤">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④②">DOMException</a></code>.</p>
+      <p>If <var>key</var> is <a data-link-type="dfn" href="#less-than" id="ref-for-less-than③">less than</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑤">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position⑨">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑥">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①⓪">direction</a> is "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑤">next</a></code>", <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①⓪">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑤">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④②">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <var>key</var> is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than⑥">greater than</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑦">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position①⓪">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑧">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①①">direction</a> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑤">"prev"</a></code>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①①">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑥">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④③">DOMException</a></code>.</p>
+      <p>If <var>key</var> is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than⑥">greater than</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑦">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position①⓪">position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑧">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①①">direction</a> is "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑤">prev</a></code>", <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①①">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑥">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④③">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <var>key</var> is <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑤">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑨">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position①①">position</a> and <var>primaryKey</var> is <a data-link-type="dfn" href="#less-than" id="ref-for-less-than④">less than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑥">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③⓪">this</a>'s <a data-link-type="dfn" href="#cursor-object-store-position" id="ref-for-cursor-object-store-position②">object store position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③①">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①②">direction</a> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑥">"next"</a></code>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①②">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑦">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④④">DOMException</a></code>.</p>
+      <p>If <var>key</var> is <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑤">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①②⑨">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position①①">position</a> and <var>primaryKey</var> is <a data-link-type="dfn" href="#less-than" id="ref-for-less-than④">less than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑥">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③⓪">this</a>'s <a data-link-type="dfn" href="#cursor-object-store-position" id="ref-for-cursor-object-store-position②">object store position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③①">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①②">direction</a> is
+"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑥">next</a></code>", <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①②">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑦">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④④">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <var>key</var> is <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑦">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③②">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position①②">position</a> and <var>primaryKey</var> is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than⑦">greater than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑧">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③③">this</a>'s <a data-link-type="dfn" href="#cursor-object-store-position" id="ref-for-cursor-object-store-position③">object store position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③④">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①③">direction</a> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑥">"prev"</a></code>, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①③">throw</a> a
+      <p>If <var>key</var> is <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑦">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③②">this</a>'s <a data-link-type="dfn" href="#cursor-position" id="ref-for-cursor-position①②">position</a> and <var>primaryKey</var> is <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than⑦">greater than</a> or <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to⑧">equal to</a> <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③③">this</a>'s <a data-link-type="dfn" href="#cursor-object-store-position" id="ref-for-cursor-object-store-position③">object store position</a> and <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③④">this</a>'s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①③">direction</a> is "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑥">prev</a></code>", <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id="ref-for-dfn-throw①①③">throw</a> a
 "<code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#dataerror" id="ref-for-dataerror②⑧">DataError</a></code>" <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①④⑤">DOMException</a></code>.</p>
      <li data-md>
       <p>Set <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①③⑤">this</a>'s <a data-link-type="dfn" href="#cursor-got-value-flag" id="ref-for-cursor-got-value-flag①①">got value flag</a> to false.</p>
@@ -5756,12 +5762,12 @@ transaction’s <a data-link-type="dfn" href="#transaction-scope" id="ref-for-tr
      <dt data-md><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-mode" id="ref-for-dom-idbtransaction-mode①">mode</a></code>
      <dd data-md>
       <p>Returns the <a data-link-type="dfn" href="#transaction-mode" id="ref-for-transaction-mode⑧">mode</a> the transaction was created with
-(<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly⑤">"readonly"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite⑤">"readwrite"</a></code>), or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange②">"versionchange"</a></code> for
+("<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readonly" id="ref-for-dom-idbtransactionmode-readonly⑤">readonly</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-readwrite" id="ref-for-dom-idbtransactionmode-readwrite⑤">readwrite</a></code>"), or "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactionmode-versionchange" id="ref-for-dom-idbtransactionmode-versionchange②">versionchange</a></code>" for
 an <a data-link-type="dfn" href="#upgrade-transaction" id="ref-for-upgrade-transaction④④">upgrade transaction</a>.</p>
      <dt data-md><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-durability" id="ref-for-dom-idbtransaction-durability①">durability</a></code>
      <dd data-md>
       <p>Returns the <a data-link-type="dfn" href="#transaction-durability-hint" id="ref-for-transaction-durability-hint①">durability hint</a> the transaction was created with
-(<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict④">"strict"</a></code>, <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed③">"relaxed"</a></code>), or <code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default③">"default"</a></code>).</p>
+("<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-strict" id="ref-for-dom-idbtransactiondurability-strict④">strict</a></code>", "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-relaxed" id="ref-for-dom-idbtransactiondurability-relaxed③">relaxed</a></code>"), or "<code class="idl"><a data-link-type="idl" href="#dom-idbtransactiondurability-default" id="ref-for-dom-idbtransactiondurability-default③">default</a></code>").</p>
      <dt data-md><var>transaction</var> . <code class="idl"><a data-link-type="idl" href="#dom-idbtransaction-db" id="ref-for-dom-idbtransaction-db①">db</a></code>
      <dd data-md>
       <p>Returns the transaction’s <a data-link-type="dfn" href="#transaction-connection" id="ref-for-transaction-connection①">connection</a>.</p>
@@ -6043,7 +6049,7 @@ then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-throw" id
     <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="open-a-database">open a database</dfn> with <var>storageKey</var> which requested the <a data-link-type="dfn" href="#database" id="ref-for-database⑤⑤">database</a> to be opened, a database <var>name</var>, a database <var>version</var>, and a <var>request</var>, run these steps:</p>
     <ol>
      <li data-md>
-      <p>Let <var>queue</var> be the <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue②">connection queue</a> for <var>storageKey</var> and <var>name</var>.</p>
+      <p>Let <var>queue</var> be the <a data-link-type="dfn" href="#connection-queue" id="ref-for-connection-queue②">connection queue</a> for <var>storageKey</var> and <var>name</var>.</p>
      <li data-md>
       <p>Add <var>request</var> to <var>queue</var>.</p>
      <li data-md>
@@ -6130,7 +6136,7 @@ Once they are complete, <var>connection</var> is <a data-link-type="dfn" href="#
 requested the <a data-link-type="dfn" href="#database" id="ref-for-database⑤⑨">database</a> to be deleted, a database <var>name</var>, and a <var>request</var>, run these steps:</p>
     <ol>
      <li data-md>
-      <p>Let <var>queue</var> be the <a data-link-type="dfn" href="#request-connection-queue" id="ref-for-request-connection-queue③">connection queue</a> for <var>storageKey</var> and <var>name</var>.</p>
+      <p>Let <var>queue</var> be the <a data-link-type="dfn" href="#connection-queue" id="ref-for-connection-queue③">connection queue</a> for <var>storageKey</var> and <var>name</var>.</p>
      <li data-md>
       <p>Add <var>request</var> to <var>queue</var>.</p>
      <li data-md>
@@ -6813,7 +6819,7 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in①②">in</a>
      <li data-md>
       <p>Let <var>direction</var> be <var>cursor</var>’s <a data-link-type="dfn" href="#cursor-direction" id="ref-for-cursor-direction①④">direction</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert③">Assert</a>: if <var>primaryKey</var> is given, <var>source</var> is an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept④⑦">index</a> and <var>direction</var> is <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑦">"next"</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑦">"prev"</a></code>.</p>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#assert" id="ref-for-assert③">Assert</a>: if <var>primaryKey</var> is given, <var>source</var> is an <a data-link-type="dfn" href="#index-concept" id="ref-for-index-concept④⑦">index</a> and <var>direction</var> is "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑦">next</a></code>" or "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑦">prev</a></code>".</p>
      <li data-md>
       <p>Let <var>records</var> be the list of <a data-link-type="dfn" href="#object-store-record" id="ref-for-object-store-record⑨①">records</a> in <var>source</var>.</p>
       <aside class="note"> <var>records</var> is always sorted in <a data-link-type="dfn" href="#greater-than" id="ref-for-greater-than①①">ascending</a> <a data-link-type="dfn" href="#key" id="ref-for-key⑧⑧">key</a> order.
@@ -6833,7 +6839,7 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in①②">in</a>
        <li data-md>
         <p>Switch on <var>direction</var>:</p>
         <dl class="switch">
-         <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑧">"next"</a></code>
+         <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-next" id="ref-for-dom-idbcursordirection-next⑧">next</a></code>"
          <dd data-md>
           <p>Let <var>found record</var> be the first record in <var>records</var> which
   satisfy all of the following requirements:</p>
@@ -6854,7 +6860,7 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in①②">in</a>
            <li data-md>
             <p>The record’s key is <a data-link-type="dfn" href="#in" id="ref-for-in①③">in</a> <var>range</var>.</p>
           </ul>
-         <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique③">"nextunique"</a></code>
+         <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique③">nextunique</a></code>"
          <dd data-md>
           <p>Let <var>found record</var> be the first record in <var>records</var> which
   satisfy all of the following requirements:</p>
@@ -6868,7 +6874,7 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in①②">in</a>
            <li data-md>
             <p>The record’s key is <a data-link-type="dfn" href="#in" id="ref-for-in①④">in</a> <var>range</var>.</p>
           </ul>
-         <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑧">"prev"</a></code>
+         <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prev" id="ref-for-dom-idbcursordirection-prev⑧">prev</a></code>"
          <dd data-md>
           <p>Let <var>found record</var> be the last record in <var>records</var> which
   satisfy all of the following requirements:</p>
@@ -6887,7 +6893,7 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in①②">in</a>
            <li data-md>
             <p>The record’s key is <a data-link-type="dfn" href="#in" id="ref-for-in①⑤">in</a> <var>range</var>.</p>
           </ul>
-         <dt data-md><code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique③">"prevunique"</a></code>
+         <dt data-md>"<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique③">prevunique</a></code>"
          <dd data-md>
           <p>Let <var>temp record</var> be the last record in <var>records</var> which satisfy all of the following requirements:</p>
           <ul>
@@ -6902,7 +6908,8 @@ records with key <a data-link-type="dfn" href="#in" id="ref-for-in①②">in</a>
           </ul>
           <p>If <var>temp record</var> is defined, let <var>found record</var> be the
   first record in <var>records</var> whose <a data-link-type="dfn" href="#key" id="ref-for-key⑨⓪">key</a> is <a data-link-type="dfn" href="#equal-to" id="ref-for-equal-to②④">equal to</a> <var>temp record</var>’s <a data-link-type="dfn" href="#key" id="ref-for-key⑨①">key</a>.</p>
-          <aside class="note"> Iterating with <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique④">"prevunique"</a></code> visits the same records that <code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique④">"nextunique"</a></code> visits, but in reverse order. </aside>
+          <aside class="note"> Iterating with "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-prevunique" id="ref-for-dom-idbcursordirection-prevunique④">prevunique</a></code>" visits the same records that
+    "<code class="idl"><a data-link-type="idl" href="#dom-idbcursordirection-nextunique" id="ref-for-dom-idbcursordirection-nextunique④">nextunique</a></code>" visits, but in reverse order. </aside>
         </dl>
        <li data-md>
         <p>If <var>found record</var> is not defined, then:</p>
@@ -7726,7 +7733,7 @@ specification.</p>
      <li><a href="#connection">definition of</a><span>, in § 2.1.1</span>
      <li><a href="#transaction-connection">dfn for transaction</a><span>, in § 2.7</span>
     </ul>
-   <li><a href="#request-connection-queue">connection queue</a><span>, in § 2.8.1</span>
+   <li><a href="#connection-queue">connection queue</a><span>, in § 2.8.2</span>
    <li><a href="#dom-idbversionchangeevent-idbversionchangeevent">constructor(type)</a><span>, in § 4.2</span>
    <li><a href="#dom-idbversionchangeevent-idbversionchangeevent">constructor(type, eventInitDict)</a><span>, in § 4.2</span>
    <li><a href="#containing-only">containing only</a><span>, in § 2.9</span>
@@ -8591,7 +8598,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="term-for-browsing-context">
    <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">https://html.spec.whatwg.org/multipage/browsers.html#browsing-context</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-browsing-context">2.8.1. Open requests</a>
+    <li><a href="#ref-for-browsing-context">2.8.2. Connection queues</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dom-document-domain">
@@ -8621,7 +8628,7 @@ specification.</p>
    <ul>
     <li><a href="#ref-for-event-loop">2.7. Transactions</a>
     <li><a href="#ref-for-event-loop①">2.7.1. Transaction lifecycle</a> <a href="#ref-for-event-loop②">(2)</a>
-    <li><a href="#ref-for-event-loop③">2.8.1. Open requests</a> <a href="#ref-for-event-loop④">(2)</a>
+    <li><a href="#ref-for-event-loop③">2.8.2. Connection queues</a> <a href="#ref-for-event-loop④">(2)</a>
     <li><a href="#ref-for-event-loop⑤">4.4. The IDBDatabase interface</a>
    </ul>
   </aside>
@@ -8668,7 +8675,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="term-for-task-queue">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">https://html.spec.whatwg.org/multipage/webappapis.html#task-queue</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-task-queue">2.8.1. Open requests</a> <a href="#ref-for-task-queue①">(2)</a>
+    <li><a href="#ref-for-task-queue">2.8.2. Connection queues</a> <a href="#ref-for-task-queue①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-set-append">
@@ -8809,7 +8816,7 @@ specification.</p>
    <ul>
     <li><a href="#ref-for-storage-key">2.1. Database</a> <a href="#ref-for-storage-key①">(2)</a>
     <li><a href="#ref-for-storage-key②">2.1.1. Database connection</a> <a href="#ref-for-storage-key③">(2)</a>
-    <li><a href="#ref-for-storage-key④">2.8.1. Open requests</a>
+    <li><a href="#ref-for-storage-key④">2.8.2. Connection queues</a>
     <li><a href="#ref-for-storage-key⑤">4.3. The IDBFactory interface</a>
     <li><a href="#ref-for-storage-key⑥">5.2. Closing a database</a>
     <li><a href="#ref-for-storage-key⑦">9.3. Implementation risks</a>
@@ -9645,7 +9652,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="database-name">
    <b><a href="#database-name">#database-name</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-database-name">2.8.1. Open requests</a>
+    <li><a href="#ref-for-database-name">2.8.2. Connection queues</a>
     <li><a href="#ref-for-database-name①">4.3. The IDBFactory interface</a>
     <li><a href="#ref-for-database-name②">4.4. The IDBDatabase interface</a> <a href="#ref-for-database-name③">(2)</a>
     <li><a href="#ref-for-database-name④">5.1. Opening a database</a> <a href="#ref-for-database-name⑤">(2)</a>
@@ -9682,7 +9689,8 @@ specification.</p>
     <li><a href="#ref-for-connection②">2.1.1. Database connection</a> <a href="#ref-for-connection③">(2)</a> <a href="#ref-for-connection④">(3)</a> <a href="#ref-for-connection⑤">(4)</a> <a href="#ref-for-connection⑥">(5)</a> <a href="#ref-for-connection⑦">(6)</a> <a href="#ref-for-connection⑧">(7)</a> <a href="#ref-for-connection⑨">(8)</a> <a href="#ref-for-connection①⓪">(9)</a> <a href="#ref-for-connection①①">(10)</a> <a href="#ref-for-connection①②">(11)</a> <a href="#ref-for-connection①③">(12)</a> <a href="#ref-for-connection①④">(13)</a> <a href="#ref-for-connection①⑤">(14)</a> <a href="#ref-for-connection①⑥">(15)</a> <a href="#ref-for-connection①⑦">(16)</a> <a href="#ref-for-connection①⑧">(17)</a> <a href="#ref-for-connection①⑨">(18)</a> <a href="#ref-for-connection②⓪">(19)</a>
     <li><a href="#ref-for-connection②①">2.7. Transactions</a>
     <li><a href="#ref-for-connection②②">2.7.3. Upgrade transactions</a> <a href="#ref-for-connection②③">(2)</a> <a href="#ref-for-connection②④">(3)</a> <a href="#ref-for-connection②⑤">(4)</a> <a href="#ref-for-connection②⑥">(5)</a> <a href="#ref-for-connection②⑦">(6)</a>
-    <li><a href="#ref-for-connection②⑧">2.8.1. Open requests</a> <a href="#ref-for-connection②⑨">(2)</a>
+    <li><a href="#ref-for-connection②⑧">2.8.1. Open requests</a>
+    <li><a href="#ref-for-connection②⑨">2.8.2. Connection queues</a>
     <li><a href="#ref-for-connection③⓪">4.3. The IDBFactory interface</a> <a href="#ref-for-connection③①">(2)</a> <a href="#ref-for-connection③②">(3)</a> <a href="#ref-for-connection③③">(4)</a> <a href="#ref-for-connection③④">(5)</a> <a href="#ref-for-connection③⑤">(6)</a>
     <li><a href="#ref-for-connection③⑥">4.4. The IDBDatabase interface</a> <a href="#ref-for-connection③⑦">(2)</a> <a href="#ref-for-connection③⑧">(3)</a> <a href="#ref-for-connection③⑨">(4)</a> <a href="#ref-for-connection④⓪">(5)</a> <a href="#ref-for-connection④①">(6)</a> <a href="#ref-for-connection④②">(7)</a> <a href="#ref-for-connection④③">(8)</a> <a href="#ref-for-connection④④">(9)</a> <a href="#ref-for-connection④⑤">(10)</a> <a href="#ref-for-connection④⑥">(11)</a> <a href="#ref-for-connection④⑦">(12)</a> <a href="#ref-for-connection④⑧">(13)</a> <a href="#ref-for-connection④⑨">(14)</a> <a href="#ref-for-connection⑤⓪">(15)</a>
     <li><a href="#ref-for-connection⑤①">5.1. Opening a database</a> <a href="#ref-for-connection⑤②">(2)</a> <a href="#ref-for-connection⑤③">(3)</a> <a href="#ref-for-connection⑤④">(4)</a>
@@ -9715,7 +9723,7 @@ specification.</p>
   <aside class="dfn-panel" data-for="connection-closed">
    <b><a href="#connection-closed">#connection-closed</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-connection-closed">2.8.1. Open requests</a>
+    <li><a href="#ref-for-connection-closed">2.8.2. Connection queues</a>
     <li><a href="#ref-for-connection-closed①">4.4. The IDBDatabase interface</a> <a href="#ref-for-connection-closed②">(2)</a> <a href="#ref-for-connection-closed③">(3)</a> <a href="#ref-for-connection-closed④">(4)</a>
     <li><a href="#ref-for-connection-closed⑤">5.1. Opening a database</a> <a href="#ref-for-connection-closed⑥">(2)</a>
     <li><a href="#ref-for-connection-closed⑦">5.2. Closing a database</a>
@@ -10549,7 +10557,8 @@ specification.</p>
    <b><a href="#request-open-request">#request-open-request</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-request-open-request">2.8. Requests</a>
-    <li><a href="#ref-for-request-open-request①">2.8.1. Open requests</a> <a href="#ref-for-request-open-request②">(2)</a> <a href="#ref-for-request-open-request③">(3)</a> <a href="#ref-for-request-open-request④">(4)</a> <a href="#ref-for-request-open-request⑤">(5)</a> <a href="#ref-for-request-open-request⑥">(6)</a> <a href="#ref-for-request-open-request⑦">(7)</a>
+    <li><a href="#ref-for-request-open-request①">2.8.1. Open requests</a> <a href="#ref-for-request-open-request②">(2)</a> <a href="#ref-for-request-open-request③">(3)</a> <a href="#ref-for-request-open-request④">(4)</a>
+    <li><a href="#ref-for-request-open-request⑤">2.8.2. Connection queues</a> <a href="#ref-for-request-open-request⑥">(2)</a> <a href="#ref-for-request-open-request⑦">(3)</a>
     <li><a href="#ref-for-request-open-request⑧">4.1. The IDBRequest interface</a> <a href="#ref-for-request-open-request⑨">(2)</a> <a href="#ref-for-request-open-request①⓪">(3)</a>
     <li><a href="#ref-for-request-open-request①①">4.3. The IDBFactory interface</a> <a href="#ref-for-request-open-request①②">(2)</a>
     <li><a href="#ref-for-request-open-request①③">5.5. Aborting a transaction</a>
@@ -10577,12 +10586,12 @@ specification.</p>
     <li><a href="#ref-for-eventdef-request-upgradeneeded①⓪">5.7. Running an upgrade transaction</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="request-connection-queue">
-   <b><a href="#request-connection-queue">#request-connection-queue</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="connection-queue">
+   <b><a href="#connection-queue">#connection-queue</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-request-connection-queue">2.8.1. Open requests</a> <a href="#ref-for-request-connection-queue①">(2)</a>
-    <li><a href="#ref-for-request-connection-queue②">5.1. Opening a database</a>
-    <li><a href="#ref-for-request-connection-queue③">5.3. Deleting a database</a>
+    <li><a href="#ref-for-connection-queue">2.8.2. Connection queues</a> <a href="#ref-for-connection-queue①">(2)</a>
+    <li><a href="#ref-for-connection-queue②">5.1. Opening a database</a>
+    <li><a href="#ref-for-connection-queue③">5.3. Deleting a database</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="key-range">
