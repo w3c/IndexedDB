@@ -142,7 +142,7 @@ Book records have a `"title"` property. This example artificially requires that 
 
 Book records also have an `"author"` property, which is not <span class=allow-2119>required</span> to be unique. The code creates another index named `"by_author"` to allow look-ups by this property.
 
-The code first opens a connection to the database. The <a event for=IDBOpenDBRequest>`upgradeneeded`</a> event handler code creates the object store and indexes, if needed. The <a event for=IDBRequest>`success`</a> event handler code saves the opened connection for use in later examples.
+The code first opens a connection to the database. The {{IDBOpenDBRequest/upgradeneeded!!event}} event handler code creates the object store and indexes, if needed. The {{IDBRequest/success!!event}} event handler code saves the opened connection for use in later examples.
 
 ```js
 const request = indexedDB.open("library");
@@ -283,13 +283,13 @@ request.onsuccess = function() {
 <aside class=example id=handling-versionchange>
 A single database can be used by multiple clients (pages and workers)
 simultaneously &mdash; transactions ensure they don't clash while reading and writing.
-If a new client wants to upgrade the database (via the <a event for=IDBOpenDBRequest>`upgradeneeded`</a>
+If a new client wants to upgrade the database (via the {{IDBOpenDBRequest/upgradeneeded!!event}}
 event), it cannot do so until all other clients close their connection to the
 current version of the database.
 
 To avoid blocking a new client from upgrading, clients can listen for the
-<a event for=IDBDatabase>`versionchange`</a> event. This fires when another client is wanting to upgrade the
-database. To allow this to continue, react to the <a event for=IDBDatabase>`versionchange`</a> event by doing
+{{IDBDatabase/versionchange!!event}} event. This fires when another client is wanting to upgrade the
+database. To allow this to continue, react to the {{IDBDatabase/versionchange!!event}} event by doing
 something that ultimately closes this client's [=/connection=] to the database.
 
 One way of doing this is to reload the page:
@@ -338,10 +338,10 @@ function stopUsingTheDatabase() {
 }
 ```
 
-The new client (the one attempting the upgrade) can use the <a event for=IDBOpenDBRequest>`blocked`</a> event to
-detect if other clients are preventing the upgrade from happening. The <a event for=IDBOpenDBRequest>`blocked`</a>
+The new client (the one attempting the upgrade) can use the {{IDBOpenDBRequest/blocked!!event}} event to
+detect if other clients are preventing the upgrade from happening. The {{IDBOpenDBRequest/blocked!!event}}
 event fires if other clients still hold a connection to the database after their
-<a event for=IDBDatabase>`versionchange`</a> events have fired.
+{{IDBDatabase/versionchange!!event}} events have fired.
 
 ```js
 const request = indexedDB.open("library", 4); // Request version 4.
@@ -519,7 +519,7 @@ storing data in a [=/database=].
 
 Each database has a set of [=/object stores=]. The set of [=/object
 stores=] can be changed, but only using an [=/upgrade transaction=],
-i.e. in response to an <a event for=IDBOpenDBRequest>`upgradeneeded`</a> event. When a
+i.e. in response to an {{IDBOpenDBRequest/upgradeneeded!!event}} event. When a
 new database is created it doesn't contain any [=/object stores=].
 
 An [=/object store=] has a <dfn>list of records</dfn> which hold the
@@ -946,7 +946,7 @@ following:
     stores and indexes. It is the only type of transaction that can do
     so. This type of transaction can't be manually created, but
     instead is created automatically when an
-    <a event for=IDBOpenDBRequest>`upgradeneeded`</a> event is fired.
+    {{IDBOpenDBRequest/upgradeneeded!!event}} event is fired.
 
 A [=/transaction=] has a <dfn>durability hint</dfn>. This is a hint to the user agent of whether to prioritize performance or durability when committing the transaction. The [=transaction/durability hint=] is one of the following:
 
@@ -958,7 +958,7 @@ A [=/transaction=] has a <dfn>durability hint</dfn>. This is a hint to the user 
 :: The user agent should use its default durability behavior for the [=/storage bucket=]. This is the default for [=/transactions=] if not otherwise specified.
 
 <aside class=note>
-  In a typical implementation, "{{IDBTransactionDurability/strict}}" is a hint to the user agent to flush any operating system I/O buffers before a <a event for=IDBTransaction>`complete`</a> event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices.
+  In a typical implementation, "{{IDBTransactionDurability/strict}}" is a hint to the user agent to flush any operating system I/O buffers before a {{IDBTransaction/complete!!event}} event is fired. While this provides greater confidence that the changes will be persisted in case of subsequent operating system crash or power loss, flushing buffers can take significant time and consume battery life on portable devices.
 
   Web applications are encouraged to use "{{IDBTransactionDurability/relaxed}}" for ephemeral data such as caches or quickly changing records, and "{{IDBTransactionDurability/strict}}" in cases where reducing the risk of data loss outweighs the impact to performance and power. Implementations are encouraged to weigh the durability hint from applications against the impact to users and devices.
 </aside>
@@ -1055,7 +1055,7 @@ The <dfn>lifetime</dfn> of a
     </aside>
 
 1. When each [=/request=] associated with a transaction is [=request/processed=],
-    a <a event for=IDBRequest>`success`</a> or <a event for=IDBRequest>`error`</a> [=event=] will be
+    a {{IDBRequest/success!!event}} or {{IDBRequest/error!!event}} [=event=] will be
     fired. While the event is being [=dispatched=], the transaction
     [=transaction/state=] is set to [=transaction/active=], allowing
     additional requests to be made against the transaction. Once the
@@ -1181,7 +1181,7 @@ An [=/upgrade transaction=] is automatically created when running the
 steps to [=run an upgrade transaction=] after a [=/connection=]
 is opened to a [=/database=], if a [=database/version=] greater than
 the current [=database/version=] is specified. This [=/transaction=]
-will be active inside the <a event for=IDBOpenDBRequest>`upgradeneeded`</a> event
+will be active inside the {{IDBOpenDBRequest/upgradeneeded!!event}} event
 handler.
 
 <aside class=note>
@@ -1191,7 +1191,7 @@ handler.
   An [=/upgrade transaction=] is exclusive. The steps to [=open a
   database=] ensure that only one [=/connection=] to the database is
   open when an [=/upgrade transaction=] is running.
-  The <a event for=IDBOpenDBRequest>`upgradeneeded`</a> event isn't fired, and thus the
+  The {{IDBOpenDBRequest/upgradeneeded!!event}} event isn't fired, and thus the
   [=/upgrade transaction=] isn't started, until all other
   [=/connections=] to the same [=/database=] are closed. This ensures
   that all previous transactions are [=transaction/finished=]. As long
@@ -1256,7 +1256,7 @@ A [=/request=]'s [=get the parent=] algorithm returns the request's
   [=cursor=] is iterated, the success of the iteration is reported
   on the same [=/request=] object used to open the cursor. And when
   an [=/upgrade transaction=] is necessary, the same [=request/open
-  request=] is used for both the <a event for=IDBOpenDBRequest>`upgradeneeded`</a>
+  request=] is used for both the {{IDBOpenDBRequest/upgradeneeded!!event}}
   event and final result of the open operation itself. In some cases,
   the request's [=request/done flag=] will be set to false, then set to true again, and the
   [=request/result=] can change or [=request/error=] could be set instead.
@@ -1268,7 +1268,7 @@ A [=/request=]'s [=get the parent=] algorithm returns the request's
 
 An <dfn>open request</dfn> is a special type of [=/request=] used
 when opening a [=/connection=] or deleting a [=/database=].
-In addition to <a event for=IDBRequest>`success`</a> and <a event for=IDBRequest>`error`</a> events,
+In addition to {{IDBRequest/success!!event}} and {{IDBRequest/error!!event}} events,
 <dfn event for=IDBOpenDBRequest>`blocked`</dfn> and <dfn event for=IDBOpenDBRequest>`upgradeneeded`</dfn> events may be fired at an [=request/open
 request=] to indicate progress.
 
@@ -1276,7 +1276,7 @@ The [=request/source=] of an [=request/open request=]
 is always null.
 
 The [=request/transaction=] of an [=request/open request=] is null
-unless an <a event for=IDBOpenDBRequest>`upgradeneeded`</a> event has been fired.
+unless an {{IDBOpenDBRequest/upgradeneeded!!event}} event has been fired.
 
 An [=request/open request=]'s [=get the parent=] algorithm returns null.
 
@@ -1999,7 +1999,7 @@ enum IDBRequestReadyState {
         or `undefined` if the request failed. Throws a
         "{{InvalidStateError}}" {{DOMException}} if the request is still pending.
 
-    : |request| . <a attribute for=IDBRequest>error</a>
+    : |request| . {{IDBRequest/error!!attribute}}
     ::
         When a request is completed, returns the [=request/error=] (a
         {{DOMException}}), or null if the request succeeded. Throws
@@ -2056,14 +2056,14 @@ return "{{IDBRequestReadyState/pending}}" if [=/this=]'s [=request/done flag=] i
 "{{IDBRequestReadyState/done}}" otherwise.
 
 
-The <dfn attribute for=IDBRequest>onsuccess</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBRequest>`success`</a>.
+The <dfn attribute for=IDBRequest>onsuccess</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBRequest/success!!event}}.
 
-The <dfn attribute for=IDBRequest>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBRequest>`error`</a> event.
+The <dfn attribute for=IDBRequest>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBRequest/error!!event}} event.
 
 
 Methods on {{IDBDatabase}} that return a [=request/open request=] use an
 extended interface to allow listening to the
-<a event for=IDBOpenDBRequest>`blocked`</a> and <a event for=IDBOpenDBRequest>`upgradeneeded`</a> events.
+{{IDBOpenDBRequest/blocked!!event}} and {{IDBOpenDBRequest/upgradeneeded!!event}} events.
 
 <xmp class=idl>
 [Exposed=(Window,Worker)]
@@ -2074,9 +2074,9 @@ interface IDBOpenDBRequest : IDBRequest {
 };
 </xmp>
 
-The <dfn attribute for=IDBOpenDBRequest>onblocked</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBOpenDBRequest>`blocked`</a>.
+The <dfn attribute for=IDBOpenDBRequest>onblocked</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBOpenDBRequest/blocked!!event}}.
 
-The <dfn attribute for=IDBOpenDBRequest>onupgradeneeded</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBOpenDBRequest>`upgradeneeded`</a>.
+The <dfn attribute for=IDBOpenDBRequest>onupgradeneeded</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBOpenDBRequest/upgradeneeded!!event}}.
 
 
 <!-- ============================================================ -->
@@ -2181,7 +2181,7 @@ dictionary IDBDatabaseInfo {
         with the specified |version|. If the database already exists
         with a lower version and there are open [=/connections=]
         that don't close in response to a
-        <a event for=IDBDatabase>`versionchange`</a> event, the request will be
+        {{IDBDatabase/versionchange!!event}} event, the request will be
         blocked until they all close, then an upgrade
         will occur. If the database already exists with a higher
         version the request will fail. If the request is
@@ -2194,7 +2194,7 @@ dictionary IDBDatabaseInfo {
         Attempts to delete the named [=/database=]. If the
         database already exists and there are open
         [=/connections=] that don't close in response to a
-        <a event for=IDBDatabase>`versionchange`</a> event, the request will be
+        {{IDBDatabase/versionchange!!event}} event, the request will be
         blocked until they all close. If the request
         is successful |request|'s {{IDBRequest/result}}
         will be null.
@@ -2248,14 +2248,14 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
             1. Set |request|'s [=request/result=] to undefined.
             1. Set |request|'s [=request/error=] to |result|.
             1. Set |request|'s [=request/done flag=] to true.
-            1. [=Fire an event=] named <a event for=IDBRequest>`error`</a> at |request| with its
+            1. [=Fire an event=] named {{IDBRequest/error!!event}} at |request| with its
                 {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
         1. Otherwise:
 
             1. Set |request|'s [=request/result=] to |result|.
             1. Set |request|'s [=request/done flag=] to true.
-            1. [=Fire an event=] named <a event for=IDBRequest>`success`</a> at |request|.
+            1. [=Fire an event=] named {{IDBRequest/success!!event}} at |request|.
 
             <aside class=note>
                 If the steps above resulted in an [=/upgrade
@@ -2264,7 +2264,7 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
                 case where another version upgrade is about to happen,
                 the success event is fired on the connection first so
                 that the script gets a chance to register a listener
-                for the <a event for=IDBDatabase>`versionchange`</a> event.
+                for the {{IDBDatabase/versionchange!!event}} event.
             </aside>
 
             <details class=note>
@@ -2306,14 +2306,14 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
             set |request|'s [=request/error=] to |result|,
             set |request|'s [=request/done flag=] to true,
             and [=fire an event=]
-            named <a event for=IDBRequest>`error`</a> at |request| with
+            named {{IDBRequest/error!!event}} at |request| with
             its {{Event/bubbles}} and {{Event/cancelable}} attributes initialized to true.
 
         1. Otherwise,
             set |request|'s [=request/result=] to undefined,
             set |request|'s [=request/done flag=] to true,
             and [=fire a version change event=] named
-            <a event for=IDBRequest>`success`</a> at [=/request=] with |result| and
+            {{IDBRequest/success!!event}} at [=/request=] with |result| and
             null.
 
             <details class=note>
@@ -2326,7 +2326,7 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
               transaction before dispatch and deactivate the
               transaction after dispatch &mdash; do not apply.
 
-              Also, the <a event for=IDBRequest>`success`</a> event here is a
+              Also, the {{IDBRequest/success!!event}} event here is a
               {{IDBVersionChangeEvent}} which includes the
               {{IDBVersionChangeEvent/oldVersion}} and
               {{IDBVersionChangeEvent/newVersion}} details.
@@ -2417,7 +2417,7 @@ interface represents a [=/connection=] to a [=/database=].
 An {{IDBDatabase}} object must not be garbage collected if its
 associated [=/connection=]'s [=connection/close pending flag=] is false and it
 has one or more event listeners registers whose type is one of
-<a event for=IDBTransaction>`abort`</a>, <a event for=IDBRequest>`error`</a>, or <a event for=IDBDatabase>`versionchange`</a>.
+{{IDBTransaction/abort!!event}}, {{IDBRequest/error!!event}}, or {{IDBDatabase/versionchange!!event}}.
 If an {{IDBDatabase}} object is garbage collected, the associated
 [=/connection=] must be [=connection/closed=].
 
@@ -2710,13 +2710,13 @@ The [=/connection=] will not actually [=connection/close=] until all outstanding
 </aside>
 
 
-The <dfn attribute for=IDBDatabase>onabort</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is  <a event for=IDBTransaction>`abort`</a>.
+The <dfn attribute for=IDBDatabase>onabort</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is  {{IDBTransaction/abort!!event}}.
 
-The <dfn attribute for=IDBDatabase>onclose</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBDatabase>`close`</a>.
+The <dfn attribute for=IDBDatabase>onclose</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBDatabase/close!!event}}.
 
-The <dfn attribute for=IDBDatabase>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBRequest>`error`</a>.
+The <dfn attribute for=IDBDatabase>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBRequest/error!!event}}.
 
-The <dfn attribute for=IDBDatabase>onversionchange</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBDatabase>`versionchange`</a>.
+The <dfn attribute for=IDBDatabase>onversionchange</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBDatabase/versionchange!!event}}.
 
 
 <!-- ============================================================ -->
@@ -2908,7 +2908,7 @@ and false otherwise.
         If {{IDBObjectStore/put()}} is used, any existing [=object-store/record=]
         with the [=/key=] will be replaced. If {{IDBObjectStore/add()}}
         is used, and if a [=object-store/record=] with the [=/key=] already exists
-        the |request| will fail, with |request|'s <a attribute for=IDBRequest>error</a>
+        the |request| will fail, with |request|'s {{IDBRequest/error!!attribute}}
         set to a "{{ConstraintError}}" {{DOMException}}.
 
         If successful, |request|'s {{IDBRequest/result}} will be the
@@ -4370,7 +4370,7 @@ return [=/this=]'s [=cursor/request=].
 
 <div class="domintro note">
   The following methods advance a [=cursor=]. Once the cursor has
-  advanced, a <a event for=IDBRequest>`success`</a> event will be fired at the
+  advanced, a {{IDBRequest/success!!event}} event will be fired at the
   same {{IDBRequest}} returned when the cursor was opened. The
   {{IDBRequest/result}} will be the same cursor if a [=object-store/record=] was
   in range, or `undefined` otherwise.
@@ -4852,12 +4852,12 @@ none.
         Attempts to commit the transaction. All pending [=/requests=] will be allowed
         to complete, but no new requests will be accepted. This can be used to force a
         transaction to quickly finish, without waiting for pending requests to fire
-        <a event for=IDBRequest>`success`</a> events before attempting to commit normally.
+        {{IDBRequest/success!!event}} events before attempting to commit normally.
 
         The transaction will abort if a pending request fails, for example due to a
-        constraint error. The <a event for=IDBRequest>`success`</a> events for successful requests
+        constraint error. The {{IDBRequest/success!!event}} events for successful requests
         will still fire, but throwing an exception in an event handler will not abort
-        the transaction. Similarly, <a event for=IDBRequest>`error`</a> events for failed requests
+        the transaction. Similarly, {{IDBRequest/error!!event}} events for failed requests
         will still fire, but calling `preventDefault()` will not prevent the
         transaction from aborting.
 </div>
@@ -4934,18 +4934,18 @@ The <dfn method for=IDBTransaction>commit()</dfn> method steps are:
 </aside>
 
 
-The <dfn attribute for=IDBTransaction>onabort</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBTransaction>`abort`</a>.
+The <dfn attribute for=IDBTransaction>onabort</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBTransaction/abort!!event}}.
 
-The <dfn attribute for=IDBTransaction>oncomplete</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBTransaction>`complete`</a>.
+The <dfn attribute for=IDBTransaction>oncomplete</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBTransaction/complete!!event}}.
 
-The <dfn attribute for=IDBTransaction>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is <a event for=IDBRequest>`error`</a>.
+The <dfn attribute for=IDBTransaction>onerror</dfn> attribute is an [=/event handler IDL attribute=] whose [=/event handler event type=] is {{IDBRequest/error!!event}}.
 
 <aside class=note>
   To determine if a [=/transaction=] has completed successfully,
-  listen to the [=/transaction=]'s <a event for=IDBTransaction>`complete`</a> event
-  rather than the <a event for=IDBRequest>`success`</a> event of a particular
+  listen to the [=/transaction=]'s {{IDBTransaction/complete!!event}} event
+  rather than the {{IDBRequest/success!!event}} event of a particular
   [=/request=], because the [=/transaction=] can still fail after
-  the <a event for=IDBRequest>`success`</a> event fires.
+  the {{IDBRequest/success!!event}} event fires.
 </aside>
 
 
@@ -4994,13 +4994,13 @@ To <dfn>open a database</dfn> with |storageKey| which requested the [=/database=
 
     1. [=set/For each=] |entry| of |openConnections| that does not have its
         [=connection/close pending flag=] set to true, [=queue a task=] to [=fire a
-        version change event=] named <a event for=IDBDatabase>`versionchange`</a> at
+        version change event=] named {{IDBDatabase/versionchange!!event}} at
         |entry| with |db|'s [=database/version=] and |version|.
 
         <aside class=note>
           Firing this event might cause one or more of the other
           objects in |openConnections| to be closed, in which case the
-          <a event for=IDBDatabase>`versionchange`</a> event is not fired at those
+          {{IDBDatabase/versionchange!!event}} event is not fired at those
           objects, even if that hasn't yet been done.
         </aside>
 
@@ -5008,7 +5008,7 @@ To <dfn>open a database</dfn> with |storageKey| which requested the [=/database=
 
     1. If any of the [=/connections=] in |openConnections| are still
         not closed, [=queue a task=] to [=fire a version change
-        event=] named <a event for=IDBOpenDBRequest>`blocked`</a> at |request| with
+        event=] named {{IDBOpenDBRequest/blocked!!event}} at |request| with
         |db|'s [=database/version=] and |version|.
 
     1. <span id="version-change-close-block">Wait</span> until all
@@ -5044,17 +5044,17 @@ optional |forced flag|, run these steps:
 
 1. If the |forced flag| is true, then for each |transaction|
     [=transaction/created=] using |connection| run [=abort a
-    transaction=] with |transaction| and newly <a for=exception>created</a>
+    transaction=] with |transaction| and newly [=exception/created=]
     "{{AbortError}}" {{DOMException}}.
 
 1. Wait for all transactions [=transaction/created=] using |connection| to complete.
     Once they are complete, |connection| is [=connection/closed=].
 
 1. If the |forced flag| is true, then [=fire an event=] named
-    <a event for=IDBDatabase>`close`</a> at |connection|.
+    {{IDBDatabase/close!!event}} at |connection|.
 
     <aside class=note>
-      The <a event for=IDBDatabase>`close`</a> event only fires if the connection closes
+      The {{IDBDatabase/close!!event}} event only fires if the connection closes
       abnormally, e.g. if the [=/storage key=]'s storage is cleared, or there is
       corruption or an I/O error. If {{IDBDatabase/close()}} is called explicitly
       the event *does not* fire.
@@ -5102,13 +5102,13 @@ requested the [=/database=] to be deleted, a database |name|, and a
 
 1. [=set/For each=] |entry| of |openConnections| that does not have its
     [=connection/close pending flag=] set to true, [=queue a task=] to [=fire a version
-    change event=] named <a event for=IDBDatabase>`versionchange`</a> at |entry| with
+    change event=] named {{IDBDatabase/versionchange!!event}} at |entry| with
     |db|'s [=database/version=] and null.
 
     <aside class=note>
       Firing this event might cause one or more of the other objects
       in |openConnections| to be closed, in which case the
-      <a event for=IDBDatabase>`versionchange`</a> event is not fired at those
+      {{IDBDatabase/versionchange!!event}} event is not fired at those
       objects, even if that hasn't yet been done.
     </aside>
 
@@ -5116,7 +5116,7 @@ requested the [=/database=] to be deleted, a database |name|, and a
 
 1. If any of the [=/connections=] in |openConnections| are still not
     closed, [=queue a task=] to [=fire a version change event=] named
-    <a event for=IDBOpenDBRequest>`blocked`</a> at |request| with |db|'s
+    {{IDBOpenDBRequest/blocked!!event}} at |request| with |db|'s
     [=database/version=] and null.
 
 1. <span id="delete-close-block">Wait</span> until all
@@ -5165,14 +5165,14 @@ To <dfn>commit a transaction</dfn> with the |transaction| to commit, run these s
 
         1. Set |transaction|'s [=transaction/state=] to [=transaction/finished=].
 
-        1. [=Fire an event=] named <a event for=IDBTransaction>`complete`</a> at |transaction|.
+        1. [=Fire an event=] named {{IDBTransaction/complete!!event}} at |transaction|.
 
             <aside class=note>
               Even if an exception is thrown from one of the event handlers of
               this event, the transaction is still committed since writing the
               database changes happens before the event takes places. Only
               after the transaction has been successfully written is the
-              <a event for=IDBTransaction>`complete`</a> event fired.
+              {{IDBTransaction/complete!!event}} event fired.
             </aside>
 
         1. If |transaction| is an [=/upgrade transaction=], then
@@ -5219,13 +5219,13 @@ To <dfn>abort a transaction</dfn> with the |transaction| to abort, and |error|, 
     1. Set |request|'s [=request/done flag=] to true.
     1. Set |request|'s [=request/result=] to undefined.
     1. Set |request|'s [=request/error=] to a newly
-        <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
-    1. [=Fire an event=] named <a event for=IDBRequest>`error`</a> at |request|
+        [=exception/created=] "{{AbortError}}" {{DOMException}}.
+    1. [=Fire an event=] named {{IDBRequest/error!!event}} at |request|
         with its {{Event/bubbles}} and {{Event/cancelable}}
         attributes initialized to true.
 
     <aside class=note>
-      This does not always result in any <a event for=IDBRequest>`error`</a> events
+      This does not always result in any {{IDBRequest/error!!event}} events
       being fired. For example if a transaction is aborted due to an
       error while [=transaction/committing=] the transaction,
       or if it was the last remaining request that failed.
@@ -5236,7 +5236,7 @@ To <dfn>abort a transaction</dfn> with the |transaction| to abort, and |error|, 
     1. If |transaction| is an [=/upgrade transaction=], then set |transaction|'s
         [=transaction/connection=]'s associated [=/database=]'s [=database/upgrade transaction=] to null.
 
-    1. [=Fire an event=] named <a event for=IDBTransaction>`abort`</a> at |transaction|
+    1. [=Fire an event=] named {{IDBTransaction/abort!!event}} at |transaction|
         with its {{Event/bubbles}} attribute initialized to true.
 
     1. If |transaction| is an [=/upgrade transaction=], then:
@@ -5360,11 +5360,11 @@ for the [=/database=], and a |request|, run these steps:
     1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
     1. Let |didThrow| be the result of
         [=firing a version change event=] named
-        <a event for=IDBOpenDBRequest>`upgradeneeded`</a> at |request| with |old
+        {{IDBOpenDBRequest/upgradeneeded!!event}} at |request| with |old
         version| and |version|.
     1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
     1. If |didThrow| is true, run [=abort a transaction=] with |transaction| and a newly
-        <a for=exception>created</a> "{{AbortError}}" {{DOMException}}.
+        [=exception/created=] "{{AbortError}}" {{DOMException}}.
 
 1. Wait for |transaction| to [=transaction/finish=].
 
@@ -5503,7 +5503,7 @@ To <dfn>fire a success event</dfn> at a |request|, run these steps:
 
     1. If |legacyOutputDidListenersThrowFlag| is true,
         then run [=abort a transaction=] with
-        |transaction| and a newly <a for=exception>created</a>
+        |transaction| and a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}}.
 
     1. If |transaction|'s [=transaction/request list=] is empty,
@@ -5542,7 +5542,7 @@ To <dfn>fire an error event</dfn> at a |request|, run these steps:
 
     1. If |legacyOutputDidListenersThrowFlag| is true,
         then run [=abort a transaction=] with
-        |transaction| and a newly <a for=exception>created</a>
+        |transaction| and a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and terminate these steps.
         This is done even if |event|'s [=Event/canceled flag=] is false.
 
