@@ -37,28 +37,9 @@ spec: ecma262; urlPrefix: https://tc39.github.io/ecma262/
         url: sec-algorithm-conventions
             text: !
             text: ?
-        text: abrupt completion; url: sec-completion-record-specification-type
-        text: Array; url: sec-array-objects
-        text: array exotic object; url: array-exotic-objects
-        text: Array.prototype.sort; url: sec-array.prototype.sort
-        text: ArrayBuffer; url: sec-arraybuffer-objects
-        text: CreateDataProperty; url: sec-createdataproperty
-        text: current Realm; url: current-realm
-        text: Date; url: sec-date-objects
-        text: Get; url: sec-get-o-p
-        text: HasOwnProperty; url: sec-hasownproperty
         text: IdentifierName; url: prod-IdentifierName
-        text: Number; url: sec-terms-and-definitions-number-type
-        text: Object; url: sec-object-objects
-        text: Realm; url: realm
-        text: Record; url: sec-list-and-record-specification-type
-        text: RegExp; url: sec-regexp-regular-expression-objects
         text: ReturnIfAbrupt; url: sec-returnifabrupt
-        text: String; url: sec-terms-and-definitions-string-type
-        text: ToLength; url: sec-tolength
-        text: ToString; url: sec-tostring
         text: Type; url: sec-ecmascript-data-types-and-values
-        text: Uint8Array; url: sec-typedarray-objects
 spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     type: dfn
         text: storage bucket; url: storage-bucket
@@ -401,8 +382,8 @@ To <dfn>create a sorted name list</dfn> from a [=/list=] |names|, run these step
 
 <details class=note>
     <summary>Details</summary>
-    This matches the [=ECMAScript/Array.prototype.sort=] on an [=ECMAScript/Array=] of
-    [=ECMAScript/Strings=]. This ordering compares the 16-bit code units in each
+    This matches the {{Array/sort()}} method on an {{Array}} of
+    {{String}}. This ordering compares the 16-bit code units in each
     string, producing a highly efficient, consistent, and deterministic
     sort order. The resulting list will not match any particular
     alphabet or lexicographical order, particularly for code points
@@ -588,8 +569,8 @@ transaction=] is running.
 
 Each record is associated with a <dfn>value</dfn>. User agents must
 support any [=serializable object=]. This includes simple types
-such as [=ECMAScript/String=] primitive values and [=ECMAScript/Date=] objects as well as
-[=ECMAScript/Object=] and [=ECMAScript/Array=] instances, {{File}} objects, {{Blob}}
+such as {{String}} primitive values and {{Date}} objects as well as
+{{Object}} and {{Array}} instances, {{File}} objects, {{Blob}}
 objects, {{ImageData}} objects, and so on. Record [=/values=] are
 stored and retrieved by value rather than by reference; later changes
 to a value have no effect on the record stored in the database.
@@ -631,14 +612,14 @@ following the steps to [=convert a value to a key=].
 <aside class=note>
   The following ECMAScript types are valid keys:
 
-  * [=ECMAScript/Number=] primitive values, except NaN. This includes Infinity
+  * {{Number}} primitive values, except NaN. This includes Infinity
       and -Infinity.
-  * [=ECMAScript/Date=] objects, except where the \[[DateValue]]
+  * {{Date}} objects, except where the \[[DateValue]]
       internal slot is NaN.
-  * [=ECMAScript/String=] primitive values.
-  * [=ECMAScript/ArrayBuffer=] objects (or views on buffers such as
-      [=ECMAScript/Uint8Array=]).
-  * [=ECMAScript/Array=] objects, where every item is defined, is itself a valid
+  * {{String}} primitive values.
+  * {{ArrayBuffer}} objects (or views on buffers such as
+      {{Uint8Array}}).
+  * {{Array}} objects, where every item is defined, is itself a valid
       key, and does not directly or indirectly contain itself. This
       includes empty arrays. Arrays can contain other arrays.
 
@@ -773,8 +754,8 @@ following type-specific properties:
   <tr><th>Type</th><th>Properties</th></tr>
   <tr><td>{{Blob}}</td><td>{{Blob/size}}, {{Blob/type}}</td></tr>
   <tr><td>{{File}}</td><td>{{File/name}}, {{File/lastModified}}</td></tr>
-  <tr><td>[=ECMAScript/Array=]</td><td>`length`</td></tr>
-  <tr><td>[=ECMAScript/String=]</td><td>`length`</td></tr>
+  <tr><td>{{Array}}</td><td>`length`</td></tr>
+  <tr><td>{{String}}</td><td>`length`</td></tr>
 </table>
 
 
@@ -1620,7 +1601,7 @@ is to delete the object store and create a new one.
 
 <aside class=note>
   This limit arises because integers greater than 9007199254740992
-  cannot be uniquely represented as ECMAScript [=ECMAScript/Numbers=].
+  cannot be uniquely represented as ECMAScript {{Number}}s.
   As an example, `9007199254740992 + 1 === 9007199254740992`
   in ECMAScript.
 
@@ -2852,7 +2833,7 @@ string) or a <code>[=/sequence=]&lt;{{DOMString}}&gt;</code> (if a list of strin
 <aside class=note>
 The returned value is not the same instance that was used when the
 [=/object store=] was created. However, if this attribute returns
-an object (specifically an [=ECMAScript/Array=]), it returns the same object
+an object (specifically an {{Array}}), it returns the same object
 instance every time it is inspected. Changing the properties of the
 object has no effect on the [=/object store=].
 </aside>
@@ -3104,7 +3085,7 @@ The <dfn method for=IDBObjectStore>clear()</dfn> method steps are:
         given [=/key=] or [=/key range=] in |query| (up to |count| if given).
 
         If successful, |request|'s {{IDBRequest/result}} will
-        be an [=ECMAScript/Array=] of the [=/values=].
+        be an {{Array}} of the [=/values=].
 
     : |request| = |store| .
           {{IDBObjectStore/getAllKeys()|getAllKeys}}(|query| [,
@@ -3114,7 +3095,7 @@ The <dfn method for=IDBObjectStore>clear()</dfn> method steps are:
         given [=/key=] or [=/key range=] in |query| (up to |count| if given).
 
         If successful, |request|'s {{IDBRequest/result}} will
-        be an [=ECMAScript/Array=] of the [=/keys=].
+        be an {{Array}} of the [=/keys=].
 
     : |request| = |store| .
           {{IDBObjectStore/count()|count}}(|query|)
@@ -3141,7 +3122,7 @@ The <dfn method for=IDBObjectStore>get(|query|)</dfn> method steps are:
 
 1. Let |range| be the result of [=/converting a value to a key range=] with |query| and true. Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve a value from an object store=] with the [=ECMAScript/current Realm=], |store|, and |range|.
+1. Let |operation| be an algorithm to run [=retrieve a value from an object store=] with [=ECMAScript/the current Realm record=], |store|, and |range|.
 
 1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -3212,7 +3193,7 @@ The <dfn method for=IDBObjectStore>getAll(|query|, |count|)</dfn> method steps a
     [=/converting a value to a key range=] with |query|.
     Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve multiple values from an object store=] with the [=ECMAScript/current Realm=], |store|, |range|, and |count| if given.
+1. Let |operation| be an algorithm to run [=retrieve multiple values from an object store=] with [=ECMAScript/the current Realm record=], |store|, |range|, and |count| if given.
 
 
 1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
@@ -3349,7 +3330,7 @@ The <dfn method for=IDBObjectStore>openCursor(|query|, |direction|)</dfn> method
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to false.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=] |cursor|.
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=] |cursor|.
 
 1. Let |request| be the result of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -3394,7 +3375,7 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|, |direction|)</dfn> met
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to true.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=] and |cursor|.
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=] and |cursor|.
 
 1. Let |request| be the result of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -3729,7 +3710,7 @@ list of strings), per [[!WEBIDL]].
 <aside class=note>
 The returned value is not the same instance that was used when the
 [=/index=] was created. However, if this attribute returns an
-object (specifically an [=ECMAScript/Array=]), it returns the same object
+object (specifically an {{Array}}), it returns the same object
 instance every time it is inspected. Changing the properties of the
 object has no effect on the [=/index=].
 </aside>
@@ -3772,7 +3753,7 @@ return [=/this=]'s [=index-handle/index=]'s [=index/unique flag=].
         [=/key=] or [=/key range=] in |query| (up to |count| if given).
 
         If successful, |request|'s {{IDBRequest/result}} will be an
-        [=ECMAScript/Array=] of the [=/values=].
+        {{Array}} of the [=/values=].
 
     : |request| = |index| .
           {{IDBIndex/getAllKeys()|getAllKeys}}(|query| [,
@@ -3782,7 +3763,7 @@ return [=/this=]'s [=index-handle/index=]'s [=index/unique flag=].
         [=/key=] or [=/key range=] in |query| (up to |count| if given).
 
         If successful, |request|'s {{IDBRequest/result}} will be an
-        [=ECMAScript/Array=] of the [=/keys=].
+        {{Array}} of the [=/keys=].
 
     : |request| = |index| .
           {{IDBIndex/count()|count}}(|query|)
@@ -3810,7 +3791,7 @@ The <dfn method for=IDBIndex>get(|query|)</dfn> method steps are:
 
 1. Let |range| be the result of [=/converting a value to a key range=] with |query| and true. Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve a referenced value from an index=] with the [=ECMAScript/current Realm=], |index|, and |range|.
+1. Let |operation| be an algorithm to run [=retrieve a referenced value from an index=] with [=ECMAScript/the current Realm record=], |index|, and |range|.
 
 1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -3881,7 +3862,7 @@ The <dfn method for=IDBIndex>getAll(|query|, |count|)</dfn> method steps are:
     [=/converting a value to a key range=] with |query|.
     Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve multiple referenced values from an index=] with the [=ECMAScript/current Realm=], |index|, |range|, and |count| if given.
+1. Let |operation| be an algorithm to run [=retrieve multiple referenced values from an index=] with [=ECMAScript/the current Realm record=], |index|, |range|, and |count| if given.
 
 1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -4016,7 +3997,7 @@ The <dfn method for=IDBIndex>openCursor(|query|, |direction|)</dfn> method steps
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to false.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=] and |cursor|.
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=] and |cursor|.
 
 1. Let |request| be the result of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -4061,7 +4042,7 @@ The <dfn method for=IDBIndex>openKeyCursor(|query|, |direction|)</dfn> method st
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to true.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=] and |cursor|.
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=] and |cursor|.
 
 1. Let |request| be the result of running [=asynchronously execute a request=] with [=/this=] and |operation|.
 
@@ -4337,8 +4318,8 @@ return the result of [=/converting a key to a
 value=] with the cursor's current [=cursor/key=].
 
 <aside class=note>
-If {{IDBCursor/key}} returns an object (e.g. a [=ECMAScript/Date=] or
-[=ECMAScript/Array=]), it returns the same object instance every time it is
+If {{IDBCursor/key}} returns an object (e.g. a {{Date}} or
+{{Array}}), it returns the same object instance every time it is
 inspected, until the cursor's [=cursor/key=] is changed. This
 means that if the object is modified, those modifications will be seen
 by anyone inspecting the value of the cursor. However modifying such
@@ -4350,7 +4331,7 @@ return the result of [=/converting a key to a
 value=] with the cursor's current [=cursor/effective key=].
 
 <aside class=note>
-If {{IDBCursor/primaryKey}} returns an object (e.g. a [=ECMAScript/Date=] or [=ECMAScript/Array=]),
+If {{IDBCursor/primaryKey}} returns an object (e.g. a {{Date}} or {{Array}}),
 it returns the same object instance every time it is inspected, until
 the cursor's [=cursor/effective key=] is changed. This means that if the
 object is modified, those modifications will be seen by anyone
@@ -4432,7 +4413,7 @@ The <dfn method for=IDBCursor>advance(|count|)</dfn> method steps are:
 
 1. Set |request|'s [=request/done flag=] to false.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=], [=/this=], and |count|.
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=], [=/this=], and |count|.
 
 1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source=], |operation|, and |request|.
 
@@ -4489,7 +4470,7 @@ The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
 
 1. Set |request|'s [=request/done flag=] to false.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=], [=/this=], and |key| (if given).
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=], [=/this=], and |key| (if given).
 
 1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source=], |operation|, and |request|.
 
@@ -4567,7 +4548,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> meth
 
 1. Set |request|'s [=request/done flag=] to false.
 
-1. Let |operation| be an algorithm to run [=iterate a cursor=] with the [=ECMAScript/current Realm=], [=/this=], |key|, and |primaryKey|.
+1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=], [=/this=], |key|, and |primaryKey|.
 
 1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source=], |operation|, and |request|.
 
@@ -6163,7 +6144,7 @@ ECMAScript value or failure, or the steps may throw an exception.
 
 1. If |keyPath| is a [=/list=] of strings, then:
 
-    1. Let |result| be a new [=ECMAScript/Array=] object created as if by the
+    1. Let |result| be a new {{Array}} object created as if by the
         expression `[]`.
 
     1. Let |i| be 0.
@@ -6178,9 +6159,9 @@ ECMAScript value or failure, or the steps may throw an exception.
         1. If |key| is failure, abort the overall algorithm and return
             failure.
 
-        1. Let |p| be [=ECMAScript/!=] [=ECMAScript/ToString=](|i|).
+        1. Let |p| be [=ECMAScript/!=] [$ToString$](|i|).
 
-        1. Let |status| be [=ECMAScript/CreateDataProperty=](|result|, |p|, |key|).
+        1. Let |status| be [$CreateDataProperty$](|result|, |p|, |key|).
 
         1. [=/Assert=]: |status| is true.
 
@@ -6206,8 +6187,8 @@ ECMAScript value or failure, or the steps may throw an exception.
       : If [=ECMAScript/Type=](|value|) is String, and |identifier| is "`length`"
       :: Let |value| be a Number equal to the number of elements in |value|.
 
-      : If |value| is an [=ECMAScript/Array=] and |identifier| is "`length`"
-      :: Let |value| be [=ECMAScript/!=] [=ECMAScript/ToLength=]([=ECMAScript/!=] [=ECMAScript/Get=](|value|, "`length`")).
+      : If |value| is an {{Array}} and |identifier| is "`length`"
+      :: Let |value| be [=ECMAScript/!=] [$ToLength$]([=ECMAScript/!=] [$Get$](|value|, "`length`")).
 
       : If |value| is a {{Blob}} and |identifier| is "`size`"
       :: Let |value| be a Number equal to |value|'s {{Blob/size}}.
@@ -6225,11 +6206,11 @@ ECMAScript value or failure, or the steps may throw an exception.
       ::
           1. If [=ECMAScript/Type=](|value|) is not Object, return failure.
 
-          1. Let |hop| be [=ECMAScript/!=] [=ECMAScript/HasOwnProperty=](|value|, |identifier|).
+          1. Let |hop| be [=ECMAScript/!=] [$HasOwnProperty$](|value|, |identifier|).
 
           1. If |hop| is false, return failure.
 
-          1. Let |value| be [=ECMAScript/!=] [=ECMAScript/Get=](|value|, |identifier|).
+          1. Let |value| be [=ECMAScript/!=] [$Get$](|value|, |identifier|).
 
           1. If |value| is undefined, return failure.
 
@@ -6273,15 +6254,15 @@ The result of these steps is either true or false.
 
 1. [=list/For each=] remaining |identifier| of |identifiers|, if any:
 
-    1. If |value| is not an [=ECMAScript/Object=] or an [=ECMAScript/Array=], return false.
+    1. If |value| is not an {{Object}} or an {{Array}}, return false.
 
-    1. Let |hop| be [=ECMAScript/!=] [=ECMAScript/HasOwnProperty=](|value|, |identifier|).
+    1. Let |hop| be [=ECMAScript/!=] [$HasOwnProperty$](|value|, |identifier|).
 
     1. If |hop| is false, return true.
 
-    1. Let |value| be [=ECMAScript/!=] [=ECMAScript/Get=](|value|, |identifier|).
+    1. Let |value| be [=ECMAScript/!=] [$Get$](|value|, |identifier|).
 
-1. Return true if |value| is an [=ECMAScript/Object=] or an [=ECMAScript/Array=], or false otherwise.
+1. Return true if |value| is an {{Object}} or an {{Array}}, or false otherwise.
 
 </div>
 
@@ -6304,28 +6285,28 @@ To <dfn>inject a key into a value using a key path</dfn> with |value|, a |key| a
 
 1. [=list/For each=] remaining |identifier| of |identifiers|:
 
-    1. [=/Assert=]: |value| is an [=ECMAScript/Object=] or an [=ECMAScript/Array=].
+    1. [=/Assert=]: |value| is an {{Object}} or an {{Array}}.
 
-    1. Let |hop| be [=ECMAScript/!=] [=ECMAScript/HasOwnProperty=](|value|, |identifier|).
+    1. Let |hop| be [=ECMAScript/!=] [$HasOwnProperty$](|value|, |identifier|).
 
     1. If |hop| is false, then:
 
-         1. Let |o| be a new [=ECMAScript/Object=] created as if by the
+         1. Let |o| be a new {{Object}} created as if by the
             expression `({})`.
 
-         1. Let |status| be [=ECMAScript/CreateDataProperty=](|value|, |identifier|,
+         1. Let |status| be [$CreateDataProperty$](|value|, |identifier|,
             |o|).
 
          1. [=/Assert=]: |status| is true.
 
-    1. Let |value| be [=ECMAScript/!=] [=ECMAScript/Get=](|value|, |identifier|).
+    1. Let |value| be [=ECMAScript/!=] [$Get$](|value|, |identifier|).
 
-1. [=/Assert=]: |value| is an [=ECMAScript/Object=] or an [=ECMAScript/Array=].
+1. [=/Assert=]: |value| is an {{Object}} or an {{Array}}.
 
 1. Let |keyValue| be the result of [=/converting a
     key to a value=] with |key|.
 
-1. Let |status| be [=ECMAScript/CreateDataProperty=](|value|, |last|, |keyValue|).
+1. Let |status| be [$CreateDataProperty$](|value|, |last|, |keyValue|).
 
 1. [=/Assert=]: |status| is true.
 
@@ -6390,7 +6371,7 @@ The steps return an ECMAScript value.
 
               1. Let |entry| be the result of
                   [=/converting a key to a value=] with |value|[|index|].
-              1. Let |status| be [=ECMAScript/CreateDataProperty=](|array|, |index|,
+              1. Let |status| be [$CreateDataProperty$](|array|, |index|,
                   |entry|).
               1. [=/Assert=]: |status| is true.
               1. Increase |index| by 1.
@@ -6430,7 +6411,7 @@ steps may throw an exception.
               |input|.
 
       <!-- Date -->
-      : If |input| is a [=ECMAScript/Date=] (has a \[[DateValue]] internal slot)
+      : If |input| is a {{Date}} (has a \[[DateValue]] internal slot)
       ::
           1. Let |ms| be the value of |input|'s
               \[[DateValue]] internal slot.
@@ -6460,18 +6441,18 @@ steps may throw an exception.
       <!-- Array -->
       : If |input| is an [=ECMAScript/Array exotic object=]
       ::
-          1. Let |len| be [=ECMAScript/?=] [=ECMAScript/ToLength=]( [=ECMAScript/?=] [=ECMAScript/Get=](|input|,
+          1. Let |len| be [=ECMAScript/?=] [$ToLength$]( [=ECMAScript/?=] [$Get$](|input|,
               "`length`")).
           1. [=set/Append=] |input| to |seen|.
           1. Let |keys| be a new empty list.
           1. Let |index| be 0.
           1. While |index| is less than |len|:
 
-              1. Let |hop| be [=ECMAScript/?=] [=ECMAScript/HasOwnProperty=](|input|, |index|).
+              1. Let |hop| be [=ECMAScript/?=] [$HasOwnProperty$](|input|, |index|).
 
               1. If |hop| is false, return invalid.
 
-              1. Let |entry| be [=ECMAScript/?=] [=ECMAScript/Get=](|input|, |index|).
+              1. Let |entry| be [=ECMAScript/?=] [$Get$](|input|, |index|).
 
               1. Let |key| be the result of
                   [=/converting a value to a key=] with arguments |entry|
@@ -6506,7 +6487,7 @@ steps may throw an exception.
 
 1. If |input| is an [=ECMAScript/Array exotic object=], then:
 
-    1. Let |len| be [=ECMAScript/?=] ToLength( [=ECMAScript/?=] [=ECMAScript/Get=](|input|, "`length`")).
+    1. Let |len| be [=ECMAScript/?=] ToLength( [=ECMAScript/?=] [$Get$](|input|, "`length`")).
 
     1. Let |seen| be a new [=/set=] containing only |input|.
 
@@ -6516,7 +6497,7 @@ steps may throw an exception.
 
     1. While |index| is less than |len|:
 
-        1. Let |entry| be [=ECMAScript/Get=](|input|, |index|).
+        1. Let |entry| be [$Get$](|input|, |index|).
 
         1. If |entry| is not an [=ECMAScript/abrupt completion=], then:
 
@@ -6540,7 +6521,7 @@ steps may throw an exception.
 
 <aside class=note>
   These steps are similar to those to [=convert a value to a key=]
-  but if the top-level value is an [=ECMAScript/Array=] then members which can
+  but if the top-level value is an {{Array}} then members which can
   not be converted to keys are ignored, and duplicates are removed.
 
   For example, the value `[10, 20, null, 30, 20]` is
@@ -6734,8 +6715,8 @@ handling of older data can result in security issues. In addition to
 basic serialization concerns, serialized data could encode assumptions
 which are not valid in newer versions of the user agent.
 
-A practical example of this is the [=ECMAScript/RegExp=] type. The
-[$StructuredSerializeForStorage$] operation allows serializing [=ECMAScript/RegExp=]
+A practical example of this is the {{RegExp}} type. The
+[$StructuredSerializeForStorage$] operation allows serializing {{RegExp}}
 objects. A typical user agent will compile a regular expression into
 native machine instructions, with assumptions about how the input data
 is passed and results returned. If this internal state was serialized
