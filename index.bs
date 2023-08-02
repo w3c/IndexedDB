@@ -1177,17 +1177,19 @@ handler.
   The {{IDBOpenDBRequest/upgradeneeded!!event}} event isn't fired, and thus the
   [=/upgrade transaction=] isn't started, until all other
   [=/connections=] to the same [=/database=] are closed. This ensures
-  that all previous transactions are [=transaction/finished=]. As long
+  that all previous transactions are [=transaction/finished=].
+
+  As long
   as an [=/upgrade transaction=] is [=transaction/live=], attempts to open more
   [=/connections=] to the same [=/database=] are delayed, and any
   attempts to use the same [=/connection=] to start additional
   transactions by calling {{IDBDatabase/transaction()}} will throw an
-  exception. Thus [=/upgrade transactions=] not only ensure that no
-  other transactions are [=transaction/live=] concurrently, but also ensure that no
+  exception. This ensures that no
+  other transactions are [=transaction/live=] concurrently, and also ensures that no
   new transactions are queued against the same [=/database=] as long
-  as the transaction is [=transaction/live=].
+  as the [=/upgrade transaction=] is [=transaction/live=].
 
-  This ensures that once an [=/upgrade transaction=] is complete, the
+  This further ensures that once an [=/upgrade transaction=] is complete, the
   set of [=/object stores=] and [=/indexes=] in a [=/database=] remain
   constant for the lifetime of all subsequent [=/connections=] and
   [=/transactions=].
@@ -5304,9 +5306,7 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 
 <div algorithm>
 
-To <dfn>upgrade a database</dfn> with |connection| (a [=/connection=])
-which is used to update the [=/database=], a new |version| to be set
-for the [=/database=], and a |request|, run these steps:
+To <dfn>upgrade a database</dfn> with |connection| (a [=/connection=]), a new |version|, and a |request|, run these steps:
 
 1. Let |db| be |connection|'s [=/database=].
 
