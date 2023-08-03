@@ -474,7 +474,7 @@ A [=/connection=] has an <dfn>object store set</dfn>, which is
 initialized to the set of [=/object stores=] in the associated
 [=/database=] when the [=/connection=] is created. The contents of the
 set will remain constant except when an [=/upgrade transaction=] is
-running.
+[=transaction/live=].
 
 A [=/connection=]'s [=get the parent=] algorithm returns
 null.
@@ -553,13 +553,13 @@ An [=/object store handle=] has an <dfn>index set</dfn>, which is
 initialized to the set of [=/indexes=] that reference the associated
 [=object-store-handle/object store=] when the [=/object store handle=]
 is created. The contents of the set will remain constant except when
-an [=/upgrade transaction=] is running.
+an [=/upgrade transaction=] is [=transaction/live=].
 
 An [=/object store handle=] has a <dfn>name</dfn>, which is
 initialized to the [=object-store/name=] of the associated
 [=object-store-handle/object store=] when the [=/object store handle=]
 is created. The name will remain constant except when an [=/upgrade
-transaction=] is running.
+transaction=] is [=transaction/live=].
 
 </div>
 
@@ -866,7 +866,7 @@ particular [=/index=] within a [=/transaction=].
 An [=index handle=] has a <dfn>name</dfn>, which is initialized to the
 [=index/name=] of the associated [=index-handle/index=] when the
 [=index handle=] is created. The name will remain constant except when
-an [=/upgrade transaction=] is running.
+an [=/upgrade transaction=] is [=transaction/live=].
 
 </div>
 
@@ -905,7 +905,7 @@ following:
 ::
     The transaction is only allowed to read data. No modifications can
     be done by this type of transaction. This has the advantage that
-    several [=transaction/read-only transactions=] can run at the same time even
+    several [=transaction/read-only transactions=] can be [=transaction/started=] at the same time even
     if their [=transaction/scopes=] are [=transaction/overlapping=], i.e. if they are using the
     same object stores. This type of transaction can be created any
     time once a database has been opened.
@@ -915,7 +915,7 @@ following:
     The transaction is allowed to read, modify and delete data from
     existing object stores. However object stores and indexes can't be
     added or removed. Multiple "{{IDBTransactionMode/readwrite}}" transactions
-    can't run at the same time if their [=transaction/scopes=] are [=transaction/overlapping=]
+    can't be [=transaction/started=] at the same time if their [=transaction/scopes=] are [=transaction/overlapping=]
     since that would mean that they can modify each other's data in
     the middle of the transaction. This type of transaction can be
     created any time once a database has been opened.
@@ -1001,7 +1001,7 @@ Transactions are expected to be short lived. This is encouraged by the
 described below.
 
 <aside class=note>
-  Authors can still cause transactions to run for a long time;
+  Authors can still cause transactions to stay [=transaction/live|alive=] for a long time;
   however, this usage pattern is not advised as it can lead to a poor
   user experience.
 </aside>
@@ -1088,6 +1088,8 @@ the case even if the transaction has not yet been
 requests; however, the implementation must keep track of the
 [=/requests=] and their order.
 
+A [=/transaction=] is said to be <dfn>live</dfn> from when it is [=transaction/created=] until its [=transaction/state=] is set to [=transaction/finished=].
+
 <div algorithm>
 
 To <dfn id=cleanup-indexed-database-transactions export>cleanup Indexed Database transactions</dfn>, run the following steps.
@@ -1135,14 +1137,14 @@ The following constraints define when a [=/transaction=] can be [=transaction/st
     * have [=transaction/overlapping scopes=] with |tx|; and
     * are not [=transaction/finished=].
 
-Implementations may impose additional constraints. For example, implementations are not required to run non-[=transaction/overlapping=] <a for=transaction>read/write transactions</a> in parallel, or may impose limits on the number of running transactions.
+Implementations may impose additional constraints. For example, implementations are not required to [=transaction/start=] non-[=transaction/overlapping=] <a for=transaction>read/write transactions</a> in parallel, or may impose limits on the number of [=transaction/started=] transactions.
 
 <aside class=note>
 
   These constraints imply the following:
 
-  * Any number of [=transaction/read-only transactions=] are allowed to run concurrently, even if they have [=transaction/overlapping scopes=].
-  * As long as a [=transaction/read-only transaction=] is running, the data that the implementation returns through [=/requests=] created with that transaction remains constant. That is, two requests to read the same piece of data yield the same result both for the case when data is found and the result is that data, and for the case when data is not found and a lack of data is indicated.
+  * Any number of [=transaction/read-only transactions=] are allowed to be [=transaction/started=] concurrently, even if they have [=transaction/overlapping scopes=].
+  * As long as a [=transaction/read-only transaction=] is [=transaction/live=], the data that the implementation returns through [=/requests=] created with that transaction remains constant. That is, two requests to read the same piece of data yield the same result both for the case when data is found and the result is that data, and for the case when data is not found and a lack of data is indicated.
   * A <a for=transaction>read/write transaction</a> is only affected by changes to [=/object stores=] that are made using the transaction itself. The implementation ensures that another transaction does not modify the contents of [=/object stores=] in the <a for=transaction>read/write transaction</a>'s [=transaction/scope=]. The implementation also ensures that if the <a for=transaction>read/write transaction</a> completes successfully, the changes written to [=/object stores=] using the transaction can be committed to the [=/database=] without merge conflicts.
   * If multiple <a for=transaction>read/write transactions</a> are attempting to access the same object store (i.e. if they have [=transaction/overlapping scopes=]), the transaction that was [=transaction/created=] first is the transaction which gets access to the object store first, and it is the only transaction which has access to the object store until the transaction is [=transaction/finished=].
   * Any transaction [=transaction/created=] after a <a for=transaction>read/write transaction</a> sees the changes written by the <a for=transaction>read/write transaction</a>. For example, if a <a for=transaction>read/write transaction</a> A, is created, and later another transaction B, is created, and the two transactions have [=transaction/overlapping scopes=], then transaction B sees any changes made to any [=/object stores=] that are part of that [=transaction/overlapping scope=]. This also means that transaction B does not have access to any [=/object stores=] in that overlapping [=transaction/scope=] until transaction A is [=transaction/finished=].
@@ -1159,7 +1161,7 @@ An <dfn>upgrade transaction</dfn> is a [=/transaction=] with [=transaction/mode=
 "{{IDBTransactionMode/versionchange}}".
 
 An [=/upgrade transaction=] is automatically created when running the
-steps to [=run an upgrade transaction=] after a [=/connection=]
+steps to [=upgrade a database=] after a [=/connection=]
 is opened to a [=/database=], if a [=database/version=] greater than
 the current [=database/version=] is specified. This [=/transaction=]
 will be active inside the {{IDBOpenDBRequest/upgradeneeded!!event}} event
@@ -1171,21 +1173,23 @@ handler.
 
   An [=/upgrade transaction=] is exclusive. The steps to [=open a
   database=] ensure that only one [=/connection=] to the database is
-  open when an [=/upgrade transaction=] is running.
+  open when an [=/upgrade transaction=] is [=transaction/live=].
   The {{IDBOpenDBRequest/upgradeneeded!!event}} event isn't fired, and thus the
   [=/upgrade transaction=] isn't started, until all other
   [=/connections=] to the same [=/database=] are closed. This ensures
-  that all previous transactions are [=transaction/finished=]. As long
-  as an [=/upgrade transaction=] is running, attempts to open more
+  that all previous transactions are [=transaction/finished=].
+
+  As long
+  as an [=/upgrade transaction=] is [=transaction/live=], attempts to open more
   [=/connections=] to the same [=/database=] are delayed, and any
   attempts to use the same [=/connection=] to start additional
   transactions by calling {{IDBDatabase/transaction()}} will throw an
-  exception. Thus [=/upgrade transactions=] not only ensure that no
-  other transactions are running concurrently, but also ensure that no
+  exception. This ensures that no
+  other transactions are [=transaction/live=] concurrently, and also ensures that no
   new transactions are queued against the same [=/database=] as long
-  as the transaction is running.
+  as the [=/upgrade transaction=] is [=transaction/live=].
 
-  This ensures that once an [=/upgrade transaction=] is complete, the
+  This further ensures that once an [=/upgrade transaction=] is complete, the
   set of [=/object stores=] and [=/indexes=] in a [=/database=] remain
   constant for the lifetime of all subsequent [=/connections=] and
   [=/transactions=].
@@ -1996,7 +2000,7 @@ enum IDBRequestReadyState {
     ::
         Returns the {{IDBTransaction}} the request was made within.
         If this as an [=request/open request=], then it returns an
-        [=/upgrade transaction=] while it is running, or null otherwise.
+        [=/upgrade transaction=] while it is [=transaction/live=], or null otherwise.
 
     : |request| . {{IDBRequest/readyState}}
     ::
@@ -2083,7 +2087,7 @@ dictionary IDBVersionChangeEventInit : EventInit {
 The <dfn attribute for=IDBVersionChangeEvent>oldVersion</dfn> getter steps are to return the value it was initialized to. It represents the previous version of the database.
 
 
-The <dfn attribute for=IDBVersionChangeEvent>newVersion</dfn> getter steps are to return the value it was initialized to. It represents the new version of the database, or null if the database is being deleted. See the steps to [=run an upgrade transaction=].
+The <dfn attribute for=IDBVersionChangeEvent>newVersion</dfn> getter steps are to return the value it was initialized to. It represents the new version of the database, or null if the database is being deleted. See the steps to [=upgrade a database=].
 
 Events are constructed as defined in [[DOM#constructing-events]].
 
@@ -2636,7 +2640,7 @@ instance on which it was called.
 
 The <dfn method for=IDBDatabase>transaction(|storeNames|, |mode|, |options|)</dfn> method steps are:
 
-1. If a running [=/upgrade transaction=] is associated with the [=/connection=],
+1. If a [=transaction/live=] [=/upgrade transaction=] is associated with the [=/connection=],
     [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. If [=/this=]'s [=connection/close pending flag=] is true, then [=exception/throw=] an
@@ -4996,7 +5000,7 @@ To <dfn>open a database</dfn> with |storageKey| which requested the [=/database=
         [=/connections=] in |openConnections| are
         [=connection/closed=].
 
-    1. Run [=run an upgrade transaction=]
+    1. Run [=upgrade a database=]
         using |connection|, |version| and |request|.
 
     1. If |connection| was [=connection/closed=],
@@ -5052,7 +5056,7 @@ optional |forced flag|, run these steps:
 
 <aside class=note>
   Once the [=/connection=] is closed, this can unblock the steps to
-  [=run an upgrade transaction=], and the steps to [=delete a
+  [=upgrade a database=], and the steps to [=delete a
   database=], which [both](#delete-close-block)
   [wait](#version-change-close-block) for [=/connections=] to
   a given [=/database=] to be closed before continuing.
@@ -5297,14 +5301,12 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 
 
 <!-- ============================================================ -->
-## Running an upgrade transaction ## {#upgrade-transaction-steps}
+## Upgrading a database ## {#upgrade-transaction-steps}
 <!-- ============================================================ -->
 
 <div algorithm>
 
-To <dfn>run an upgrade transaction</dfn> with |connection| (a [=/connection=])
-which is used to update the [=/database=], a new |version| to be set
-for the [=/database=], and a |request|, run these steps:
+To <dfn>upgrade a database</dfn> with |connection| (a [=/connection=]), a new |version|, and a |request|, run these steps:
 
 1. Let |db| be |connection|'s [=/database=].
 
@@ -6781,6 +6783,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Specified [[#transaction-scheduling]] more precisely and disallow starting read/write transactions while read-only transactions with overlapping scope are running. ([Issue #253](https://github.com/w3c/IndexedDB/issues/253))
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
 * Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
+* Added a definition for [=transaction/live=] transactions, and renamed "run an upgrade transaction" to [=/upgrade a database=], to disambiguate "running". ([Issue #408](https://github.com/w3c/IndexedDB/issues/408))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
@@ -6822,6 +6825,7 @@ Danillo Paiva,
 David Grogan,
 Domenic Denicola,
 Dominique Hazael-Massieux,
+Evan Stade,
 Glenn Maynard,
 Hans Wennborg,
 Isiah Meadows,
