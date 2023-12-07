@@ -2711,8 +2711,8 @@ interface IDBObjectStore {
   readonly attribute boolean autoIncrement;
 
   [NewObject] IDBRequest put(any value, optional any key);
-  [NewObject] IDBRequest putAllValues(sequence<any> values);
-  [NewObject] IDBRequest putAllEntries(sequence<sequence<any>> entries);
+  [NewObject] IDBRequest putValues(sequence<any> values);
+  [NewObject] IDBRequest putEntries(sequence<sequence<any>> entries);
   [NewObject] IDBRequest add(any value, optional any key);
   [NewObject] IDBRequest delete(any query);
   [NewObject] IDBRequest clear();
@@ -2890,7 +2890,7 @@ and false otherwise.
         If successful, |request|'s {{IDBRequest/result}} will be the
         [=object-store/record=]'s [=/key=].
 
-    : |request| = |store| . {{IDBObjectStore/putAllValues()|putAllValues}}(|values|)
+    : |request| = |store| . {{IDBObjectStore/putValues()|putValues}}(|values|)
 
     ::
         Adds or updates multiple [=object-store/records=] in |store| with the given array of |values|.
@@ -2901,7 +2901,7 @@ and false otherwise.
         If any [=/record=] fails to be stored, no updates will be made and the |request| will fail, with |request|'s {{IDBRequest/error!!attribute}} set to an error e.g. a "{{ConstraintError}}" {{DOMException}}.
 
 
-    : |request| = |store| . {{IDBObjectStore/putAllEntries()|putAllEntries}}(|entries|)
+    : |request| = |store| . {{IDBObjectStore/putEntries()|putEntries}}(|entries|)
 
     ::
         Adds or updates multiple [=object-store/records=] in |store| with the given array of |entries|. Each entry is a two element array with a [=/key=] and [=/value=] for the record.
@@ -3008,11 +3008,11 @@ To <dfn>add or put a single record</dfn> with |handle|, |value|, |key|, and |no-
 
 </div>
 
-The <dfn method for=IDBObjectStore>putAllValues(|values|)</dfn> method steps are to return the result of running [=add or put multiple records=] with [=/this=], |values|, and false.
+The <dfn method for=IDBObjectStore>putValues(|values|)</dfn> method steps are to return the result of running [=add or put multiple records=] with [=/this=], |values|, and false.
 
 <div algorithm>
 
-The <dfn method for=IDBObjectStore>putAllEntries(|entries|)</dfn> method steps are:
+The <dfn method for=IDBObjectStore>putEntries(|entries|)</dfn> method steps are:
 
 1. Let |keys| be a new [=/list=].
 
@@ -3072,7 +3072,7 @@ To <dfn>add or put multiple records</dfn> with |handle|, |values|, |no-overwrite
 
         1. [=list/Append=] |r| to |rs|.
 
-    1. Let |keys| be |rs|.
+    1. Set |keys| to |rs|.
 
 1. Let |targetRealm| be a user-agent defined [=ECMAScript/Realm=].
 
@@ -6861,7 +6861,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
 * Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
 * Added a definition for [=transaction/live=] transactions, and renamed "run an upgrade transaction" to [=/upgrade a database=], to disambiguate "running". ([Issue #408](https://github.com/w3c/IndexedDB/issues/408))
-* Added {{IDBObjectStore/putAllValues()}} and {{IDBObjectStore/putAllEntries()}} methods. ([Issue #69](https://github.com/w3c/IndexedDB/issues/69))
+* Added {{IDBObjectStore/putValues()}} and {{IDBObjectStore/putEntries()}} methods. ([Issue #69](https://github.com/w3c/IndexedDB/issues/69))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
