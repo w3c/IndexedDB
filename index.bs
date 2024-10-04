@@ -1867,6 +1867,13 @@ usage.
     </td>
   </tr>
   <tr>
+    <td>{{NotReadableError}}</td>
+    <td>
+      The operation failed because the file(s) containing the requested
+      data could not be read.
+    </td>
+  </tr>
+  <tr>
     <td>{{QuotaExceededError}}</td>
     <td>
       The operation failed because there was not enough remaining
@@ -1892,8 +1899,8 @@ usage.
   <tr>
     <td>{{UnknownError}}</td>
     <td>
-      The operation failed for reasons unrelated to the database
-      itself and not covered by any other errors.
+      The operation failed for transient reasons unrelated to the
+      database itself and not covered by any other error.
     </td>
   </tr>
   <tr>
@@ -5642,7 +5649,8 @@ To <dfn>retrieve a value from an object store</dfn> with
 
 1. If |record| was not found, return undefined.
 
-1. Let |serialized| be of |record|'s [=/value=].
+1. Let |serialized| be |record|'s [=/value=]. If an error occurs while reading the value from the
+    underlying storage, return a newly [=exception/created=] "{{NotReadableError}}" {{DOMException}}.
 
 1. Return [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
 
@@ -5664,7 +5672,8 @@ store</dfn> with |targetRealm|, |store|, |range| and optional |count|, run these
 
 1. [=list/For each=] |record| of |records|:
 
-    1. Let |serialized| be |record|'s [=/value=].
+    1. Let |serialized| be |record|'s [=/value=]. If an error occurs while reading the value from the
+        underlying storage, return a newly [=exception/created=] "{{NotReadableError}}" {{DOMException}}.
     1. Let |entry| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
     1. Append |entry| to |list|.
 
