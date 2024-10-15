@@ -1867,6 +1867,13 @@ usage.
     </td>
   </tr>
   <tr>
+    <td>{{NotReadableError}}</td>
+    <td>
+      The operation failed because the underlying storage containing
+      the requested data could not be read.
+    </td>
+  </tr>
+  <tr>
     <td>{{QuotaExceededError}}</td>
     <td>
       The operation failed because there was not enough remaining
@@ -1892,8 +1899,8 @@ usage.
   <tr>
     <td>{{UnknownError}}</td>
     <td>
-      The operation failed for reasons unrelated to the database
-      itself and not covered by any other errors.
+      The operation failed for transient reasons unrelated to the
+      database itself or not covered by any other error.
     </td>
   </tr>
   <tr>
@@ -5634,7 +5641,8 @@ To <dfn>store a record into an object store</dfn> with
 <div algorithm>
 
 To <dfn>retrieve a value from an object store</dfn> with
-|targetRealm|, |store| and |range|, run these steps:
+|targetRealm|, |store| and |range|, run these steps.
+They return undefined, an ECMAScript value, or an error (a {{DOMException}}):
 
 1. Let |record| be the first [=object-store/record=] in |store|'s
     [=object-store/list of records=] whose [=/key=] is [=in=] |range|, if
@@ -5642,7 +5650,8 @@ To <dfn>retrieve a value from an object store</dfn> with
 
 1. If |record| was not found, return undefined.
 
-1. Let |serialized| be of |record|'s [=/value=].
+1. Let |serialized| be |record|'s [=/value=]. If an error occurs while reading the value from the
+    underlying storage, return a newly [=exception/created=] "{{NotReadableError}}" {{DOMException}}.
 
 1. Return [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
 
@@ -5652,7 +5661,8 @@ To <dfn>retrieve a value from an object store</dfn> with
 <div algorithm>
 
 To <dfn>retrieve multiple values from an object
-store</dfn> with |targetRealm|, |store|, |range| and optional |count|, run these steps:
+store</dfn> with |targetRealm|, |store|, |range| and optional |count|, run these steps.
+They return a <code>[=/sequence=]&lt;{{any}}&gt;</code> or an error (a {{DOMException}}):
 
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
 
@@ -5664,7 +5674,8 @@ store</dfn> with |targetRealm|, |store|, |range| and optional |count|, run these
 
 1. [=list/For each=] |record| of |records|:
 
-    1. Let |serialized| be |record|'s [=/value=].
+    1. Let |serialized| be |record|'s [=/value=]. If an error occurs while reading the value from the
+        underlying storage, return a newly [=exception/created=] "{{NotReadableError}}" {{DOMException}}.
     1. Let |entry| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
     1. Append |entry| to |list|.
 
@@ -6706,6 +6717,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Added <a href="#accessibility">Accessibility considerations</a> section. ([Issue #327](https://github.com/w3c/IndexedDB/issues/327))
 * Used [[infra]]'s list sorting definition. ([Issue #346](https://github.com/w3c/IndexedDB/issues/346))
 * Added a definition for [=transaction/live=] transactions, and renamed "run an upgrade transaction" to [=/upgrade a database=], to disambiguate "running". ([Issue #408](https://github.com/w3c/IndexedDB/issues/408))
+* Specified the {{DOMException}} type for failures when reading a value from the underlying storage in [[#object-store-retrieval-operation]]. ([Issue #423](https://github.com/w3c/IndexedDB/issues/423))
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
@@ -6725,6 +6737,7 @@ specification authoring tool used to create this document, and
 for his general authoring advice.
 
 Special thanks to
+Abhishek Shanthkumar,
 Adam Klein,
 Addison Phillips,
 Adrienne Walker,
