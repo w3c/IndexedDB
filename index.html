@@ -8,7 +8,7 @@
   <meta content="Bikeshed version 60c422380, updated Thu Feb 20 19:11:22 2025 -0800" name="generator">
   <link href="https://www.w3.org/TR/IndexedDB/" rel="canonical">
   <link href="logo-db.svg" rel="icon">
-  <meta content="a72426f8548bcd3058096b437f21191aa367a3c2" name="revision">
+  <meta content="c659eb3068a689b24a80b8b6fc3c9e2ba674781a" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1001,7 +1001,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Indexed Database API 3.0</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>, <time class="dt-updated" datetime="2025-02-21">21 February 2025</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>, <time class="dt-updated" datetime="2025-02-26">26 February 2025</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1011,7 +1011,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
       <dt>Latest published version:
       <dd><a href="https://www.w3.org/TR/IndexedDB/">https://www.w3.org/TR/IndexedDB/</a>
       <dt>Previous Versions:
-      <dd><a href="https://www.w3.org/TR/2025/WD-IndexedDB-3-20250110/" rel="prev">https://www.w3.org/TR/2025/WD-IndexedDB-3-20250110/</a>
+      <dd><a href="https://www.w3.org/TR/2025/WD-IndexedDB-3-20250221/" rel="prev">https://www.w3.org/TR/2025/WD-IndexedDB-3-20250221/</a>
       <dt>Test Suite:
       <dd><a href="https://github.com/web-platform-tests/wpt/tree/master/IndexedDB">https://github.com/web-platform-tests/wpt/tree/master/IndexedDB</a>
       <dt>Feedback:
@@ -5918,7 +5918,9 @@ steps may throw an exception.</p>
        <dd data-md>
         <ol>
          <li data-md>
-          <p>Let <var>bytes</var> be the result of <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-get-buffer-source-copy" id="ref-for-dfn-get-buffer-source-copy">getting a copy of the bytes held by the buffer source</a> <var>input</var>. Rethrow any exceptions.</p>
+          <p>If <var>input</var> is [<a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#buffersource-detached" id="ref-for-buffersource-detached">detached</a>] then return invalid.</p>
+         <li data-md>
+          <p>Let <var>bytes</var> be the result of <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#dfn-get-buffer-source-copy" id="ref-for-dfn-get-buffer-source-copy">getting a copy of the bytes held by the buffer source</a> <var>input</var>.</p>
          <li data-md>
           <p>Return a new <a data-link-type="dfn" href="#key" id="ref-for-key⑨⑧">key</a> with <a data-link-type="dfn" href="#key-type" id="ref-for-key-type①①">type</a> <em>binary</em> and <a data-link-type="dfn" href="#key-value" id="ref-for-key-value⑨">value</a> <var>bytes</var>.</p>
         </ol>
@@ -6223,6 +6225,8 @@ For the revision history of the second edition, see <a href="https://www.w3.org/
      <p>Added a definition for <a data-link-type="dfn" href="#transaction-live" id="ref-for-transaction-live①②">live</a> transactions, and renamed "run an upgrade transaction" to <a data-link-type="dfn" href="#upgrade-a-database" id="ref-for-upgrade-a-database④">upgrade a database</a>, to disambiguate "running". (<a href="https://github.com/w3c/IndexedDB/issues/408">issue #408</a>)</p>
     <li data-md>
      <p>Specified the <code class="idl"><a data-link-type="idl" href="https://webidl.spec.whatwg.org/#idl-DOMException" id="ref-for-idl-DOMException①⑧⑨">DOMException</a></code> type for failures when reading a value from the underlying storage in <a href="#object-store-retrieval-operation">§ 6.2 Object store retrieval operations</a>. (<a href="https://github.com/w3c/IndexedDB/issues/423">issue #423</a>)</p>
+    <li data-md>
+     <p>Updated <a data-link-type="dfn" href="#convert-a-value-to-a-key" id="ref-for-convert-a-value-to-a-key①⑨">convert a value to a key</a> to return invalid for detached array buffers. (<a href="https://github.com/w3c/IndexedDB/issues/417">issue #417</a>)</p>
    </ul>
    <h2 class="heading settled" data-level="12" id="acknowledgements"><span class="secno">12. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
    <p><em>This section is non-normative.</em></p>
@@ -6285,6 +6289,7 @@ Pablo Castro,
 Philip Jägenstedt,
 Shawn Wilsher,
 Simon Pieters,
+Steve Becker,
 Tobie Langel,
 Victor Costan,
 Xiaoqian Wu,
@@ -6992,6 +6997,7 @@ specification.</p>
      <li><span class="dfn-paneled" id="b05bf85d">buffer source types</span>
      <li><span class="dfn-paneled" id="f4813f78">byte</span>
      <li><span class="dfn-paneled" id="6a73c310">create</span>
+     <li><span class="dfn-paneled" id="e97b1447">detached</span>
      <li><span class="dfn-paneled" id="92d13070">get a copy of the buffer source</span>
      <li><span class="dfn-paneled" id="7787d359">record</span>
      <li><span class="dfn-paneled" id="b262501e">reject</span>
@@ -9196,7 +9202,7 @@ let dfnPanelData = {
 "connection-version": {"dfnID":"connection-version","dfnText":"version","external":false,"refSections":[{"refs":[{"id":"ref-for-connection-version"}],"title":"2.1.1. Database connection"},{"refs":[{"id":"ref-for-connection-version\u2460"}],"title":"4.4. The IDBDatabase interface"},{"refs":[{"id":"ref-for-connection-version\u2461"}],"title":"5.1. Opening a database connection"},{"refs":[{"id":"ref-for-connection-version\u2462"}],"title":"5.8. Aborting an upgrade transaction"}],"url":"#connection-version"},
 "containing-only": {"dfnID":"containing-only","dfnText":"containing only","external":false,"refSections":[{"refs":[{"id":"ref-for-containing-only"}],"title":"2.9. Key range"},{"refs":[{"id":"ref-for-containing-only\u2460"}],"title":"4.7. The IDBKeyRange interface"}],"url":"#containing-only"},
 "convert-a-key-to-a-value": {"dfnID":"convert-a-key-to-a-value","dfnText":"convert a key to a value","external":false,"refSections":[{"refs":[{"id":"ref-for-convert-a-key-to-a-value"},{"id":"ref-for-convert-a-key-to-a-value\u2460"}],"title":"4.7. The IDBKeyRange interface"},{"refs":[{"id":"ref-for-convert-a-key-to-a-value\u2461"},{"id":"ref-for-convert-a-key-to-a-value\u2462"}],"title":"4.8. The IDBCursor interface"},{"refs":[{"id":"ref-for-convert-a-key-to-a-value\u2463"},{"id":"ref-for-convert-a-key-to-a-value\u2464"}],"title":"6.2. Object store retrieval operations"},{"refs":[{"id":"ref-for-convert-a-key-to-a-value\u2465"},{"id":"ref-for-convert-a-key-to-a-value\u2466"}],"title":"6.3. Index retrieval operations"},{"refs":[{"id":"ref-for-convert-a-key-to-a-value\u2467"}],"title":"7.2. Inject a key into a value"},{"refs":[{"id":"ref-for-convert-a-key-to-a-value\u2468"}],"title":"7.3. Convert a key to a value"}],"url":"#convert-a-key-to-a-value"},
-"convert-a-value-to-a-key": {"dfnID":"convert-a-value-to-a-key","dfnText":"convert a value to a key","external":false,"refSections":[{"refs":[{"id":"ref-for-convert-a-value-to-a-key"}],"title":"2.4. Keys"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460"}],"title":"2.9. Key range"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2461"},{"id":"ref-for-convert-a-value-to-a-key\u2462"}],"title":"4.3. The IDBFactory interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2463"}],"title":"4.5. The IDBObjectStore interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2464"},{"id":"ref-for-convert-a-value-to-a-key\u2465"},{"id":"ref-for-convert-a-value-to-a-key\u2466"},{"id":"ref-for-convert-a-value-to-a-key\u2467"},{"id":"ref-for-convert-a-value-to-a-key\u2468"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u24ea"}],"title":"4.7. The IDBKeyRange interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2460"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2461"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2462"}],"title":"4.8. The IDBCursor interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2463"}],"title":"7.1. Extract a key from a value"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2464"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2465"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2466"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2467"}],"title":"7.4. Convert a value to a key"}],"url":"#convert-a-value-to-a-key"},
+"convert-a-value-to-a-key": {"dfnID":"convert-a-value-to-a-key","dfnText":"convert a value to a key","external":false,"refSections":[{"refs":[{"id":"ref-for-convert-a-value-to-a-key"}],"title":"2.4. Keys"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460"}],"title":"2.9. Key range"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2461"},{"id":"ref-for-convert-a-value-to-a-key\u2462"}],"title":"4.3. The IDBFactory interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2463"}],"title":"4.5. The IDBObjectStore interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2464"},{"id":"ref-for-convert-a-value-to-a-key\u2465"},{"id":"ref-for-convert-a-value-to-a-key\u2466"},{"id":"ref-for-convert-a-value-to-a-key\u2467"},{"id":"ref-for-convert-a-value-to-a-key\u2468"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u24ea"}],"title":"4.7. The IDBKeyRange interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2460"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2461"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2462"}],"title":"4.8. The IDBCursor interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2463"}],"title":"7.1. Extract a key from a value"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2464"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2465"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2466"},{"id":"ref-for-convert-a-value-to-a-key\u2460\u2467"}],"title":"7.4. Convert a value to a key"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key\u2460\u2468"}],"title":"11. Revision history"}],"url":"#convert-a-value-to-a-key"},
 "convert-a-value-to-a-key-range": {"dfnID":"convert-a-value-to-a-key-range","dfnText":"convert a value to a key range","external":false,"refSections":[{"refs":[{"id":"ref-for-convert-a-value-to-a-key-range"},{"id":"ref-for-convert-a-value-to-a-key-range\u2460"},{"id":"ref-for-convert-a-value-to-a-key-range\u2461"},{"id":"ref-for-convert-a-value-to-a-key-range\u2462"},{"id":"ref-for-convert-a-value-to-a-key-range\u2463"},{"id":"ref-for-convert-a-value-to-a-key-range\u2464"},{"id":"ref-for-convert-a-value-to-a-key-range\u2465"},{"id":"ref-for-convert-a-value-to-a-key-range\u2466"}],"title":"4.5. The IDBObjectStore interface"},{"refs":[{"id":"ref-for-convert-a-value-to-a-key-range\u2467"},{"id":"ref-for-convert-a-value-to-a-key-range\u2468"},{"id":"ref-for-convert-a-value-to-a-key-range\u2460\u24ea"},{"id":"ref-for-convert-a-value-to-a-key-range\u2460\u2460"},{"id":"ref-for-convert-a-value-to-a-key-range\u2460\u2461"},{"id":"ref-for-convert-a-value-to-a-key-range\u2460\u2462"},{"id":"ref-for-convert-a-value-to-a-key-range\u2460\u2463"}],"title":"4.6. The IDBIndex interface"}],"url":"#convert-a-value-to-a-key-range"},
 "convert-a-value-to-a-multientry-key": {"dfnID":"convert-a-value-to-a-multientry-key","dfnText":"convert a value to a multiEntry key","external":false,"refSections":[{"refs":[{"id":"ref-for-convert-a-value-to-a-multientry-key"}],"title":"7.1. Extract a key from a value"}],"url":"#convert-a-value-to-a-multientry-key"},
 "count-the-records-in-a-range": {"dfnID":"count-the-records-in-a-range","dfnText":"count the records in a range","external":false,"refSections":[{"refs":[{"id":"ref-for-count-the-records-in-a-range"}],"title":"4.5. The IDBObjectStore interface"},{"refs":[{"id":"ref-for-count-the-records-in-a-range\u2460"}],"title":"4.6. The IDBIndex interface"}],"url":"#count-the-records-in-a-range"},
@@ -9409,6 +9415,7 @@ let dfnPanelData = {
 "dom-windoworworkerglobalscope-indexeddb": {"dfnID":"dom-windoworworkerglobalscope-indexeddb","dfnText":"indexedDB","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-windoworworkerglobalscope-indexeddb"}],"title":"4.3. The IDBFactory interface"}],"url":"#dom-windoworworkerglobalscope-indexeddb"},
 "e303c02d": {"dfnID":"e303c02d","dfnText":"type","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-type"}],"title":"2.5. Key path"},{"refs":[{"id":"ref-for-dfn-type\u2460"}],"title":"7.1. Extract a key from a value"}],"url":"https://w3c.github.io/FileAPI/#dfn-type"},
 "e97a9688": {"dfnID":"e97a9688","dfnText":"unsigned long","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-unsigned-long"},{"id":"ref-for-idl-unsigned-long\u2460"}],"title":"4.5. The IDBObjectStore interface"},{"refs":[{"id":"ref-for-idl-unsigned-long\u2461"},{"id":"ref-for-idl-unsigned-long\u2462"}],"title":"4.6. The IDBIndex interface"},{"refs":[{"id":"ref-for-idl-unsigned-long\u2463"}],"title":"4.8. The IDBCursor interface"}],"url":"https://webidl.spec.whatwg.org/#idl-unsigned-long"},
+"e97b1447": {"dfnID":"e97b1447","dfnText":"detached","external":true,"refSections":[{"refs":[{"id":"ref-for-buffersource-detached"}],"title":"7.4. Convert a value to a key"}],"url":"https://webidl.spec.whatwg.org/#buffersource-detached"},
 "ea70ff86": {"dfnID":"ea70ff86","dfnText":"VersionError","external":true,"refSections":[{"refs":[{"id":"ref-for-versionerror"}],"title":"3. Exceptions"},{"refs":[{"id":"ref-for-versionerror\u2460"}],"title":"5.1. Opening a database connection"}],"url":"https://webidl.spec.whatwg.org/#versionerror"},
 "enumdef-idbcursordirection": {"dfnID":"enumdef-idbcursordirection","dfnText":"IDBCursorDirection","external":false,"refSections":[{"refs":[{"id":"ref-for-enumdef-idbcursordirection"},{"id":"ref-for-enumdef-idbcursordirection\u2460"}],"title":"4.5. The IDBObjectStore interface"},{"refs":[{"id":"ref-for-enumdef-idbcursordirection\u2461"},{"id":"ref-for-enumdef-idbcursordirection\u2462"}],"title":"4.6. The IDBIndex interface"},{"refs":[{"id":"ref-for-enumdef-idbcursordirection\u2463"}],"title":"4.8. The IDBCursor interface"}],"url":"#enumdef-idbcursordirection"},
 "enumdef-idbrequestreadystate": {"dfnID":"enumdef-idbrequestreadystate","dfnText":"IDBRequestReadyState","external":false,"refSections":[{"refs":[{"id":"ref-for-enumdef-idbrequestreadystate"}],"title":"4.1. The IDBRequest interface"}],"url":"#enumdef-idbrequestreadystate"},
@@ -10356,6 +10363,7 @@ let refsData = {
 "https://webidl.spec.whatwg.org/#a-new-promise": {"displayText":"a new promise","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"a new promise","type":"dfn","url":"https://webidl.spec.whatwg.org/#a-new-promise"},
 "https://webidl.spec.whatwg.org/#a-promise-rejected-with": {"displayText":"a promise rejected with","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"a promise rejected with","type":"dfn","url":"https://webidl.spec.whatwg.org/#a-promise-rejected-with"},
 "https://webidl.spec.whatwg.org/#aborterror": {"displayText":"AbortError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"AbortError","type":"exception","url":"https://webidl.spec.whatwg.org/#aborterror"},
+"https://webidl.spec.whatwg.org/#buffersource-detached": {"displayText":"detached","export":true,"for_":["BufferSource"],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"detached","type":"dfn","url":"https://webidl.spec.whatwg.org/#buffersource-detached"},
 "https://webidl.spec.whatwg.org/#constrainterror": {"displayText":"ConstraintError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"ConstraintError","type":"exception","url":"https://webidl.spec.whatwg.org/#constrainterror"},
 "https://webidl.spec.whatwg.org/#datacloneerror": {"displayText":"DataCloneError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"DataCloneError","type":"exception","url":"https://webidl.spec.whatwg.org/#datacloneerror"},
 "https://webidl.spec.whatwg.org/#dataerror": {"displayText":"DataError","export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"DataError","type":"exception","url":"https://webidl.spec.whatwg.org/#dataerror"},
