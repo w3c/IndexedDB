@@ -43,7 +43,7 @@ spec: ecma-262; urlPrefix: https://tc39.github.io/ecma262/
 spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     type: dfn
         text: storage bucket; url: storage-bucket
-        text: storage key; url: storage-key
+        text: storage identifier; url: storage-identifier
 </pre>
 
 <style>
@@ -396,14 +396,14 @@ To <dfn>create a sorted name list</dfn> from a [=/list=] |names|, run these step
 ## Database ## {#database-construct}
 <!-- ============================================================ -->
 
-Each [=/storage key=] has an associated set of [=/databases=]. A
+Each [=/storage bucket=] has an associated set of [=/databases=]. A
 <dfn>database</dfn> has zero or more [=/object stores=] which
 hold the data stored in the database.
 
 <div dfn-for=database>
 
 A [=/database=] has a <dfn>name</dfn> which identifies it within a
-specific [=/storage key=]. The name is a [=/name=],
+specific [=/storage bucket=]. The name is a [=/name=],
 and stays constant for the lifetime of the database.
 
 A [=/database=] has a <dfn>version</dfn>. When a database is first
@@ -418,6 +418,17 @@ A [=/database=] has at most one associated <dfn>upgrade transaction</dfn>,
 which is either null or an [=/upgrade transaction=], and is initially null.
 
 </div>
+
+<!-- ============================================================ -->
+### Database storage ### {#database-storage}
+<!-- ============================================================ -->
+
+Indexed DB is a [=/storage endpoint=], with the [=/storage identifier=] `"indexedDB"`.
+
+A <dfn>pumpkin</dfn> is a [=/struct=] consisting of a <dfn for="pumpkin">queue</dfn> (a [=/connection queue=]) and a <dfn for="pumpkin">database</dfn> (a [=/database=]).
+
+A <dfn>new pumpkin</dfn> is a [=/pumpkin=] whose [=pumpkin/queue=] is an empty [=/connection queue=], and whose [=pumpkin/database=] is null.
+
 
 <!-- ============================================================ -->
 ### Database connection ### {#database-connection}
@@ -465,7 +476,7 @@ it hasn't already been.
 
 A [=/connection=] may be closed by a user agent in exceptional
 circumstances, for example due to loss of access to the file system, a
-permission change, or clearing of the [=/storage key=]'s storage. If this occurs
+permission change, or clearing the [=/storage bucket=]. If this occurs
 the user agent must run [=close a database
 connection=] with the [=/connection=] and with the <var ignore>forced flag</var> set to true.
 
@@ -1267,8 +1278,8 @@ An [=request/open request=]'s [=get the parent=] algorithm returns null.
 <!-- ============================================================ -->
 
 [=request/Open requests=] are processed in a <dfn>connection queue</dfn>.
-The queue contains all [=request/open requests=] associated with an
-[=/storage key=] and a [=database/name=]. Requests added to the
+The queue contains all [=request/open requests=] associated with
+a [=database/name=] in a [=/storage bucket=]. Requests added to the
 [=/connection queue=] processed in order and each request must run
 to completion before the next request is processed. An open request
 may be blocked on other [=/connections=], requiring those
@@ -2181,7 +2192,7 @@ dictionary IDBDatabaseInfo {
     : |result| = await indexedDB . {{IDBFactory/databases()|databases}}()
     ::
         Returns a promise which resolves to a list of objects giving a snapshot
-        of the names and versions of databases within the [=/storage key=].
+        of the names and versions of databases within the [=/storage bucket=].
 
         This API is intended for web applications to introspect the use of databases,
         for example to clean up from earlier versions of a site's code. Note that
@@ -2198,15 +2209,14 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
-    If failure is returned, then [=exception/throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
+1. Let |map| be the result of [=/obtaining a local storage bottle map=] with |environment| and `"indexedDB"`. If this returns failure, then [=exception/throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=request/open request=].
 
 1. Run these steps [=in parallel=]:
 
     1. Let |result| be the result of
-        [=/opening a database connection=], with |storageKey|,
+        [=/opening a database connection=], with |map|,
         |name|, |version| if given and undefined
         otherwise, and |request|.
 
@@ -2268,15 +2278,14 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
-    If failure is returned, then [=exception/throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
+1. Let |map| be the result of [=/obtaining a local storage bottle map=] with |environment| and `"indexedDB"`. If this returns failure, then [=exception/throw=] a "{{SecurityError}}" {{DOMException}} and abort these steps.
 
 1. Let |request| be a new [=request/open request=].
 
 1. Run these steps [=in parallel=]:
 
     1. Let |result| be the result of
-        [=/deleting a database=], with |storageKey|,
+        [=/deleting a database=], with |map|,
         |name|, and |request|.
 
     1. Set |request|'s [=request/processed flag=] to true.
@@ -2322,22 +2331,16 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 
 1. Let |environment| be [=/this=]'s [=/relevant settings object=].
 
-1. Let |storageKey| be the result of running [=obtain a storage key=] given |environment|.
-    If failure is returned, then return [=/a promise rejected with=] a "{{SecurityError}}" {{DOMException}}
-
 1. Let |p| be [=/a new promise=].
 
 1. Run these steps [=in parallel=]:
 
-    1. Let |databases| be the [=/set=] of [=/databases=] in |storageKey|.
-        If this cannot be determined for any reason, then [=/reject=] |p| with
-        an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
-        and terminate these steps.
+    1. Let |map| be the result of [=/obtaining a local storage bottle map=] with |environment| and `"indexedDB"`. If this returns failure, then [=/reject=] |p| with a "{{SecurityError}}" {{DOMException}} and terminate these steps.
 
-    1. Let |result| be a new [=/list=].
+    1. [=map/For each=] |pumpkin| of |map|'s [=map/values=]:
 
-    1. [=set/For each=] |db| of |databases|:
-
+        1. Let |db| be |pumpkin|'s [=pumpkin/database=].
+        1. If |db| is null, then [=iteration/continue=].
         1. Let |info| be a new {{IDBDatabaseInfo}} dictionary.
         1. Set |info|'s {{IDBDatabaseInfo/name}} dictionary member to |db|'s [=database/name=].
         1. Set |info|'s {{IDBDatabaseInfo/version}} dictionary member to |db|'s [=database/version=].
@@ -4898,23 +4901,24 @@ NOTE:
 
 <div algorithm>
 
-To <dfn>open a database connection</dfn> with |storageKey| which requested the [=/database=] to be opened, a database |name|, a database |version|, and a |request|, run these steps:
+To <dfn>open a database connection</dfn> with |map|, a database |name|, a database |version|, and a |request|, run these steps:
 
-1. Let |queue| be the [=/connection queue=] for |storageKey| and |name|.
+1. If |map|\[|name|] does not [=map/exist=], then set |map|\[|name|] to a [=/new pumpkin=].
+
+1. Let |queue| be |map|\[|name|]'s [=pumpkin/queue=].
 
 1. Add |request| to |queue|.
 
 1. Wait until all previous requests in |queue| have been processed.
 
-1. Let |db| be the [=/database=] [=database/named=] |name| in
-    |storageKey|, or null otherwise.
+1. Let |db| be |map|\[|name|]'s [=pumpkin/database=].
 
 1. If |version| is undefined, let |version| be 1 if |db| is null, or
     |db|'s [=database/version=] otherwise.
 
 1. If |db| is null, let |db| be a new [=/database=] with
     [=database/name=] |name|, [=database/version=] 0 (zero), and with
-    no [=/object stores=]. If this fails for any reason, return an
+    no [=/object stores=], and [=map/set=] |map|\[|name|]'s [=pumpkin/database=] to |db|. If this fails for any reason, then return an
     appropriate error (e.g. a "{{QuotaExceededError}}" or
     "{{UnknownError}}" {{DOMException}}).
 
@@ -4993,7 +4997,7 @@ optional |forced flag|, run these steps:
 
     NOTE:
       The {{IDBDatabase/close!!event}} event only fires if the connection closes
-      abnormally, e.g. if the [=/storage key=]'s storage is cleared, or there is
+      abnormally, e.g. if the [=/storage bucket=] is cleared, or there is
       corruption or an I/O error. If {{IDBDatabase/close()}} is called explicitly
       the event *does not* fire.
 
@@ -5019,18 +5023,19 @@ NOTE:
 
 <div algorithm>
 
-To <dfn>delete a database</dfn> with the |storageKey| that
-requested the [=/database=] to be deleted, a database |name|, and a
-|request|, run these steps:
+To <dfn>delete a database</dfn> with |map|, a database |name|, and a |request|, run these steps:
 
-1. Let |queue| be the [=/connection queue=] for |storageKey| and |name|.
+1. If |map|\[|name|] does not [=map/exist=], then set |map|\[|name|] to a [=/new pumpkin=].
+
+1. Let |queue| be |map|\[|name|]'s [=pumpkin/queue=].
 
 1. Add |request| to |queue|.
 
 1. Wait until all previous requests in |queue| have been processed.
 
-1. Let |db| be the [=/database=] [=database/named=] |name| in
-    |storageKey|, if one exists. Otherwise, return 0 (zero).
+1. If |map|\[|name|]'s [=pumpkin/database=] is null, then return 0 (zero).
+
+1. Otherwise, let |db| be |map|\[|name|]'s [=pumpkin/database=].
 
 1. Let |openConnections| be the [=/set=] of all [=/connections=]
     associated with |db|.
@@ -5059,7 +5064,7 @@ requested the [=/database=] to be deleted, a database |name|, and a
 
 1. Let |version| be |db|'s [=database/version=].
 
-1. Delete |db|. If this fails for any reason, return an appropriate
+1. Set |map|\[|name|]'s [=pumpkin/database=] to null. If this fails for any reason, then return an appropriate
     error (e.g. "{{QuotaExceededError}}" or "{{UnknownError}}" {{DOMException}}).
 
 1. Return |version|.
@@ -6624,12 +6629,12 @@ user's wish list; or a hostile site could set a user's session
 identifier to a known ID that the hostile site can then use to track
 the user's actions on the victim site.
 
-Thus, strictly following the storage key partitioning model described in
+Thus, strictly following the storage partitioning model described in
 this specification is important for user security.
 
 If host names or database names are used to construct paths for
 persistence to a file system they must be appropriately escaped to
-prevent an adversary from accessing information from other [=/storage keys=]
+prevent an adversary from accessing information from other [=/storage buckets=]
 using relative paths such as "`../`".
 
 ## Persistence risks ## {#persistence-risks}
@@ -6716,6 +6721,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Specified the {{DOMException}} type for failures when reading a value from the underlying storage in [[#object-store-retrieval-operation]]. (<#423>)
 * Updated [=convert a value to a key=] to return invalid for detached array buffers. (<#417>)
 * Updated {{IDBFactory/open()}} to set its request's [=request/processed flag=] to true.
+* Defined storage partitioning in terms of [[Storage]] primitives.
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
