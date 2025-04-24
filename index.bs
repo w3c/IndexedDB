@@ -43,7 +43,6 @@ spec: ecma-262; urlPrefix: https://tc39.github.io/ecma262/
 spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     type: dfn
         text: storage bucket; url: storage-bucket
-        text: storage key; url: storage-key
 </pre>
 
 <style>
@@ -1054,7 +1053,7 @@ The <dfn>lifetime</dfn> of a
     stores=] and [=/indexes=].
 
 1. The implementation must attempt to <dfn lt="commit|committed">commit</dfn>
-    a transaction when all [=/requests=] placed against the
+    an [=transaction/inactive=] transaction when all [=/requests=] placed against the
     transaction have completed and their returned results handled, no
     new requests have been placed against the transaction, and the
     transaction has not been [=transaction/aborted=]
@@ -5290,9 +5289,10 @@ To <dfn>upgrade a database</dfn> with |connection| (a [=/connection=]), a new |v
         [=firing a version change event=] named
         {{IDBOpenDBRequest/upgradeneeded!!event}} at |request| with |old
         version| and |version|.
-    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
-    1. If |didThrow| is true, run [=abort a transaction=] with |transaction| and a newly
-        [=exception/created=] "{{AbortError}}" {{DOMException}}.
+    1. If |transaction|'s [=transaction/state=] is [=transaction/active=], then:
+        1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+        1. If |didThrow| is true, run [=abort a transaction=] with |transaction| and a newly
+            [=exception/created=] "{{AbortError}}" {{DOMException}}.
 
 1. Wait for |transaction| to [=transaction/finish=].
 
@@ -6362,7 +6362,7 @@ steps may throw an exception.
       <!-- Binary -->
       : If |input| is a [=buffer source type=]
       ::
-          1. If |input| is [[=BufferSource/detached=]] then return invalid.
+          1. If |input| is [=BufferSource/detached=] then return invalid.
 
           1. Let |bytes| be the result of
               [=/get a copy of the buffer source|getting a copy of the bytes held by the buffer source=]
@@ -6718,6 +6718,8 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Updated [=convert a value to a key=] to return invalid for detached array buffers. (<#417>)
 * Updated {{IDBFactory/open()}} to set its request's [=request/processed flag=] to true.
 * Don't include databases that aren't done being created in {{IDBFactory/databases()}}. (<#442>)
+* Clarify that only [=transaction/inactive=] [=/transactions=] should attempt to auto-commit. (<#436>)
+* Correct [=/upgrade a database=] steps to handle aborted transactions. (<#436>)
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
