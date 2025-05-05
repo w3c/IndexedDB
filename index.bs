@@ -1380,15 +1380,17 @@ A <dfn>cursor</dfn> is used to iterate over a range of records in an
 
 <div dfn-for=cursor>
 
-A [=cursor=] has a <dfn>transaction</dfn>, the [=/transaction=]
-that was [=transaction/active=] when the cursor was created.
+A [=cursor=] has a <dfn>source handle</dfn>, which is the [=/index handle=] or the [=/object store handle=] that opened the cursor.
+
+A [=cursor=] has a <dfn>transaction</dfn>, which is the [=/transaction=] from the cursor's [=cursor/source handle=].
 
 A [=cursor=] has a <dfn>range</dfn> of records in either an
 [=/index=] or an [=/object store=].
 
-A [=cursor=] has a <dfn>source</dfn> that indicates which [=/index=]
-or an [=/object store=] is associated with the records over which
-the [=cursor=] is iterating.
+A [=cursor=] has a <dfn>source</dfn>, which is an [=/index=] or an [=/object store=] from the cursor's [=cursor/source handle=].
+The cursor's [=cursor/source=] indicates which [=/index=] or [=/object store=] is associated with the records over which the [=cursor=] is iterating.
+When [=cursor/source handle=] is an [=index handle=], set [=cursor/source=] to [=index-handle/index|the index handle's associated index=].
+Otherwise, set [=cursor/source=] to [=object-store-handle/object store|the object store handle's associated object store=].
 
 A [=cursor=] has a <dfn>direction</dfn> that determines whether it
 moves in monotonically increasing or decreasing order of the
@@ -3306,12 +3308,11 @@ The <dfn method for=IDBObjectStore>openCursor(|query|, |direction|)</dfn> method
     Rethrow any exceptions.
 
 1. Let |cursor| be a new [=cursor=] with its
-    [=cursor/transaction=] set to |transaction|,
+    [=cursor/source handle=] set to [=/this=],
     undefined [=cursor/position=],
     [=cursor/direction=] set to |direction|,
     [=cursor/got value flag=] set to false,
     undefined [=cursor/key=] and [=cursor/value=],
-    [=cursor/source=] set to |store|,
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to false.
 
@@ -3350,12 +3351,11 @@ The <dfn method for=IDBObjectStore>openKeyCursor(|query|, |direction|)</dfn> met
     Rethrow any exceptions.
 
 1. Let |cursor| be a new [=cursor=] with its
-    [=cursor/transaction=] set to |transaction|,
+    [=cursor/source handle=] set to [=/this=],
     undefined [=cursor/position=],
     [=cursor/direction=] set to |direction|,
     [=cursor/got value flag=] set to false,
     undefined [=cursor/key=] and [=cursor/value=],
-    [=cursor/source=] set to |store|,
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to true.
 
@@ -3962,12 +3962,11 @@ The <dfn method for=IDBIndex>openCursor(|query|, |direction|)</dfn> method steps
     Rethrow any exceptions.
 
 1. Let |cursor| be a new [=cursor=] with its
-    [=cursor/transaction=] set to |transaction|,
+    [=cursor/source handle=] set to [=/this=],
     undefined [=cursor/position=],
     [=cursor/direction=] set to |direction|,
     [=cursor/got value flag=] set to false,
     undefined [=cursor/key=] and [=cursor/value=],
-    [=cursor/source=] set to |index|,
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to false.
 
@@ -4006,12 +4005,11 @@ The <dfn method for=IDBIndex>openKeyCursor(|query|, |direction|)</dfn> method st
     Rethrow any exceptions.
 
 1. Let |cursor| be a new [=cursor=] with its
-    [=cursor/transaction=] set to |transaction|,
+    [=cursor/source handle=] set to [=/this=],
     undefined [=cursor/position=],
     [=cursor/direction=] set to |direction|,
     [=cursor/got value flag=] set to false,
     undefined [=cursor/key=] and [=cursor/value=],
-    [=cursor/source=] set to |index|,
     [=cursor/range=] set to |range|, and
     [=cursor/key only flag=] set to true.
 
@@ -4274,7 +4272,7 @@ enum IDBCursorDirection {
 
 
 The <dfn attribute for=IDBCursor>source</dfn> getter steps are to
-return [=/this=]'s [=cursor/source=].
+return [=/this=]'s [=cursor/source handle=].
 
 NOTE:
 The {{IDBCursor/source}} attribute never returns null or throws an exception, even if the
@@ -4384,7 +4382,7 @@ The <dfn method for=IDBCursor>advance(|count|)</dfn> method steps are:
 
 1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=], [=/this=], and |count|.
 
-1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source=], |operation|, and |request|.
+1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source handle=], |operation|, and |request|.
 
 </div>
 
@@ -4440,7 +4438,7 @@ The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
 
 1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=], [=/this=], and |key| (if given).
 
-1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source=], |operation|, and |request|.
+1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source handle=], |operation|, and |request|.
 
 </div>
 
@@ -4517,7 +4515,7 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> meth
 
 1. Let |operation| be an algorithm to run [=iterate a cursor=] with [=ECMAScript/the current Realm record=], [=/this=], |key|, and |primaryKey|.
 
-1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source=], |operation|, and |request|.
+1. Run [=asynchronously execute a request=] with [=/this=]'s [=cursor/source handle=], |operation|, and |request|.
 
 </div>
 
@@ -6721,6 +6719,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Clarify that only [=transaction/inactive=] [=/transactions=] should attempt to auto-commit. (<#436>)
 * Correct [=/upgrade a database=] steps to handle aborted transactions. (<#436>)
 * Update [=/iterate a cursor=] value serialization to use [=/value=] for [=/object stores=] instead of [=index/referenced values=]. (<#452>)
+* Add [=cursor/source handle=] to [=/cursor=] to avoid exposing internal indexes and object stores to script.
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
