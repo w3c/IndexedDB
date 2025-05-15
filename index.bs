@@ -1011,7 +1011,7 @@ The <dfn>lifetime</dfn> of a
 1. When an implementation is able to enforce the constraints for the
     transaction's [=transaction/scope=] and [=transaction/mode=],
     defined [below](#transaction-scheduling), the implementation must
-    [=queue a task=] to <dfn lt="start|started">start</dfn> the
+    [=queue a database task=] to <dfn lt="start|started">start</dfn> the
     transaction asynchronously.
 
     Once the transaction has been [=transaction/started=] the
@@ -1927,6 +1927,12 @@ through the properties of the {{IDBRequest}} instance.
 
 The <span>task source</span> for these tasks is the <dfn id=database-access-task-source export>database access task source</dfn>.
 
+<div algorithm>
+
+To <dfn>queue a database task</dfn>, perform [=queue a task=] on the [=database access task source=].
+
+</div>
+
 
 <!-- ============================================================ -->
 ## The {{IDBRequest}} interface ## {#request-api}
@@ -2223,7 +2229,7 @@ The <dfn method for=IDBFactory>open(|name|, |version|)</dfn> method steps are:
 
     1. Set |request|'s [=request/processed flag=] to true.
 
-    1. [=Queue a task=] to run these steps:
+    1. [=Queue a database task=] to run these steps:
 
         1. If |result| is an error, then:
 
@@ -2282,7 +2288,7 @@ The <dfn method for=IDBFactory>deleteDatabase(|name|)</dfn> method steps are:
 
     1. Set |request|'s [=request/processed flag=] to true.
 
-    1. [=Queue a task=] to run these steps:
+    1. [=Queue a database task=] to run these steps:
         1. If |result| is an error,
             set |request|'s [=request/error=] to |result|,
             set |request|'s [=request/done flag=] to true,
@@ -2331,7 +2337,7 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 1. Run these steps [=in parallel=]:
 
     1. Let |databases| be the [=/set=] of [=/databases=] in |storageKey|.
-        If this cannot be determined for any reason, then [=/reject=] |p| with
+        If this cannot be determined for any reason, then [=queue a database task=] to [=/reject=] |p| with
         an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
         and terminate these steps.
 
@@ -2345,7 +2351,7 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
         1. Set |info|'s {{IDBDatabaseInfo/version}} dictionary member to |db|'s [=database/version=].
         1. [=list/Append=] |info| to |result|.
 
-    1. [=/Resolve=] |p| with |result|.
+    1. [=Queue a database task=] to [=/resolve=] |p| with |result|.
 
 1. Return |p|.
 
@@ -3459,7 +3465,7 @@ which violates these constraints, this must not cause the
 implementation of {{IDBObjectStore/createIndex()}} to throw an
 exception or affect what it returns. The implementation must still
 create and return an {{IDBIndex}} object, and the implementation must
-[=queue a task=] to abort the [=/upgrade transaction=] which was
+[=queue a database task=] to abort the [=/upgrade transaction=] which was
 used for the {{IDBObjectStore/createIndex()}} call.
 
 This method synchronously modifies the {{IDBObjectStore/indexNames}}
@@ -4930,7 +4936,7 @@ To <dfn>open a database connection</dfn> with |storageKey| which requested the [
         except |connection|, associated with |db|.
 
     1. [=set/For each=] |entry| of |openConnections| that does not have its
-        [=connection/close pending flag=] set to true, [=queue a task=] to [=fire a
+        [=connection/close pending flag=] set to true, [=queue a database task=] to [=fire a
         version change event=] named {{IDBDatabase/versionchange!!event}} at
         |entry| with |db|'s [=database/version=] and |version|.
 
@@ -4943,7 +4949,7 @@ To <dfn>open a database connection</dfn> with |storageKey| which requested the [
     1. Wait for all of the events to be fired.
 
     1. If any of the [=/connections=] in |openConnections| are still
-        not closed, [=queue a task=] to [=fire a version change
+        not closed, [=queue a database task=] to [=fire a version change
         event=] named {{IDBOpenDBRequest/blocked!!event}} at |request| with
         |db|'s [=database/version=] and |version|.
 
@@ -5034,7 +5040,7 @@ requested the [=/database=] to be deleted, a database |name|, and a
     associated with |db|.
 
 1. [=set/For each=] |entry| of |openConnections| that does not have its
-    [=connection/close pending flag=] set to true, [=queue a task=] to [=fire a version
+    [=connection/close pending flag=] set to true, [=queue a database task=] to [=fire a version
     change event=] named {{IDBDatabase/versionchange!!event}} at |entry| with
     |db|'s [=database/version=] and null.
 
@@ -5047,7 +5053,7 @@ requested the [=/database=] to be deleted, a database |name|, and a
 1. Wait for all of the events to be fired.
 
 1. If any of the [=/connections=] in |openConnections| are still not
-    closed, [=queue a task=] to [=fire a version change event=] named
+    closed, [=queue a database task=] to [=fire a version change event=] named
     {{IDBOpenDBRequest/blocked!!event}} at |request| with |db|'s
     [=database/version=] and null.
 
@@ -5090,7 +5096,7 @@ To <dfn>commit a transaction</dfn> with the |transaction| to commit, run these s
         appropriate type for the error, for example "{{QuotaExceededError}}" or
         "{{UnknownError}}" {{DOMException}}, and terminate these steps.
 
-    1. [=Queue a task=] to run these steps:
+    1. [=Queue a database task=] to run these steps:
 
         1. If |transaction| is an [=/upgrade transaction=], then set |transaction|'s
             [=transaction/connection=]'s associated [=/database=]'s [=database/upgrade transaction=] to null.
@@ -5144,7 +5150,7 @@ To <dfn>abort a transaction</dfn> with the |transaction| to abort, and |error|, 
 1. [=list/For each=] |request| of |transaction|'s [=transaction/request list=],
     abort the steps to [=asynchronously execute a request=] for |request|,
     set |request|'s [=request/processed flag=] to true,
-    and [=queue a task=] to run these steps:
+    and [=queue a database task=] to run these steps:
 
     1. Set |request|'s [=request/done flag=] to true.
     1. Set |request|'s [=request/result=] to undefined.
@@ -5160,7 +5166,7 @@ To <dfn>abort a transaction</dfn> with the |transaction| to abort, and |error|, 
       error while [=transaction/committing=] the transaction,
       or if it was the last remaining request that failed.
 
-1. [=Queue a task=] to run these steps:
+1. [=Queue a database task=] to run these steps:
 
     1. If |transaction| is an [=/upgrade transaction=], then set |transaction|'s
         [=transaction/connection=]'s associated [=/database=]'s [=database/upgrade transaction=] to null.
@@ -5220,7 +5226,7 @@ created [=/request=] belongs to is [=transaction/aborted=] using the steps to
 
     1. Set |request|'s [=request/processed flag=] to true.
 
-    1. [=Queue a task=] to run these steps:
+    1. [=Queue a database task=] to run these steps:
 
         1. Remove |request| from |transaction|'s [=transaction/request list=].
 
@@ -5277,7 +5283,7 @@ To <dfn>upgrade a database</dfn> with |connection| (a [=/connection=]), a new |v
 
 1. Set |request|'s [=request/processed flag=] to true.
 
-1. [=Queue a task=] to run these steps:
+1. [=Queue a database task=] to run these steps:
 
     1. Set |request|'s [=request/result=] to |connection|.
     1. Set |request|'s [=request/transaction=] to |transaction|.
@@ -6703,12 +6709,14 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Added a definition for [=transaction/live=] transactions, and renamed "run an upgrade transaction" to [=/upgrade a database=], to disambiguate "running". (<#408>)
 * Specified the {{DOMException}} type for failures when reading a value from the underlying storage in [[#object-store-retrieval-operation]]. (<#423>)
 * Updated [=convert a value to a key=] to return invalid for detached array buffers. (<#417>)
-* Updated {{IDBFactory/open()}} to set its request's [=request/processed flag=] to true.
+* Updated {{IDBFactory/open()}} to set its request's [=request/processed flag=] to true. (<#434>)
 * Don't include databases that aren't done being created in {{IDBFactory/databases()}}. (<#442>)
 * Clarify that only [=transaction/inactive=] [=/transactions=] should attempt to auto-commit. (<#436>)
 * Correct [=/upgrade a database=] steps to handle aborted transactions. (<#436>)
 * Update [=/iterate a cursor=] value serialization to use [=/value=] for [=/object stores=] instead of [=index/referenced values=]. (<#452>)
 * Add [=cursor/source handle=] to [=/cursor=] to avoid exposing internal indexes and object stores to script. (<#445>)
+* Define [=Queue a database task=] and replace [=Queue a task=] with it (<#421>)
+* Add missing parallel step to {{IDBFactory/databases()|databases}}() (<#421>)
 * Clarify cursor iteration predicates (<#450>)
 
 <!-- ============================================================ -->
