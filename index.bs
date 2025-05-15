@@ -1929,7 +1929,7 @@ The <span>task source</span> for these tasks is the <dfn id=database-access-task
 
 <div algorithm>
 
-To <dfn export>queue a database task</dfn>, perform [=queue a task=] on the [=database access task source=]
+To <dfn>queue a database task</dfn>, perform [=queue a task=] on the [=database access task source=].
 
 </div>
 
@@ -2336,24 +2336,22 @@ The <dfn method for=IDBFactory>databases()</dfn> method steps are:
 
 1. Run these steps [=in parallel=]:
 
-    1. [=Queue a database task=] to run these steps:
+    1. Let |databases| be the [=/set=] of [=/databases=] in |storageKey|.
+        If this cannot be determined for any reason, then [=queue a database task=] to [=/reject=] |p| with
+        an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
+        and terminate these steps.
 
-        1. Let |databases| be the [=/set=] of [=/databases=] in |storageKey|.
-            If this cannot be determined for any reason, then [=/reject=] |p| with
-            an appropriate error (e.g. an "{{UnknownError}}" {{DOMException}})
-            and terminate these steps.
+    1. Let |result| be a new [=/list=].
 
-        1. Let |result| be a new [=/list=].
+    1. [=set/For each=] |db| of |databases|:
 
-        1. [=set/For each=] |db| of |databases|:
+        1. If |db|'s [=database/version=] is 0, then [=iteration/continue=].
+        1. Let |info| be a new {{IDBDatabaseInfo}} dictionary.
+        1. Set |info|'s {{IDBDatabaseInfo/name}} dictionary member to |db|'s [=database/name=].
+        1. Set |info|'s {{IDBDatabaseInfo/version}} dictionary member to |db|'s [=database/version=].
+        1. [=list/Append=] |info| to |result|.
 
-            1. If |db|'s [=database/version=] is 0, then [=iteration/continue=].
-            1. Let |info| be a new {{IDBDatabaseInfo}} dictionary.
-            1. Set |info|'s {{IDBDatabaseInfo/name}} dictionary member to |db|'s [=database/name=].
-            1. Set |info|'s {{IDBDatabaseInfo/version}} dictionary member to |db|'s [=database/version=].
-            1. [=list/Append=] |info| to |result|.
-
-        1. [=/Resolve=] |p| with |result|.
+    1. [=Queue a database task=] to [=/resolve=] |p| with |result|.
 
 1. Return |p|.
 
