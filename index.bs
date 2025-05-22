@@ -5048,14 +5048,13 @@ To <dfn>open a database connection</dfn> with |storageKey| which requested the [
         [=/connections=] in |openConnections| are
         [=connection/closed=].
 
-    1. Run [=upgrade a database=]
-        using |connection|, |version| and |request|.
+    1. Let |transaction| be the result of running [=upgrade a database=] with |connection|, |version| and |request|.
 
     1. If |connection| was [=connection/closed=],
         return a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and abort these steps.
 
-    1. If the [=/upgrade transaction=] was aborted, run the steps
+    1. If |transaction| was aborted, run the steps
         to [=close a database connection=] with |connection|,
         return a newly [=exception/created=]
         "{{AbortError}}" {{DOMException}} and abort these steps.
@@ -5390,6 +5389,8 @@ To <dfn>upgrade a database</dfn> with |connection| (a [=/connection=]), a new |v
             [=exception/created=] "{{AbortError}}" {{DOMException}}.
 
 1. Wait for |transaction| to [=transaction/finish=].
+
+1. Return |transaction|.
 
     NOTE:
       Some of the algorithms invoked during the [=/transaction=]'s
@@ -6888,6 +6889,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Clarify cursor iteration predicates (<#450>)
 * Add {{IDBObjectStore/getAllRecords(options)}} method to {{IDBObjectStore}} and {{IDBIndex}}. (<#206>)
 * Add direction option to {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} for {{IDBObjectStore}} and {{IDBIndex}} (<#130>)
+* Return transaction from [=/upgrade a database=] to allow its use in [=/open a database connection=]. (<#433>)
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
