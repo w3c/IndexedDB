@@ -946,8 +946,12 @@ which is an [=/event loop=].
 A [=/transaction=] has a <dfn>request list</dfn> of pending [=/requests=]
 which have been made against the transaction.
 
-A [=/transaction=] has a <dfn>error</dfn> which is set if the
-[=/transaction=] is [=transaction/aborted=].
+A [=/transaction=] has a <dfn>error</dfn> which is set if the [=/transaction=] is [=transaction/aborted=].
+
+<div class=note>
+  <span class=marker>NOTE:</span>
+  Implementors need to keep in mind that the value "null" is considered an error, as it is set from {{IDBTransaction/abort()}}
+</div>
 
 A [=/transaction=]'s [=get the parent=] algorithm returns the
 transaction's [=transaction/connection=].
@@ -5144,8 +5148,7 @@ To <dfn>abort a transaction</dfn> with the |transaction| to abort, and |error|, 
 
 1. Set |transaction|'s [=transaction/state=] to [=transaction/finished=].
 
-1. If |error| is not null, set |transaction|'s
-    [=transaction/error=] to |error|.
+1. Set |transaction|'s [=transaction/error=] to |error|.
 
 1. [=list/For each=] |request| of |transaction|'s [=transaction/request list=],
     abort the steps to [=asynchronously execute a request=] for |request|,
@@ -6718,6 +6721,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Define [=Queue a database task=] and replace [=Queue a task=] with it (<#421>)
 * Add missing parallel step to {{IDBFactory/databases()|databases}}() (<#421>)
 * Clarify cursor iteration predicates (<#450>)
+* Specify that null is valid for [=transaction/error=], and allow it to be set in [=abort a transaction=] (<#433>)
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
