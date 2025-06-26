@@ -1372,15 +1372,14 @@ To <dfn>convert a value to a key range</dfn> with
 </div>
 
 
-A <dfn>potentially valid key range</dfn> is a value that is a [=key/type|type of key=] or a [=key range=].
-However, [=convert a value to a key range|converting=] a [=potentially valid key range=] to a [=key range=] could throw an exception.
+A <dfn>potentially valid key range</dfn> is an ECMAScript value that is probably a [=key=] or [=key range=], however, [=convert a value to a key range|converting=] this value to a [=key range=] may throw an exception.
 
 NOTE:
-  For example, a value that is a [=BufferSource/detached|detached BufferSource=] is a [=potentially valid key range=] that will throw an exception when used with [=convert a value to a key range=].
+  For example, a [=BufferSource/detached|detached BufferSource=] is a [=potentially valid key range=] that will throw an exception when used with [=convert a value to a key range=].
 
 <div algorithm>
 
-  To determine when a value <dfn>is a potentially valid key range</dfn> with |value|, run these steps:
+  To determine when a value <dfn>is a potentially valid key range</dfn> with ECMAScript |value|, run these steps:
 
   1. If |value| is a [=/key range=], return true.
 
@@ -1396,10 +1395,15 @@ NOTE:
   
   1. Else return false.
 
-NOTE:
+<div class=note>
+  <span class=marker>NOTE:</span>
   The {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} methods use [=is a potentially valid key range=] to handle their first argument.
-  If the argument is a [=potentially valid key range=], {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} use a [=key range=] for their first argument.
-  Otherwise, {{IDBGetAllOptions}} is used for their first argument.
+  If the argument is a [=potentially valid key range=], {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} run [=convert a value to a key range=] with the argument.
+  Otherwise, {{IDBGetAllOptions}} is used for the first argument.
+
+  {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} throw exceptions for {{Date}}, {{Array}}, and {{ArrayBuffer}} first arguments that return invalid when used with [=convert a value to a key=].
+  For example, running {{IDBObjectStore/getAll()}} with a NaN {{Date}} first argument throws an exception instead of successfully using an {{IDBGetAllOptions}} dictionary with default values.
+</div>
 
 </div>
 
