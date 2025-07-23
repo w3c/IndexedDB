@@ -1838,7 +1838,7 @@ store.put(4); // will throw DataError
 </div>
 
 <!-- ============================================================ -->
-## Record Snapshot ## {#record-snapshot-construct}
+## Record snapshot ## {#record-snapshot-construct}
 <!-- ============================================================ -->
 
 A <dfn>record snapshot</dfn> contains keys and values copied from an [=object-store/list of records|object store record=] or an [=index/list of records|index record=].
@@ -2785,9 +2785,9 @@ interface IDBObjectStore {
   [NewObject] IDBRequest clear();
   [NewObject] IDBRequest get(any query);
   [NewObject] IDBRequest getKey(any query);
-  [NewObject] IDBRequest getAll(optional any query_or_options,
+  [NewObject] IDBRequest getAll(optional any queryOrOptions,
                                 optional [EnforceRange] unsigned long count);
-  [NewObject] IDBRequest getAllKeys(optional any query_or_options,
+  [NewObject] IDBRequest getAllKeys(optional any queryOrOptions,
                                     optional [EnforceRange] unsigned long count);
   [NewObject] IDBRequest getAllRecords(optional IDBGetAllOptions options = {});
   [NewObject] IDBRequest count(optional any query);
@@ -3168,7 +3168,7 @@ The <dfn method for=IDBObjectStore>clear()</dfn> method steps are:
         The |count| option limits the number or records matched.
         Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| records, or "{{IDBCursorDirection/prev}}" to return the last |count| records.
 
-        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}}, with each member being a {{IDBRecord}}.
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}}, with each member being an {{IDBRecord}}.
 
     : |request| = |store| .
           {{IDBObjectStore/count()|count}}(|query|)
@@ -3247,7 +3247,7 @@ the first existing key in that range.
 
 <div algorithm>
 
-The <dfn method for=IDBObjectStore>getAll(|query_or_options|, |count|)</dfn> method steps are:
+The <dfn method for=IDBObjectStore>getAll(|queryOrOptions|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3263,19 +3263,19 @@ The <dfn method for=IDBObjectStore>getAll(|query_or_options|, |count|)</dfn> met
 
 1. Let |direction| be a [=cursor/direction|cursor direction=].
 
-1. If running [=is a potentially valid key range=] with |query_or_options| is true, then:
+1. If running [=is a potentially valid key range=] with |queryOrOptions| is true, then:
   
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|.  Rethrow any exceptions.
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|.  Rethrow any exceptions.
 
     1. Set |direction| to "{{IDBCursorDirection/next}}".
 
 1. Else:
 
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
 
-    1. Set |count| to |query_or_options|["{{IDBGetAllOptions/count}}"].
+    1. Set |count| to |queryOrOptions|["{{IDBGetAllOptions/count}}"].
 
-    1. Set |direction| to |query_or_options|["{{IDBGetAllOptions/direction}}"].
+    1. Set |direction| to |queryOrOptions|["{{IDBGetAllOptions/direction}}"].
 
 1. Let |operation| be an algorithm to run [=retrieve multiple items from an object store=] with [=ECMAScript/the current Realm record=], |store|, |range|, "value", |direction|, and |count| if given.
 
@@ -3293,7 +3293,7 @@ will be retrieved.
 
 <div algorithm>
 
-The <dfn method for=IDBObjectStore>getAllKeys(|query_or_options|, |count|)</dfn> method steps are:
+The <dfn method for=IDBObjectStore>getAllKeys(|queryOrOptions|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
 
@@ -3309,19 +3309,19 @@ The <dfn method for=IDBObjectStore>getAllKeys(|query_or_options|, |count|)</dfn>
 
 1. Let |direction| be a [=cursor/direction|cursor direction=].
 
-1. If running [=is a potentially valid key range=] with |query_or_options| is true, then:
+1. If running [=is a potentially valid key range=] with |queryOrOptions| is true, then:
   
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|.  Rethrow any exceptions.
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|.  Rethrow any exceptions.
 
     1. Set |direction| to "{{IDBCursorDirection/next}}".
 
 1. Else:
-  
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
 
-    1. Set |count| to |query_or_options|["{{IDBGetAllOptions/count}}"].
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
 
-    1. Set |direction| to |query_or_options|["{{IDBGetAllOptions/direction}}"].
+    1. Set |count| to |queryOrOptions|["{{IDBGetAllOptions/count}}"].
+
+    1. Set |direction| to |queryOrOptions|["{{IDBGetAllOptions/direction}}"].
 
 1. Let |operation| be an algorithm to run [=retrieve multiple items from an object store=] with [=ECMAScript/the current Realm record=], |store|, |range|, "key", |direction|, and |count| if given.
 
@@ -3733,9 +3733,9 @@ interface IDBIndex {
 
   [NewObject] IDBRequest get(any query);
   [NewObject] IDBRequest getKey(any query);
-  [NewObject] IDBRequest getAll(optional any query_or_options,
+  [NewObject] IDBRequest getAll(optional any queryOrOptions,
                                 optional [EnforceRange] unsigned long count);
-  [NewObject] IDBRequest getAllKeys(optional any query_or_options,
+  [NewObject] IDBRequest getAllKeys(optional any queryOrOptions,
                                     optional [EnforceRange] unsigned long count);
   [NewObject] IDBRequest getAllRecords(optional IDBGetAllOptions options = {});
   [NewObject] IDBRequest count(optional any query);
@@ -3973,7 +3973,7 @@ in that range.
 
 <div algorithm>
 
-The <dfn method for=IDBIndex>getAll(|query_or_options|, |count|)</dfn> method steps are:
+The <dfn method for=IDBIndex>getAll(|queryOrOptions|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -3989,19 +3989,19 @@ The <dfn method for=IDBIndex>getAll(|query_or_options|, |count|)</dfn> method st
 
 1. Let |direction| be a [=cursor/direction|cursor direction=].
 
-1. If running [=is a potentially valid key range=] with |query_or_options| is true, then:
+1. If running [=is a potentially valid key range=] with |queryOrOptions| is true, then:
   
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|.  Rethrow any exceptions.
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|.  Rethrow any exceptions.
 
     1. Set |direction| to "{{IDBCursorDirection/next}}".
 
 1. Else:
-  
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
 
-    1. Set |count| to |query_or_options|["{{IDBGetAllOptions/count}}"].
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
 
-    1. Set |direction| to |query_or_options|["{{IDBGetAllOptions/direction}}"].
+    1. Set |count| to |queryOrOptions|["{{IDBGetAllOptions/count}}"].
+
+    1. Set |direction| to |queryOrOptions|["{{IDBGetAllOptions/direction}}"].
 
 1. Let |operation| be an algorithm to run [=retrieve multiple items from an index=] with [=ECMAScript/the current Realm record=], |index|, |range|, "value", |direction| and |count| if given.
 
@@ -4019,7 +4019,7 @@ will be retrieved.
 
 <div algorithm>
 
-The <dfn method for=IDBIndex>getAllKeys(|query_or_options|, |count|)</dfn> method steps are:
+The <dfn method for=IDBIndex>getAllKeys(|queryOrOptions|, |count|)</dfn> method steps are:
 
 1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
 
@@ -4035,19 +4035,19 @@ The <dfn method for=IDBIndex>getAllKeys(|query_or_options|, |count|)</dfn> metho
 
 1. Let |direction| be a [=cursor/direction|cursor direction=].
 
-1. If running [=is a potentially valid key range=] with |query_or_options| is true, then:
+1. If running [=is a potentially valid key range=] with |queryOrOptions| is true, then:
   
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|.  Rethrow any exceptions.
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|.  Rethrow any exceptions.
 
     1. Set |direction| to "{{IDBCursorDirection/next}}".
 
 1. Else:
   
-    1. Set |range| to the result of [=/converting a value to a key range=] with |query_or_options|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
 
-    1. Set |count| to |query_or_options|["{{IDBGetAllOptions/count}}"].
+    1. Set |count| to |queryOrOptions|["{{IDBGetAllOptions/count}}"].
 
-    1. Set |direction| to |query_or_options|["{{IDBGetAllOptions/direction}}"].
+    1. Set |direction| to |queryOrOptions|["{{IDBGetAllOptions/direction}}"].
 
 1. Let |operation| be an algorithm to run [=retrieve multiple items from an index=] with [=ECMAScript/the current Realm record=], |index|, |range|, "key", |direction| and |count| if given.
 
@@ -4442,9 +4442,9 @@ interface IDBRecord {
 
     : |record| . {{IDBRecord/primaryKey}}
     ::
-        If the record is retrieved from an [=index=], returns the key of the record in the index's [=index/referenced|referenced object store=].
+        If the record was retrieved from an [=index=], returns the key of the record in the index's [=index/referenced|referenced object store=].
 
-        If the record is retrieved from an [=object store=], returns the record's [=key=], which is the same key as |record|.{{IDBRecord/key}}.
+        If the record was retrieved from an [=object store=], returns the record's [=key=], which is the same key as |record|.{{IDBRecord/key}}.
 
     : |record| . {{IDBRecord/value}}
     ::
@@ -5924,7 +5924,7 @@ To <dfn>retrieve multiple items from an object store</dfn> with |targetRealm|, |
 
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
 
-1. Let |records| be a an empty [=/list=] of [=object-store/records=].
+1. Let |records| be an empty [=/list=] of [=object-store/records=].
 
 1. If |direction| is "{{IDBCursorDirection/next}}" or "{{IDBCursorDirection/nextunique}}", set |records| to the first |count| of |store|'s [=object-store/list of records=] whose [=/key=] is [=in=] |range|.
 
@@ -5951,8 +5951,8 @@ To <dfn>retrieve multiple items from an object store</dfn> with |targetRealm|, |
           1. Let |key| be the |record|'s key.
           1. Let |serialized| be |record|'s [=/value=].
           1. Let |value| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
-          1. Let |record snapshot| be a new [=record snapshot=] with its [=record snapshot/key=] set to |key|, [=record snapshot/value=] set to |value|, and [=record snapshot/primary key=] set to |key|.
-          1. [=list/Append=] |record snapshot| to |list|.
+          1. Let |recordSnapshot| be a new [=record snapshot=] with its [=record snapshot/key=] set to |key|, [=record snapshot/value=] set to |value|, and [=record snapshot/primary key=] set to |key|.
+          1. [=list/Append=] |recordSnapshot| to |list|.
 
     </dl>
 
@@ -6004,7 +6004,7 @@ To <dfn>retrieve multiple items from an index</dfn> with |targetRealm|, |index|,
 
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
 
-1. Let |records| be a an empty [=/list=] of [=object-store/records=].
+1. Let |records| be an empty [=/list=] of [=object-store/records=].
 
 1. Switching on |direction|:
 
@@ -6015,14 +6015,14 @@ To <dfn>retrieve multiple items from an index</dfn> with |targetRealm|, |index|,
 
       : "nextunique"
       ::
-          1. Let |range records| be a list containing the |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
-          1. Let |range records length| be |range records|'s [=list/size=].
+          1. Let |rangeRecords| be a list containing the |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+          1. Let |rangeRecordsLength| be |rangeRecords|'s [=list/size=].
           1. Let |i| be 0.
-          1. While |i| is less than |range records length|, then:
+          1. While |i| is less than |rangeRecordsLength|, then:
               1. Increase |i| by 1.
               1. if |record|'s [=list/size=] is equal to |count|, then [=iteration/break=].
-              1. If |i| is greater than 0 and the result of [=comparing two keys=] using the keys from |range records[i]| and |range records[i-1]| is equal, then [=iteration/continue=].
-              1. Else [=list/append=] |range records[i]| to |records|.
+              1. If the result of [=comparing two keys=] using the keys from |rangeRecords[i]| and |rangeRecords[i-1]| is equal, then [=iteration/continue=].
+              1. Else [=list/append=] |rangeRecords[i]| to |records|.
 
       : "prev"
       ::
@@ -6030,14 +6030,14 @@ To <dfn>retrieve multiple items from an index</dfn> with |targetRealm|, |index|,
 
       : "prevunique"
       ::
-          1. Let |range records| be a list containing the |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
-          1. Let |range records length| be |range records|'s [=list/size=].
+          1. Let |rangeRecords| be a list containing the |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+          1. Let |rangeRecordsLength| be |rangeRecords|'s [=list/size=].
           1. Let |i| be 0.
-          1. While |i| is less than |range records length|, then:
+          1. While |i| is less than |rangeRecordsLength|, then:
               1. Increase |i| by 1.
               1. if |record|'s [=list/size=] is equal to |count|, then [=iteration/break=].
-              1. If |i| is greater than 0 and the result of [=comparing two keys=] using the keys from |range records[i]| and |range records[i-1]| is equal, then [=iteration/continue=].
-              1. Else [=list/prepend=] |range records[i]| to |records|.
+              1. If the result of [=comparing two keys=] using the keys from |rangeRecords[i]| and |rangeRecords[i-1]| is equal, then [=iteration/continue=].
+              1. Else [=list/prepend=] |rangeRecords[i]| to |records|.
 
     </dl>
 
@@ -6063,8 +6063,8 @@ To <dfn>retrieve multiple items from an index</dfn> with |targetRealm|, |index|,
           1. Let |key| be the |record|'s value.
           1. Let |serialized| be |record|'s [=index/referenced value=].
           1. Let |value| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
-          1. Let |record snapshot| be a new [=record snapshot=] with its [=record snapshot/key=] set to |index key|, [=record snapshot/value=] set to |value|, and [=record snapshot/primary key=] set to |key|.
-          1. [=list/Append=] |record snapshot| to |list|.
+          1. Let |recordSnapshot| be a new [=record snapshot=] with its [=record snapshot/key=] set to |index key|, [=record snapshot/value=] set to |value|, and [=record snapshot/primary key=] set to |key|.
+          1. [=list/Append=] |recordSnapshot| to |list|.
 
     </dl>
 
