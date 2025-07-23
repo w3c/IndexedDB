@@ -1365,14 +1365,15 @@ To <dfn>convert a value to a key range</dfn> with
 1. Let |key| be the result of [=/converting
     a value to a key=] with |value|. Rethrow any exceptions.
 
-1. If |key| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |key| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Return a [=/key range=] [=containing only=] |key|.
 
 </div>
 
 
-A <dfn>potentially valid key range</dfn> is an ECMAScript value that is probably a [=key=] or [=key range=], however, [=convert a value to a key range|converting=] this value to a [=key range=] may throw an exception.
+A <dfn>potentially valid key range</dfn> is an ECMAScript value that has a type that is convertible to a [=/key range=].
+Whether the specific value will successfully convert to a [=key range=], i.e. [=converting a value to a key range=] with it throws an exception, is not relevant.
 
 NOTE:
   For example, a [=BufferSource/detached|detached BufferSource=] is a [=potentially valid key range=] that will throw an exception when used with [=convert a value to a key range=].
@@ -1383,17 +1384,11 @@ NOTE:
 
   1. If |value| is a [=/key range=], return true.
 
-  1. Else if [=ECMAScript/Type=](|value|) is Number, return true.
+  1. Let |key| be the result of [=/converting a value to a key=] with |value|.
 
-  1. Else if [=ECMAScript/Type=](|value|) is String, return true.
+  1. If |key| is "invalid type" return false.
 
-  1. Else if |value| is a {{Date}} (has a \[[DateValue]] internal slot), return true.
-
-  1. Else if |value| is a [=buffer source type=], return true.
-
-  1. Else if |value| is an [=ECMAScript/Array exotic object=], return true.
-  
-  1. Else return false.
+  1. Else return true.
 
 <div class=note>
   <span class=marker>NOTE:</span>
@@ -1401,7 +1396,7 @@ NOTE:
   If the argument is a [=potentially valid key range=], {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} run [=convert a value to a key range=] with the argument.
   Otherwise, {{IDBGetAllOptions}} is used for the first argument.
 
-  {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} throw exceptions for {{Date}}, {{Array}}, and {{ArrayBuffer}} first arguments that return invalid when used with [=convert a value to a key=].
+  {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} throw exceptions for {{Date}}, {{Array}}, and {{ArrayBuffer}} first arguments that return "invalid value" when used with [=convert a value to a key=].
   For example, running {{IDBObjectStore/getAll()}} with a NaN {{Date}} first argument throws an exception instead of successfully using an {{IDBGetAllOptions}} dictionary with default values.
 </div>
 
@@ -2442,12 +2437,12 @@ The <dfn method for=IDBFactory>cmp(|first|, |second|)</dfn> method steps are:
 1. Let |a| be the result of [=/converting a
     value to a key=] with |first|. Rethrow any exceptions.
 
-1. If |a| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |a| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |b| be the result of [=/converting a
     value to a key=] with |second|. Rethrow any exceptions.
 
-1. If |b| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |b| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Return the results of [=/comparing two keys=]
     with |a| and |b|.
@@ -3017,7 +3012,7 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
     1. Let |r| be the result of [=/converting a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+    1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
     1. Let |key| be |r|.
 
@@ -4156,7 +4151,7 @@ The <dfn method for=IDBKeyRange>only(|value|)</dfn> method steps are:
 1. Let |key| be the result of [=/converting
     a value to a key=] with |value|. Rethrow any exceptions.
 
-1. If |key| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |key| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Create and return a new [=/key range=] [=containing only=]
     |key|.
@@ -4188,7 +4183,7 @@ The <dfn method for=IDBKeyRange>upperBound(|upper|, |open|)</dfn> method steps a
 1. Let |upperKey| be the result of [=/converting a
     value to a key=] with |upper|. Rethrow any exceptions.
 
-1. If |upperKey| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |upperKey| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Create and return a new [=/key range=] with [=key range/lower bound=]
     set to null, [=key range/lower open flag=] set to true, [=key range/upper bound=] set to
@@ -4204,12 +4199,12 @@ The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|, |upperOpen|
 1. Let |lowerKey| be the result of [=/converting a
     value to a key=] with |lower|. Rethrow any exceptions.
 
-1. If |lowerKey| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |lowerKey| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |upperKey| be the result of [=/converting a
     value to a key=] with |upper|. Rethrow any exceptions.
 
-1. If |upperKey| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |upperKey| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. If |lowerKey| is [=greater than=] |upperKey|, [=exception/throw=] a
     "{{DataError}}" {{DOMException}}.
@@ -4234,7 +4229,7 @@ The <dfn method for=IDBKeyRange>includes(|key|)</dfn> method steps are:
 1. Let |k| be the result of [=/converting a
     value to a key=] with |key|. Rethrow any exceptions.
 
-1. If |k| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |k| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Return true if |k| is [=in=]
     this range, and false otherwise.
@@ -4487,7 +4482,7 @@ The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
     1. Let |r| be the result of [=/converting a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+    1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
     1. Let |key| be |r|.
 
@@ -4546,14 +4541,14 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> meth
 1. Let |r| be the result of [=/converting a value to
     a key=] with |key|. Rethrow any exceptions.
 
-1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |key| be |r|.
 
 1. Let |r| be the result of [=/converting a value
      to a key=] with |primaryKey|. Rethrow any exceptions.
 
-1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |primaryKey| be |r|.
 
@@ -6199,7 +6194,7 @@ failure, or the steps may throw an exception.
     result of [=/converting a value to a multiEntry
     key=] with |r| otherwise. Rethrow any exceptions.
 
-1. If |key| is invalid, return invalid.
+1. If |key| is "invalid value" or "invalid type", return invalid.
 
 1. Return |key|.
 
@@ -6457,12 +6452,12 @@ The steps return an ECMAScript value.
 
 To <dfn>convert a value to a key</dfn> with an ECMAScript value |input|, and an optional
 [=/set=] |seen|, run the following steps.
-The result of these steps is a [=/key=] or invalid, or the
+The result of these steps is a [=/key=], or "invalid value", or "invalid type", or the
 steps may throw an exception.
 
 1. If |seen| was not given, then let |seen| be a new empty [=/set=].
 
-1. If |seen| [=set/contains=] |input|, then return invalid.
+1. If |seen| [=set/contains=] |input|, then return "invalid value".
 
 1. Jump to the appropriate step below:
 
@@ -6471,7 +6466,7 @@ steps may throw an exception.
       <!-- Number -->
       : If [=ECMAScript/Type=](|input|) is Number
       ::
-          1. If |input| is NaN then return invalid.
+          1. If |input| is NaN then return "invalid value".
           1. Otherwise, return a new [=/key=] with
               [=key/type=] *number* and [=key/value=]
               |input|.
@@ -6482,7 +6477,7 @@ steps may throw an exception.
           1. Let |ms| be the value of |input|'s
               \[[DateValue]] internal slot.
 
-          1. If |ms| is NaN then return invalid.
+          1. If |ms| is NaN then return "invalid value".
 
           1. Otherwise, return a new [=/key=] with [=key/type=]
               *date* and [=key/value=] |ms|.
@@ -6497,7 +6492,7 @@ steps may throw an exception.
       <!-- Binary -->
       : If |input| is a [=buffer source type=]
       ::
-          1. If |input| is [=BufferSource/detached=] then return invalid.
+          1. If |input| is [=BufferSource/detached=] then return "invalid value".
 
           1. Let |bytes| be the result of
               [=/get a copy of the buffer source|getting a copy of the bytes held by the buffer source=]
@@ -6518,7 +6513,7 @@ steps may throw an exception.
 
               1. Let |hop| be [=ECMAScript/?=] [$HasOwnProperty$](|input|, |index|).
 
-              1. If |hop| is false, return invalid.
+              1. If |hop| is false, return "invalid value".
 
               1. Let |entry| be [=ECMAScript/?=] [$Get$](|input|, |index|).
 
@@ -6528,8 +6523,7 @@ steps may throw an exception.
 
               1. [=ECMAScript/ReturnIfAbrupt=](|key|).
 
-              1. If |key| is invalid abort these steps and return
-                  invalid.
+              1. If |key| is "invalid value" or "invalid type" abort these steps and return "invalid value".
 
               1. [=list/Append=] |key| to |keys|.
 
@@ -6540,7 +6534,9 @@ steps may throw an exception.
 
 
       : Otherwise
-      :: Return invalid.
+      :: Return "invalid type".
+
+
 
     </dl>
 
@@ -6550,8 +6546,7 @@ steps may throw an exception.
 <div algorithm>
 
 To <dfn>convert a value to a multiEntry key</dfn> with an ECMAScript value |input|, run the following steps.
-The result of these steps is a [=/key=] or invalid, or the
-steps may throw an exception.
+The result of these steps is a [=/key=], or "invalid value", or "invalid type", or the steps may throw an exception.
 
 1. If |input| is an [=ECMAScript/Array exotic object=], then:
 
@@ -6573,7 +6568,7 @@ steps may throw an exception.
                  [=/converting a value to a key=] with arguments
                  |entry| and |seen|.
 
-             1. If |key| is not invalid or an [=ECMAScript/abrupt completion=],
+             1. If |key| is not "invalid value" or "invalid type" or an [=ECMAScript/abrupt completion=],
                  and there is no [=list/item=] in |keys| [=equal to=] |key|,
                  then [=list/append=] |key| to |keys|.
 
