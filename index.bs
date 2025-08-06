@@ -1366,9 +1366,40 @@ To <dfn>convert a value to a key range</dfn> with
 1. Let |key| be the result of [=/converting
     a value to a key=] with |value|. Rethrow any exceptions.
 
-1. If |key| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |key| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Return a [=/key range=] [=containing only=] |key|.
+
+</div>
+
+
+A <dfn>potentially valid key range</dfn> is an ECMAScript value that has a type that is convertible to a [=/key range=].
+Whether the specific value will successfully convert to a [=key range=], i.e. [=converting a value to a key range=] with it throws an exception, is not relevant.
+
+NOTE:
+  For example, a [=BufferSource/detached|detached BufferSource=] is a [=potentially valid key range=] that will throw an exception when used with [=convert a value to a key range=].
+
+<div algorithm>
+
+  To determine when a value <dfn>is a potentially valid key range</dfn> with ECMAScript |value|, run these steps:
+
+  1. If |value| is a [=/key range=], return true.
+
+  1. Let |key| be the result of [=/converting a value to a key=] with |value|.
+
+  1. If |key| is "invalid type" return false.
+
+  1. Else return true.
+
+<div class=note>
+  <span class=marker>NOTE:</span>
+  The {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} methods use [=is a potentially valid key range=] to handle their first argument.
+  If the argument is a [=potentially valid key range=], {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} run [=convert a value to a key range=] with the argument.
+  Otherwise, {{IDBGetAllOptions}} is used for the first argument.
+
+  {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} throw exceptions for {{Date}}, {{Array}}, and {{ArrayBuffer}} first arguments that return "invalid value" when used with [=convert a value to a key=].
+  For example, running {{IDBObjectStore/getAll()}} with a NaN {{Date}} first argument throws an exception instead of successfully using an {{IDBGetAllOptions}} dictionary with default values.
+</div>
 
 </div>
 
@@ -1802,6 +1833,29 @@ store.put(4); // will throw DataError
 ```
 </div>
 
+<!-- ============================================================ -->
+## Record snapshot ## {#record-snapshot-construct}
+<!-- ============================================================ -->
+
+A <dfn>record snapshot</dfn> contains keys and values copied from an [=object-store/list of records|object store record=] or an [=index/list of records|index record=].
+
+<div dfn-for="record snapshot">
+
+A [=/record snapshot=] has a <dfn>key</dfn> which is a [=key=].
+
+A [=/record snapshot=] has a <dfn>value</dfn> which is a [=value=].
+
+NOTE:
+  For an [=index/list of records|index record=], the snapshot's [=record snapshot/value=] is a copy of the record's [=index/referenced value=].
+  For an [=object-store/list of records|object store record=], the snapshot's [=record snapshot/value=] is the [=object-store/record|record's value=].
+
+A [=/record snapshot=] also has a <dfn>primary key</dfn> which is a [=key=].
+
+NOTE:
+  For an [=index/list of records|index record=], the snapshot's [=record snapshot/primary key=] is the record's [=index/values|value=], which is the key of the record in the index's [=index/referenced|referenced object store=].
+  For an [=object-store/list of records|object store record=], the snapshot's [=record snapshot/primary key=] and [=record snapshot/key=] are the same [=key=], which is the [=object-store/record|record's key=].
+
+</div>
 
 <!-- ============================================================ -->
 # Exceptions # {#exceptions}
@@ -2380,12 +2434,12 @@ The <dfn method for=IDBFactory>cmp(|first|, |second|)</dfn> method steps are:
 1. Let |a| be the result of [=/converting a
     value to a key=] with |first|. Rethrow any exceptions.
 
-1. If |a| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |a| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |b| be the result of [=/converting a
     value to a key=] with |second|. Rethrow any exceptions.
 
-1. If |b| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |b| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Return the results of [=/comparing two keys=]
     with |a| and |b|.
@@ -2723,10 +2777,11 @@ interface IDBObjectStore {
   [NewObject] IDBRequest clear();
   [NewObject] IDBRequest get(any query);
   [NewObject] IDBRequest getKey(any query);
-  [NewObject] IDBRequest getAll(optional any query,
+  [NewObject] IDBRequest getAll(optional any queryOrOptions,
                                 optional [EnforceRange] unsigned long count);
-  [NewObject] IDBRequest getAllKeys(optional any query,
+  [NewObject] IDBRequest getAllKeys(optional any queryOrOptions,
                                     optional [EnforceRange] unsigned long count);
+  [NewObject] IDBRequest getAllRecords(optional IDBGetAllOptions options = {});
   [NewObject] IDBRequest count(optional any query);
 
   [NewObject] IDBRequest openCursor(optional any query,
@@ -2745,6 +2800,12 @@ interface IDBObjectStore {
 dictionary IDBIndexParameters {
   boolean unique = false;
   boolean multiEntry = false;
+};
+
+dictionary IDBGetAllOptions {
+  any query = null;
+  [EnforceRange] unsigned long count;
+  IDBCursorDirection direction = "next";
 };
 </xmp>
 
@@ -2948,7 +3009,7 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
     1. Let |r| be the result of [=/converting a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+    1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
     1. Let |key| be |r|.
 
@@ -3075,24 +3136,31 @@ The <dfn method for=IDBObjectStore>clear()</dfn> method steps are:
         [=/key=], or `undefined` if there was no matching
         [=object-store/record=].
 
-    : |request| = |store| .
-          {{IDBObjectStore/getAll()|getAll}}(|query| [, |count|])
+    : |request| = |store| . {{IDBObjectStore/getAll()|getAll}}(|query| [, |count|])
+    : |request| = |store| . {{IDBObjectStore/getAll()|getAll}}({|query|, |count|, |direction|})
     ::
-        Retrieves the [=/values=] of the [=object-store/records=] matching the
-        given [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Retrieves the [=/values=] of the [=object-store/records=] matching the given [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| values, or "{{IDBCursorDirection/prev}}" to return the last |count| values.
 
-        If successful, |request|'s {{IDBRequest/result}} will
-        be an {{Array}} of the [=/values=].
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}} of the [=/values=].
 
-    : |request| = |store| .
-          {{IDBObjectStore/getAllKeys()|getAllKeys}}(|query| [,
-          |count|])
+    : |request| = |store| . {{IDBObjectStore/getAllKeys()|getAllKeys}}(|query| [, |count|])
+    : |request| = |store| . {{IDBObjectStore/getAllKeys()|getAllKeys}}({|query|, |count|, |direction|})
     ::
-        Retrieves the [=/keys=] of [=object-store/records=] matching the
-        given [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Retrieves the [=/keys=] of [=object-store/records=] matching the given [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| keys, or "{{IDBCursorDirection/prev}}" to return the last |count| keys.
 
-        If successful, |request|'s {{IDBRequest/result}} will
-        be an {{Array}} of the [=/keys=].
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}} of the [=/keys=].
+
+    : |request| = |store| . {{IDBObjectStore/getAllRecords()|getAllRecords}}({|query|, |count|, |direction|})
+    ::
+        Retrieves the [=/keys=] and [=/values=] of [=object-store/records=].
+
+        The |query| option specifies a [=/key=] or [=key range=] to match.
+        The |count| option limits the number of records matched.
+        Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| records, or "{{IDBCursorDirection/prev}}" to return the last |count| records.
+
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}}, with each member being an {{IDBRecord}}.
 
     : |request| = |store| .
           {{IDBObjectStore/count()|count}}(|query|)
@@ -3171,67 +3239,53 @@ the first existing key in that range.
 
 <div algorithm>
 
-The <dfn method for=IDBObjectStore>getAll(|query|, |count|)</dfn> method steps are:
+The <dfn method for=IDBObjectStore>getAll(|queryOrOptions|, |count|)</dfn> method steps are:
 
-1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
-
-1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
-
-1. If |store| has been deleted, [=exception/throw=] an
-    "{{InvalidStateError}}" {{DOMException}}.
-
-1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
-    then [=exception/throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
-
-1. Let |range| be the result of
-    [=/converting a value to a key range=] with |query|.
+1. Return the result of [=/creating a request to retrieve multiple items=] with [=ECMAScript/the current Realm record=], [=/this=], "value", |queryOrOptions|, and |count| if given.
     Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve multiple values from an object store=] with [=ECMAScript/the current Realm record=], |store|, |range|, and |count| if given.
-
-
-1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
-
-NOTE:
-The |query| parameter can be a [=/key=] or [=/key range=] (an {{IDBKeyRange}})
-identifying the [=object-store/record=] values to be retrieved. If null or not given,
-an [=unbounded key range=] is used. If |count| is specified and
-there are more than |count| records in range, only the first |count|
-will be retrieved.
-
 </div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBGetAllOptions}} argument for {{IDBObjectStore/getAll()}} is new in <a href="#revision-history">this edition</a>.
+  It is supported in Chrome 141, and Edge 141.
+  &#x1F6A7;
+</aside>
 
 
 <div algorithm>
 
-The <dfn method for=IDBObjectStore>getAllKeys(|query|, |count|)</dfn> method steps are:
+The <dfn method for=IDBObjectStore>getAllKeys(|queryOrOptions|, |count|)</dfn> method steps are:
 
-1. Let |transaction| be [=/this=]'s [=object-store-handle/transaction=].
-
-1. Let |store| be [=/this=]'s [=object-store-handle/object store=].
-
-1. If |store| has been deleted, [=exception/throw=] an
-    "{{InvalidStateError}}" {{DOMException}}.
-
-1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
-    then [=exception/throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
-
-1. Let |range| be the result of
-    [=/converting a value to a key range=] with |query|.
+1. Return the result of [=/creating a request to retrieve multiple items=] with [=ECMAScript/the current Realm record=], [=/this=], "key", |queryOrOptions|, and |count| if given.
     Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve multiple keys from an object store=] with |store|, |range|, and |count| if given.
+</div>
 
-1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBGetAllOptions}} argument for {{IDBObjectStore/getAllKeys()}} is new in <a href="#revision-history">this edition</a>.
+  It is supported in Chrome 141, and Edge 141.
+  &#x1F6A7;
+</aside>
 
-NOTE:
-The |query| parameter can be a [=/key=] or [=/key range=] (an {{IDBKeyRange}})
-identifying the [=object-store/record=] keys to be retrieved. If null or not
-given, an [=unbounded key range=] is used. If |count| is specified
-and there are more than |count| keys in range, only the first |count|
-will be retrieved.
+
+<div algorithm>
+
+The <dfn method for=IDBObjectStore>getAllRecords(|options|)</dfn> method steps are:
+
+1. Return the result of [=/creating a request to retrieve multiple items=] with [=ECMAScript/the current Realm record=], [=/this=], "record", and |options|.
+    Rethrow any exceptions.
 
 </div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBObjectStore/getAllRecords()}} method is new in <a href="#revision-history">this edition</a>.
+  It is supported in Chrome 141, and Edge 141.
+  &#x1F6A7;
+</aside>
 
 
 <div algorithm>
@@ -3597,10 +3651,11 @@ interface IDBIndex {
 
   [NewObject] IDBRequest get(any query);
   [NewObject] IDBRequest getKey(any query);
-  [NewObject] IDBRequest getAll(optional any query,
+  [NewObject] IDBRequest getAll(optional any queryOrOptions,
                                 optional [EnforceRange] unsigned long count);
-  [NewObject] IDBRequest getAllKeys(optional any query,
+  [NewObject] IDBRequest getAllKeys(optional any queryOrOptions,
                                     optional [EnforceRange] unsigned long count);
+  [NewObject] IDBRequest getAllRecords(optional IDBGetAllOptions options = {});
   [NewObject] IDBRequest count(optional any query);
 
   [NewObject] IDBRequest openCursor(optional any query,
@@ -3729,24 +3784,34 @@ return [=/this=]'s [=index-handle/index=]'s [=index/unique flag=].
         [=/key=], or `undefined` if there was no matching
         [=object-store/record=].
 
-    : |request| = |index| .
-          {{IDBIndex/getAll()|getAll}}(|query| [, |count|])
+    : |request| = |index| . {{IDBIndex/getAll()|getAll}}(|query| [, |count|])
+    : |request| = |index| . {{IDBIndex/getAll()|getAll}}({|query|, |count|, |direction|})
     ::
-        Retrieves the [=/values=] of the [=object-store/records=] matching the given
-        [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Retrieves the [=/values=] of the [=object-store/records=] matching the given [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| values, "{{IDBCursorDirection/prev}}" to return the last |count| values.
+        Set the |direction| option to "{{IDBCursorDirection/nextunique}}" or "{{IDBCursorDirection/prevunique}}" to exclude records with duplicate index keys after retrieving the first record with the duplicate index key.
 
-        If successful, |request|'s {{IDBRequest/result}} will be an
-        {{Array}} of the [=/values=].
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}} of the [=/values=].
 
-    : |request| = |index| .
-          {{IDBIndex/getAllKeys()|getAllKeys}}(|query| [,
-          |count|])
+    : |request| = |index| . {{IDBIndex/getAllKeys()|getAllKeys}}(|query| [, |count|])
+    : |request| = |index| . {{IDBIndex/getAllKeys()|getAllKeys}}({|query|, |count|, |direction|})
     ::
-        Retrieves the [=/keys=] of [=object-store/records=] matching the given
-        [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Retrieves the [=/keys=] of [=object-store/records=] matching the given [=/key=] or [=/key range=] in |query| (up to |count| if given).
+        Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| keys, "{{IDBCursorDirection/prev}}" to return the last |count| keys.
+        Set the |direction| option to "{{IDBCursorDirection/nextunique}}" or "{{IDBCursorDirection/prevunique}}" to exclude records with duplicate index keys after retrieving the first record with the duplicate index key.
 
-        If successful, |request|'s {{IDBRequest/result}} will be an
-        {{Array}} of the [=/keys=].
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}} of the [=/keys=].
+
+    : |request| = |index| . {{IDBIndex/getAllRecords()|getAllRecords}}({|query|, |count|, |direction|})
+    ::
+        Retrieves the [=/keys=], [=/values=], and index [=/keys=] of [=object-store/records=].
+
+        The |query| option specifies a [=/key=] or [=key range=] to match.
+        The |count| option limits the number of records matched.
+        Set the |direction| option to "{{IDBCursorDirection/next}}" to retrieve the first |count| records, "{{IDBCursorDirection/prev}}" to return the last |count| records.
+        Set the |direction| option to "{{IDBCursorDirection/nextunique}}" or "{{IDBCursorDirection/prevunique}}" to exclude records with duplicate index keys after retrieving the first record with the duplicate index key.
+
+        If successful, |request|'s {{IDBRequest/result}} will be an {{Array}}, with each member being an {{IDBRecord}}. Use the {{IDBRecord/key|IDBRecord's key}} to get the record's index [=key=].  Use the {{IDBRecord/primaryKey|IDBRecord's primaryKey}} to get the record's [=key=].
 
     : |request| = |index| .
           {{IDBIndex/count()|count}}(|query|)
@@ -3826,66 +3891,53 @@ in that range.
 
 <div algorithm>
 
-The <dfn method for=IDBIndex>getAll(|query|, |count|)</dfn> method steps are:
+The <dfn method for=IDBIndex>getAll(|queryOrOptions|, |count|)</dfn> method steps are:
 
-1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
-
-1. Let |index| be [=/this=]'s [=index-handle/index=].
-
-1. If |index| or |index|'s [=/object store=] has
-    been deleted, [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
-
-1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
-    then [=exception/throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
-
-1. Let |range| be the result of
-    [=/converting a value to a key range=] with |query|.
+1. Return the result of [=/creating a request to retrieve multiple items=] with [=ECMAScript/the current Realm record=], [=/this=], "value", |queryOrOptions|, and |count| if given.
     Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve multiple referenced values from an index=] with [=ECMAScript/the current Realm record=], |index|, |range|, and |count| if given.
-
-1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
-
-NOTE:
-The |query| parameter can be a [=/key=] or [=/key range=] (an {{IDBKeyRange}})
-identifying the [=index/referenced values=] to be retrieved. If null or not given,
-an [=unbounded key range=] is used. If |count| is specified and
-there are more than |count| records in range, only the first |count|
-will be retrieved.
-
 </div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBGetAllOptions}} argument for {{IDBIndex/getAll()}} is new in <a href="#revision-history">this edition</a>.
+  It is supported in Chrome 141, and Edge 141.
+  &#x1F6A7;
+</aside>
 
 
 <div algorithm>
 
-The <dfn method for=IDBIndex>getAllKeys(|query|, |count|)</dfn> method steps are:
+The <dfn method for=IDBIndex>getAllKeys(|queryOrOptions|, |count|)</dfn> method steps are:
 
-1. Let |transaction| be [=/this=]'s [=index-handle/transaction=].
-
-1. Let |index| be [=/this=]'s [=index-handle/index=].
-
-1. If |index| or |index|'s [=/object store=] has
-    been deleted, [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
-
-1. If |transaction|'s [=transaction/state=] is not [=transaction/active=],
-    then [=exception/throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
-
-1. Let |range| be the result of
-    [=/converting a value to a key range=] with |query|.
+1. Return the result of [=/creating a request to retrieve multiple items=] with [=ECMAScript/the current Realm record=], [=/this=], "key", |queryOrOptions|, and |count| if given.
     Rethrow any exceptions.
 
-1. Let |operation| be an algorithm to run [=retrieve multiple values from an index=] with |index|, |range|, and |count| if given.
+</div>
 
-1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with [=/this=] and |operation|.
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBGetAllOptions}} argument for {{IDBIndex/getAllKeys()}} is new in <a href="#revision-history">this edition</a>.
+  It is supported in Chrome 141, and Edge 141.
+  &#x1F6A7;
+</aside>
 
-NOTE:
-The |query| parameter can be a [=/key=] or [=/key range=] (an {{IDBKeyRange}})
-identifying the [=object-store/record=] keys to be retrieved. If null or not
-given, an [=unbounded key range=] is used. If |count| is specified
-and there are more than |count| keys in range, only the first |count|
-will be retrieved.
+
+<div algorithm>
+
+The <dfn method for=IDBIndex>getAllRecords(|options|)</dfn> method steps are:
+
+1. Return the result of [=/creating a request to retrieve multiple items=] with [=ECMAScript/the current Realm record=], [=/this=], "record", and |options|.
+    Rethrow any exceptions.
 
 </div>
+
+<aside class=advisement>
+  &#x1F6A7;
+  The {{IDBIndex/getAllRecords()}} method is new in <a href="#revision-history">this edition</a>.
+  It is supported in Chrome 141, and Edge 141.
+  &#x1F6A7;
+</aside>
 
 
 <div algorithm>
@@ -4126,7 +4178,7 @@ The <dfn method for=IDBKeyRange>only(|value|)</dfn> method steps are:
 1. Let |key| be the result of [=/converting
     a value to a key=] with |value|. Rethrow any exceptions.
 
-1. If |key| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |key| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Create and return a new [=/key range=] [=containing only=]
     |key|.
@@ -4158,7 +4210,7 @@ The <dfn method for=IDBKeyRange>upperBound(|upper|, |open|)</dfn> method steps a
 1. Let |upperKey| be the result of [=/converting a
     value to a key=] with |upper|. Rethrow any exceptions.
 
-1. If |upperKey| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |upperKey| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Create and return a new [=/key range=] with [=key range/lower bound=]
     set to null, [=key range/lower open flag=] set to true, [=key range/upper bound=] set to
@@ -4174,12 +4226,12 @@ The <dfn method for=IDBKeyRange>bound(|lower|, |upper|, |lowerOpen|, |upperOpen|
 1. Let |lowerKey| be the result of [=/converting a
     value to a key=] with |lower|. Rethrow any exceptions.
 
-1. If |lowerKey| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |lowerKey| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |upperKey| be the result of [=/converting a
     value to a key=] with |upper|. Rethrow any exceptions.
 
-1. If |upperKey| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |upperKey| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. If |lowerKey| is [=greater than=] |upperKey|, [=exception/throw=] a
     "{{DataError}}" {{DOMException}}.
@@ -4204,12 +4256,50 @@ The <dfn method for=IDBKeyRange>includes(|key|)</dfn> method steps are:
 1. Let |k| be the result of [=/converting a
     value to a key=] with |key|. Rethrow any exceptions.
 
-1. If |k| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |k| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Return true if |k| is [=in=]
     this range, and false otherwise.
 
 </div>
+
+
+<!-- ============================================================ -->
+## The {{IDBRecord}} interface ## {#record-interface}
+<!-- ============================================================ -->
+
+The {{IDBRecord}} interface represents a [=record snapshot=].
+
+<xmp class=idl>
+[Exposed=(Window,Worker)]
+interface IDBRecord {
+  readonly attribute any key;
+  readonly attribute any primaryKey;
+  readonly attribute any value;
+};
+</xmp>
+
+<div class="domintro note">
+    : |record| . {{IDBRecord/key}}
+    ::
+        Returns the record's [=key=].
+
+    : |record| . {{IDBRecord/primaryKey}}
+    ::
+        If the record was retrieved from an [=index=], returns the key of the record in the index's [=index/referenced|referenced object store=].
+
+        If the record was retrieved from an [=object store=], returns the record's [=key=], which is the same key as |record|.{{IDBRecord/key}}.
+
+    : |record| . {{IDBRecord/value}}
+    ::
+        Returns the record's [=value=].
+</div>
+
+The <dfn attribute for=IDBRecord>key</dfn> getter steps are to return the result of [=/converting a key to a value=] with [=/this=]'s [=record snapshot/key=].
+
+The <dfn attribute for=IDBRecord>primaryKey</dfn> getter steps are to return the result of [=/converting a key to a value=] with [=/this=]'s [=record snapshot/primary key=].
+
+The <dfn attribute for=IDBRecord>value</dfn> getter steps are to return [=/this=]'s [=record snapshot/value=].
 
 
 <!-- ============================================================ -->
@@ -4419,7 +4509,7 @@ The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
     1. Let |r| be the result of [=/converting a
         value to a key=] with |key|. Rethrow any exceptions.
 
-    1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+    1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
     1. Let |key| be |r|.
 
@@ -4478,14 +4568,14 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> meth
 1. Let |r| be the result of [=/converting a value to
     a key=] with |key|. Rethrow any exceptions.
 
-1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |key| be |r|.
 
 1. Let |r| be the result of [=/converting a value
      to a key=] with |primaryKey|. Rethrow any exceptions.
 
-1. If |r| is invalid, [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |primaryKey| be |r|.
 
@@ -5485,6 +5575,7 @@ To <dfn>fire an error event</dfn> at a |request|, run these steps:
 
 </div>
 
+
 <!-- ============================================================ -->
 ## Clone a value ## {#clone-value}
 <!-- ============================================================ -->
@@ -5508,6 +5599,59 @@ To <dfn>fire an error event</dfn> at a |request|, run these steps:
   1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
 
   1. Return |clone|.
+
+</div>
+
+
+<!-- ============================================================ -->
+## Creating a request to retrieve multiple items ## {#create-request-to-retrieve-multiple-items}
+<!-- ============================================================ -->
+
+<div algorithm>
+
+To <dfn>create a [=request=] to retrieve multiple items</dfn> from an [=object store=] or [=index=] with |targetRealm|, |sourceHandle|, |kind|, |queryOrOptions|, and optional |count|, run these steps:
+
+1. Let |source| be an [=/index=] or an [=/object store=] from |sourceHandle|.
+    If |sourceHandle| is an [=index handle=], then |source| is [=index-handle/index|the index handle's associated index=].
+    Otherwise, |source| is [=object-store-handle/object store|the object store handle's associated object store=].
+
+1. If |source| has been deleted, [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
+
+1. If |source| is an [=/index=] and |source|'s [=/object store=] has been deleted, [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
+
+1. Let |transaction| be |sourceHandle|'s [=/transaction=].
+
+1. If |transaction|'s [=transaction/state=] is not [=transaction/active=], then [=exception/throw=] a "{{TransactionInactiveError}}" {{DOMException}}.
+
+1. Let |range| be a [=key range=].
+
+1. Let |direction| be a [=cursor/direction|cursor direction=].
+
+1. If running [=is a potentially valid key range=] with |queryOrOptions| is true, then:
+
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|.  Rethrow any exceptions.
+
+    1. Set |direction| to "{{IDBCursorDirection/next}}".
+
+1. Else:
+
+    1. Set |range| to the result of [=/converting a value to a key range=] with |queryOrOptions|["{{IDBGetAllOptions/query}}"].  Rethrow any exceptions.
+
+    1. Set |count| to |queryOrOptions|["{{IDBGetAllOptions/count}}"].
+
+    1. Set |direction| to |queryOrOptions|["{{IDBGetAllOptions/direction}}"].
+
+1. Let |operation| be an algorithm to run.
+
+1. If |source| is an [=/index=], set |operation| to [=retrieve multiple items from an index=] with |targetRealm|, |source|, |range|, |kind|, |direction|, and |count| if given.
+
+1. Else set |operation| to [=retrieve multiple items from an object store=] with |targetRealm|, |source|, |range|, |kind|, |direction|, and |count| if given.
+
+1. Return the result (an {{IDBRequest}}) of running [=asynchronously execute a request=] with |sourceHandle| and |operation|.
+
+NOTE:
+The |range| can be a [=/key=] or [=/key range=] (an {{IDBKeyRange}}) identifying the [=object-store/record=] items to be retrieved. If null or not given, an [=unbounded key range=] is used.
+If |count| is specified and there are more than |count| records in range, only the first |count| will be retrieved.
 
 </div>
 
@@ -5656,32 +5800,6 @@ They return undefined, an ECMAScript value, or an error (a {{DOMException}}):
 
 <div algorithm>
 
-To <dfn>retrieve multiple values from an object
-store</dfn> with |targetRealm|, |store|, |range| and optional |count|, run these steps.
-They return a <code>[=/sequence=]&lt;{{any}}&gt;</code> or an error (a {{DOMException}}):
-
-1. If |count| is not given or is 0 (zero), let |count| be infinity.
-
-1. Let |records| be a [=/list=] containing the first |count| [=object-store/records=]
-    in |store|'s [=object-store/list of records=] whose [=/key=] is
-    [=in=] |range|.
-
-1. Let |list| be an empty [=/list=].
-
-1. [=list/For each=] |record| of |records|:
-
-    1. Let |serialized| be |record|'s [=/value=]. If an error occurs while reading the value from the
-        underlying storage, return a newly [=exception/created=] "{{NotReadableError}}" {{DOMException}}.
-    1. Let |entry| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
-    1. Append |entry| to |list|.
-
-1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
-
-</div>
-
-
-<div algorithm>
-
 To <dfn>retrieve a key from an object store</dfn>
 with |store| and |range|, run these steps:
 
@@ -5699,24 +5817,43 @@ with |store| and |range|, run these steps:
 
 <div algorithm>
 
-To <dfn>retrieve multiple keys from an object store</dfn>
-with |store|, |range| and optional |count|, run these steps:
+To <dfn>retrieve multiple items from an object store</dfn> with |targetRealm|, |store|, |range|, |kind|, |direction|, and optional |count|, run these steps:
 
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
 
-1. Let |records| be a list containing the first |count| [=object-store/records=]
-    in |store|'s [=object-store/list of records=] whose [=/key=] is
-    [=in=] |range|.
+1. Let |records| be an empty [=/list=] of [=object-store/records=].
+
+1. If |direction| is "{{IDBCursorDirection/next}}" or "{{IDBCursorDirection/nextunique}}", set |records| to the first |count| of |store|'s [=object-store/list of records=] whose [=/key=] is [=in=] |range|.
+
+1. If |direction| is "{{IDBCursorDirection/prev}}" or "{{IDBCursorDirection/prevunique}}", set |records| to the last |count| of |store|'s [=object-store/list of records=] whose [=/key=] is [=in=] |range|.
 
 1. Let |list| be an empty [=/list=].
 
-1. [=list/For each=] |record| of |records|:
+1. [=list/For each=] |record| of |records|, switching on |kind|:
 
-    1. Let |entry| be the result of [=/converting a
-        key to a value=] with |record|'s key.
-    1. Append |entry| to |list|.
+    <dl class=switch>
+      : "key"
+      ::
+          1. Let |key| be the result of [=/converting a key to a value=] with |record|'s key.
+          1. [=list/Append=] |key| to |list|.
 
-1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
+      : "value"
+      ::
+          1. Let |serialized| be |record|'s [=/value=].
+          1. Let |value| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
+          1. [=list/Append=] |value| to |list|.
+
+      : "record"
+      ::
+          1. Let |key| be the |record|'s key.
+          1. Let |serialized| be |record|'s [=/value=].
+          1. Let |value| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
+          1. Let |recordSnapshot| be a new [=record snapshot=] with its [=record snapshot/key=] set to |key|, [=record snapshot/value=] set to |value|, and [=record snapshot/primary key=] set to |key|.
+          1. [=list/Append=] |recordSnapshot| to |list|.
+
+    </dl>
+
+1. Return |list|.
 
 </div>
 
@@ -5744,32 +5881,6 @@ with |targetRealm|, |index| and |range|, run these steps:
 
 <div algorithm>
 
-To <dfn>retrieve multiple referenced values from an
-index</dfn> with |targetRealm|, |index|, |range| and optional |count|, run these steps:
-
-1. If |count| is not given or is 0 (zero), let |count| be infinity.
-
-1. Let |records| be a list containing the first |count| [=object-store/records=]
-    in |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
-
-1. Let |list| be an empty [=/list=].
-
-1. [=list/For each=] |record| of |records|:
-
-    1. Let |serialized| be |record|'s [=index/referenced value=].
-    1. Let |entry| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
-    1. Append |entry| to |list|.
-
-1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
-
-</div>
-
-NOTE:
-    The [=index/values=] of an [=index/record=] in an index are the keys of
-    [=object-store/records=] in the [=index/referenced=] object store.
-
-<div algorithm>
-
 To <dfn>retrieve a value from an index</dfn> with
 |index| and |range|, run these steps:
 
@@ -5786,25 +5897,81 @@ To <dfn>retrieve a value from an index</dfn> with
 
 <div algorithm>
 
-To <dfn>retrieve multiple values from an index</dfn> with
-|index|, |range| and optional |count|, run these steps:
+To <dfn>retrieve multiple items from an index</dfn> with |targetRealm|, |index|, |range|, |kind|, |direction| and optional |count|, run these steps:
 
 1. If |count| is not given or is 0 (zero), let |count| be infinity.
 
-1. Let |records| be a list containing the first |count| [=index/records=] in
-    |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+1. Let |records| be an empty [=/list=] of [=object-store/records=].
+
+1. Switching on |direction|:
+
+    <dl class=switch>
+      : "next"
+      ::
+          1. Set |records| to the first |count| of |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+
+      : "nextunique"
+      ::
+          1. Let |rangeRecords| be a list containing the |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+          1. Let |rangeRecordsLength| be |rangeRecords|'s [=list/size=].
+          1. Let |i| be 0.
+          1. While |i| is less than |rangeRecordsLength|, then:
+              1. Increase |i| by 1.
+              1. if |record|'s [=list/size=] is equal to |count|, then [=iteration/break=].
+              1. If the result of [=comparing two keys=] using the keys from |rangeRecords[i]| and |rangeRecords[i-1]| is equal, then [=iteration/continue=].
+              1. Else [=list/append=] |rangeRecords[i]| to |records|.
+
+      : "prev"
+      ::
+          1. Set |records| to the last |count| of |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+
+      : "prevunique"
+      ::
+          1. Let |rangeRecords| be a list containing the |index|'s [=index/list of records=] whose [=index/key=] is [=in=] |range|.
+          1. Let |rangeRecordsLength| be |rangeRecords|'s [=list/size=].
+          1. Let |i| be 0.
+          1. While |i| is less than |rangeRecordsLength|, then:
+              1. Increase |i| by 1.
+              1. if |record|'s [=list/size=] is equal to |count|, then [=iteration/break=].
+              1. If the result of [=comparing two keys=] using the keys from |rangeRecords[i]| and |rangeRecords[i-1]| is equal, then [=iteration/continue=].
+              1. Else [=list/prepend=] |rangeRecords[i]| to |records|.
+
+    </dl>
 
 1. Let |list| be an empty [=/list=].
 
-1. [=list/For each=] |record| of |records|:
+1. [=list/For each=] |record| of |records|, switching on |kind|:
 
-    1. Let |entry| be the result of [=/converting a
-        key to a value=] with |record|'s value.
-    1. Append |entry| to |list|.
+    <dl class=switch>
+      : "key"
+      ::
+          1. Let |key| be the result of [=/converting a key to a value=] with |record|'s value.
+          1. [=list/Append=] |key| to |list|.
 
-1. Return |list| converted to a <code>[=/sequence=]&lt;{{any}}&gt;</code>.
+      : "value"
+      ::
+          1. Let |serialized| be |record|'s [=index/referenced value=].
+          1. Let |value| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
+          1. [=list/Append=] |value| to |list|.
+
+      : "record"
+      ::
+          1. Let |index key| be the |record|'s key.
+          1. Let |key| be the |record|'s value.
+          1. Let |serialized| be |record|'s [=index/referenced value=].
+          1. Let |value| be [=ECMAScript/!=] [$StructuredDeserialize$](|serialized|, |targetRealm|).
+          1. Let |recordSnapshot| be a new [=record snapshot=] with its [=record snapshot/key=] set to |index key|, [=record snapshot/value=] set to |value|, and [=record snapshot/primary key=] set to |key|.
+          1. [=list/Append=] |recordSnapshot| to |list|.
+
+    </dl>
+
+1. Return |list|.
 
 </div>
+
+<aside class=note>
+  The [=index/values=] of a [=index/record=] in an index are the keys of [=object-store/records=] in the [=index/referenced=] object store.
+</aside>
 
 
 <!-- ============================================================ -->
@@ -6054,7 +6221,7 @@ failure, or the steps may throw an exception.
     result of [=/converting a value to a multiEntry
     key=] with |r| otherwise. Rethrow any exceptions.
 
-1. If |key| is invalid, return invalid.
+1. If |key| is "invalid value" or "invalid type", return invalid.
 
 1. Return |key|.
 
@@ -6312,12 +6479,12 @@ The steps return an ECMAScript value.
 
 To <dfn>convert a value to a key</dfn> with an ECMAScript value |input|, and an optional
 [=/set=] |seen|, run the following steps.
-The result of these steps is a [=/key=] or invalid, or the
+The result of these steps is a [=/key=], or "invalid value", or "invalid type", or the
 steps may throw an exception.
 
 1. If |seen| was not given, then let |seen| be a new empty [=/set=].
 
-1. If |seen| [=set/contains=] |input|, then return invalid.
+1. If |seen| [=set/contains=] |input|, then return "invalid value".
 
 1. Jump to the appropriate step below:
 
@@ -6326,7 +6493,7 @@ steps may throw an exception.
       <!-- Number -->
       : If [=ECMAScript/Type=](|input|) is Number
       ::
-          1. If |input| is NaN then return invalid.
+          1. If |input| is NaN then return "invalid value".
           1. Otherwise, return a new [=/key=] with
               [=key/type=] *number* and [=key/value=]
               |input|.
@@ -6337,7 +6504,7 @@ steps may throw an exception.
           1. Let |ms| be the value of |input|'s
               \[[DateValue]] internal slot.
 
-          1. If |ms| is NaN then return invalid.
+          1. If |ms| is NaN then return "invalid value".
 
           1. Otherwise, return a new [=/key=] with [=key/type=]
               *date* and [=key/value=] |ms|.
@@ -6352,7 +6519,7 @@ steps may throw an exception.
       <!-- Binary -->
       : If |input| is a [=buffer source type=]
       ::
-          1. If |input| is [=BufferSource/detached=] then return invalid.
+          1. If |input| is [=BufferSource/detached=] then return "invalid value".
 
           1. Let |bytes| be the result of
               [=/get a copy of the buffer source|getting a copy of the bytes held by the buffer source=]
@@ -6373,7 +6540,7 @@ steps may throw an exception.
 
               1. Let |hop| be [=ECMAScript/?=] [$HasOwnProperty$](|input|, |index|).
 
-              1. If |hop| is false, return invalid.
+              1. If |hop| is false, return "invalid value".
 
               1. Let |entry| be [=ECMAScript/?=] [$Get$](|input|, |index|).
 
@@ -6383,8 +6550,7 @@ steps may throw an exception.
 
               1. [=ECMAScript/ReturnIfAbrupt=](|key|).
 
-              1. If |key| is invalid abort these steps and return
-                  invalid.
+              1. If |key| is "invalid value" or "invalid type" abort these steps and return "invalid value".
 
               1. [=list/Append=] |key| to |keys|.
 
@@ -6395,7 +6561,9 @@ steps may throw an exception.
 
 
       : Otherwise
-      :: Return invalid.
+      :: Return "invalid type".
+
+
 
     </dl>
 
@@ -6405,8 +6573,7 @@ steps may throw an exception.
 <div algorithm>
 
 To <dfn>convert a value to a multiEntry key</dfn> with an ECMAScript value |input|, run the following steps.
-The result of these steps is a [=/key=] or invalid, or the
-steps may throw an exception.
+The result of these steps is a [=/key=], or "invalid value", or "invalid type", or the steps may throw an exception.
 
 1. If |input| is an [=ECMAScript/Array exotic object=], then:
 
@@ -6428,7 +6595,7 @@ steps may throw an exception.
                  [=/converting a value to a key=] with arguments
                  |entry| and |seen|.
 
-             1. If |key| is not invalid or an [=ECMAScript/abrupt completion=],
+             1. If |key| is not "invalid value" or "invalid type" or an [=ECMAScript/abrupt completion=],
                  and there is no [=list/item=] in |keys| [=equal to=] |key|,
                  then [=list/append=] |key| to |keys|.
 
@@ -6715,6 +6882,8 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Define [=Queue a database task=] and replace [=Queue a task=] with it (<#421>)
 * Add missing parallel step to {{IDBFactory/databases()|databases}}() (<#421>)
 * Clarify cursor iteration predicates (<#450>)
+* Add {{IDBObjectStore/getAllRecords(options)}} method to {{IDBObjectStore}} and {{IDBIndex}}. (<#206>)
+* Add direction option to {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} for {{IDBObjectStore}} and {{IDBIndex}} (<#130>)
 * Use of {{QuotaExceededError}} has been updated to reflect that it is now a {{DOMException}}-derived interface instead of an exception name. (<#463>)
 
 <!-- ============================================================ -->
