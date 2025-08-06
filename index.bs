@@ -1861,12 +1861,11 @@ NOTE:
 # Exceptions # {#exceptions}
 <!-- ============================================================ -->
 
-Each of the exceptions used in this document is a
-{{DOMException}} with a specific type. The exception types and
-properties such as legacy code value are defined in [[!WEBIDL]].
+Each of the exceptions used in this document is a {{DOMException}}
+or {{DOMException}}-derived interface, as defined in [[!WEBIDL]].
 
-The table below lists the {{DOMException}}s used in this
-document along with a description of the exception type's
+The table below lists the {{DOMException}} names used in this
+document along with a description of the exception's
 usage.
 
 <table class=props>
@@ -1923,14 +1922,6 @@ usage.
     </td>
   </tr>
   <tr>
-    <td>{{QuotaExceededError}}</td>
-    <td>
-      The operation failed because there was not enough remaining
-      storage space, or the storage quota was reached and the user
-      declined to give more space to the database.
-    </td>
-  </tr>
-  <tr>
     <td>{{SyntaxError}}</td>
     <td>The keyPath argument contains an invalid key path.</td>
   </tr>
@@ -1960,6 +1951,11 @@ usage.
     </td>
   </tr>
 </table>
+
+Apart from the above {{DOMException}} names, the {{QuotaExceededError}}
+exception type is to be used if the operation failed because there was
+not enough remaining storage space, or the storage quota was reached and
+the user declined to give more space to the database.
 
 NOTE:
   Given that multiple Indexed DB operations can throw the same type of
@@ -2635,7 +2631,7 @@ reasons. Such implementations must still create and return an
 creating the [=/object store=] has failed, it must abort the
 transaction using the steps to [=abort a transaction=] using the
 appropriate error. For example if creating the [=/object store=]
-failed due to quota reasons, a "{{QuotaExceededError}}" {{DOMException}} must be used as
+failed due to quota reasons, a {{QuotaExceededError}} must be used as
 error.
 
 
@@ -3540,7 +3536,7 @@ and once the implementation determines that creating the index has
 failed, it must run the steps to [=abort
 a transaction=] using an appropriate error. For example
 if creating the [=/index=] failed due to quota reasons,
-a "{{QuotaExceededError}}" {{DOMException}} must be used as error and if the index can't be
+a {{QuotaExceededError}} must be used as error and if the index can't be
 created due to [=index/unique flag=] constraints, a "{{ConstraintError}}" {{DOMException}}
 must be used as error.
 
@@ -4870,7 +4866,7 @@ NOTE:
   due to an uncaught exception in an event handler, the error will be
   a "{{AbortError}}" {{DOMException}}. If the [=/transaction=] was aborted due to
   an error while committing, it will reflect the reason for the
-  failure (e.g. "{{QuotaExceededError}}", "{{ConstraintError}}", or
+  failure (e.g. a {{QuotaExceededError}}, or a "{{ConstraintError}}" or
   "{{UnknownError}}" {{DOMException}}).
 
 <div class="domintro note">
@@ -5010,7 +5006,7 @@ To <dfn>open a database connection</dfn> with |storageKey| which requested the [
 1. If |db| is null, let |db| be a new [=/database=] with
     [=database/name=] |name|, [=database/version=] 0 (zero), and with
     no [=/object stores=]. If this fails for any reason, return an
-    appropriate error (e.g. a "{{QuotaExceededError}}" or
+    appropriate error (e.g. a {{QuotaExceededError}}, or an
     "{{UnknownError}}" {{DOMException}}).
 
 1. If |db|'s [=database/version=] is greater than |version|,
@@ -5155,7 +5151,7 @@ requested the [=/database=] to be deleted, a database |name|, and a
 1. Let |version| be |db|'s [=database/version=].
 
 1. Delete |db|. If this fails for any reason, return an appropriate
-    error (e.g. "{{QuotaExceededError}}" or "{{UnknownError}}" {{DOMException}}).
+    error (e.g. a {{QuotaExceededError}}, or an "{{UnknownError}}" {{DOMException}}).
 
 1. Return |version|.
 
@@ -5184,7 +5180,7 @@ To <dfn>commit a transaction</dfn> with the |transaction| to commit, run these s
 
     1. If an error occurs while writing the changes to the [=/database=],
         then run [=abort a transaction=] with |transaction| and an
-        appropriate type for the error, for example "{{QuotaExceededError}}" or
+        appropriate type for the error, for example a {{QuotaExceededError}} or an
         "{{UnknownError}}" {{DOMException}}, and terminate these steps.
 
     1. [=Queue a database task=] to run these steps:
@@ -6888,6 +6884,7 @@ For the revision history of the second edition, see [that document's Revision Hi
 * Clarify cursor iteration predicates (<#450>)
 * Add {{IDBObjectStore/getAllRecords(options)}} method to {{IDBObjectStore}} and {{IDBIndex}}. (<#206>)
 * Add direction option to {{IDBObjectStore/getAll()}} and {{IDBObjectStore/getAllKeys()}} for {{IDBObjectStore}} and {{IDBIndex}} (<#130>)
+* Use of {{QuotaExceededError}} has been updated to reflect that it is now a {{DOMException}}-derived interface instead of an exception name. (<#463>)
 
 <!-- ============================================================ -->
 # Acknowledgements # {#acknowledgements}
