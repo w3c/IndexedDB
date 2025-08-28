@@ -594,14 +594,14 @@ A [=/key=] has an associated <dfn>type</dfn> which is one of:
 *string*,
 *binary*,
 or
-*array*.
+*composite*.
 
 A [=/key=] also has an associated <dfn>value</dfn>, which will
 be either:
 an {{unrestricted double}} if type is *number* or *date*,
 a {{DOMString}} if type is *string*,
 a [=byte sequence=] if type is *binary*,
-or a [=/list=] of other [=/keys=] if type is *array*.
+or a [=/list=] of other [=/keys=] if type is *composite*.
 
 </div>
 
@@ -627,9 +627,9 @@ following the steps to [=convert a value to a key=].
   will fail.
 </div>
 
-An <dfn>array key</dfn> is a [=/key=] with [=key/type=] *array*.
-The <dfn>subkeys</dfn> of an [=array key=] are the [=list/items=] of the
-[=array key=]'s [=key/value=].
+An <dfn>composite key</dfn> is a [=/key=] with [=key/type=] *composite*.
+The <dfn>subkeys</dfn> of an [=composite key=] are the [=list/items=] of the
+[=composite key=]'s [=key/value=].
 
 <div algorithm>
 
@@ -641,8 +641,8 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
 
 1. If |ta| does not equal |tb|, then run these steps:
 
-    1. If |ta| is *array*, then return 1.
-    1. If |tb| is *array*, then return -1.
+    1. If |ta| is *composite*, then return 1.
+    1. If |tb| is *composite*, then return -1.
     1. If |ta| is *binary*, then return 1.
     1. If |tb| is *binary*, then return -1.
     1. If |ta| is *string*, then return 1.
@@ -677,7 +677,7 @@ To <dfn>compare two keys</dfn> |a| and |b|, run these steps:
           1. If |vb| is [=byte less than=] |va|, then return 1.
           1. Return 0.
 
-      : *array*
+      : *composite*
       ::
           1. Let |length| be the lesser of |va|'s [=list/size=] and |vb|'s [=list/size=].
           1. Let |i| be 0.
@@ -712,9 +712,9 @@ NOTE:
   *Number* keys are less than *date* keys.
   *Date* keys are less than *string* keys.
   *String* keys are less than *binary* keys.
-  *Binary* keys are less than *array* keys.
+  *Binary* keys are less than *composite* keys.
   There is no highest possible [=/key=] value.
-  This is because an array of any candidate highest [=/key=]
+  This is because a *composite* key of any candidate highest [=/key=]
   followed by another [=/key=] is even higher.
 
 NOTE:
@@ -834,8 +834,8 @@ object store fails.
 
 An [=/index=] has a <dfn>multiEntry flag</dfn>. This flag affects how
 the index behaves when the result of evaluating the index's
-[=index/key path=] yields an [=array key=]. If its [=index/multiEntry flag=]
-is false, then a single [=object-store/record=] whose [=/key=] is an [=array key=]
+[=index/key path=] yields an [=composite key=]. If its [=index/multiEntry flag=]
+is false, then a single [=object-store/record=] whose [=/key=] is an [=composite key=]
 is added to the index. If its [=index/multiEntry flag=] is true, then
 one [=object-store/record=] is added to the index for each of the [=subkeys=].
 
@@ -1619,7 +1619,7 @@ be updated.
 
   Only specified keys of [=key/type=] *number* can affect the
   [=key generator/current number=] of the key generator. Keys of [=key/type=]
-  *date*, *array* (regardless of the other keys they
+  *date*, *composite* (regardless of the other keys they
   contain), *binary*, or *string* (regardless of whether
   they could be parsed as numbers) have no effect on the [=key generator/current
   number=] of the key generator. Keys of [=key/type=]
@@ -5733,14 +5733,14 @@ To <dfn>store a record into an object store</dfn> with
           An exception thrown in this step is not rethrown.
 
     1. If |index|'s [=index/multiEntry flag=] is false, or if |index key|
-        is not an [=array key=], and if |index| already contains a
+        is not an [=composite key=], and if |index| already contains a
         [=object-store/record=] with [=/key=] [=equal to=] |index
         key|, and |index|'s [=index/unique flag=] is true, then this
         operation failed with a "{{ConstraintError}}" {{DOMException}}. Abort this
         algorithm without taking any further steps.
 
     1. If |index|'s [=index/multiEntry flag=] is true and |index key| is
-        an [=array key=], and if |index| already contains a
+        an [=composite key=], and if |index| already contains a
         [=object-store/record=] with [=/key=] [=equal to=] any of the
         [=subkeys=] of |index key|, and |index|'s [=index/unique
         flag=] is true, then this operation failed with a
@@ -5748,14 +5748,14 @@ To <dfn>store a record into an object store</dfn> with
         further steps.
 
     1. If |index|'s [=index/multiEntry flag=] is false, or if |index key|
-        is not an [=array key=] then store a record in |index|
+        is not an [=composite key=] then store a record in |index|
         containing |index key| as its key and |key| as its value. The
         record is stored in |index|'s [=index/list of records=]
         such that the list is sorted primarily on the records keys,
         and secondarily on the records values, in [=ascending=] order.
 
     1. If |index|'s [=index/multiEntry flag=] is true and |index key| is
-        an [=array key=], then for each |subkey| of the
+        an [=composite key=], then for each |subkey| of the
         [=subkeys=] of |index key| store a record in |index|
         containing |subkey| as its key and |key| as its value. The
         records are stored in |index|'s [=index/list of
@@ -5768,10 +5768,10 @@ To <dfn>store a record into an object store</dfn> with
           no records are added to the index.
 
         NOTE:
-          Even if any member of [=subkeys=] is itself an [=array key=],
+          Even if any member of [=subkeys=] is itself an [=composite key=],
           the member is used directly as the key for the index record.
-          Nested [=array keys=] are not flattened or "unpacked" to
-          produce multiple rows; only the outer-most [=array key=] is.
+          Nested [=composite keys=] are not flattened or "unpacked" to
+          produce multiple rows; only the outer-most [=composite key=] is.
 
 1. Return |key|.
 
@@ -6452,7 +6452,7 @@ The steps return an ECMAScript value.
               in |value|.
           1. Return |buffer|.
 
-      : *array*
+      : *composite*
       ::
           1. Let |array| be the result of executing the ECMAScript Array
               constructor with no arguments.
@@ -6532,7 +6532,7 @@ steps may throw an exception.
           1. Return a new [=/key=] with [=key/type=]
               *binary* and [=key/value=] |bytes|.
 
-      <!-- Array -->
+      <!-- Composite (Array) -->
       : If |input| is an [=ECMAScript/Array exotic object=]
       ::
           1. Let |len| be [=ECMAScript/?=] [$ToLength$]( [=ECMAScript/?=] [$Get$](|input|,
@@ -6560,7 +6560,7 @@ steps may throw an exception.
 
               1. Increase |index| by 1.
 
-          1. Return a new [=array key=] with [=key/value=]
+          1. Return a new [=composite key=] with [=key/value=]
               |keys|.
 
 
@@ -6605,7 +6605,7 @@ The result of these steps is a [=/key=], or "invalid value", or "invalid type", 
 
         1. Increase |index| by 1.
 
-    1. Return a new [=array key=] with [=key/value=] set to |keys|.
+    1. Return a new [=composite key=] with [=key/value=] set to |keys|.
 
 1. Otherwise, return the result of [=/converting a
     value to a key=] with argument |input|.
@@ -6619,7 +6619,7 @@ NOTE:
   not be converted to keys are ignored, and duplicates are removed.
 
   For example, the value `[10, 20, null, 30, 20]` is
-  converted to an [=array key=] with [=subkeys=] 10, 20, 30.
+  converted to an [=composite key=] with [=subkeys=] 10, 20, 30.
 
 
 <!-- ============================================================ -->
