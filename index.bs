@@ -3010,12 +3010,24 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 
 1. If |key| was given, then:
 
+    1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
+
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+
+          NOTE:
+            The [=/transaction=] is made [=transaction/inactive=] so that getters or other side effects triggered by the cloning operation are unable to make additional requests against the transaction.
+
     1. Let |r| be the result of [=/converting a
         value to a key=] with |key|. Rethrow any exceptions.
 
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
+
     1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
+    1. Let |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
+
     1. Let |key| be |r|.
+
 
 1. Let |targetRealm| be a user-agent defined [=ECMAScript/Realm=].
 
