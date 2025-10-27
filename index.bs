@@ -3010,17 +3010,8 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 
 1. If |key| was given, then:
 
-    1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
-
-    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
-
-          NOTE:
-            The [=/transaction=] is made [=transaction/inactive=] so that getters or other side effects triggered by the cloning operation are unable to make additional requests against the transaction.
-
-    1. Let |r| be the result of [=/converting a
-        value to a key=] with |key|. Rethrow any exceptions.
-
-    1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
+    1. Let |r| be the result of [=/convert a value to a key during a
+        transaction=] with |key| and |transaction|. Rethrow any exceptions.
 
     1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
@@ -4520,7 +4511,7 @@ The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
 1. If |key| is given, then:
 
     1. Let |r| be the result of [=/converting a
-        value to a key=] with |key|. Rethrow any exceptions.
+        value to a key during a transaction=] with |key| and |transaction|. Rethrow any exceptions.
 
     1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
@@ -4579,14 +4570,14 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> meth
     [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |r| be the result of [=/converting a value to
-    a key=] with |key|. Rethrow any exceptions.
+    a key during a transaction=] with |key| and |transaction|. Rethrow any exceptions.
 
 1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |key| be |r|.
 
 1. Let |r| be the result of [=/converting a value
-     to a key=] with |primaryKey|. Rethrow any exceptions.
+     to a key during a transaction=] with |primaryKey| and |transaction|. Rethrow any exceptions.
 
 1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
@@ -6630,6 +6621,26 @@ NOTE:
   For example, the value `[10, 20, null, 30, 20]` is
   converted to an [=array key=] with [=subkeys=] 10, 20, 30.
 
+<div algorithm>
+
+To <dfn>convert a value to a key during a transaction</dfn> with an ECMAScript value |input| and {{IDBTransaction}}
+|transaction|, run the following steps. The result of these steps is a [=/key=], or "invalid value", or "invalid type",
+or the steps may throw an exception.
+
+1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
+
+1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+
+  NOTE:
+    The [=/transaction=] is made [=transaction/inactive=] so that getters or other side effects triggered by the cloning operation are unable to make additional requests against the transaction.
+
+1. Let |r| be the result of [=/converting a value to a key=] with |input|. Rethrow any exceptions.
+
+1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
+
+1. Return |r|.
+
+</div>
 
 <!-- ============================================================ -->
 # Privacy considerations # {#privacy}
