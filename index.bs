@@ -3010,8 +3010,7 @@ To <dfn>add or put</dfn> with |handle|, |value|, |key|, and |no-overwrite flag|,
 
 1. If |key| was given, then:
 
-    1. Let |r| be the result of [=/converting a value to a key during a
-        transaction=] with |key| and |transaction|. Rethrow any exceptions.
+    1. Let |r| be the result of [=/converting a value to a key=] with |key| and |transaction|. Rethrow any exceptions.
 
     1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
@@ -4511,7 +4510,7 @@ The <dfn method for=IDBCursor>continue(|key|)</dfn> method steps are:
 1. If |key| is given, then:
 
     1. Let |r| be the result of [=/converting a
-        value to a key during a transaction=] with |key| and |transaction|. Rethrow any exceptions.
+        value to a key=] with |key| and |transaction|. Rethrow any exceptions.
 
     1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
@@ -4570,14 +4569,14 @@ The <dfn method for=IDBCursor>continuePrimaryKey(|key|, |primaryKey|)</dfn> meth
     [=exception/throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
 1. Let |r| be the result of [=/converting a value to
-    a key during a transaction=] with |key| and |transaction|. Rethrow any exceptions.
+    a key=] with |key| and |transaction|. Rethrow any exceptions.
 
 1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
 1. Let |key| be |r|.
 
 1. Let |r| be the result of [=/converting a value
-     to a key during a transaction=] with |primaryKey| and |transaction|. Rethrow any exceptions.
+     to a key=] with |primaryKey| and |transaction|. Rethrow any exceptions.
 
 1. If |r| is "invalid value" or "invalid type", [=exception/throw=] a "{{DataError}}" {{DOMException}}.
 
@@ -6481,8 +6480,8 @@ The steps return an ECMAScript value.
 
 <div algorithm>
 
-To <dfn>convert a value to a key</dfn> with an ECMAScript value |input|, and an optional
-[=/set=] |seen|, run the following steps.
+To <dfn lt="recursively convert a value to a key|recursively converting a value to a key">recursively convert a value to a key</dfn>
+with an ECMAScript value |input|, and an optional [=/set=] |seen|, run the following steps.
 The result of these steps is a [=/key=], or "invalid value", or "invalid type", or the
 steps may throw an exception.
 
@@ -6549,7 +6548,7 @@ steps may throw an exception.
               1. Let |entry| be [=ECMAScript/?=] [$Get$](|input|, |index|).
 
               1. Let |key| be the result of
-                  [=/converting a value to a key=] with arguments |entry|
+                  [=/recursively converting a value to a key=] with arguments |entry|
                   and |seen|.
 
               1. [=ECMAScript/ReturnIfAbrupt=](|key|).
@@ -6623,22 +6622,34 @@ NOTE:
 
 <div algorithm>
 
-To <dfn>convert a value to a key during a transaction</dfn> with an ECMAScript value |input| and {{IDBTransaction}}
+To <dfn>convert a value to a key</dfn> with an ECMAScript value |input| and optional {{IDBTransaction}}
 |transaction|, run the following steps. The result of these steps is a [=/key=], or "invalid value", or "invalid type",
 or the steps may throw an exception.
 
-1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
+1. If |transaction| is given:
 
-1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
+    1. [=/Assert=]: |transaction|'s [=transaction/state=] is [=transaction/active=].
 
-  NOTE:
-    The [=/transaction=] is made [=transaction/inactive=] so that getters or other side effects triggered by the cloning operation are unable to make additional requests against the transaction.
+    1. Set |transaction|'s [=transaction/state=] to [=transaction/inactive=].
 
-1. Let |r| be the result of [=/converting a value to a key=] with |input|. Rethrow any exceptions.
+        NOTE:
+          The [=/transaction=] is made [=transaction/inactive=] so that getters or other side effects triggered by the cloning operation are unable to make additional requests against the transaction.
 
-1. Set |transaction|'s [=transaction/state=] to [=transaction/active=].
+1. Let |thrown| be null.
 
-1. Return |r|.
+1. Let |result| be null.
+
+1. [=Try=] the following step:
+
+    1. Let |result| be the result of [=/recursively converting a value to a key=] with |input|.
+
+1. If the above step threw, set |thrown| to the thrown error.
+
+1. If |transaction| is given, set |transaction|'s [=transaction/state=] to [=transaction/active=].
+
+1. If |thrown| is not null, re-throw |thrown|.
+
+1. Return |result|.
 
 </div>
 
